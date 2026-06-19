@@ -1,0 +1,231 @@
+// Prisma schema file for PNAP (Plataforma Nacional de Administração Penitenciária)
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// 1. NÚCLEO OPERACIONAL & INFRAESTRUTURA
+// ==========================================
+
+model DirecaoProvincial {
+  id           String                     @id @default(uuid())
+  provincia    String                     @unique // Ex: "LUANDA", "BENGUELA", "HUAMBO"
+  directorNome String
+  telefone     String?
+  instituicoes EstabelecimentoPrisional[] // Ligação com as prisões da província
+}
+
+model EstabelecimentoPrisional {
+  id                  String            @id @default(uuid())
+  nome                String            @unique // Ex: "EP Viana"
+  capacidade          Int?              // Para retrocompatibilidade
+  localizacao         String?           // Para retrocompatibilidade
+  capacidadeOficial   Int
+  limiteOperativo     Int
+  direcaoProvincialId String
+  direcaoProvincial   DirecaoProvincial @relation(fields: [direcaoProvincialId], references: [id], onDelete: Cascade)
+  pavilhoes           Pavilhao[]
+  funcionarios        Funcionario[]
+  reclusos            Recluso[]
+  usuarios            Usuario[]
+}
+
+model Pavilhao {
+  id                         String                   @id @default(uuid())
+  nome                       String                   // Ex: "Pavilhão A"
+  tipoRegime                 String                   // FECHADO, ABERTO, SEMI_ABERTO
+  estabelecimentoPrisionalId String
+  estabelecimento            EstabelecimentoPrisional @relation(fields: [estabelecimentoPrisionalId], references: [id], onDelete: Cascade)
+  celas                      Cela[]
+}
+
+model Cela {
+  id          String    @id @default(uuid())
+  codigo      String    // Ex: "Bloco A1", "Cela 04"
+  capacidade  Int
+  pavilhaoId  String
+  pavilhao    Pavilhao  @relation(fields: [pavilhaoId], references: [id], onDelete: Cascade)
+  reclusos    Recluso[]
+}
+
+model Funcionario {
+  id                  String                 @id @default(uuid())
+  nip                 String                 @unique // Número de Identificação Policial/Prisional
+  nome                String
+  patente             String // Posto/Cargo
+  statusAtivo         Boolean                @default(true)
+  estabelecimentoId   String?
+  estabelecimento     EstabelecimentoPrisional? @relation(fields: [estabelecimentoId], references: [id])
+  delegacoesFeitas    DelegacaoCompetencia[] @relation("Delegante")
+  delegacoesRecebidas DelegacaoCompetencia[] @relation("Beneficiario")
+  logsAuditoria       LogSeguranca[]
+  usuario             Usuario?
+}
+
+// ==========================================
+// 2. FICHA CANÔNICA PERFEITA DO RECLUSO
+// ==========================================
+
+model Recluso {
+  id              String   @id @default(uuid())
+  nipc            String   @unique // Número de Identificação do Processo Crime
+  nomeCompleto    String
+  dataNascimento  DateTime
+  nacionalidade   String
+  documentoId     String?  @unique // Bilhete de Identidade ou Passaporte
+  fotoUrl         String?
+  nivelSeguranca  String // MINIMA, MEDIA, MAXIMA
+  statusLegal     String // PREVENTIVO, CONDENADO, RECURSO
+
+  // Localização Atual
+  estabelecimentoId String
+  estabelecimento   EstabelecimentoPrisional @relation(fields: [estabelecimentoId], references: [id])
+  celaId            String?
+  cela              Cela?                    @relation(fields: [celaId], references: [id])
+
+  // Relacionamentos com os Módulos Especializados
+  processoPenal     ProcessoPenal?
+  historicoSaude    ProntuarioMedico[]
+  programasSocial   PlanoReinsercao[]
+  logsSeguranca     LogSeguranca[]
+}
+
+// ==========================================
+// 3. MÓDULO DE SAÚDE PRISIONAL
+// ==========================================
+
+model ProntuarioMedico {
+  id               String   @id @default(uuid())
+  reclusoId        String
+  recluso          Recluso  @relation(fields: [reclusoId], references: [id], onDelete: Cascade)
+  dataAtendimento  DateTime @default(now())
+  tipoSanguineo    String?
+  diagnostico      String // Sintomas, Doenças crônicas
+  medicacaoPrescrita String?
+  alergias         String?
+  statusMental     String // Avaliação psicológica preliminar
+  medicoResponsavel String // Nome ou ID do profissional
+}
+
+// ==========================================
+// 4. MÓDULO DE REABILITAÇÃO, REEDUCAÇÃO E REINSERÇÃO
+// ==========================================
+
+model PlanoReinsercao {
+  id                String    @id @default(uuid())
+  reclusoId         String
+  recluso           Recluso   @relation(fields: [reclusoId], references: [id], onDelete: Cascade)
+  dataInicio        DateTime  @default(now())
+  dataFimPrevista   DateTime?
+  tipoAtividade     String    // ALFABETIZACAO, CURSO_TECNICO, TRABALHO_INTERNO, TERAPIA
+  descricao         String
+  frequencia        String    // DIARIA, SEMANAL
+  avaliacaoProgresso String   // EXCELENTE, BOM, REGULAR, CRITICO
+  responsavelSocial String    // Técnico encarregue do caso
+}
+
+// ==========================================
+// 5. O TÚNEL DE INTEGRAÇÃO (TRIBUNAIS, SIC, PGR, ADVOGADOS)
+// ==========================================
+
+model ProcessoPenal {
+  id                 String    @id @default(uuid())
+  reclusoId          String    @unique
+  recluso            Recluso   @relation(fields: [reclusoId], references: [id], onDelete: Cascade)
+  numeroProcessoPGR  String    @unique // Número oficial de trânsito na PGR
+  tribunalCompetente String    // Tribunal que emitiu a sentença
+  juizCausa          String
+  crimeEspecificado  String    // Artigo/Tipificação do crime
+  penaAnos           Int
+  penaMeses          Int
+  dataInicioPena     DateTime
+  dataFimPena        DateTime
+  direitoA_Advogado  Boolean   @default(true)
+  nomeAdvogado       String?
+  carteiraAdvogadoId String?   // Validação junto da Ordem dos Advogados
+}
+
+model IntegracaoExterna {
+  id           String   @id @default(uuid())
+  orgao        String   // TRIBUNAIS, SIC, PGR, PORTAL_CIDADAO
+  apiKeyHashed String   @unique // Chave de segurança para o túnel de comunicação API
+  sistemaAtivo Boolean  @default(true)
+  ultimaFronteira SincronizacaoLog[]
+}
+
+model SincronizacaoLog {
+  id           String            @id @default(uuid())
+  integracaoId String
+  integracao   IntegracaoExterna @relation(fields: [integracaoId], references: [id])
+  endpoint     String            // Ex: "/api/v1/sic/mandados"
+  acao         String            // RECEBIMENTO, ENVIO, VALIDACAO
+  dadosJson    String            // Carga útil de dados trafegados (criptografados ou estruturados)
+  sucesso      Boolean           @default(true)
+  timestamp    DateTime          @default(now())
+}
+
+// ==========================================
+// 6. DELEGAÇÃO DE COMPETÊNCIAS & AUDITORIA
+// ==========================================
+
+model DelegacaoCompetencia {
+  id             String      @id @default(uuid())
+  deleganteId    String
+  beneficiarioId String
+  delegante      Funcionario @relation("Delegante", fields: [deleganteId], references: [id])
+  beneficiario   Funcionario @relation("Beneficiario", fields: [beneficiarioId], references: [id])
+  escopo         String      // Ex: "AUTORIZAR_TRANSFERENCIA", "ASSINAR_BAIXA_MEDICA"
+  dataInicio     DateTime    @default(now())
+  dataFim        DateTime?
+  ativo          Boolean     @default(true)
+}
+
+model LogSeguranca {
+  id            String       @id @default(uuid())
+  evento        String       // LOGIN, TRANSFERENCIA, ACESSO_PRONTUARIO, INCIDENTE
+  modulo        String       // SEGURANCA, MEDICO, REINSERCAO, INTEGRACAO
+  nivelSeveridade String     // INFO, WARN, CRITICAL
+  dataHora      DateTime     @default(now())
+  funcionarioId String?
+  funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
+  reclusoId     String?
+  recluso       Recluso?     @relation(fields: [reclusoId], references: [id])
+}
+
+// ==========================================
+// 7. CONTROLE DE ACESSO & USUÁRIOS (BACKOFFICE)
+// ==========================================
+
+enum TipoUsuario {
+  SUPER_ADMIN        // Direção Central (Usuário Deus/Fundador)
+  DIRETOR_PRISAO     // Admin Local de uma unidade específica
+  OPERADOR_SEGURANCA // Guardas e Chefes de Turno
+  OPERADOR_MEDICO    // Médicos e Enfermeiros Prisionais
+  OPERADOR_SOCIAL    // Técnicos de Reinserção e Reeducação
+}
+
+model Usuario {
+  id                String                    @id @default(uuid())
+  email             String                    @unique
+  senhaHashed       String                    // Senha criptografada para login no Backoffice
+  nome              String
+  tipo              TipoUsuario               @default(OPERADOR_SEGURANCA)
+  ativo             Boolean                   @default(true)
+  
+  // Se o usuário for um funcionário cadastrado, vinculamos aqui
+  funcionarioId     String?                   @unique
+  funcionario       Funcionario?              @relation(fields: [funcionarioId], references: [id])
+
+  // Se o usuário for um Diretor de Prisão, ele fica amarrado a uma unidade específica
+  estabelecimentoId String?
+  estabelecimento   EstabelecimentoPrisional? @relation(fields: [estabelecimentoId], references: [id])
+
+  dataCriacao       DateTime                  @default(now())
+  dataAtualizacao   DateTime                  @updatedAt
+}
