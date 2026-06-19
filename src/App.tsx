@@ -1257,20 +1257,21 @@ export default function App() {
   // Custom Login & Institutional setup states
   const [isSetupDone, setIsSetupDone] = useState<boolean>(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [selectedProvince, setSelectedProvince] = useState<string>("Huambo");
-  const [selectedDir, setSelectedDir] = useState<string>("Direção Provincial do Huambo");
-  const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<string>("PRIS-HUAMBO");
+  const [selectedProvince, setSelectedProvince] = useState<string>("Nacional");
+  const [selectedDir, setSelectedDir] = useState<string>("Direção Nacional");
+  const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<string>("NACIONAL");
   const [usernameInput, setUsernameInput] = useState<string>("");
   const [passwordInput, setPasswordInput] = useState<string>("");
   const [authError, setAuthError] = useState<string | null>(null);
 
   // --- ESTRUTURA ORGÂNICA NACIONAL TREE STATE ---
   const PROVINCES_HARDCODED = useMemo(() => [
+    "Nacional",
     "Bengo", "Benguela", "Bié", "Cabinda", "Cuando", "Cubango", 
     "Cuanza-Norte", "Cuanza-Sul", "Cunene", "Huambo", "Huíla", "Icolo e Bengo", 
     "Luanda", "Lunda-Norte", "Lunda-Sul", "Malanje", "Moxico", 
     "Moxico Leste", "Namibe", "Uíge", "Zaire"
-  ].sort(), []);
+  ], []);
 
   const [municipalities, setMunicipalities] = useState<Array<{ id: string; name: string; province: string }>>([
     { id: "MUN-VIANA", name: "Viana", province: "Luanda" },
@@ -1776,7 +1777,15 @@ export default function App() {
   const [organizationalUnits, setOrganizationalUnits] = useState<OrganizationalUnit[]>(() => ORGANIZATIONAL_UNITS);
 
   const [institutionalHierarchy, setInstitutionalHierarchy] = useState<LocationHierarchy>(() => {
-    const base: LocationHierarchy = {};
+    const base: LocationHierarchy = {
+      Nacional: {
+        directions: {
+          "Direção Nacional": [
+            { id: "NACIONAL", name: "Acesso Nacional (Super Admin)" }
+          ]
+        }
+      }
+    };
     [
       { name: "Cabinda", code: "CAB" },
       { name: "Zaire", code: "ZAI" },
@@ -1874,7 +1883,8 @@ export default function App() {
     })();
 
     if (!isOperatorNational && !isOperatorProvincialMatch && !isOperatorEstabMatch) {
-      setAuthError(`Erro de Autenticação Territorial (NREP-AO): Este terminal local está georreferenciado e restrito à Província do ${selectedProvince.toUpperCase()}. O utilizador '${operator.name}' pertence ao círculo de jurisdição da Província de ${operator.province ? operator.province.toUpperCase() : "outra comarca"}. Acesso Negado.`);
+      const targetContext = selectedProvince === "Nacional" ? "a Nação" : `a Província do ${selectedProvince.toUpperCase()}`;
+      setAuthError(`Erro de Autenticação Territorial (NREP-AO): Este terminal local está georreferenciado e restrito a ${targetContext}. O utilizador '${operator.name}' pertence ao círculo de jurisdição da Província de ${operator.province ? operator.province.toUpperCase() : "outra comarca"}. Acesso Negado.`);
       return;
     }
 
@@ -4470,10 +4480,13 @@ export default function App() {
                     >
                       {Object.keys(institutionalHierarchy).map((prov) => (
                         <option key={prov} value={prov}>
-                          {prov}
+                          {prov === "Nacional" ? "Nacional — Super Admin / Acesso Nacional" : prov}
                         </option>
                       ))}
                     </select>
+                    <p className="text-[10px] text-amber-300 font-mono mt-1">
+                      Selecione “Nacional” para iniciar como Super Admin / Director Geral. Este terminal será configurado para acesso nacional completo.
+                    </p>
                   </div>
 
                   {/* Direção Provincial Dropdown */}
@@ -4606,6 +4619,7 @@ export default function App() {
                     <div className="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto pr-1">
                       {operators.map((op) => {
                         const isMatchingEstablishment = op.level === "NATIONAL" || 
+                          op.role === "DIRECTOR_GERAL" ||
                           (op.level === "PROVINCIAL" && op.province === selectedProvince) ||
                           (op.level === "ESTABLISHMENT" && op.assignedPrisonId === selectedEstablishmentId);
 
@@ -4617,6 +4631,11 @@ export default function App() {
                               setUsernameInput(op.username);
                               setPasswordInput(op.senha_hash);
                               setAuthError(null);
+                              if (op.role === "DIRECTOR_GERAL") {
+                                setSelectedProvince("Nacional");
+                                setSelectedDir("Direção Nacional");
+                                setSelectedEstablishmentId("NACIONAL");
+                              }
                             }}
                             className={`p-2 text-left rounded border text-xxs flex flex-col gap-0.5 cursor-pointer transition-all ${
                               isMatchingEstablishment 

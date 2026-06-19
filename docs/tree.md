@@ -1,0 +1,50 @@
+# Projeto pnap_backend
+
+- .env
+- .env.example
+- .github
+  - workflows
+    - verify-agent-rules.yml
+- .gitignore
+- AGENT_RULES.md
+- Makefile
+- README.md
+- assets
+  - .aistudio
+    - .gitignore
+- credentials_dev_matrix.md
+- credentials_dev_matrix.smm
+- docker-compose.yml
+- docs
+  - modules
+
+  - tree.modules.json
+- index.html
+- metadata.json
+- package-lock.json
+- package.json
+- prisma
+  - schema.prisma
+  - seed.ts
+- server
+  - controllers
+    - auth.controller.ts
+    - backoffice.controller.ts
+  - middleware
+    - rbac.middleware.ts
+- server.ts
+- src
+  - App.tsx
+  - components
+    - DeusFundadorPanel.tsx
+    - HealthModule.tsx
+    - QRCodeImg.tsx
+  - data
+    - schemaData.ts
+  - index.css
+  - main.tsx
+  - types.ts
+  - utils
+    - pdfGenerator.ts
+- tsconfig.json
+- vite.config.ts

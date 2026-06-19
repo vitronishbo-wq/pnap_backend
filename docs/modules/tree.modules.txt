@@ -1,0 +1,36 @@
+# backend
+Express API, authentication, RBAC, and backoffice endpoints.
+- server.ts
+- server/controllers/auth.controller.ts
+- server/controllers/backoffice.controller.ts
+- server/middleware/rbac.middleware.ts
+
+# frontend
+Vite + React SPA UI components and client-side flows.
+- assets/.aistudio/.gitignore
+- src/App.tsx
+- src/components/DeusFundadorPanel.tsx
+- src/components/HealthModule.tsx
+- src/components/QRCodeImg.tsx
+- src/data/schemaData.ts
+- src/index.css
+- src/main.tsx
+- src/types.ts
+- src/utils/pdfGenerator.ts
+
+# database
+Prisma schema and seed data for the penitentiary domain.
+- prisma/schema.prisma
+- prisma/seed.ts
+
+# configuration
+Project configuration, environment, metadata, and build settings.
+- package.json
+- tsconfig.json
+- vite.config.ts
+- docker-compose.yml
+- README.md
+- metadata.json
+- .env
+- .env.example
+- AGENT_RULES.md

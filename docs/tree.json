@@ -1,0 +1,65 @@
+{
+  "root": "/home/dev03wsl/pnap_backend",
+  "structure": {
+    ".env": null,
+    ".env.example": null,
+    ".github": {
+      "workflows": {
+        "verify-agent-rules.yml": null
+      }
+    },
+    ".gitignore": null,
+    "AGENT_RULES.md": null,
+    "Makefile": null,
+    "README.md": null,
+    "assets": {
+      ".aistudio": {
+        ".gitignore": null
+      }
+    },
+    "credentials_dev_matrix.md": null,
+    "credentials_dev_matrix.smm": null,
+    "docker-compose.yml": null,
+    "docs": {
+      "modules": {},
+      "tree.modules.json": null
+    },
+    "index.html": null,
+    "metadata.json": null,
+    "package-lock.json": null,
+    "package.json": null,
+    "prisma": {
+      "schema.prisma": null,
+      "seed.ts": null
+    },
+    "server": {
+      "controllers": {
+        "auth.controller.ts": null,
+        "backoffice.controller.ts": null
+      },
+      "middleware": {
+        "rbac.middleware.ts": null
+      }
+    },
+    "server.ts": null,
+    "src": {
+      "App.tsx": null,
+      "components": {
+        "DeusFundadorPanel.tsx": null,
+        "HealthModule.tsx": null,
+        "QRCodeImg.tsx": null
+      },
+      "data": {
+        "schemaData.ts": null
+      },
+      "index.css": null,
+      "main.tsx": null,
+      "types.ts": null,
+      "utils": {
+        "pdfGenerator.ts": null
+      }
+    },
+    "tsconfig.json": null,
+    "vite.config.ts": null
+  }
+}
