@@ -7,6 +7,10 @@ import { createServer as createViteServer } from "vite";
 import authRouter from "./server/controllers/auth.controller";
 import backofficeRouter from "./server/controllers/backoffice.controller";
 
+// Import Middlewares
+import { authenticateJWT } from "./server/middleware/rbac.middleware";
+import { dbService } from "./server/db-service";
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -20,11 +24,30 @@ async function startServer() {
     res.json({ status: "ok", message: "PNAP-AO Backend Server up & running." });
   });
 
+  // Institutional Event Bus Routes (Database persistence for audit trail)
+  app.get("/api/events", async (req, res) => {
+    try {
+      const events = await dbService.getEvents();
+      res.json({ success: true, data: events });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post("/api/events", async (req, res) => {
+    try {
+      const saved = await dbService.saveEvent(req.body);
+      res.status(201).json({ success: true, data: saved });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
   // Authentication & Session Routes
   app.use("/api/auth", authRouter);
 
-  // Management & Safety Logs Scoped Control Routes
-  app.use("/api/backoffice", backofficeRouter);
+  // Management & Safety Logs Scoped Control Routes (Secured globally with JWT verification)
+  app.use("/api/backoffice", authenticateJWT, backofficeRouter);
 
   // Vite Development and Production Middleware Setup
   if (process.env.NODE_ENV !== "production") {

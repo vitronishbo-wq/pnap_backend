@@ -1,6 +1,6 @@
 {
   "name": "PNAP-AO",
   "description": "Plataforma Nacional de Administração Penitenciária de Angola. Gestão de reclusos, lotação, risco, documentos judiciais e ERD de arquitetura nacional.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

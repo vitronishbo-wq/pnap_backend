@@ -57,7 +57,7 @@ export default function DeusFundadorPanel({
   currentOperator
 }: DeusFundadorPanelProps) {
   const [activeSection, setActiveSection] = useState<
-    "overview" | "prisons" | "pavilions" | "blocks" | "cells" | "users" | "inmates"
+    "overview" | "prisons" | "pavilions" | "blocks" | "cells" | "users"
   >("overview");
 
   // Selection states for hierarchies
@@ -67,13 +67,6 @@ export default function DeusFundadorPanel({
 
   // Search filter
   const [searchTerm, setSearchTerm] = useState("");
-  // Inmates search state
-  const [inmateQuery, setInmateQuery] = useState("");
-  const [inmateNipc, setInmateNipc] = useState("");
-  const [inmateDocumento, setInmateDocumento] = useState("");
-  const [inmateProvinceFilter, setInmateProvinceFilter] = useState("");
-  const [inmateResults, setInmateResults] = useState<any[]>([]);
-  const [isSearchingInmates, setIsSearchingInmates] = useState(false);
 
   // Notification states
   const [notification, setNotification] = useState<{
@@ -818,36 +811,6 @@ export default function DeusFundadorPanel({
             6. Utilizadores & Operadores
           </button>
 
-          <button
-            onClick={() => {
-              setActiveSection("inmates");
-              setSearchTerm("");
-            }}
-            className={`p-3.5 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer font-sans text-xs font-bold leading-none ${
-              activeSection === "inmates"
-                ? "bg-amber-500/10 border-amber-500/60 text-amber-300 shadow-md"
-                : "bg-slate-950/60 border-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-900/60"
-            }`}
-          >
-            <Fingerprint className="h-4 w-4" />
-            7. Reclusos (Pesquisa)
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveSection("inmates");
-              setSearchTerm("");
-            }}
-            className={`p-3.5 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer font-sans text-xs font-bold leading-none ${
-              activeSection === "inmates"
-                ? "bg-amber-500/10 border-amber-500/60 text-amber-300 shadow-md"
-                : "bg-slate-950/60 border-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-900/60"
-            }`}
-          >
-            <Fingerprint className="h-4 w-4" />
-            7. Reclusos (Pesquisa)
-          </button>
-
           <div className="mt-4 p-4 rounded-xl border border-slate-850 bg-slate-950 font-mono text-[9.5px] leading-relaxed text-slate-500 flex flex-col gap-1.5">
             <span className="text-amber-500/80 font-bold uppercase tracking-wider block mb-1">Dica do Deus Fundador:</span>
             <p>
@@ -1043,116 +1006,6 @@ export default function DeusFundadorPanel({
                   </div>
                 </div>
 
-              </div>
-            </div>
-          )}
-
-          {activeSection === "inmates" && (
-            <div className="flex flex-col gap-3">
-              <div>
-                <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-1.5">
-                  <Fingerprint className="h-3.5 w-3.5 text-amber-500" /> Pesquisa de Reclusos
-                </h3>
-                <p className="text-xxs text-slate-400 mt-1 leading-relaxed">Pesquise por Matrícula, BI, Nome ou Localidade. Use filtro de Província para refinar.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                <input
-                  value={inmateQuery}
-                  onChange={(e) => setInmateQuery(e.target.value)}
-                  placeholder="Nome / Matrícula / BI / Localidade"
-                  className="bg-slate-950 border border-slate-850 p-3 rounded-lg text-xs text-slate-100 w-full"
-                />
-                <input
-                  value={inmateNipc}
-                  onChange={(e) => setInmateNipc(e.target.value)}
-                  placeholder="Matrícula (NIPC)"
-                  className="bg-slate-950 border border-slate-850 p-3 rounded-lg text-xs text-slate-100 w-full"
-                />
-                <input
-                  value={inmateDocumento}
-                  onChange={(e) => setInmateDocumento(e.target.value)}
-                  placeholder="Nº BI / Documento"
-                  className="bg-slate-950 border border-slate-850 p-3 rounded-lg text-xs text-slate-100 w-full"
-                />
-                <select
-                  value={inmateProvinceFilter}
-                  onChange={(e) => setInmateProvinceFilter(e.target.value)}
-                  className="bg-slate-950 border border-slate-850 p-3 rounded-lg text-xs text-slate-100 w-full"
-                >
-                  <option value="">Todas as Províncias</option>
-                  {provinces.map((p) => (
-                    <option key={p.code} value={p.name}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={async () => {
-                    setIsSearchingInmates(true);
-                    try {
-                      const params = new URLSearchParams();
-                      if (inmateQuery) params.set("q", inmateQuery);
-                      if (inmateNipc) params.set("nipc", inmateNipc);
-                      if (inmateDocumento) params.set("documentoId", inmateDocumento);
-                      if (inmateProvinceFilter) params.set("province", inmateProvinceFilter);
-                      const resp = await fetch(`/api/backoffice/reclusos?${params.toString()}`,
-                        { headers: { "Content-Type": "application/json" } }
-                      );
-                      if (!resp.ok) throw new Error(await resp.text());
-                      const json = await resp.json();
-                      setInmateResults(json || []);
-                    } catch (err: any) {
-                      showNotification(`Falha na pesquisa: ${err.message || err}` , "error");
-                    } finally {
-                      setIsSearchingInmates(false);
-                    }
-                  }}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold py-2 px-3 rounded-lg"
-                >
-                  {isSearchingInmates ? "A pesquisar..." : "Pesquisar"}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setInmateQuery(""); setInmateNipc(""); setInmateDocumento(""); setInmateProvinceFilter(""); setInmateResults([]);
-                  }}
-                  className="bg-slate-800 border border-slate-700 text-slate-300 text-xs py-2 px-3 rounded-lg"
-                >Limpar</button>
-              </div>
-
-              <div className="mt-3">
-                <div className="bg-slate-950 border border-slate-850 rounded-lg p-3 text-xs text-slate-300">
-                  {inmateResults.length === 0 ? (
-                    <div className="text-xxs text-slate-500">Nenhum registo encontrado.</div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-[12px]">
-                        <thead>
-                          <tr className="text-slate-400 text-[11px] uppercase">
-                            <th className="px-2 py-1">Matrícula</th>
-                            <th className="px-2 py-1">Nome</th>
-                            <th className="px-2 py-1">Nº BI</th>
-                            <th className="px-2 py-1">Estabelecimento</th>
-                            <th className="px-2 py-1">Localidade</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {inmateResults.map((r: any) => (
-                            <tr key={r.id} className="border-t border-slate-800">
-                              <td className="px-2 py-2 font-mono text-slate-200">{r.nipc || r.id}</td>
-                              <td className="px-2 py-2">{r.nomeCompleto}</td>
-                              <td className="px-2 py-2 font-mono">{r.documentoId}</td>
-                              <td className="px-2 py-2">{r.estabelecimento?.nome || "-"}</td>
-                              <td className="px-2 py-2">{r.estabelecimento?.localizacao || "-"}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           )}

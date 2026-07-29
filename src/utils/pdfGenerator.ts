@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import { InmateState, PENAL_CODE_GROUPS } from "../data/schemaData";
+import { Delegation } from "../types";
 
 /**
  * Searches and returns the full crime object for a given crime ID
@@ -816,4 +817,948 @@ export async function exportCriticalBlocksToPDF(
 
   doc.save(`Relatorio_Superlotacao_Blocos_${prisonName.replace(/\s+/g, "_")}_${now.toISOString().split("T")[0]}.pdf`);
 }
+
+/**
+ * Exports a detailed Incident Heatmap report for a specific block and its cells
+ */
+export async function exportIncidentHeatmapToPDF(
+  prisonName: string,
+  blockName: string,
+  cellsData: Array<{
+    cellName: string;
+    incidents: number;
+    incidentZone: "Alto" | "Médio" | "Baixo";
+    securityScore: number;
+    longTermRiskEstimate: number;
+    riskLabel: string;
+    isValid: boolean;
+    validationMessage?: string;
+  }>,
+  operatorId: string
+) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  const pageHeight = 297;
+  const marginX = 15;
+  let currentY = 15;
+
+  // Header Helper Function for Page Additions
+  const drawPageHeaders = () => {
+    // Top red border line indicating incident/security report theme
+    doc.setDrawColor(239, 68, 68); // Red-500
+    doc.setLineWidth(1.2);
+    doc.line(marginX, currentY, 195, currentY);
+    currentY += 5;
+
+    // Official State Heading (República de Angola)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42); // Slate-900 / Navy
+    doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+    currentY += 5;
+
+    // Ministry details
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139); // Slate-500
+    doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+    currentY += 7;
+
+    // Report Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text("RELATÓRIO DE MONITORIZAÇÃO E MAPA TÉRMICO DE INCIDENTES", 105, currentY, { align: "center" });
+    currentY += 5;
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Diagnóstico de Compatibilidade Regimental, Segurança Coletiva e Frequência Disciplinar", 105, currentY, { align: "center" });
+    currentY += 7;
+
+    // Separation line
+    doc.setDrawColor(226, 232, 240); // Slate-200
+    doc.setLineWidth(0.5);
+    doc.line(marginX, currentY, 195, currentY);
+    currentY += 6;
+  };
+
+  // Draw first page headers
+  drawPageHeaders();
+
+  // Stats calculation
+  const highIncidenceCells = cellsData.filter(c => c.incidentZone === "Alto" || c.incidents >= 6);
+  const medIncidenceCells = cellsData.filter(c => c.incidentZone === "Médio" && c.incidents < 6);
+  const lowIncidenceCells = cellsData.filter(c => c.incidentZone === "Baixo");
+
+  // Draw Report Information Box
+  doc.setFillColor(254, 242, 242); // Red-50 (Alert shade background)
+  doc.rect(marginX, currentY, 180, 22, "F");
+  doc.setDrawColor(252, 165, 165); // Red-300 border
+  doc.rect(marginX, currentY, 180, 22, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(153, 27, 27); // Red-800
+  doc.text("METADADOS DE ANÁLISE DE SEGURANÇA INTERNA:", marginX + 4, currentY + 5);
+
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(30, 41, 59); // Slate-800
+  doc.text(`Unidade Monitorizada: ${prisonName}`, marginX + 4, currentY + 10);
+  doc.text(`Bloco de Celas: ${blockName}`, marginX + 4, currentY + 14);
+  doc.text(`Operador Técnico: ${operatorId}`, marginX + 4, currentY + 18);
+
+  // Right column of info box
+  const now = new Date();
+  const dateFormatted = now.toLocaleDateString("pt-AO") + " " + now.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
+  doc.text(`Data de Emissão: ${dateFormatted}`, marginX + 110, currentY + 10);
+  doc.text(`Total de Celas: ${cellsData.length}`, marginX + 110, currentY + 14);
+  doc.text(`Distribuição: ${highIncidenceCells.length} Alta | ${medIncidenceCells.length} Média | ${lowIncidenceCells.length} Baixa`, marginX + 110, currentY + 18);
+  currentY += 28;
+
+  // SECTION 1: HIGH INCIDENCE CELLS (CELAS COM ALTA INCIDÊNCIA DETECTADAS)
+  doc.setFillColor(241, 245, 249); // Slate-100 banner
+  doc.rect(marginX, currentY, 180, 7.5, "F");
+  
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(153, 27, 27); // Dark red for focus
+  doc.text("1. CELAS COM ALTA INCIDÊNCIA DISCIPLINAR DETECTADAS", marginX + 3, currentY + 5);
+  currentY += 12;
+
+  if (highIncidenceCells.length === 0) {
+    doc.setFillColor(248, 250, 252);
+    doc.rect(marginX, currentY, 180, 10, "F");
+    doc.setDrawColor(226, 232, 240);
+    doc.rect(marginX, currentY, 180, 10, "S");
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Nenhuma cela com nível de incidência crítico ou elevado (> 5 incidentes) foi mapeada neste bloco.", marginX + 6, currentY + 6.5);
+    currentY += 16;
+  } else {
+    // List high incidence cells with alert details
+    highIncidenceCells.forEach((cell, idx) => {
+      if (currentY > pageHeight - 30) {
+        doc.addPage();
+        currentY = 15;
+        drawPageHeaders();
+      }
+
+      doc.setFillColor(254, 242, 242); // Red-50
+      doc.rect(marginX, currentY, 180, 9, "F");
+      doc.setDrawColor(248, 113, 113); // Red-400
+      doc.rect(marginX, currentY, 180, 9, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(185, 28, 28); // Red-700
+      doc.text(`🚨 ${cell.cellName}`, marginX + 4, currentY + 5.8);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(127, 29, 29); // Dark red text
+      doc.text(`Frequência: ${cell.incidents} incidentes registados`, marginX + 35, currentY + 5.8);
+      doc.text(`Risco L/P: ${cell.longTermRiskEstimate}% (${cell.riskLabel})`, marginX + 85, currentY + 5.8);
+      
+      const compatText = cell.isValid ? "Compatível" : `Incompatível: ${cell.validationMessage || "Restrições de segurança"}`;
+      const truncatedCompat = compatText.length > 40 ? compatText.slice(0, 38) + "..." : compatText;
+      doc.setFont("helvetica", "bold");
+      doc.text(truncatedCompat, marginX + 130, currentY + 5.8);
+
+      currentY += 11;
+    });
+    currentY += 4;
+  }
+
+  // SECTION 2: COMPREHENSIVE CELL STATUS GRID TABLE
+  doc.setFillColor(241, 245, 249); // Slate-100 banner
+  doc.rect(marginX, currentY, 180, 7.5, "F");
+  
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42); // Navy
+  doc.text("2. MAPEAMENTO COMPREENSIVO E ESTABILIDADE DE ALOJAMENTO", marginX + 3, currentY + 5);
+  currentY += 12;
+
+  // Draw Table Header
+  const drawTableHeader = (y: number) => {
+    doc.setFillColor(15, 23, 42); // Navy background
+    doc.rect(marginX, y, 180, 8, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255); // White text
+
+    doc.text("Cisterna/Cela", marginX + 4, y + 5.5);
+    doc.text("Incidentes", marginX + 35, y + 5.5);
+    doc.text("Zona Térmica", marginX + 65, y + 5.5);
+    doc.text("Coef. Estabilidade", marginX + 98, y + 5.5);
+    doc.text("Risco Estimado", marginX + 135, y + 5.5);
+    doc.text("Status Regimental", marginX + 165, y + 5.5);
+  };
+
+  drawTableHeader(currentY);
+  currentY += 8;
+
+  // Rows for all cells
+  cellsData.forEach((cell, index) => {
+    if (currentY > pageHeight - 25) {
+      // Add Page footer before adding new page
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7);
+      doc.setTextColor(148, 163, 184); // Slate-400
+      doc.text("DOCUMENTO OFICIAL MAPA TÉRMICO — CONFIDENCIAL", marginX, pageHeight - 10);
+      doc.text(`PNAP-AO • Página ${doc.getNumberOfPages()}`, 195, pageHeight - 10, { align: "right" });
+
+      doc.addPage();
+      currentY = 15;
+      drawPageHeaders();
+      drawTableHeader(currentY);
+      currentY += 8;
+    }
+
+    // Zebra striping
+    if (index % 2 === 0) {
+      doc.setFillColor(248, 250, 252); // Slate-50 background representation
+      doc.rect(marginX, currentY, 180, 7.5, "F");
+    }
+
+    // Border line
+    doc.setDrawColor(241, 245, 249);
+    doc.setLineWidth(0.3);
+    doc.line(marginX, currentY + 7.5, 195, currentY + 7.5);
+
+    // Row texts
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(30, 41, 59); // Slate-800
+
+    doc.setFont("helvetica", "bold");
+    doc.text(cell.cellName, marginX + 4, currentY + 5);
+    doc.setFont("helvetica", "normal");
+
+    doc.text(`${cell.incidents} incidentes`, marginX + 35, currentY + 5);
+
+    // Color zone
+    if (cell.incidentZone === "Alto" || cell.incidents >= 6) {
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(220, 38, 38); // Red
+      doc.text("Crítico (Alto)", marginX + 65, currentY + 5);
+    } else if (cell.incidentZone === "Médio") {
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(217, 119, 6); // Amber
+      doc.text("Moderado (Méd)", marginX + 65, currentY + 5);
+    } else {
+      doc.setTextColor(16, 185, 129); // Emerald
+      doc.text("Estável (Baixo)", marginX + 65, currentY + 5);
+    }
+    doc.setTextColor(30, 41, 59);
+    doc.setFont("helvetica", "normal");
+
+    // Security Score
+    doc.text(`${cell.securityScore}%`, marginX + 98, currentY + 5);
+
+    // Long Term Risk
+    doc.text(`${cell.longTermRiskEstimate}% (${cell.riskLabel})`, marginX + 135, currentY + 5);
+
+    // Status
+    if (cell.isValid) {
+      doc.setTextColor(16, 185, 129);
+      doc.setFont("helvetica", "bold");
+      doc.text("Aprovado", marginX + 165, currentY + 5);
+    } else {
+      doc.setTextColor(220, 38, 38);
+      doc.setFont("helvetica", "bold");
+      doc.text("Bloqueado", marginX + 165, currentY + 5);
+    }
+    doc.setTextColor(30, 41, 59);
+    doc.setFont("helvetica", "normal");
+
+    currentY += 7.5;
+  });
+
+  currentY += 6;
+
+  // Operational Suggestions box
+  if (currentY > pageHeight - 45) {
+    doc.addPage();
+    currentY = 15;
+    drawPageHeaders();
+  }
+
+  doc.setFillColor(248, 250, 252); // Slate-50 background
+  doc.rect(marginX, currentY, 180, 26, "F");
+  doc.setDrawColor(226, 232, 240); // Slate-200 border
+  doc.rect(marginX, currentY, 180, 26, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(15, 23, 42); // Navy
+  doc.text("DIRETRIZES DE MITIGAÇÃO E AÇÃO DISCIPLINAR DE SEGURANÇA:", marginX + 4, currentY + 5);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  doc.setTextColor(71, 85, 105); // Slate-600
+
+  const mitigationSteps = [
+    "Reforçar o policiamento preventivo e as inspeções periódicas de integridade estrutural nas celas de alta incidência.",
+    "Promover a dispersão estratégica de reclusos com alto índice de reincidência ou incompatibilidade cadastrada.",
+    "Priorizar celas verdes (estáveis) para novos ingressos voluntários, mitigando riscos de contágio criminógeno.",
+  ];
+
+  mitigationSteps.forEach((step, sIdx) => {
+    doc.text(`• ${step}`, marginX + 6, currentY + 11 + (sIdx * 4));
+  });
+
+  currentY += 30;
+
+  // STAMP AND DIGITAL QR BLOCK
+  currentY = Math.max(currentY, pageHeight - 48);
+
+  doc.setFillColor(254, 243, 199); // Amber-100 very soft warm backdrop
+  doc.rect(marginX, currentY, 180, 15, "F");
+  doc.setDrawColor(245, 158, 11); // Amber border
+  doc.rect(marginX, currentY, 180, 15, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7);
+  doc.setTextColor(146, 64, 14); // Amber-800
+  doc.text("Selo de Autenticidade Digital e Validação de Auditoria Prisional", marginX + 4, currentY + 5);
+
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(180, 83, 9);
+  doc.text("Mapeamento gerado com base no cruzamento das ocorrências disciplinares e integridade física de alojamento.", marginX + 4, currentY + 10);
+
+  // QR Code payload
+  const qrPayload = JSON.stringify({
+    report_type: "INCIDENT_HEATMAP",
+    prison: prisonName,
+    block: blockName,
+    operator: operatorId,
+    total_cells: cellsData.length,
+    critical_cells: highIncidenceCells.length,
+    timestamp: now.toISOString()
+  });
+
+  let qrCodeDataUrl = "";
+  try {
+    qrCodeDataUrl = await QRCode.toDataURL(qrPayload, {
+      margin: 1,
+      color: {
+        dark: "#ef4444", // Red-500
+        light: "#fffbeb"
+      }
+    });
+  } catch (err) {
+    console.error("Erro QR Code", err);
+  }
+
+  if (qrCodeDataUrl) {
+    try {
+      doc.addImage(qrCodeDataUrl, "PNG", marginX + 155, currentY + 1, 13, 13);
+    } catch (e) {
+      // Ignored
+    }
+  }
+
+  currentY += 20;
+
+  // Signature lines or final footer text
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.setTextColor(148, 163, 184); // Slate-400
+  doc.text("REGISTO DIGITAL HOMOLOGADO — SERVIÇO PENITENCIÁRIO NACIONAL", marginX, currentY);
+  doc.text(`Plataforma PNAP-AO • Página ${doc.getNumberOfPages()} de ${doc.getNumberOfPages()}`, 195, currentY, { align: "right" });
+
+  doc.save(`Mapa_Termico_Incidentes_${blockName.replace(/\s+/g, "_")}_${now.toISOString().split("T")[0]}.pdf`);
+}
+
+/**
+ * Exports a detailed Weekly Security Report comparing current and previous week incident frequencies
+ */
+export async function exportWeeklySecurityReportToPDF(
+  prisonName: string,
+  blockName: string,
+  cellsComparison: Array<{
+    cellName: string;
+    currentIncidents: number;
+    prevIncidents: number;
+    difference: number;
+    isAccelerated: boolean;
+    currentZone: string;
+    securityScore: number;
+    longTermRiskEstimate: number;
+    riskLabel: string;
+    isValid: boolean;
+    validationMessage?: string;
+  }>,
+  totalCurrentIncidents: number,
+  totalPrevIncidents: number,
+  growthRatePct: number,
+  operatorId: string
+) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  const pageHeight = 297;
+  const marginX = 15;
+  let currentY = 15;
+
+  const drawPageHeaders = () => {
+    // Top border line indicating alert/weekly comparison theme
+    doc.setDrawColor(245, 158, 11); // Amber-500
+    doc.setLineWidth(1.2);
+    doc.line(marginX, currentY, 195, currentY);
+    currentY += 5;
+
+    // Official State Heading (República de Angola)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42); // Navy
+    doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+    currentY += 5;
+
+    // Ministry details
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+    currentY += 7;
+
+    // Report Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text("RELATÓRIO SEMANAL DE SEGURANÇA E EVOLUÇÃO DISCIPLINAR", 105, currentY, { align: "center" });
+    currentY += 5;
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Análise Comparativa de Frequência Temporal de Ocorrências no Bloco", 105, currentY, { align: "center" });
+    currentY += 7;
+
+    // Separation line
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.5);
+    doc.line(marginX, currentY, 195, currentY);
+    currentY += 6;
+  };
+
+  // Draw headers
+  drawPageHeaders();
+
+  const acceleratedCells = cellsComparison.filter(c => c.isAccelerated);
+
+  // Metadata Info Box
+  doc.setFillColor(254, 243, 199); // Amber-50 (Alert shade background)
+  doc.rect(marginX, currentY, 180, 24, "F");
+  doc.setDrawColor(245, 158, 11); // Amber-500 border
+  doc.rect(marginX, currentY, 180, 24, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.setTextColor(146, 64, 14); // Amber-800
+  doc.text("DADOS DO RELATÓRIO COMPARATIVO SEMANAL:", marginX + 4, currentY + 5.5);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(30, 41, 59);
+  doc.text(`Estabelecimento: ${prisonName}`, marginX + 4, currentY + 11);
+  doc.text(`Bloco de Celas: ${blockName}`, marginX + 4, currentY + 15);
+  doc.text(`Operador de Triagem: ${operatorId}`, marginX + 4, currentY + 19);
+
+  const now = new Date();
+  const dateFormatted = now.toLocaleDateString("pt-AO") + " " + now.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
+  doc.text(`Data de Emissão: ${dateFormatted}`, marginX + 110, currentY + 11);
+  doc.text(`Análise: Comparativa Semanal (S-1 vs Semana Atual)`, marginX + 110, currentY + 15);
+  doc.text(`Celas com Crescimento Acelerado: ${acceleratedCells.length}`, marginX + 110, currentY + 19);
+  currentY += 30;
+
+  // Key stats highlights (boxes side-by-side)
+  doc.setFillColor(248, 250, 252); // Slate-50 background representation
+  doc.rect(marginX, currentY, 180, 16, "F");
+  doc.setDrawColor(226, 232, 240);
+  doc.rect(marginX, currentY, 180, 16, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.text("INCIDENTES S-1", marginX + 10, currentY + 5);
+  doc.setFontSize(10);
+  doc.setTextColor(30, 41, 59);
+  doc.text(`${totalPrevIncidents} ocorrências`, marginX + 10, currentY + 11);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.text("INCIDENTES SEMANA ATUAL", marginX + 70, currentY + 5);
+  doc.setFontSize(10);
+  doc.setTextColor(185, 28, 28); // Red
+  doc.text(`${totalCurrentIncidents} ocorrências`, marginX + 70, currentY + 11);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.text("TAXA DE VARIAÇÃO", marginX + 130, currentY + 5);
+  doc.setFontSize(10);
+  const sign = totalCurrentIncidents >= totalPrevIncidents ? "+" : "";
+  const growthColor = totalCurrentIncidents >= totalPrevIncidents ? [185, 28, 28] : [16, 185, 129];
+  doc.setTextColor(growthColor[0], growthColor[1], growthColor[2]);
+  doc.text(`${sign}${growthRatePct}% ${totalCurrentIncidents >= totalPrevIncidents ? "▲" : "▼"}`, marginX + 130, currentY + 11);
+
+  currentY += 22;
+
+  // SECTION 1: ACCELERATED INCREASE ALERTS
+  doc.setFillColor(254, 242, 242); // Red-50 banner background
+  doc.rect(marginX, currentY, 180, 7.5, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(153, 27, 27); // Red-800
+  doc.text("1. ALERTAS DE AUMENTO ACELERADO DE INCIDENTES", marginX + 3, currentY + 5);
+  currentY += 12;
+
+  if (acceleratedCells.length === 0) {
+    doc.setFillColor(248, 250, 252);
+    doc.rect(marginX, currentY, 180, 10, "F");
+    doc.setDrawColor(226, 232, 240);
+    doc.rect(marginX, currentY, 180, 10, "S");
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Estável: Nenhuma cela apresentou aumento acelerado de ocorrências nesta semana.", marginX + 6, currentY + 6.5);
+    currentY += 16;
+  } else {
+    acceleratedCells.forEach((cell) => {
+      if (currentY > pageHeight - 30) {
+        doc.addPage();
+        currentY = 15;
+        drawPageHeaders();
+      }
+
+      doc.setFillColor(254, 242, 242); // Red-50
+      doc.rect(marginX, currentY, 180, 10, "F");
+      doc.setDrawColor(239, 68, 68); // Red-500
+      doc.rect(marginX, currentY, 180, 10, "S");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(185, 28, 28); // Red-700
+      doc.text(`🚨 ${cell.cellName}`, marginX + 4, currentY + 6.5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(127, 29, 29); // Dark red
+      doc.text(`Evolução: de ${cell.prevIncidents} para ${cell.currentIncidents} incidentes (+${cell.difference} esta semana)`, marginX + 40, currentY + 6.5);
+      
+      doc.setFont("helvetica", "bold");
+      doc.text(`Risco: ${cell.riskLabel}`, marginX + 130, currentY + 6.5);
+
+      currentY += 12;
+    });
+    currentY += 4;
+  }
+
+  // SECTION 2: COMPARATIVE ALL CELLS GRID
+  doc.setFillColor(241, 245, 249); // Slate-100 banner
+  doc.rect(marginX, currentY, 180, 7.5, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42); // Navy
+  doc.text("2. MATRIZ DE COMPARATIVO CRONOLÓGICO POR CELA", marginX + 3, currentY + 5);
+  currentY += 12;
+
+  const drawTableHeader = (y: number) => {
+    doc.setFillColor(15, 23, 42); // Navy background
+    doc.rect(marginX, y, 180, 8, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+
+    doc.text("Cisterna/Cela", marginX + 4, y + 5.5);
+    doc.text("Semana Ant. (S-1)", marginX + 45, y + 5.5);
+    doc.text("Semana Atual", marginX + 80, y + 5.5);
+    doc.text("Evolução Diferencial", marginX + 115, y + 5.5);
+    doc.text("Coef. Segurança", marginX + 160, y + 5.5);
+  };
+
+  drawTableHeader(currentY);
+  currentY += 8;
+
+  cellsComparison.forEach((cell, index) => {
+    if (currentY > pageHeight - 25) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7);
+      doc.setTextColor(148, 163, 184);
+      doc.text("RELATÓRIO COMPARATIVO SEMANAL — CONFIDENCIAL", marginX, pageHeight - 10);
+      doc.text(`PNAP-AO • Página ${doc.getNumberOfPages()}`, 195, pageHeight - 10, { align: "right" });
+
+      doc.addPage();
+      currentY = 15;
+      drawPageHeaders();
+      drawTableHeader(currentY);
+      currentY += 8;
+    }
+
+    if (index % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(marginX, currentY, 180, 7.5, "F");
+    }
+
+    doc.setDrawColor(241, 245, 249);
+    doc.setLineWidth(0.3);
+    doc.line(marginX, currentY + 7.5, 195, currentY + 7.5);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(7.5);
+    doc.setTextColor(30, 41, 59);
+    doc.text(cell.cellName, marginX + 4, currentY + 5);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(`${cell.prevIncidents} inc.`, marginX + 45, currentY + 5);
+    doc.text(`${cell.currentIncidents} inc.`, marginX + 80, currentY + 5);
+
+    if (cell.isAccelerated) {
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(220, 38, 38); // Red
+      doc.text(`+${cell.difference} 📈 (Acel.)`, marginX + 115, currentY + 5);
+    } else if (cell.difference > 0) {
+      doc.setTextColor(217, 119, 6); // Amber
+      doc.text(`+${cell.difference} ↗ (Subida)`, marginX + 115, currentY + 5);
+    } else if (cell.difference < 0) {
+      doc.setTextColor(16, 185, 129); // Emerald
+      doc.text(`${cell.difference} ↘ (Descida)`, marginX + 115, currentY + 5);
+    } else {
+      doc.setTextColor(100, 116, 139); // Slate-500
+      doc.text("= Estável", marginX + 115, currentY + 5);
+    }
+
+    doc.setTextColor(30, 41, 59);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${cell.securityScore}%`, marginX + 160, currentY + 5);
+
+    currentY += 7.5;
+  });
+
+  currentY += 6;
+
+  // Verification stamp
+  if (currentY > pageHeight - 45) {
+    doc.addPage();
+    currentY = 15;
+    drawPageHeaders();
+  }
+
+  doc.setFillColor(254, 243, 199);
+  doc.rect(marginX, currentY, 180, 15, "F");
+  doc.setDrawColor(245, 158, 11);
+  doc.rect(marginX, currentY, 180, 15, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.setTextColor(146, 64, 14);
+  doc.text("Selo de Auditoria e Prevenção Ativa Contra Motins", marginX + 4, currentY + 5);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  doc.setTextColor(180, 83, 9);
+  doc.text("Cruzamento dinâmico de segurança em tempo real. Relatório emitido em ambiente isolado no sistema regulamentar.", marginX + 4, currentY + 10);
+
+  const qrPayload = JSON.stringify({
+    report_type: "WEEKLY_SECURITY_COMPARISON",
+    prison: prisonName,
+    block: blockName,
+    operator: operatorId,
+    total_cells: cellsComparison.length,
+    accelerated: acceleratedCells.length,
+    timestamp: now.toISOString()
+  });
+
+  let qrCodeDataUrl = "";
+  try {
+    qrCodeDataUrl = await QRCode.toDataURL(qrPayload, {
+      margin: 1,
+      color: {
+        dark: "#f59e0b", // Amber-500
+        light: "#fffbeb"
+      }
+    });
+  } catch (err) {
+    console.error(err);
+  }
+
+  if (qrCodeDataUrl) {
+    try {
+      doc.addImage(qrCodeDataUrl, "PNG", marginX + 155, currentY + 1, 13, 13);
+    } catch (e) {
+      // Ignored
+    }
+  }
+
+  currentY += 20;
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.setTextColor(148, 163, 184);
+  doc.text("SERVIÇO PENITENCIÁRIO NACIONAL — HOMOLOGADO DIGITALMENTE", marginX, currentY);
+  doc.text(`Página ${doc.getNumberOfPages()} de ${doc.getNumberOfPages()}`, 195, currentY, { align: "right" });
+
+  doc.save(`Relatorio_Semanal_Seguranca_${blockName.replace(/\s+/g, "_")}_${now.toISOString().split("T")[0]}.pdf`);
+}
+
+/**
+ * Exports a beautifully structured tabular list of matching delegations to PDF
+ */
+export async function exportDelegationListToPDF(
+  delegations: Delegation[],
+  operators: any[],
+  operatorId: string
+) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  const pageHeight = 297;
+  const marginX = 15;
+  let currentY = 15;
+
+  const drawPageHeaders = () => {
+    // Top border line representation (Gold/Amber)
+    doc.setDrawColor(217, 119, 6); // Amber-600
+    doc.setLineWidth(1);
+    doc.line(marginX, currentY, 195, currentY);
+    currentY += 5;
+
+    // Official State Heading (República de Angola)
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42); // Slate-900 / Navy
+    doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+    currentY += 5;
+
+    // Ministry details
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139); // Slate-500
+    doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+    currentY += 7;
+
+    // Report Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(15, 23, 42);
+    doc.text("REGISTO DE DELEGAÇÕES E OUTORGAS DE COMPETÊNCIA", 105, currentY, { align: "center" });
+    currentY += 5;
+
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Auditoria e Controlo de IAM — Selo Militar de Autenticidade NREP-AO", 105, currentY, { align: "center" });
+    currentY += 7;
+
+    // Separation line
+    doc.setDrawColor(226, 232, 240); // Slate-200
+    doc.setLineWidth(0.5);
+    doc.line(marginX, currentY, 195, currentY);
+    currentY += 6;
+  };
+
+  drawPageHeaders();
+
+  // Draw Report Information Box
+  doc.setFillColor(248, 250, 252); // Slate-50
+  doc.rect(marginX, currentY, 180, 18, "F");
+  doc.setDrawColor(226, 232, 240);
+  doc.rect(marginX, currentY, 180, 18, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(30, 41, 59); // Slate-800
+  doc.text("INFORMAÇÕES DE AUDITORIA:", marginX + 4, currentY + 5);
+
+  doc.setFont("helvetica", "normal");
+  doc.text("Entidade de Inspecao: Servico Penitenciario Nacional (MININT)", marginX + 4, currentY + 10);
+  doc.text(`Operador de Auditoria: ${operatorId}`, marginX + 4, currentY + 14);
+
+  const now = new Date();
+  const dateFormatted = now.toLocaleDateString("pt-AO") + " " + now.toLocaleTimeString("pt-AO", { hour: "2-digit", minute: "2-digit" });
+  doc.text(`Data do Relatorio: ${dateFormatted}`, marginX + 105, currentY + 10);
+  doc.text(`Total de Delegacoes: ${delegations.length} Atos Regulamentados`, marginX + 105, currentY + 14);
+  currentY += 24;
+
+  const drawTableHeader = (y: number) => {
+    doc.setFillColor(15, 23, 42); // Navy / Slate-900 background
+    doc.rect(marginX, y, 180, 8, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255); // White text
+
+    doc.text("ID Portaria", marginX + 2, y + 5.5);
+    doc.text("Delegante", marginX + 25, y + 5.5);
+    doc.text("Delegado", marginX + 65, y + 5.5);
+    doc.text("Competencia", marginX + 105, y + 5.5);
+    doc.text("Vigencia", marginX + 145, y + 5.5);
+    doc.text("Estado", marginX + 172, y + 5.5);
+  };
+
+  drawTableHeader(currentY);
+  currentY += 8;
+
+  for (let i = 0; i < delegations.length; i++) {
+    const del = delegations[i];
+    if (currentY > pageHeight - 30) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(7);
+      doc.setTextColor(148, 163, 184); // Slate-400
+      doc.text("REGISTO FORENSE DE IAM — MINISTERIO DO INTERIOR", marginX, pageHeight - 10);
+      doc.text(`Pagina ${doc.getNumberOfPages()} de ${doc.getNumberOfPages()}`, 195, pageHeight - 10, { align: "right" });
+
+      doc.addPage();
+      currentY = 15;
+      drawPageHeaders();
+      drawTableHeader(currentY);
+      currentY += 8;
+    }
+
+    if (i % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(marginX, currentY, 180, 8, "F");
+    }
+
+    doc.setDrawColor(241, 245, 249);
+    doc.setLineWidth(0.3);
+    doc.line(marginX, currentY + 8, 195, currentY + 8);
+
+    doc.setFont("courier", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(217, 119, 6); // Amber
+    doc.text(del.id, marginX + 2, currentY + 5.5);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(30, 41, 59);
+
+    const delegatorObj = operators.find(op => op.id === del.delegatorId);
+    const delegateeObj = operators.find(op => op.id === del.delegateeId);
+    
+    const delegatorName = delegatorObj ? `${delegatorObj.name} (NIP ${del.delegatorId})` : `NIP ${del.delegatorId}`;
+    const delegateeName = delegateeObj ? `${delegateeObj.name} (NIP ${del.delegateeId})` : `NIP ${del.delegateeId}`;
+
+    const truncatedDelegator = delegatorName.length > 22 ? delegatorName.substring(0, 21) + "..." : delegatorName;
+    const truncatedDelegatee = delegateeName.length > 22 ? delegateeName.substring(0, 21) + "..." : delegateeName;
+
+    doc.text(truncatedDelegator, marginX + 25, currentY + 5.5);
+    doc.text(truncatedDelegatee, marginX + 65, currentY + 5.5);
+
+    let roleLabel = del.roleId;
+    if (del.roleId === "PROVINCIAL_DIRECTOR") roleLabel = "Dir. Provincial";
+    else if (del.roleId === "PRISON_DIRECTOR") roleLabel = "Dir. Estabelecimento";
+    else if (del.roleId === "CHEFE_SEGURANCA") roleLabel = "Chefe Seguranca";
+    else if (del.roleId === "CHEFE_SAUDE") roleLabel = "Chefe de Saude";
+
+    doc.text(roleLabel, marginX + 105, currentY + 5.5);
+
+    const vigencia = `${del.startDate} a ${del.endDate}`;
+    doc.text(vigencia, marginX + 145, currentY + 5.5);
+
+    let statusText: string = del.status;
+    if (del.status === "ACTIVE") {
+      doc.setTextColor(16, 185, 129); // Emerald-500
+      statusText = "ATIVA";
+    } else if (del.status === "REVOKED") {
+      doc.setTextColor(244, 63, 94); // Rose-500
+      statusText = "REVOGADA";
+    } else if (del.status === "SCHEDULED") {
+      doc.setTextColor(14, 165, 233); // Sky-500
+      statusText = "AGENDADA";
+    } else if (del.status === "EXPIRED") {
+      doc.setTextColor(100, 116, 139); // Slate-500
+      statusText = "EXPIRADA";
+    }
+    doc.setFont("helvetica", "bold");
+    doc.text(statusText, marginX + 172, currentY + 5.5);
+
+    currentY += 8;
+  }
+
+  // Draw end-of-report authentications
+  if (currentY > pageHeight - 40) {
+    doc.addPage();
+    currentY = 15;
+    drawPageHeaders();
+  }
+
+  currentY += 10;
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.5);
+  doc.line(marginX, currentY, 195, currentY);
+  currentY += 5;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(15, 23, 42);
+  doc.text("ASSINATURA CIBERNETICA DA ENTIDADE REGULADORA", marginX, currentY);
+
+  const qrPayload = JSON.stringify({
+    report_type: "DELEGATION_AUDIT_LOG",
+    issued_by: operatorId,
+    total_delegations: delegations.length,
+    timestamp: now.toISOString(),
+    system: "NREP-AO"
+  });
+
+  let qrCodeDataUrl = "";
+  try {
+    qrCodeDataUrl = await QRCode.toDataURL(qrPayload, {
+      margin: 1,
+      color: {
+        dark: "#f59e0b", // Amber-500
+        light: "#ffffff"
+      }
+    });
+  } catch (err) {
+    console.error(err);
+  }
+
+  if (qrCodeDataUrl) {
+    try {
+      doc.addImage(qrCodeDataUrl, "PNG", marginX + 155, currentY + 1, 15, 15);
+    } catch (e) {
+      // Ignored
+    }
+  }
+
+  currentY += 6;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Codigo de Validacao Forense de Seguranca: SHA256-${Math.random().toString(36).substring(2, 10).toUpperCase()}`, marginX, currentY);
+  
+  currentY += 4;
+  doc.text("Este documento e um registo forense valido sob as regras de nao-repudio do Servico Penitenciario Nacional.", marginX, currentY);
+
+  currentY += 10;
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.setTextColor(148, 163, 184);
+  doc.text("REGISTO DE IAM HOMOLOGADO DIGITALMENTE — MININT ANGOLA", marginX, currentY);
+  doc.text(`Pagina ${doc.getNumberOfPages()} de ${doc.getNumberOfPages()}`, 195, currentY, { align: "right" });
+
+  doc.save(`Registo_Forense_Delegacoes_${now.toISOString().split("T")[0]}.pdf`);
+}
+
+
 

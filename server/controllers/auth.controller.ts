@@ -1,9 +1,8 @@
 import { Request, Response, Router } from "express";
-import { PrismaClient } from "@prisma/client";
+import { dbService } from "../db-service.ts";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const prisma = new PrismaClient();
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || "PNAP_SECRET_KEY_FOR_SYSTEM_SECURITY_2026";
 
@@ -20,14 +19,8 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    // 1. Procurar o utilizador no banco de dados PNAP
-    const user = await prisma.usuario.findUnique({
-      where: { email },
-      include: {
-        funcionario: true,
-        estabelecimento: true
-      }
-    });
+    // 1. Procurar o utilizador no banco de dados PNAP via dbService
+    const user = await dbService.findUsuarioByEmail(email);
 
     if (!user) {
       res.status(401).json({ 
@@ -69,18 +62,8 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
     // Assina o token com validade de 8 horas para turnos militares
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
 
-    // Salvar Log de Auditoria do Login com sucesso
-    await prisma.logSeguranca.create({
-      data: {
-        evento: "LOGIN_ADMIN",
-        modulo: "SEGURANCA",
-        nivelSeveridade: "INFO",
-        funcionarioId: user.funcionarioId,
-        dadosJson: JSON.stringify({ ip: req.ip, origin: "Backoffice Web Portal" })
-      } as any // Usando "as any" caso haja ligeiras divergências com as tabelas pré-existentes
-    }).catch(err => {
-      console.warn("Falha silenciosa ao guardar log de segurança de login:", err);
-    });
+    // Salvar Log de Auditoria do Login com sucesso via dbService
+    await dbService.logLogin(user, req.ip || "127.0.0.1");
 
     res.status(200).json({
       message: "Autenticação efetuada com sucesso militar.",

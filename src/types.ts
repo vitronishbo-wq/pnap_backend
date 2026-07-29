@@ -58,9 +58,18 @@ export interface Delegation {
   roleId: string; // SystemRole ID being delegated
   startDate: string; // ISO date YYYY-MM-DD
   endDate: string; // ISO date YYYY-MM-DD
+  startTime?: string; // HH:MM
+  endTime?: string; // HH:MM
+  documentName?: string;
+  documentFile?: string;
+  approvalStatus?: string;
+  approvalChain?: any[];
+  delegatorSignature?: string;
+  delegateeSignature?: string;
   status: "ACTIVE" | "REVOKED" | "SCHEDULED" | "EXPIRED";
   reason: string;
   auditHash: string;
+  permissions?: string[];
   statusHistory?: {
     status: "ACTIVE" | "REVOKED" | "SCHEDULED" | "EXPIRED";
     timestamp: string;
@@ -104,6 +113,8 @@ export interface AuditRecord {
   deviceIp: string;
   securityClassification: InformationClassification;
   integrityHash: string;
+  beforeState?: any;
+  afterState?: any;
 }
 
 export interface DocumentSignature {

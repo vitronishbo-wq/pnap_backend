@@ -646,6 +646,76 @@ export interface InmateState {
   status: "ACTIVE" | "PENDING_SYNC" | "TRANSFERRED" | "RELEASED";
   documentCode: string;
   photo?: string;
+
+  // Extended registration fields
+  nickname?: string;
+  nif?: string;
+  civilStatus?: string;
+  birthPlace?: string;
+  height?: string;
+  weight?: string;
+  skinColor?: string;
+  eyeColor?: string;
+  bloodType?: string;
+  distinctiveMarks?: string;
+  scars?: string;
+  tattoos?: string;
+  physicalDisabilities?: string;
+  facialRecognitionLocked?: boolean;
+  fingerprintCount?: number;
+  spouse?: string;
+  children?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  familyAddress?: string;
+  previousAddress?: string;
+  municipality?: string;
+  province?: string;
+  phone?: string;
+  email?: string;
+  processNumber?: string;
+  court?: string;
+  judge?: string;
+  arrestDate?: string;
+  convictionDate?: string;
+  sentenceDuration?: string;
+  prisonRegime?: string;
+  expectedReleaseDate?: string;
+  hasArrestWarrant?: string;
+  hasDeliveryWarrant?: string;
+  associatedCrimes?: string;
+  criminalGroup?: string;
+  gangAffiliation?: string;
+  isRecidivist?: string;
+  escapeRisk?: string;
+  suicideRisk?: string;
+  violenceRisk?: string;
+  staffRisk?: string;
+  otherInmatesRisk?: string;
+  specialVigilanceNeeded?: string;
+  generalHealthStatus?: string;
+  chronicDiseases?: string;
+  drugDependency?: string;
+  currentMedication?: string;
+  psychiatricHistory?: string;
+  contagiousDiseases?: string;
+  medicalExamResults?: string;
+  emotionalStatus?: string;
+  observedBehavior?: string;
+  aggressiveTendency?: string;
+  suicidalTendency?: string;
+  preliminaryDiagnosis?: string;
+  psychologicalRecommendations?: string;
+  academicLevel?: string;
+  profession?: string;
+  professionalCourses?: string;
+  technicalSkills?: string;
+  workExperience?: string;
+  belongingsList?: string; // JSON representation of items
+  visitorsList?: string; // JSON representation of visitors
+  admittingOfficer?: string;
+  registrationHash?: string;
+  qrCodeValidationValue?: string;
 }
 
 export const INITIAL_INMATES: InmateState[] = [
