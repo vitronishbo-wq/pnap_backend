@@ -18581,8 +18581,8 @@ export default function App() {
                 </div>
 
               </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
         {/* TAB: AMBIENTE SANDBOX - DEVTOOLS (Point 2, 3, & 4) */}
           {activeTab === "sandbox" && (
