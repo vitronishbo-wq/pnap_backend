@@ -115,7 +115,7 @@ export default function EstablishmentDirectorDashboard({
   // 1. Resolve director's specific prison
   const directorPrisonId = currentOperator.assignedPrisonId || "PRIS-01";
   const myPrison = useMemo(() => {
-    return prisons.find(p => p.id === directorPrisonId) || prisons[0];
+    return prisons.find(p => p.id === directorPrisonId) || prisons[0] || null;
   }, [prisons, directorPrisonId]);
 
   // Clean prison name for matching in incidents database (e.g. "EP Viana" from "Estabelecimento Penitenciário de Viana")
@@ -280,6 +280,18 @@ export default function EstablishmentDirectorDashboard({
     if (!selectedPavilionId || !myPrison) return null;
     return myPrison.pavilions.find(p => p.id === selectedPavilionId);
   }, [selectedPavilionId, myPrison]);
+
+  if (!myPrison) {
+    return (
+      <div className="bg-[#05070c] border border-slate-900 rounded-xl p-8 text-center text-slate-400 font-mono text-xs flex flex-col items-center justify-center gap-3 w-full">
+        <Building className="h-10 w-10 text-amber-500/60 animate-pulse" />
+        <span className="font-bold text-slate-200">NENHUM ESTABELECIMENTO PENITENCIÁRIO REGISTADO</span>
+        <p className="max-w-md text-[11px] text-slate-400">
+          Não existe nenhum estabelecimento associado a este utilizador ou cadastrado no sistema. Crie novos estabelecimentos dinamicamente através da consola de Direção Geral.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 font-sans w-full text-left" id="director-establishment-dashboard">

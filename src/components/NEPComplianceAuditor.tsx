@@ -1215,8 +1215,7 @@ export function NEPComplianceAuditor({
               <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-mono text-xs font-bold">
                 REP.
               </div>
-              <span className="text-xs uppercase font-mono tracking-widest text-slate-400">REPÚBLICA DE ANGOLA</span>
-              <span className="text-sm font-bold uppercase tracking-wider text-slate-200">MINISTÉRIO DO INTERIOR</span>
+              <span className="text-xs uppercase font-mono tracking-widest text-slate-400">SP</span>
               <span className="text-xs uppercase font-mono tracking-wider text-amber-400">SERVIÇO PENITENCIÁRIO NACIONAL (S.P.A.)</span>
               <h1 className="text-base font-bold text-white uppercase font-mono tracking-wide mt-2">
                 AUTO DE AUDITORIA E CERTIFICAÇÃO LEGAL (DECRETO EXECUTIVO N.º 272/16)

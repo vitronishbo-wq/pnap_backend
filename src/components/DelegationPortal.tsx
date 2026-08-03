@@ -2798,8 +2798,7 @@ export default function DelegationPortal({
               {/* Document Paper Layout to print */}
               <div className="p-8 overflow-y-auto flex-1 font-serif text-slate-900 bg-white" id="printable-alvara-paper">
                 <div className="text-center flex flex-col items-center gap-2 border-b border-slate-300 pb-5">
-                  <span className="font-serif uppercase tracking-widest text-xs font-bold block">República de Angola</span>
-                  <span className="font-serif uppercase tracking-wider text-[11px] font-semibold text-slate-600 block">Ministério do Interior (MININT)</span>
+                  <span className="font-serif uppercase tracking-widest text-xs font-bold block">SP — SERVIÇO PENITENCIÁRIO</span>
                   <span className="font-serif uppercase tracking-normal text-[10.5px] text-slate-500 block">NREP-AO - Base Central de Recursos Humanos</span>
                   <div className="w-10 h-1 bg-amber-500 mt-2"></div>
                 </div>

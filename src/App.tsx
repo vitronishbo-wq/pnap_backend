@@ -81,6 +81,7 @@ import {
   Compass,
   ArrowUpRight
 } from "lucide-react";
+import { SpecialServicesModule } from "./components/SpecialServicesModule";
 
 const highlightText = (text: string, query: string) => {
   if (!query) return <span>{text}</span>;
@@ -182,7 +183,6 @@ import RiskMapDashboard from "./components/RiskMapDashboard";
 import { JsonDiffViewer } from "./components/JsonDiffViewer";
 import DelegationPortal from "./components/DelegationPortal";
 import EstablishmentDirectorDashboard from "./components/EstablishmentDirectorDashboard";
-import ServicesGatewayPanel from "./components/ServicesGatewayPanel";
 import ClusterConfigurationPanel from "./components/ClusterConfigurationPanel";
 import NationalCommandCenter from "./components/NationalCommandCenter";
 import IntelligenceCenter from "./components/IntelligenceCenter";
@@ -310,25 +310,30 @@ export const SYSTEM_ROLES: SystemRole[] = [
 ];
 
 export const ORGANIZATIONAL_UNITS: OrganizationalUnit[] = [
-  { id: "OU-MININT-DG", name: "Serviço Penitenciário Nacional - Direção Geral", level: TerritorialScope.NATIONAL },
-  
-  { id: "OU-DP-LUANDA", name: "Direção Provincial dos Serviços Penitenciários de Luanda", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Luanda" },
-  { id: "OU-PRIS-01", name: "Estabelecimento Penitenciário de Viana", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-LUANDA", prisonId: "PRIS-01" },
-  { id: "OU-PRIS-02", name: "Estabelecimento Penitenciário de Kakila", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-LUANDA", prisonId: "PRIS-02" },
-  
-  { id: "OU-DP-HUAMBO", name: "Direção Provincial dos Serviços Penitenciários do Huambo", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Huambo" },
-  { id: "OU-PRIS-HUAMBO", name: "Cadeia Central do Huambo", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-HUAMBO", prisonId: "PRIS-HUAMBO" },
-  { id: "OU-PRIS-BAILUNDO", name: "Cadeia do Bailundo", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-HUAMBO", prisonId: "PRIS-BAILUNDO" },
-  { id: "OU-PRIS-CAALA", name: "Cadeia do Caála", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-HUAMBO", prisonId: "PRIS-CAALA" },
-  
-  { id: "OU-DP-UIGE", name: "Direção Provincial dos Serviços Penitenciários do Uíge", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Uíge" },
-  { id: "OU-PRIS-03", name: "Estabelecimento Penitenciário de Sanza Pombo", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-UIGE", prisonId: "PRIS-03" },
+  // Nível Central
+  { id: "OU-MININT-DG", name: "Direção Geral", level: TerritorialScope.NATIONAL },
+  { id: "OU-MININT-DNCP", name: "Direcção Nacional de Controlo Penal", level: TerritorialScope.NATIONAL, parentId: "OU-MININT-DG" },
+  { id: "OU-MININT-DEPT", name: "Departamentos da Direcção Nacional", level: TerritorialScope.NATIONAL, parentId: "OU-MININT-DNCP" },
 
-  { id: "OU-DP-BENGUELA", name: "Direção Provincial dos Serviços Penitenciários de Benguela", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Benguela" },
-  { id: "OU-PRIS-BEN-01", name: "Cadeia Central de Benguela", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-BENGUELA", prisonId: "PRIS-BEN-01" },
-
-  { id: "OU-DP-HUILA", name: "Direção Provincial dos Serviços Penitenciários da Huíla", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Huíla" },
-  { id: "OU-PRIS-HUI-01", name: "Cadeia Central do Lubango", level: TerritorialScope.ESTABLISHMENT, parentId: "OU-DP-HUILA", prisonId: "PRIS-HUI-01" }
+  // Nível Provincial (SP/<Província> sem cadeias fixas - criadas dinamicamente)
+  { id: "OU-DP-LUANDA", name: "SP/Luanda", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Luanda" },
+  { id: "OU-DP-HUAMBO", name: "SP/Huambo", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Huambo" },
+  { id: "OU-DP-BENGUELA", name: "SP/Benguela", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Benguela" },
+  { id: "OU-DP-HUILA", name: "SP/Huíla", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Huíla" },
+  { id: "OU-DP-CABINDA", name: "SP/Cabinda", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cabinda" },
+  { id: "OU-DP-UIGE", name: "SP/Uíge", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Uíge" },
+  { id: "OU-DP-ZAIRE", name: "SP/Zaire", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Zaire" },
+  { id: "OU-DP-MALANJE", name: "SP/Malanje", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Malanje" },
+  { id: "OU-DP-BIE", name: "SP/Bié", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Bié" },
+  { id: "OU-DP-NAMIBE", name: "SP/Namibe", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Namibe" },
+  { id: "OU-DP-CUNENE", name: "SP/Cunene", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cunene" },
+  { id: "OU-DP-MOXICO", name: "SP/Moxico", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Moxico" },
+  { id: "OU-DP-LUNDA-NORTE", name: "SP/Lunda Norte", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Lunda Norte" },
+  { id: "OU-DP-LUNDA-SUL", name: "SP/Lunda Sul", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Lunda Sul" },
+  { id: "OU-DP-CUANZA-NORTE", name: "SP/Cuanza Norte", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cuanza Norte" },
+  { id: "OU-DP-CUANZA-SUL", name: "SP/Cuanza Sul", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cuanza Sul" },
+  { id: "OU-DP-BENGO", name: "SP/Bengo", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Bengo" },
+  { id: "OU-DP-CUANDO-CUBANGO", name: "SP/Cuando Cubango", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cuando Cubango" }
 ];
 
 // Helper function to Highlight query matches
@@ -1453,8 +1458,8 @@ export const getPredictiveTurnoverRate = (blockId: string, cellName: string) => 
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<"dashboard" | "centro-comando" | "centro-inteligencia" | "erd" | "admissions" | "documents" | "penal-code" | "mncp-engine" | "settings" | "movements" | "auditing" | "sandbox" | "deus-fundador" | "special-services" | "services-gateway">("dashboard");
-  const [openTabs, setOpenTabs] = useState<string[]>(["dashboard", "services-gateway"]);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "centro-comando" | "centro-inteligencia" | "erd" | "admissions" | "documents" | "penal-code" | "mncp-engine" | "settings" | "movements" | "auditing" | "sandbox" | "deus-fundador" | "special-services">("centro-comando");
+  const [openTabs, setOpenTabs] = useState<string[]>(["centro-comando"]);
 
   // --- CORE INSTITUTIONAL OS STATES ---
   const [showNEPAuditor, setShowNEPAuditor] = useState(false);
@@ -1748,11 +1753,28 @@ export default function App() {
   } | null>(null);
 
   // Unified CRUD Modal States
+  const [communes, setCommunes] = useState<Array<{ id: string; name: string; municipalityId: string }>>([
+    { id: "COM-VIANA-SEDE", name: "Viana Sede", municipalityId: "MUN-VIANA" },
+    { id: "COM-CALUMBO", name: "Calumbo", municipalityId: "MUN-VIANA" },
+    { id: "COM-ZANGO", name: "Zango", municipalityId: "MUN-VIANA" },
+    { id: "COM-KILAMBA", name: "Kilamba Kiaxi", municipalityId: "MUN-BELAS" },
+    { id: "COM-BAILUNDO-SEDE", name: "Bailundo Sede", municipalityId: "MUN-BAILUNDO" },
+    { id: "COM-CAALA-SEDE", name: "Caála Sede", municipalityId: "MUN-CAALA" }
+  ]);
+
+  const [crudHierarchyLevel, setCrudHierarchyLevel] = useState<"CELA" | "BLOCO" | "PAVILHAO" | "CADEIA" | "COMUNA" | "MUNICIPIO">("MUNICIPIO");
+  const [deusPasswordInput, setDeusPasswordInput] = useState("");
+  const [passwordErrorMsg, setPasswordErrorMsg] = useState("");
+  const [isMovBannerCollapsed, setIsMovBannerCollapsed] = useState(false);
+  const [isStructureModalCollapsed, setIsStructureModalCollapsed] = useState(false);
+
   const [isStructureCrudOpen, setIsStructureCrudOpen] = useState(false);
   const [structureCrudType, setStructureCrudType] = useState<
     "CREATE_MUNICIPALITY" | "EDIT_MUNICIPALITY" | "DELETE_MUNICIPALITY" |
+    "CREATE_COMMUNE" | "EDIT_COMMUNE" | "DELETE_COMMUNE" |
     "CREATE_PRISON" | "EDIT_PRISON" | "DELETE_PRISON" |
     "CREATE_PAVILION" | "EDIT_PAVILION" | "DELETE_PAVILION" |
+    "CREATE_BLOCK" | "EDIT_BLOCK" | "DELETE_BLOCK" |
     "CREATE_CELL" | "EDIT_CELL" | "DELETE_CELL" | null
   >(null);
 
@@ -1769,7 +1791,14 @@ export default function App() {
   const [crudParentId, setCrudParentId] = useState<string | null>(null);
   const [crudTargetId, setCrudTargetId] = useState<string | null>(null);
 
+  const resetCrudSecurityState = () => {
+    setDeusPasswordInput("");
+    setPasswordErrorMsg("");
+  };
+
   const openCreateMunicipalityModal = (provinceName: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("MUNICIPIO");
     setCrudParentId(provinceName);
     setCrudTargetId(null);
     setCrudFormName("");
@@ -1779,6 +1808,8 @@ export default function App() {
   };
 
   const openEditMunicipalityModal = (munId: string, currentName: string, province: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("MUNICIPIO");
     setCrudParentId(province);
     setCrudTargetId(munId);
     setCrudFormName(currentName);
@@ -1788,13 +1819,48 @@ export default function App() {
   };
 
   const openDeleteMunicipalityModal = (munId: string, currentName: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("MUNICIPIO");
     setCrudTargetId(munId);
     setCrudFormName(currentName);
     setStructureCrudType("DELETE_MUNICIPALITY");
     setIsStructureCrudOpen(true);
   };
 
+  const openCreateCommuneModal = (municipalityId: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("COMUNA");
+    setCrudParentId(municipalityId);
+    setCrudTargetId(null);
+    setCrudFormName("");
+    setCrudFormMunicipalityId(municipalityId);
+    setStructureCrudType("CREATE_COMMUNE");
+    setIsStructureCrudOpen(true);
+  };
+
+  const openEditCommuneModal = (communeId: string, currentName: string, munId: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("COMUNA");
+    setCrudParentId(munId);
+    setCrudTargetId(communeId);
+    setCrudFormName(currentName);
+    setCrudFormMunicipalityId(munId);
+    setStructureCrudType("EDIT_COMMUNE");
+    setIsStructureCrudOpen(true);
+  };
+
+  const openDeleteCommuneModal = (communeId: string, currentName: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("COMUNA");
+    setCrudTargetId(communeId);
+    setCrudFormName(currentName);
+    setStructureCrudType("DELETE_COMMUNE");
+    setIsStructureCrudOpen(true);
+  };
+
   const openCreatePrisonModal = (municipalityId: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("CADEIA");
     setCrudParentId(municipalityId);
     setCrudTargetId(null);
     setCrudFormName("");
@@ -1806,6 +1872,8 @@ export default function App() {
   };
 
   const openEditPrisonModal = (prisonId: string, name: string, officialCap: number, operationalCap: number, munId: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("CADEIA");
     setCrudParentId(munId);
     setCrudTargetId(prisonId);
     setCrudFormName(name);
@@ -1817,6 +1885,8 @@ export default function App() {
   };
 
   const openDeletePrisonModal = (prisonId: string, name: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("CADEIA");
     setCrudTargetId(prisonId);
     setCrudFormName(name);
     setStructureCrudType("DELETE_PRISON");
@@ -1824,6 +1894,8 @@ export default function App() {
   };
 
   const openCreatePavilionModal = (prisonId: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("PAVILHAO");
     setCrudParentId(prisonId);
     setCrudTargetId(null);
     setCrudFormName("");
@@ -1833,6 +1905,8 @@ export default function App() {
   };
 
   const openEditPavilionModal = (pavId: string, prisonId: string, currentName: string, currentRegime: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("PAVILHAO");
     setCrudParentId(prisonId);
     setCrudTargetId(pavId);
     setCrudFormName(currentName);
@@ -1842,6 +1916,8 @@ export default function App() {
   };
 
   const openDeletePavilionModal = (pavId: string, prisonId: string, currentName: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("PAVILHAO");
     setCrudParentId(prisonId);
     setCrudTargetId(pavId);
     setCrudFormName(currentName);
@@ -1849,7 +1925,19 @@ export default function App() {
     setIsStructureCrudOpen(true);
   };
 
+  const openCreateBlockModal = (pavilionId: string, prisonId: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("BLOCO");
+    setCrudParentId(pavilionId);
+    setCrudTargetId(prisonId);
+    setCrudFormName("");
+    setStructureCrudType("CREATE_BLOCK");
+    setIsStructureCrudOpen(true);
+  };
+
   const openCreateCellModal = (pavilionId: string, prisonId: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("CELA");
     setCrudParentId(pavilionId);
     setCrudTargetId(prisonId);
     setCrudFormName("");
@@ -1859,6 +1947,8 @@ export default function App() {
   };
 
   const openEditCellModal = (cellId: string, pavilionId: string, prisonId: string, cellName: string, cellCapacity: number) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("CELA");
     setCrudParentId(pavilionId);
     setCrudTargetId(cellId);
     setCrudFormProvince(prisonId);
@@ -1869,6 +1959,8 @@ export default function App() {
   };
 
   const openDeleteCellModal = (cellId: string, pavilionId: string, prisonId: string, cellName: string) => {
+    resetCrudSecurityState();
+    setCrudHierarchyLevel("CELA");
     setCrudParentId(pavilionId);
     setCrudTargetId(cellId);
     setCrudFormProvince(prisonId);
@@ -1882,33 +1974,87 @@ export default function App() {
     if (!structureCrudType) return;
 
     const op = currentOperator || { id: "SYSTEM", name: "Operador Regional", role: "OPERADOR" };
+    const isDeusFundador = op.role === "DIRECTOR_GERAL" || 
+      op.username === "dggeral" || 
+      (op as any).isDeusFundador || 
+      op.id === "dg-01" ||
+      op.name?.toLowerCase().includes("fundador");
 
-    // CREATE MUNICIPALITY
+    // Strict Access Control: Exclusively Deus Fundador
+    if (!isDeusFundador) {
+      setPasswordErrorMsg("🔒 ACESSO EXCLUSIVO AO DEUS FUNDADOR: Operação revogada. Apenas o Diretor-Geral / Deus Fundador tem permissão para alterar a hierarquia estrutural.");
+      writeAuditLog(op, "UNAUTHORIZED_HIERARCHY_MUTATION_ATTEMPT" as any, "Infrastructure", crudTargetId || undefined, `[BLOQUEADO] Tentativa não autorizada de alteração estrutural por ${op.name} (${op.role})`);
+      return;
+    }
+
+    // Deletion Security: Password Confirmation & Traceability
+    if (structureCrudType.startsWith("DELETE")) {
+      const validPasswords = [
+        op.senha_hash,
+        "dggeral",
+        "123456",
+        "admin",
+        "SP2026",
+        (op as any)?.password
+      ].filter(Boolean);
+
+      if (!deusPasswordInput.trim() || !validPasswords.includes(deusPasswordInput.trim())) {
+        setPasswordErrorMsg("❌ AUTENTICAÇÃO FALHOU: Palavra-passe de confirmação do Deus Fundador incorreta! Eliminação revogada.");
+        writeAuditLog(op, "DEUS_FUNDADOR_DELETE_AUTH_FAILURE" as any, "Infrastructure", crudTargetId || undefined, `[SEGURANÇA] Tentativa de eliminação do nó '${crudFormName}' (ID: ${crudTargetId}) rejeitada por erro de palavra-passe.`);
+        return;
+      }
+    }
+
+    const auditStamp = `SHA256:${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
+
+    // 6- MUNICIPIO
     if (structureCrudType === "CREATE_MUNICIPALITY") {
       if (!crudFormName.trim()) return;
       const newId = `MUN-${crudFormName.toUpperCase().replace(/\s+/g, "-")}-${Date.now().toString().slice(-4)}`;
       const newMun = {
         id: newId,
         name: crudFormName.trim(),
-        province: crudFormProvince || selectedProvince || "Huambo"
+        province: crudFormProvince || selectedProvince || "Luanda"
       };
       setMunicipalities(prev => [...prev, newMun]);
-      writeAuditLog(op, "MUNICIPALITY_CREATE", "Geography", newId, `Criado município '${newMun.name}' em ${newMun.province}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Geography", newId, `[DEUS FUNDADOR] Criado Nível 6-Município '${newMun.name}' em ${newMun.province} | Seal: ${auditStamp}`);
     } 
-    // EDIT MUNICIPALITY
     else if (structureCrudType === "EDIT_MUNICIPALITY") {
       if (!crudFormName.trim() || !crudTargetId) return;
       setMunicipalities(prev => prev.map(m => m.id === crudTargetId ? { ...m, name: crudFormName.trim() } : m));
-      writeAuditLog(op, "MUNICIPALITY_UPDATE", "Geography", crudTargetId, `Editado município NIP-${crudTargetId} para '${crudFormName.trim()}'`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_UPDATE" as any, "Geography", crudTargetId, `[DEUS FUNDADOR] Editado Nível 6-Município ${crudTargetId} para '${crudFormName.trim()}' | Seal: ${auditStamp}`);
     } 
-    // DELETE MUNICIPALITY
     else if (structureCrudType === "DELETE_MUNICIPALITY") {
       if (!crudTargetId) return;
       setMunicipalities(prev => prev.filter(m => m.id !== crudTargetId));
       setPrisons(prev => prev.map(p => p.municipalityId === crudTargetId ? { ...p, municipalityId: "" } : p));
-      writeAuditLog(op, "MUNICIPALITY_DELETE", "Geography", crudTargetId, `Excluído município ID: ${crudTargetId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_DELETE" as any, "Geography", crudTargetId, `[DEUS FUNDADOR] Excluído Nível 6-Município ${crudTargetId} (${crudFormName}) | Seal: ${auditStamp}`);
     } 
-    // CREATE PRISON
+
+    // 5- COMUNA
+    else if (structureCrudType === "CREATE_COMMUNE") {
+      if (!crudFormName.trim()) return;
+      const newId = `COM-${crudFormName.toUpperCase().replace(/\s+/g, "-")}-${Date.now().toString().slice(-4)}`;
+      const newCommune = {
+        id: newId,
+        name: crudFormName.trim(),
+        municipalityId: crudFormMunicipalityId || crudParentId || "MUN-VIANA"
+      };
+      setCommunes(prev => [...prev, newCommune]);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Geography", newId, `[DEUS FUNDADOR] Criada Nível 5-Comuna '${newCommune.name}' em ${newCommune.municipalityId} | Seal: ${auditStamp}`);
+    }
+    else if (structureCrudType === "EDIT_COMMUNE") {
+      if (!crudFormName.trim() || !crudTargetId) return;
+      setCommunes(prev => prev.map(c => c.id === crudTargetId ? { ...c, name: crudFormName.trim() } : c));
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_UPDATE" as any, "Geography", crudTargetId, `[DEUS FUNDADOR] Editada Nível 5-Comuna ${crudTargetId} para '${crudFormName.trim()}' | Seal: ${auditStamp}`);
+    }
+    else if (structureCrudType === "DELETE_COMMUNE") {
+      if (!crudTargetId) return;
+      setCommunes(prev => prev.filter(c => c.id !== crudTargetId));
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_DELETE" as any, "Geography", crudTargetId, `[DEUS FUNDADOR] Excluída Nível 5-Comuna ${crudTargetId} (${crudFormName}) | Seal: ${auditStamp}`);
+    }
+
+    // 4- CADEIA (EP)
     else if (structureCrudType === "CREATE_PRISON") {
       if (!crudFormName.trim()) return;
       const newId = `PRIS-NEW-${Date.now().toString().slice(-4)}`;
@@ -1924,9 +2070,8 @@ export default function App() {
         municipalityId: crudFormMunicipalityId || crudParentId || ""
       };
       setPrisons(prev => [...prev, newPrison]);
-      writeAuditLog(op, "PRISON_CREATE", "Infrastructure", newId, `Criado estabelecimento '${newPrison.name}'`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Infrastructure", newId, `[DEUS FUNDADOR] Criada Nível 4-Cadeia (EP) '${newPrison.name}' | Seal: ${auditStamp}`);
     } 
-    // EDIT PRISON
     else if (structureCrudType === "EDIT_PRISON") {
       if (!crudFormName.trim() || !crudTargetId) return;
       setPrisons(prev => prev.map(p => p.id === crudTargetId ? {
@@ -1936,15 +2081,15 @@ export default function App() {
         operationalCapacity: Number(crudFormOperationalCapacity),
         municipalityId: crudFormMunicipalityId || p.municipalityId
       } : p));
-      writeAuditLog(op, "PRISON_UPDATE", "Infrastructure", crudTargetId, `Editado estabelecimento ID ${crudTargetId} para '${crudFormName.trim()}'`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_UPDATE" as any, "Infrastructure", crudTargetId, `[DEUS FUNDADOR] Editada Nível 4-Cadeia ID ${crudTargetId} para '${crudFormName.trim()}' | Seal: ${auditStamp}`);
     } 
-    // DELETE PRISON
     else if (structureCrudType === "DELETE_PRISON") {
       if (!crudTargetId) return;
       setPrisons(prev => prev.filter(p => p.id !== crudTargetId));
-      writeAuditLog(op, "PRISON_DELETE", "Infrastructure", crudTargetId, `Excluído estabelecimento ID ${crudTargetId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_DELETE" as any, "Infrastructure", crudTargetId, `[DEUS FUNDADOR] Excluída Nível 4-Cadeia ID ${crudTargetId} (${crudFormName}) | Seal: ${auditStamp}`);
     } 
-    // CREATE PAVILION
+
+    // 3- PAVILHAO
     else if (structureCrudType === "CREATE_PAVILION") {
       if (!crudFormName.trim() || !crudParentId) return;
       const newId = `PAV-NEW-${Date.now().toString().slice(-4)}`;
@@ -1958,9 +2103,8 @@ export default function App() {
         ...p,
         pavilions: [...(p.pavilions || []), newPav]
       } : p));
-      writeAuditLog(op, "PAVILION_CREATE", "Infrastructure", newId, `Criado pavilhão '${newPav.name}' no estabelecimento ${crudParentId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Infrastructure", newId, `[DEUS FUNDADOR] Criado Nível 3-Pavilhão '${newPav.name}' na Cadeia ${crudParentId} | Seal: ${auditStamp}`);
     } 
-    // EDIT PAVILION
     else if (structureCrudType === "EDIT_PAVILION") {
       if (!crudFormName.trim() || !crudTargetId || !crudParentId) return;
       setPrisons(prev => prev.map(p => p.id === crudParentId ? {
@@ -1971,22 +2115,43 @@ export default function App() {
           specialty_tag: crudFormRegime
         } : pav)
       } : p));
-      writeAuditLog(op, "PAVILION_UPDATE", "Infrastructure", crudTargetId, `Editado pavilhão NIP-${crudTargetId} no estabelecimento ${crudParentId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_UPDATE" as any, "Infrastructure", crudTargetId, `[DEUS FUNDADOR] Editado Nível 3-Pavilhão ${crudTargetId} na Cadeia ${crudParentId} | Seal: ${auditStamp}`);
     } 
-    // DELETE PAVILION
     else if (structureCrudType === "DELETE_PAVILION") {
       if (!crudTargetId || !crudParentId) return;
       setPrisons(prev => prev.map(p => p.id === crudParentId ? {
         ...p,
         pavilions: p.pavilions.filter(pav => pav.id !== crudTargetId)
       } : p));
-      writeAuditLog(op, "PAVILION_DELETE", "Infrastructure", crudTargetId, `Excluído pavilhão NIP-${crudTargetId} do estabelecimento ${crudParentId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_DELETE" as any, "Infrastructure", crudTargetId, `[DEUS FUNDADOR] Excluído Nível 3-Pavilhão ${crudTargetId} da Cadeia ${crudParentId} | Seal: ${auditStamp}`);
     } 
-    // CREATE CELL
-    else if (structureCrudType === "CREATE_CELL") {
-      // here crudParentId holds pavilionId, crudTargetId holds prisonId
+
+    // 2- BLOCO
+    else if (structureCrudType === "CREATE_BLOCK") {
       if (!crudFormName.trim() || !crudParentId || !crudTargetId) return;
       const newId = `BLK-NEW-${Date.now().toString().slice(-4)}`;
+      const newBlock = {
+        id: newId,
+        name: crudFormName.trim(),
+        capacity: Number(crudFormCellCapacity) * 4,
+        current: 0,
+        cellCount: 4,
+        riskLevel: "Médio"
+      };
+      setPrisons(prev => prev.map(p => p.id === crudTargetId ? {
+        ...p,
+        pavilions: p.pavilions.map(pav => pav.id === crudParentId ? {
+          ...pav,
+          blocks: [...(pav.blocks || []), newBlock]
+        } : pav)
+      } : p));
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Infrastructure", newId, `[DEUS FUNDADOR] Criado Nível 2-Bloco '${newBlock.name}' no Pavilhão ${crudParentId} | Seal: ${auditStamp}`);
+    }
+
+    // 1- CELA
+    else if (structureCrudType === "CREATE_CELL") {
+      if (!crudFormName.trim() || !crudParentId || !crudTargetId) return;
+      const newId = `CELL-NEW-${Date.now().toString().slice(-4)}`;
       const newCell = {
         id: newId,
         name: crudFormName.trim(),
@@ -2002,11 +2167,9 @@ export default function App() {
           blocks: [...(pav.blocks || []), newCell]
         } : pav)
       } : p));
-      writeAuditLog(op, "CELL_CREATE", "Infrastructure", newId, `Criada cela '${newCell.name}' no pavilhão ${crudParentId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Infrastructure", newId, `[DEUS FUNDADOR] Criada Nível 1-Cela '${newCell.name}' no Pavilhão ${crudParentId} | Seal: ${auditStamp}`);
     } 
-    // EDIT CELL
     else if (structureCrudType === "EDIT_CELL") {
-      // here crudParentId holds pavilionId, crudTargetId holds cellId, crudFormProvince holds prisonId
       if (!crudFormName.trim() || !crudTargetId || !crudParentId || !crudFormProvince) return;
       setPrisons(prev => prev.map(p => p.id === crudFormProvince ? {
         ...p,
@@ -2019,11 +2182,9 @@ export default function App() {
           } : b)
         } : pav)
       } : p));
-      writeAuditLog(op, "CELL_UPDATE", "Infrastructure", crudTargetId, `Editada cela NIP-${crudTargetId} no pavilhão ${crudParentId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_UPDATE" as any, "Infrastructure", crudTargetId, `[DEUS FUNDADOR] Editada Nível 1-Cela ${crudTargetId} para '${crudFormName.trim()}' | Seal: ${auditStamp}`);
     } 
-    // DELETE CELL
     else if (structureCrudType === "DELETE_CELL") {
-      // here crudParentId holds pavilionId, crudTargetId holds cellId, crudFormProvince holds prisonId
       if (!crudTargetId || !crudParentId || !crudFormProvince) return;
       setPrisons(prev => prev.map(p => p.id === crudFormProvince ? {
         ...p,
@@ -2032,7 +2193,7 @@ export default function App() {
           blocks: (pav.blocks || []).filter(b => b.id !== crudTargetId)
         } : pav)
       } : p));
-      writeAuditLog(op, "CELL_DELETE", "Infrastructure", crudTargetId, `Excluída cela NIP-${crudTargetId} no pavilhão ${crudParentId}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_DELETE" as any, "Infrastructure", crudTargetId, `[DEUS FUNDADOR] Excluída Nível 1-Cela ${crudTargetId} (${crudFormName}) | Seal: ${auditStamp}`);
     }
 
     // Reset and Close
@@ -2040,7 +2201,13 @@ export default function App() {
     setStructureCrudType(null);
     setCrudTargetId(null);
     setCrudParentId(null);
+    setDeusPasswordInput("");
+    setPasswordErrorMsg("");
   };
+
+  // For operational node views (collapsible panels & compact metric modals)
+  const [isProvinceSectionCollapsed, setIsProvinceSectionCollapsed] = useState<boolean>(false);
+  const [activeMetricModal, setActiveMetricModal] = useState<"MUNICIPALITIES" | "UNITS" | "OCCUPANCY" | null>(null);
 
   // For the dialogs/forms of adding structures dynamically
   const [addingStructure, setAddingStructure] = useState<{
@@ -2523,6 +2690,20 @@ export default function App() {
     };
 
     setPrisons(prev => [...prev, newPrison]);
+    
+    // Also append matching Organizational Unit dynamically under the Provincial Direction
+    const parentOU = organizationalUnits.find(u => u.province?.toLowerCase() === prov.toLowerCase()) || 
+                     organizationalUnits.find(u => u.name.includes(prov));
+    const newOU: OrganizationalUnit = {
+      id: `OU-${newId}`,
+      name: newPrison.name,
+      level: TerritorialScope.ESTABLISHMENT,
+      parentId: parentOU ? parentOU.id : "OU-MININT-DG",
+      prisonId: newId,
+      province: prov
+    };
+    setOrganizationalUnits(prev => [...prev, newOU]);
+
     setNewPrisonForm({ name: "", officialCapacity: 500, operationalCapacity: 600 });
     setAddingStructure(null);
     setSelectedHierNode({ type: "PRISON", id: newId, name: newPrison.name });
@@ -4276,6 +4457,15 @@ export default function App() {
   const [bgSyncLogs, setBgSyncLogs] = useState<string[]>([
     "Módulo de Sincronismo em Segundo Plano VSAT carregado com chaves da rede central."
   ]);
+
+  // Collapsible panels states for Admission view & Allocation module
+  const [isSyncQueueExpanded, setIsSyncQueueExpanded] = useState<boolean>(false);
+  const [isVsatExpanded, setIsVsatExpanded] = useState<boolean>(false);
+  const [isRecentInmatesExpanded, setIsRecentInmatesExpanded] = useState<boolean>(true);
+  const [isB2OptimizationExpanded, setIsB2OptimizationExpanded] = useState<boolean>(false);
+  const [isDynamicRiskWeightsExpanded, setIsDynamicRiskWeightsExpanded] = useState<boolean>(false);
+  const [isIncidentThresholdsExpanded, setIsIncidentThresholdsExpanded] = useState<boolean>(false);
+  const [isOvercrowdingConfigExpanded, setIsOvercrowdingConfigExpanded] = useState<boolean>(false);
 
   // Chart Data States (with real-time temporal reactivity)
   const [admissionsTrendData, setAdmissionsTrendData] = useState([
@@ -6652,8 +6842,6 @@ export default function App() {
   // Dynamic Breadcrumb Generator for the IOS Architecture
   const getBreadcrumbPath = () => {
     const path: Array<{ label: string; type: string; node?: any }> = [
-      { label: "REPÚBLICA DE ANGOLA", type: "TAB" },
-      { label: "MINISTÉRIO DO INTERIOR", type: "TAB" },
       { label: "SERVIÇO PENITENCIÁRIO", type: "TAB" }
     ];
 
@@ -6744,8 +6932,7 @@ export default function App() {
         path.push({ label: selectedHierNode.name.toUpperCase(), type: "OTHER" });
       }
     } else {
-      const tabName = activeTab === "dashboard" ? "PAINEL EXECUTIVO" :
-                      activeTab === "centro-comando" ? "CENTRO DE COMANDO" :
+      const tabName = activeTab === "centro-comando" ? "CENTRO DE COMANDO" :
                       activeTab === "centro-inteligencia" ? "INTELIGÊNCIA PENITENCIÁRIA" :
                       activeTab === "deus-fundador" ? "DIREÇÃO GERAL" :
                       activeTab === "admissions" ? "CADASTRO & ADMISSÕES" :
@@ -7746,7 +7933,7 @@ export default function App() {
           {/* Official Footer Text matching image */}
           <div className="mt-4 text-center flex flex-col items-center gap-0.5 font-mono text-[9px] text-slate-400 opacity-90">
             <span className="tracking-widest uppercase font-bold text-slate-400">
-              MININT SISP • SISTEMA PRIVADO DO ESTADO DE ANGOLA
+              SP • SISTEMA PRIVADO PENITENCIÁRIO
             </span>
             <span className="text-slate-400 text-[8.5px] uppercase tracking-wider">
               🔒 ACESSO RESTRITO SOB TERMOS DA AMEP AO MILITAR E PENAL
@@ -7992,11 +8179,9 @@ export default function App() {
             ) : (
               <>
                 <span className="text-amber-500 font-bold">
-                  {activeTab === "dashboard" ? "Lotação & Risco" :
-                   activeTab === "centro-comando" ? "Centro de Comando" :
+                  {activeTab === "centro-comando" ? "Centro de Comando" :
                    activeTab === "centro-inteligencia" ? "Inteligência" :
                    activeTab === "auditing" ? "Auditoria Central" :
-                   activeTab === "services-gateway" ? "Gateway de Serviços" :
                    activeTab === "deus-fundador" ? "Direção Geral" :
                    activeTab === "admissions" ? "Admissão & Cadastro" :
                    activeTab === "movements" ? "Movimentações" :
@@ -8092,16 +8277,9 @@ export default function App() {
 
           {/* User Profile Info Badge */}
           <div className="flex items-center gap-2">
-            <div 
-              onClick={() => setActiveTab("settings")}
-              className="flex flex-col text-right cursor-pointer hover:opacity-80"
-              title="Ajustes de Perfil / Simulador"
-            >
-              <span className="text-[10px] font-bold text-slate-200 leading-none">{currentOperator.name}</span>
-              <span className="text-[8px] font-mono text-amber-500 leading-none mt-0.5">{currentOperator.roleName}</span>
-            </div>
-            <div className="h-6 w-6 rounded bg-[#040609] border border-slate-800 flex items-center justify-center font-mono text-[9px] font-black text-amber-500 shrink-0">
-              {currentOperator.level}
+            <div className="h-7 px-2 rounded bg-[#040609] border border-slate-800 flex items-center justify-center font-mono text-[10px] font-bold text-slate-300 shrink-0" title={`${currentOperator.name} - ${currentOperator.roleName}`}>
+              <Users className="h-3 w-3 text-amber-500 mr-1.5" />
+              <span>{currentOperator.username}</span>
             </div>
           </div>
 
@@ -8127,23 +8305,6 @@ export default function App() {
         {/* A. ACTIVITY BAR (VS CODE LAYOUT FAR LEFT) */}
         <aside className="w-12 bg-[#090b0f] border-r border-slate-900 flex flex-col items-center justify-between py-4 select-none shrink-0">
           <div className="flex flex-col gap-4 items-center w-full">
-            {/* National Operations Node */}
-            <button
-              onClick={() => {
-                setActiveTab("dashboard");
-                setSelectedHierNode(null);
-              }}
-              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
-                activeTab === "dashboard" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
-              }`}
-              title="Painel de Lotação & Risco"
-            >
-              <Building className="h-5 w-5" />
-              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Painel Nacional (Lotação & Risco)
-              </span>
-            </button>
-
             {/* Commmando & Intelligence Center */}
             <button
               onClick={() => {
@@ -8410,24 +8571,6 @@ export default function App() {
                       <span className="text-[10px] font-mono font-bold truncate">Controlo Penal</span>
                     </button>
 
-                    {/* Saúde */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("dashboard");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "dashboard" && !selectedHierNode && !currentMission
-                          ? "bg-red-500/20 border-red-500/60 text-red-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Saúde Penitenciária"
-                    >
-                      <Stethoscope className="h-3.5 w-3.5 text-red-400 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">Saúde</span>
-                    </button>
-
                     {/* Reinserção */}
                     <button
                       onClick={() => {
@@ -8444,24 +8587,6 @@ export default function App() {
                     >
                       <UserCheck className="h-3.5 w-3.5 text-teal-400 shrink-0" />
                       <span className="text-[10px] font-mono font-bold truncate">Reinserção</span>
-                    </button>
-
-                    {/* Produção */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("services-gateway");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "services-gateway" && !selectedHierNode && !currentMission
-                          ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Produção & Logística"
-                    >
-                      <Server className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">Produção</span>
                     </button>
 
                     {/* SIEM */}
@@ -8845,7 +8970,6 @@ export default function App() {
               </button>
 
               {[
-                { tab: "dashboard", label: "Lotação & Risco", icon: File, color: "text-amber-500" },
                 { tab: "centro-comando", label: "Centro de Comando", icon: Radio, color: "text-sky-500" },
                 { tab: "centro-inteligencia", label: "Inteligência", icon: ShieldAlert, color: "text-rose-500" },
                 { tab: "admissions", label: "Admissão & Cadastro", icon: Database, color: "text-emerald-500" },
@@ -8854,7 +8978,6 @@ export default function App() {
                 { tab: "erd", label: "Esquema ERD", icon: FileCode, color: "text-emerald-450" },
                 { tab: "auditing", label: "Auditoria Central", icon: Database, color: "text-amber-500" },
                 { tab: "settings", label: "Ajustes & Config", icon: Settings, color: "text-slate-400" },
-                { tab: "services-gateway", label: "Gateway de Serviços", icon: Server, color: "text-sky-500" },
                 { tab: "deus-fundador", label: "Direção Geral", icon: Crown, color: "text-amber-500" },
                 { tab: "sandbox", label: "Dicionário Sandbox", icon: FileCode, color: "text-slate-500" },
                 { tab: "documents", label: "Guias de Trânsito", icon: FileText, color: "text-amber-600" },
@@ -9038,7 +9161,7 @@ export default function App() {
                                   CERTIFICADO DE MATRÍCULA PENAL ATIVO
                                 </span>
                                 <h3 className="text-sm font-bold text-slate-200 mt-2 font-mono uppercase">
-                                  MININT • SERVIÇO PENITENCIÁRIO DE ANGOLA
+                                  SP • SERVIÇO PENITENCIÁRIO
                                 </h3>
                                 <p className="text-[10px] text-slate-500 mt-0.5">GUIA DE INGRESSO Nº {admittedInmateTicket.documentCode}</p>
                               </div>
@@ -9748,17 +9871,15 @@ export default function App() {
               className="flex flex-col gap-6 bg-slate-900/40 border border-slate-800 p-6 rounded-2xl shadow-xl w-full"
             >
               {/* Control Panel Header */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-slate-900 border border-slate-800 rounded-xl gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="bg-amber-500 text-slate-950 px-2.5 py-1 rounded-md font-mono text-[10px] font-extrabold shadow-md uppercase">
-                    Soberania Penitenciária Integrada
-                  </span>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-3.5 bg-slate-900 border border-slate-800 rounded-xl gap-4">
+                <div className="flex items-center gap-2.5">
+                  <Shield className="h-4 w-4 text-amber-500 shrink-0" />
                   <div>
-                    <h2 className="text-sm font-black text-slate-200 uppercase tracking-widest font-mono">
-                      Nó Hierárquico: <span className="text-amber-500 font-sans normal-case font-bold">{selectedHierNode.name}</span>
+                    <h2 className="text-xs font-black text-slate-100 uppercase tracking-wider font-mono">
+                      {selectedHierNode.name}
                     </h2>
-                    <p className="text-[10px] text-slate-400 font-sans mt-0.5">
-                      Nível Operacional Corrente: <strong className="text-slate-300">{selectedHierNode.type}</strong>
+                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                      Nível Operacional: <strong className="text-slate-300">{selectedHierNode.type}</strong>
                     </p>
                   </div>
                 </div>
@@ -9767,7 +9888,7 @@ export default function App() {
                     setSelectedHierNode(null);
                     setAddingStructure(null);
                   }}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xxs font-extrabold uppercase font-mono px-4 py-2.5 rounded-lg cursor-pointer transition shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20"
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xxs font-extrabold uppercase font-mono px-3.5 py-2 rounded-lg cursor-pointer transition shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20"
                 >
                   {currentOperator.territorialScope === TerritorialScope.NATIONAL ? "Voltar à Visão Macro Nacional" :
                    currentOperator.territorialScope === TerritorialScope.PROVINCIAL ? `Voltar à Visão de ${currentOperator.province}` :
@@ -9903,119 +10024,144 @@ export default function App() {
 
               {/* SELECTED NODE DASHBOARD DISPLAY */}
               {selectedHierNode.type === "PROVINCE" && (
-                <div className="flex flex-col gap-6 w-full">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3 shadow-md">
-                      <span className="text-[10px] text-slate-400 uppercase font-mono tracking-wider font-bold">Estrutura de Municípios</span>
-                      <span className="text-2xl font-sans font-black text-slate-100">
-                        {municipalities.filter(m => m.province === selectedHierNode.id).length} Municípios
-                      </span>
-                      <p className="text-xxs text-amber-500 font-mono leading-relaxed mt-1">
-                        Divisão administrativa oficial com suporte para relações georreferenciadas.
-                      </p>
+                <div className="flex flex-col gap-4 w-full">
+                  {/* Compact Operational Toolbar (No paragraphs, direct action buttons & recolhível) */}
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex justify-between items-center flex-wrap gap-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        onClick={() => setActiveMetricModal("MUNICIPALITIES")}
+                        className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-mono font-bold px-3 py-2 rounded-lg transition flex items-center gap-2 cursor-pointer shadow-sm hover:border-amber-500/50"
+                      >
+                        <Building className="h-4 w-4 text-amber-500" />
+                        <span>MUNICÍPIOS</span>
+                        <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded text-[10px] font-mono">
+                          {municipalities.filter(m => m.province === selectedHierNode.id).length}
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveMetricModal("UNITS")}
+                        className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-mono font-bold px-3 py-2 rounded-lg transition flex items-center gap-2 cursor-pointer shadow-sm hover:border-blue-500/50"
+                      >
+                        <ShieldCheck className="h-4 w-4 text-blue-400" />
+                        <span>UNIDADES (EPs)</span>
+                        <span className="bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-[10px] font-mono">
+                          {(() => {
+                            const provMuns = municipalities.filter(m => m.province === selectedHierNode.id).map(m => m.id);
+                            return prisons.filter(p => provMuns.includes(p.municipalityId)).length;
+                          })()} EPs
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveMetricModal("OCCUPANCY")}
+                        className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-mono font-bold px-3 py-2 rounded-lg transition flex items-center gap-2 cursor-pointer shadow-sm hover:border-yellow-500/50"
+                      >
+                        <Users className="h-4 w-4 text-yellow-500" />
+                        <span>RECLUSOS</span>
+                        <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded text-[10px] font-mono">
+                          {(() => {
+                            const provMuns = municipalities.filter(m => m.province === selectedHierNode.id).map(m => m.id);
+                            const provPris = prisons.filter(p => provMuns.includes(p.municipalityId));
+                            const current = provPris.reduce((acc, p) => acc + p.currentOccupancy, 0);
+                            const capacity = provPris.reduce((acc, p) => acc + (p.operationalCapacity || p.officialCapacity), 0);
+                            return `${current} / ${capacity}`;
+                          })()}
+                        </span>
+                      </button>
                     </div>
 
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3 shadow-md">
-                      <span className="text-[10px] text-slate-400 uppercase font-mono tracking-wider font-bold">Unidades Operacionais</span>
-                      <span className="text-2xl font-sans font-black text-slate-100">
-                        {(() => {
-                          const provMuns = municipalities.filter(m => m.province === selectedHierNode.id).map(m => m.id);
-                          return prisons.filter(p => provMuns.includes(p.municipalityId)).length;
-                        })()} EPs Ativos
-                      </span>
-                      <p className="text-xxs text-slate-400 font-mono leading-relaxed mt-1">
-                        Sincronização de Estabelecimentos Penitenciários em tempo real.
-                      </p>
-                    </div>
-
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-3 shadow-md">
-                      <span className="text-[10px] text-slate-400 uppercase font-mono tracking-wider font-bold">Reclusos Consolidados</span>
-                      <span className="text-2xl font-sans font-black text-yellow-500">
-                        {(() => {
-                          const provMuns = municipalities.filter(m => m.province === selectedHierNode.id).map(m => m.id);
-                          const provPris = prisons.filter(p => provMuns.includes(p.municipalityId));
-                          const current = provPris.reduce((acc, p) => acc + p.currentOccupancy, 0);
-                          const capacity = provPris.reduce((acc, p) => acc + (p.operationalCapacity || p.officialCapacity), 0);
-                          return `${current} / ${capacity}`;
-                        })()}
-                      </span>
-                      <p className="text-xxs text-slate-500 font-mono mt-1">
-                        Taxa de ocupação regional baseada nos limites de proteção e segurança física.
-                      </p>
-                    </div>
+                    <button
+                      onClick={() => setIsProvinceSectionCollapsed(!isProvinceSectionCollapsed)}
+                      className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 text-xxs font-mono uppercase px-3 py-2 rounded-lg transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {isProvinceSectionCollapsed ? (
+                        <>
+                          <ChevronDown className="h-4 w-4 text-amber-500" />
+                          <span>EXPANDIR PAINEL</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronUp className="h-4 w-4 text-amber-500" />
+                          <span>RECOLHER PAINEL</span>
+                        </>
+                      )}
+                    </button>
                   </div>
 
-                  {/* Municipalities List inside Province */}
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-amber-500" /> Municípios na Província do {selectedHierNode.name}
-                      </h3>
-                      {currentOperator.role === "DIRECTOR_GERAL" && (
-                        <button 
-                          onClick={() => openCreateMunicipalityModal(selectedHierNode.id!)}
-                          className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-extrabold uppercase font-mono px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer"
-                        >
-                          <Plus className="h-3 w-3" /> Criar Município
-                        </button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {municipalities.filter(m => m.province === selectedHierNode.id).map(mun => {
-                        const munPris = prisons.filter(p => p.municipalityId === mun.id);
-                        return (
-                          <div key={mun.id} className="bg-slate-950 p-4 rounded-xl border border-slate-850 hover:border-slate-700 transition flex flex-col justify-between gap-3">
-                            <div>
-                              <div className="flex justify-between items-center">
-                                <span className="text-xs font-bold text-slate-200 font-mono">{mun.name}</span>
-                                <span className="bg-slate-900 border border-slate-800 text-[9px] text-slate-400 px-2 py-0.5 rounded font-mono">
-                                  {munPris.length} EPs
-                                </span>
+                  {/* Municipalities List inside Province (Collapsible) */}
+                  {!isProvinceSectionCollapsed && (
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
+                      <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-amber-500" /> Municípios na Província do {selectedHierNode.name}
+                        </h3>
+                        {currentOperator.role === "DIRECTOR_GERAL" && (
+                          <button 
+                            onClick={() => openCreateMunicipalityModal(selectedHierNode.id!)}
+                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-extrabold uppercase font-mono px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer"
+                          >
+                            <Plus className="h-3 w-3" /> Criar Município
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {municipalities.filter(m => m.province === selectedHierNode.id).map(mun => {
+                          const munPris = prisons.filter(p => p.municipalityId === mun.id);
+                          return (
+                            <div key={mun.id} className="bg-slate-950 p-4 rounded-xl border border-slate-850 hover:border-slate-700 transition flex flex-col justify-between gap-3">
+                              <div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs font-bold text-slate-200 font-mono">{mun.name}</span>
+                                  <span className="bg-slate-900 border border-slate-800 text-[9px] text-slate-400 px-2 py-0.5 rounded font-mono">
+                                    {munPris.length} EPs
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 font-mono mt-1">
+                                  Código: {mun.id}
+                                </p>
                               </div>
-                              <p className="text-[10px] text-slate-500 font-mono mt-1">
-                                Código: {mun.id}
-                              </p>
+                              <div className="flex gap-2 border-t border-slate-900 pt-2 mt-1">
+                                <button 
+                                  onClick={() => {
+                                    setExpandedMuns(prev => ({ ...prev, [mun.id]: true }));
+                                    setExpandedProv(prev => ({ ...prev, [selectedHierNode.id!]: true }));
+                                    setSelectedHierNode({ type: "MUNICIPALITY", id: mun.id, name: mun.name, parentId: selectedHierNode.id });
+                                  }}
+                                  className="flex-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] py-1 rounded transition text-center font-mono"
+                                >
+                                  Seleccionar
+                                </button>
+                                {currentOperator.role === "DIRECTOR_GERAL" && (
+                                  <>
+                                    <button 
+                                      onClick={() => openEditMunicipalityModal(mun.id, mun.name, selectedHierNode.id!)}
+                                      className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-amber-500 text-[10px] px-2.5 py-1 rounded transition"
+                                      title="Editar Nome do Município"
+                                    >
+                                      ✎
+                                    </button>
+                                    <button 
+                                      onClick={() => openDeleteMunicipalityModal(mun.id, mun.name)}
+                                      className="bg-slate-900 hover:bg-red-950/40 border border-slate-850 text-red-500 text-[10px] px-2.5 py-1 rounded transition"
+                                      title="Excluir Município"
+                                    >
+                                      ✕
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex gap-2 border-t border-slate-900 pt-2 mt-1">
-                              <button 
-                                onClick={() => {
-                                  setExpandedMuns(prev => ({ ...prev, [mun.id]: true }));
-                                  setExpandedProv(prev => ({ ...prev, [selectedHierNode.id!]: true }));
-                                  setSelectedHierNode({ type: "MUNICIPALITY", id: mun.id, name: mun.name, parentId: selectedHierNode.id });
-                                }}
-                                className="flex-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] py-1 rounded transition text-center"
-                              >
-                                Seleccionar
-                              </button>
-                              {currentOperator.role === "DIRECTOR_GERAL" && (
-                                <>
-                                  <button 
-                                    onClick={() => openEditMunicipalityModal(mun.id, mun.name, selectedHierNode.id!)}
-                                    className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-amber-500 text-[10px] px-2.5 py-1 rounded transition"
-                                    title="Editar Nome do Município"
-                                  >
-                                    ✎
-                                  </button>
-                                  <button 
-                                    onClick={() => openDeleteMunicipalityModal(mun.id, mun.name)}
-                                    className="bg-slate-900 hover:bg-red-950/40 border border-slate-850 text-red-500 text-[10px] px-2.5 py-1 rounded transition"
-                                    title="Excluir Município"
-                                  >
-                                    ✕
-                                  </button>
-                                </>
-                              )}
-                            </div>
+                          );
+                        })}
+                        {municipalities.filter(m => m.province === selectedHierNode.id).length === 0 && (
+                          <div className="col-span-full text-center py-6 text-slate-500 italic text-xs font-mono">
+                            Nenhum município cadastrado nesta província. Clique no botão acima para cadastrar o primeiro município.
                           </div>
-                        );
-                      })}
-                      {municipalities.filter(m => m.province === selectedHierNode.id).length === 0 && (
-                        <div className="col-span-full text-center py-6 text-slate-500 italic text-xs font-mono">
-                          Nenhum município cadastrado nesta província. Clique no botão acima para cadastrar o primeiro município.
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -10571,1920 +10717,59 @@ export default function App() {
                   <p className="text-[9px] font-mono text-slate-500 mt-1 uppercase tracking-wider">
                     Gabinete de Tecnologia e Informação do Ministério do Interior (MININT) — Luanda
                   </p>
-                  <div className="h-[1px] w-32 bg-slate-800 my-4" />
-                  <p className="text-xs text-slate-400 max-w-sm leading-relaxed mb-6">
-                    Nenhum ficheiro ativo ou consola operacional está aberta no momento. Selecione um elemento da árvore de ficheiros à esquerda para carregar o seu módulo de controlo ou telemetria.
+                  <div className="h-[1px] w-32 bg-slate-800 my-3" />
+                  <p className="text-xs text-slate-400 max-w-sm font-sans mb-4">
+                    Selecione um módulo ou elemento no menu lateral.
                   </p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md w-full">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveTab("dashboard");
-                        setSelectedHierNode(null);
-                      }}
-                      className="p-3 bg-slate-950 hover:bg-[#0d121c] border border-slate-850 hover:border-amber-500/30 rounded-xl text-left flex items-center gap-2.5 transition-all cursor-pointer group"
-                    >
-                      <File className="h-4 w-4 text-amber-500 animate-bounce" />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-slate-200 font-mono group-hover:text-amber-400 transition-colors">painel_lotação.json</span>
-                        <span className="text-xxs text-slate-500 truncate mt-0.5 font-mono">Painel de Lotação & Estatística Executiva</span>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveTab("services-gateway");
-                        setSelectedHierNode(null);
-                      }}
-                      className="p-3 bg-slate-950 hover:bg-[#0d121c] border border-slate-850 hover:border-cyan-500/30 rounded-xl text-left flex items-center gap-2.5 transition-all cursor-pointer group"
-                    >
-                      <Server className="h-4 w-4 text-sky-500" />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-slate-200 font-mono group-hover:text-cyan-400 transition-colors">gateway_servicos.conf</span>
-                        <span className="text-xxs text-slate-500 truncate mt-0.5 font-mono">PostgreSQL & Consola de Microsserviços</span>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveTab("deus-fundador");
-                        setSelectedHierNode(null);
-                      }}
-                      className="p-3 bg-slate-950 hover:bg-[#0d121c] border border-slate-850 hover:border-amber-500/30 rounded-xl text-left flex items-center gap-2.5 transition-all cursor-pointer group"
-                    >
-                      <Crown className="h-4 w-4 text-amber-500 animate-pulse" />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-slate-200 font-mono group-hover:text-amber-400 transition-colors">consola_suprema.sh</span>
-                        <span className="text-xxs text-slate-500 truncate mt-0.5 font-mono">Configuração do Sistema & Agentes</span>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveTab("settings");
-                        setSelectedHierNode(null);
-                      }}
-                      className="p-3 bg-slate-950 hover:bg-[#0d121c] border border-slate-850 hover:border-slate-500/30 rounded-xl text-left flex items-center gap-2.5 transition-all cursor-pointer group"
-                    >
-                      <Settings className="h-4 w-4 text-slate-400" />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-slate-200 font-mono group-hover:text-slate-350 transition-colors">config_simulador.ini</span>
-                        <span className="text-xxs text-slate-500 truncate mt-0.5 font-mono">Simulador de Operador & Definições</span>
-                      </div>
-                    </button>
-                  </div>
                 </div>
               )}
 
-              {/* TAB 1: DASHBOARD, LOTAÇÃO E RISCO */}
-          {activeTab === "dashboard" && currentOperator.role === "CHEFE_SAUDE" && (
-            <motion.div
-              key="dashboard-health-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-            >
-              <HealthDashboard visibleInmates={visibleInmates} prisons={visiblePrisons} />
-            </motion.div>
-          )}
-
-          {activeTab === "dashboard" && currentOperator.role === "DIRECTOR_CADEIA" && (
-            <motion.div
-              key="dashboard-local-director-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="w-full"
-            >
-              <EstablishmentDirectorDashboard
-                currentOperator={currentOperator}
-                prisons={prisons}
-                inmates={inmates}
-                disciplinaryIncidentsData={disciplinaryIncidentsData}
-                setDisciplinaryIncidentsData={setDisciplinaryIncidentsData}
-                writeAuditLog={writeAuditLog}
-              />
-            </motion.div>
-          )}
-
-          {activeTab === "dashboard" && currentOperator.role !== "CHEFE_SAUDE" && currentOperator.role !== "DIRECTOR_CADEIA" && (
-            <div className="flex flex-col gap-6 w-full text-left">
-              {/* Dashboard Sub-Tabs — Compact Toolbar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#080b11] border border-slate-900 p-2 rounded-lg font-sans">
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setDashboardSubTab("capacity")}
-                    className={`px-3 py-1.5 text-xs font-mono font-bold uppercase rounded transition-all flex items-center gap-1.5 cursor-pointer ${
-                      dashboardSubTab === "capacity"
-                        ? "bg-slate-800 text-amber-400 border border-amber-500/30 shadow-sm"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
-                    }`}
-                  >
-                    <Building className="h-3.5 w-3.5" />
-                    Ocupação
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDashboardSubTab("risk-map")}
-                    className={`px-3 py-1.5 text-xs font-mono font-bold uppercase rounded transition-all flex items-center gap-1.5 cursor-pointer ${
-                      dashboardSubTab === "risk-map"
-                        ? "bg-slate-800 text-amber-400 border border-amber-500/30 shadow-sm"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
-                    }`}
-                  >
-                    <ShieldAlert className="h-3.5 w-3.5" />
-                    Risco
-                  </button>
-                </div>
-                
-                <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
-                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>Consola Operacional</span>
-                </div>
-              </div>
-
-              {dashboardSubTab === "capacity" ? (
-                <motion.div
-                  key="dashboard-view-capacity"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-                >
-              
-              {/* Lotação Real-Time do Estabelecimento */}
-              <div className="lg:col-span-2 flex flex-col gap-4">
-                <div className="bg-[#080b11] border border-slate-900 rounded-lg p-3.5 flex flex-col gap-3">
-                  <div className="flex items-center justify-between border-b border-slate-900 pb-2.5">
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono flex items-center gap-2">
-                      <Building className="h-3.5 w-3.5 text-amber-500" />
-                      Capacidade Prisional & Operativa
-                    </h2>
-                    <span className="text-[10px] text-slate-400 font-mono font-bold">
-                      {visiblePrisons.length} Unidades
-                    </span>
-                  </div>
-
-                  {/* High-density Tactical Prison List */}
-                  <div className="flex flex-col gap-2">
-                    {visiblePrisons.map((cris) => {
-                      const occupancyRate = Math.round((cris.currentOccupancy / cris.operationalCapacity) * 100);
-                      const isOvercrowded = occupancyRate > 100;
-
-                      return (
-                        <div 
-                          key={cris.id} 
-                          className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 bg-[#05070c] border border-slate-900 rounded-lg hover:border-slate-800 transition gap-2 font-mono text-xs"
-                        >
-                          {/* 1. Nome + Estado */}
-                          <div className="sm:w-1/3 min-w-[170px]">
-                            <div className="font-bold text-slate-200 truncate text-xs">{formatEPName(cris.name)}</div>
-                            <span className={`inline-block px-1.5 py-0.5 mt-0.5 border text-[9.5px] rounded uppercase font-bold ${
-                              isOvercrowded 
-                                ? "bg-red-950/80 text-red-400 border-red-800/80" 
-                                : occupancyRate > 85 
-                                ? "bg-amber-950/80 text-amber-400 border-amber-800/80" 
-                                : "bg-emerald-950/80 text-emerald-400 border-emerald-800/80"
-                            }`}>
-                              {occupancyRate}% | {isOvercrowded ? "Sobrelotada" : "Estável"}
-                            </span>
-                          </div>
-
-                          {/* 2. Capacidade e Barra de Progresso Fina */}
-                          <div className="sm:w-1/3 px-2 flex flex-col justify-center">
-                            <div className="flex justify-between text-[10px] text-slate-400 mb-1">
-                              <span>Ocupação</span>
-                              <span className="font-bold text-slate-200">{cris.currentOccupancy} / {cris.operationalCapacity}</span>
-                            </div>
-                            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
-                              <div 
-                                className={`h-full ${isOvercrowded ? "bg-red-500" : occupancyRate > 85 ? "bg-amber-500" : "bg-emerald-500"}`} 
-                                style={{ width: `${Math.min(occupancyRate, 100)}%` }} 
-                              />
-                            </div>
-                          </div>
-
-                          {/* 3. Botões Operacionais de Ação Rápida */}
-                          <div className="flex items-center gap-1 shrink-0 flex-wrap">
-                            {cris.pavilions.map((p) => (
-                              <button
-                                key={p.id}
-                                onClick={() => {
-                                  setSelectedEstablishmentId(cris.id);
-                                }}
-                                className="px-2 py-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded border border-slate-800 transition-colors text-[9.5px] uppercase font-bold cursor-pointer"
-                              >
-                                {p.name.split(" - ")[0].replace("Pavilhão ", "Pav ")}
-                              </button>
-                            ))}
-                            <button
-                              onClick={() => setSelectedEstablishmentId(cris.id)}
-                              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 text-[9.5px] uppercase font-bold cursor-pointer"
-                            >
-                              Gerir
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Subdivisão Física e Célula de Lançamento */}
-                {(() => {
-                  const activePrisonForDetails = prisons.find(p => p.id === selectedEstablishmentId) || visiblePrisons[0] || prisons[0];
-                  
-                  // Helper to get count of confirmed bookings for a date + slot in this prison
-                  const getSlotOccupancy = (dateStr: string, slotStr: string) => {
-                    return prisonVisits.filter(v => 
-                      v.prisonId === activePrisonForDetails.id && 
-                      v.visitDate === dateStr && 
-                      v.timeSlot === slotStr &&
-                      (v.status === "Confirmado" || v.status === "Realizado")
-                    ).length;
-                  };
-
-                  const handleAddVisitSubmit = (e: React.FormEvent) => {
-                    e.preventDefault();
-                    if (!newVisitVisitorName || !newVisitVisitorDoc || !newVisitInmateId || !newVisitDate) {
-                      alert("Por favor preencha todos os campos obrigatórios.");
-                      return;
-                    }
-
-                    // Check Parlatório Capacity
-                    const currentOccupancy = getSlotOccupancy(newVisitDate, newVisitTimeSlot);
-                    if (currentOccupancy >= parlatorioCapacity) {
-                      alert(`ERRO DE CAPACIDADE: O Parlatório já atingiu a lotação limite de ${parlatorioCapacity} familiares para o horário de ${newVisitTimeSlot} em ${newVisitDate}. Por favor escolha outro horário ou dia.`);
-                      return;
-                    }
-
-                    const refInmate = inmates.find(i => i.id === newVisitInmateId);
-                    const newVisit: PrisonVisit = {
-                      id: `VIS-2026-${Math.floor(1000 + Math.random()*9000)}`,
-                      prisonId: activePrisonForDetails.id,
-                      visitorName: newVisitVisitorName,
-                      visitorDocument: newVisitVisitorDoc,
-                      inmateId: newVisitInmateId,
-                      inmateName: refInmate ? `${refInmate.firstName} ${refInmate.lastName}` : "Recluso",
-                      visitDate: newVisitDate,
-                      timeSlot: newVisitTimeSlot,
-                      status: "Confirmado"
-                    };
-
-                    setPrisonVisits(prev => [newVisit, ...prev]);
-                    
-                    // Reset form fields
-                    setNewVisitVisitorName("");
-                    setNewVisitVisitorDoc("");
-                    setNewVisitInmateId("");
-                    setNewVisitDate("");
-                    
-                    alert("Visita agendada com sucesso e vinculada à lotação do parlatório!");
-                  };
-
-                  const handleStatusChange = (vid: string, nextStatus: "Confirmado" | "Cancelado" | "Realizado") => {
-                    setPrisonVisits(prev => prev.map(v => v.id === vid ? { ...v, status: nextStatus } : v));
-                  };
-
-                  const filteredInmatesForPrison = inmates.filter(i => i.assignedPrisonId === activePrisonForDetails.id);
-
-                  return (
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 text-left">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                        <div>
-                          <div className="flex items-center gap-2 text-xxs font-mono uppercase tracking-wider text-amber-400 font-bold bg-amber-950/40 px-2 py-0.5 rounded border border-amber-500/20 w-fit">
-                            Unidade de Detalhe Prisional
-                          </div>
-                          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-100 font-sans mt-1">
-                            {activePrisonForDetails.name.replace("Estabelecimento Penitenciário de ", "EP ")}
-                          </h3>
-                        </div>
-                        
-                        {/* Sub-Tabs */}
-                        <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800 self-start sm:self-center">
-                          <button
-                            type="button"
-                            onClick={() => setDetailsSubTab("pavilions")}
-                            className={`px-3 py-1.5 font-bold text-xxs rounded transition-all cursor-pointer ${
-                              detailsSubTab === "pavilions"
-                                ? "bg-slate-850 text-amber-500"
-                                : "text-slate-400 hover:text-slate-200"
-                            }`}
-                          >
-                            🏢 Blocos & Pavilhões
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDetailsSubTab("visits")}
-                            className={`px-3 py-1.5 font-bold text-[10px] rounded transition-all cursor-pointer ${
-                              detailsSubTab === "visits"
-                                ? "bg-slate-850 text-amber-500"
-                                : "text-slate-400 hover:text-slate-200"
-                            }`}
-                          >
-                            📅 Calendário de Visitas
-                          </button>
-                        </div>
-                      </div>
-
-                      {detailsSubTab === "pavilions" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
-                          {activePrisonForDetails.pavilions.map((pav) => (
-                            <div key={pav.id} className="bg-slate-950 p-4 border border-slate-800 rounded-lg flex flex-col gap-3">
-                              <div className="flex justify-between items-center border-b border-slate-900 pb-2">
-                                <span className="text-xs font-semibold text-slate-200">{pav.name}</span>
-                                <span className="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-amber-400 font-mono border border-slate-805">
-                                  {(pav as any).specialty_tag || "Capacidade Geral"}
-                                </span>
-                              </div>
-
-                              <div className="flex flex-col gap-2.5">
-                                {pav.blocks.map(blk => {
-                                  const percent = Math.round((blk.current / blk.capacity) * 100);
-                                  return (
-                                    <div key={blk.id} className="bg-slate-900/60 p-2.5 border border-slate-800/50 rounded flex flex-col gap-1 font-mono text-xxs">
-                                      <div className="flex justify-between text-slate-300">
-                                        <span className="font-semibold text-slate-205">{blk.name}</span>
-                                        <span className="text-slate-400">({blk.current}/{blk.capacity} reclusos)</span>
-                                      </div>
-                                      <div className="w-full bg-slate-950 h-1 rounded-full overflow-hidden">
-                                        <div 
-                                          className={`h-full ${percent > 100 ? "bg-red-500 animate-pulse" : "bg-cyan-500"}`} 
-                                          style={{ width: `${Math.min(percent, 100)}%` }}
-                                        />
-                                      </div>
-                                      <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                                        <span>Tipo: {blk.riskLevel}</span>
-                                        <span className={percent > 100 ? "text-red-400 font-bold" : "text-emerald-400 font-semibold"}>{percent}% Lotação</span>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {detailsSubTab === "visits" && (
-                        <div className="space-y-4 animate-fadeIn font-sans">
-                          {/* Top Info Slot Banner */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div className="bg-slate-950 p-3 rounded-lg border border-slate-850">
-                              <span className="text-xxs text-slate-500 uppercase block font-mono">Dotação do Parlatório</span>
-                              <div className="flex items-baseline gap-1 mt-1">
-                                <span className="text-lg font-bold text-slate-100">{parlatorioCapacity}</span>
-                                <span className="text-xxs text-slate-500 font-mono">Simultâneos Máximo</span>
-                              </div>
-                            </div>
-                            <div className="bg-slate-950 p-3 rounded-lg border border-slate-850">
-                              <span className="text-xxs text-slate-500 uppercase block font-mono">Agendamentos Activos</span>
-                              <div className="flex items-baseline gap-1 mt-1">
-                                <span className="text-lg font-bold text-amber-500">
-                                  {prisonVisits.filter(v => v.prisonId === activePrisonForDetails.id && v.status === "Confirmado").length}
-                                </span>
-                                <span className="text-xxs text-slate-500">Registados</span>
-                              </div>
-                            </div>
-                            <div className="bg-slate-950 p-3 rounded-lg border border-slate-850 col-span-1">
-                              <span className="text-xxs text-slate-550 uppercase block font-mono">Garantia Prisional</span>
-                              <span className="text-[10px] flex items-center gap-1 text-emerald-400 font-medium mt-1.5">
-                                <Shield className="h-3.5 w-3.5 text-emerald-500 shrink-0 select-none" />
-                                Anti-Sobrelotação Activa
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Scheduling Layout: form + table */}
-                          <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
-                            {/* Visit Form */}
-                            <form onSubmit={handleAddVisitSubmit} className="xl:col-span-5 bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-3">
-                              <h4 className="text-xs font-bold text-amber-500 uppercase tracking-wider font-mono flex items-center gap-1.5 border-b border-slate-900 pb-2">
-                                <Plus className="h-4 w-4 text-amber-500 stroke-[3px]" />
-                                Agendar Nova Visita
-                              </h4>
-
-                              <div>
-                                <label className="text-[9px] text-slate-400 block mb-1 uppercase font-mono tracking-wider">Nome do Familiar *</label>
-                                <input
-                                  type="text"
-                                  required
-                                  value={newVisitVisitorName || ""}
-                                  onChange={(e) => setNewVisitVisitorName(e.target.value)}
-                                  placeholder="e.g. Maria Teresa Sambo"
-                                  className="w-full bg-slate-900 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none focus:border-amber-520"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="text-[9px] text-slate-400 block mb-1 uppercase font-mono tracking-wider">Documento (BI / Passport) *</label>
-                                <input
-                                  type="text"
-                                  required
-                                  value={newVisitVisitorDoc || ""}
-                                  onChange={(e) => setNewVisitVisitorDoc(e.target.value)}
-                                  placeholder="e.g. BI00293485LA043"
-                                  className="w-full bg-slate-900 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none focus:border-amber-520 font-mono"
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <div>
-                                  <label className="text-[9px] text-slate-400 block mb-1 uppercase font-mono tracking-wider">Recluso *</label>
-                                  <select
-                                    required
-                                    value={newVisitInmateId || ""}
-                                    onChange={(e) => setNewVisitInmateId(e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                  >
-                                    <option value="">-- Seleccionar --</option>
-                                    {filteredInmatesForPrison.map(i => (
-                                      <option key={i.id} value={i.id}>{i.firstName} {i.lastName}</option>
-                                    ))}
-                                  </select>
-                                </div>
-
-                                <div>
-                                  <label className="text-[9px] text-slate-400 block mb-1 uppercase font-mono tracking-wider">Data *</label>
-                                  <input
-                                    type="date"
-                                    required
-                                    value={newVisitDate || ""}
-                                    onChange={(e) => setNewVisitDate(e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none font-mono"
-                                  />
-                                </div>
-                              </div>
-
-                              <div>
-                                <label className="text-[9px] text-slate-400 block mb-1 uppercase font-mono tracking-wider">Horário *</label>
-                                <select
-                                  value={newVisitTimeSlot}
-                                  onChange={(e) => setNewVisitTimeSlot(e.target.value)}
-                                  className="w-full bg-slate-900 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none font-mono"
-                                >
-                                  <option value="09:00 - 11:00">Manhã (09:00 - 11:00)</option>
-                                  <option value="11:00 - 13:00">Meio-Dia (11:00 - 13:00)</option>
-                                  <option value="14:00 - 16:00">Tarde (14:00 - 16:00)</option>
-                                </select>
-                              </div>
-
-                              {/* Live slot occupancy feedback indicator */}
-                              {newVisitDate && (
-                                <div className="p-2 bg-slate-900 rounded border border-slate-800 flex justify-between items-center text-xxs font-mono">
-                                  <span className="text-slate-400">Ocupação do Horário:</span>
-                                  <span className={`font-bold px-1.5 py-0.5 rounded ${
-                                    getSlotOccupancy(newVisitDate, newVisitTimeSlot) >= parlatorioCapacity
-                                      ? "bg-red-500/15 text-red-400 animate-pulse"
-                                      : getSlotOccupancy(newVisitDate, newVisitTimeSlot) >= (parlatorioCapacity * 0.7)
-                                      ? "bg-amber-500/10 text-amber-400"
-                                      : "bg-emerald-500/10 text-emerald-400"
-                                  }`}>
-                                    {getSlotOccupancy(newVisitDate, newVisitTimeSlot)} / {parlatorioCapacity} slots
-                                  </span>
-                                </div>
-                              )}
-
-                              <button
-                                type="submit"
-                                className="w-full py-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 text-xs font-bold rounded transition cursor-pointer flex items-center justify-center gap-1"
-                              >
-                                <Check className="h-4 w-4 stroke-[3px]" />
-                                Registar Agendamento no Parlatório
-                              </button>
-                            </form>
-
-                            {/* Visit List Table */}
-                            <div className="xl:col-span-7 bg-slate-950 border border-slate-850 p-4 rounded-xl flex flex-col justify-between">
-                              <div className="space-y-3">
-                                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-                                  Histórico & Próximas Visitas Registadas
-                                </h4>
-                                
-                                <div className="overflow-x-auto">
-                                  <table className="w-full text-left text-xxs font-mono">
-                                    <thead>
-                                      <tr className="border-b border-slate-900 text-slate-500 uppercase pb-1 tracking-wider">
-                                        <th className="pb-2 font-semibold">Familiar (Doc)</th>
-                                        <th className="pb-2 font-semibold">Recluso Alvo</th>
-                                        <th className="pb-2 font-semibold">Data / Horário</th>
-                                        <th className="pb-2 font-semibold">Estado</th>
-                                        <th className="pb-2 font-semibold text-right">Acções</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-900">
-                                      {prisonVisits.filter(v => v.prisonId === activePrisonForDetails.id).length === 0 ? (
-                                        <tr>
-                                          <td colSpan={5} className="py-8 text-center text-slate-500 font-mono text-xxs">
-                                            Nenhum agendamento de visita registrado para este estabelecimento.
-                                          </td>
-                                        </tr>
-                                      ) : (
-                                        prisonVisits.filter(v => v.prisonId === activePrisonForDetails.id).map(visit => (
-                                          <tr key={visit.id} className="hover:bg-slate-900/40 transition">
-                                            <td className="py-2 pr-1.5 font-sans">
-                                              <div className="flex flex-col">
-                                                <span className="font-semibold text-slate-200 text-xs">{visit.visitorName}</span>
-                                                <span className="text-[10px] text-slate-500 font-mono">{visit.visitorDocument}</span>
-                                              </div>
-                                            </td>
-                                            <td className="py-2 pr-1.5 font-sans col-span-1">
-                                              <div className="flex flex-col">
-                                                <span className="text-slate-300 font-medium">{visit.inmateName}</span>
-                                                <span className="text-[9px] text-slate-550 font-mono">RNR: {visit.inmateId}</span>
-                                              </div>
-                                            </td>
-                                            <td className="py-2 pr-1.5">
-                                              <div className="flex flex-col font-mono text-xxs text-amber-400">
-                                                <span>{visit.visitDate}</span>
-                                                <span className="text-slate-400">{visit.timeSlot}</span>
-                                              </div>
-                                            </td>
-                                            <td className="py-2">
-                                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${
-                                                visit.status === "Realizado" ? "bg-emerald-950/20 border-emerald-500/20 text-emerald-400" :
-                                                visit.status === "Confirmado" ? "bg-amber-955/15 border-amber-500/25 text-amber-500" :
-                                                visit.status === "Cancelado" ? "bg-rose-955/20 border-rose-500/20 text-rose-450" :
-                                                "bg-slate-900 border-slate-800 text-slate-400"
-                                              }`}>
-                                                {visit.status}
-                                              </span>
-                                            </td>
-                                            <td className="py-2 text-right">
-                                              <div className="flex justify-end gap-1">
-                                                {visit.status === "Confirmado" && (
-                                                  <>
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => handleStatusChange(visit.id, "Realizado")}
-                                                      className="px-1.5 py-0.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-400 rounded border border-emerald-500/10 cursor-pointer transition text-[9px]"
-                                                    >
-                                                      Check-In
-                                                    </button>
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => handleStatusChange(visit.id, "Cancelado")}
-                                                      className="px-1.5 py-0.5 bg-rose-955/10 hover:bg-rose-900/20 text-rose-455 rounded border border-rose-500/10 cursor-pointer transition text-[9px]"
-                                                    >
-                                                      X
-                                                    </button>
-                                                  </>
-                                                )}
-                                              </div>
-                                            </td>
-                                          </tr>
-                                        ))
-                                      )}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                              <span className="text-[9px] text-slate-500 block leading-normal mt-3 border-t border-slate-900 pt-2 bg-slate-950/30 font-sans">
-                                * Nota de Segurança: Agendamentos estão restritos ao limite de slots síncronos do parlatório do estabelecimento para prevenir motins ou sobrecarga ocupacional logística.
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Barra Lateral: Perfil de Risco e Inteligência */}
-              <div className="flex flex-col gap-6">
-                
-                {/* WIDGET DE SOBRELOTAÇÃO COM SPARKLINE */}
-                <div 
-                  id="prison-overcrowding-sparkline-widget" 
-                  className={`rounded-xl p-5 flex flex-col gap-4 shadow-xl border transition-all duration-500 ${
-                    isAutoAlertEnabled && hasCriticalOvercrowdingAutoAlert
-                      ? widgetTheme.bg
-                      : isEnterpriseMode 
-                        ? "bg-slate-900/95 border-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.08)]"
-                        : "bg-slate-900 border-slate-800"
-                  }`}
-                >
-                  <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 border-b border-slate-850 pb-3 font-sans">
-                    <div className="flex-1 min-w-0">
-                      <h3 className={`text-xs font-bold uppercase tracking-wider font-mono flex items-center gap-2 ${
-                        isAutoAlertEnabled && hasCriticalOvercrowdingAutoAlert ? widgetTheme.text : "text-amber-500"
-                      }`}>
-                        <Building className="h-4 w-4 shrink-0" /> Unidades: Sobrelotação Geral
-                      </h3>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 shrink-0">
-                      <button
-                        id="toggle-director-sub-btn"
-                        onClick={() => {
-                          setShowSubscriptionPanel(prev => !prev);
-                          writeAuditLog(
-                            currentOperator,
-                            "VIEW_WEEKLY_SECURITY_REPORT" as any,
-                            "Dashboard",
-                            undefined,
-                            `Alternou visualização do painel de subscrição de alertas por email para o Diretor de Unidade`
-                          );
-                        }}
-                        className={`text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-lg border transition-all duration-300 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
-                          isDirectorSubscribed
-                            ? "bg-amber-500 text-slate-950 border-amber-600 font-black shadow-lg shadow-amber-500/10"
-                            : "bg-slate-950 text-slate-300 border-slate-850 hover:bg-slate-900 hover:text-white"
-                        }`}
-                        title="Configurar subscrição de alertas de e-mail para o Diretor de Unidade"
-                      >
-                        <Mail className={`h-3 w-3 ${isDirectorSubscribed ? "text-slate-950 animate-pulse" : "text-slate-400"}`} />
-                        {isDirectorSubscribed ? "Subscrição Diretor: ACTIVA" : "Subscrição Diretor"}
-                      </button>
-
-                      <button
-                        id="toggle-auto-alert-btn"
-                        onClick={() => {
-                          const nextVal = !isAutoAlertEnabled;
-                          setIsAutoAlertEnabled(nextVal);
-                          writeAuditLog(
-                            currentOperator,
-                            "PRINT_REPORT",
-                            "Dashboard",
-                            undefined,
-                            `Alternou Modo Alerta Automático de Sobrelotação para: ${nextVal ? "ATIVADO" : "DESATIVADO"}`
-                          );
-                        }}
-                        className={`text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-lg border transition-all duration-300 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
-                          isAutoAlertEnabled
-                            ? widgetTheme.buttonActive
-                            : "bg-slate-950 text-slate-400 border-slate-850 hover:bg-slate-900 hover:text-white"
-                        }`}
-                        title="Ativar/Desativar modo de Alerta Automático para superlotação severa"
-                      >
-                        <Bell className={`h-3 w-3 ${isAutoAlertEnabled && hasCriticalOvercrowdingAutoAlert ? `animate-bounce ${widgetTheme.buttonTextIcon}` : ""}`} />
-                        {isAutoAlertEnabled ? "Alerta Automático: ON" : "Alerta Automático: OFF"}
-                      </button>
-
-                      <button
-                        id="toggle-detailed-mode-btn"
-                        onClick={() => {
-                          const nextVal = !isOvercrowdingDetailedMode;
-                          setIsOvercrowdingDetailedMode(nextVal);
-                          if (nextVal) {
-                            const initialMap: Record<string, boolean> = {};
-                            visiblePrisons.forEach(p => {
-                              initialMap[p.id] = true;
-                            });
-                            setExpandedOvercrowdedPrisons(initialMap);
-                          }
-                          writeAuditLog(
-                            currentOperator,
-                            "PRINT_REPORT",
-                            "Dashboard",
-                            undefined,
-                            `Alternou Modo Detalhado de Sobrelotação para: ${nextVal ? "ATIVADO" : "DESATIVADO"}`
-                          );
-                        }}
-                        className={`text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-lg border transition-all duration-300 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
-                          isOvercrowdingDetailedMode
-                            ? "bg-amber-500 text-slate-950 border-amber-600 font-black shadow-lg shadow-amber-500/10"
-                            : "bg-slate-950 text-slate-300 border-slate-850 hover:bg-slate-900 hover:text-white"
-                        }`}
-                      >
-                        <Layers className="h-3 w-3" />
-                        {isOvercrowdingDetailedMode ? "Modo Detalhado: ACTIVO" : "Modo Detalhado"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {isAutoAlertEnabled && hasCriticalOvercrowdingAutoAlert && (
-                    <div className={`${widgetTheme.innerAlert} px-3 py-2.5 rounded-lg text-[10px] flex items-center justify-between`}>
-                      <span className="flex items-center gap-2 font-bold">
-                        <AlertTriangle className={`h-4 w-4 ${widgetTheme.iconColor} animate-bounce shrink-0`} />
-                        ALERTA: SOBRELOTAÇÃO EXCEDEU {criticalOvercrowdingThreshold}%
-                      </span>
-                      <span className={`text-[8px] ${widgetTheme.innerBadge} px-2 py-0.5 rounded font-semibold uppercase`}>
-                        Risco Crítico
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Painel de Subscrição de Alertas para o Diretor de Unidade */}
-                  {showSubscriptionPanel && (
-                    <div className="bg-slate-950/80 p-3.5 rounded-lg border border-amber-500/30 flex flex-col gap-3 font-sans">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span className="text-[10px] font-bold text-amber-400 font-mono flex items-center gap-1.5 uppercase">
-                          <Mail className="h-3.5 w-3.5 text-amber-500" /> Alertas por E-mail do Diretor
-                        </span>
-                        <button
-                          onClick={() => setShowSubscriptionPanel(false)}
-                          className="text-slate-400 hover:text-white text-xs cursor-pointer select-none"
-                        >
-                          ✕
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div className="flex flex-col gap-1">
-                          <label className="text-[8px] uppercase text-slate-400 font-semibold font-mono">Nome do Diretor</label>
-                          <input
-                            type="text"
-                            value={directorName}
-                            onChange={(e) => setDirectorName(e.target.value)}
-                            placeholder="Ex: Dr. Augusto Fontes"
-                            className="bg-slate-900 border border-slate-800 text-[9.5px] p-1.5 rounded text-white focus:border-amber-500 focus:outline-none font-mono"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <label className="text-[8px] uppercase text-slate-400 font-semibold font-mono">E-mail para Alertas</label>
-                          <input
-                            type="email"
-                            value={directorEmail}
-                            onChange={(e) => setDirectorEmail(e.target.value)}
-                            placeholder="Ex: wtmedia0@gmail.com"
-                            className="bg-slate-900 border border-slate-800 text-[9.5px] p-1.5 rounded text-white focus:border-amber-500 focus:outline-none font-mono"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-4 bg-slate-900/60 p-2.5 rounded border border-slate-850">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] font-bold text-slate-200 uppercase font-mono">Subscrição Ativa</span>
-                          <span className="text-[7.5px] text-slate-400">Ativa notificação automática ao ultrapassar o limiar de {criticalOvercrowdingThreshold}%</span>
-                        </div>
-                        <button
-                          id="toggle-director-sub-btn-active"
-                          type="button"
-                          onClick={() => {
-                            const nextState = !isDirectorSubscribed;
-                            setIsDirectorSubscribed(nextState);
-                            writeAuditLog(
-                              currentOperator,
-                              "VIEW_WEEKLY_SECURITY_REPORT" as any,
-                              "Dashboard",
-                              undefined,
-                              `Alterou estado de subscrição de e-mail do Diretor para: ${nextState ? "ATIVO" : "INATIVO"}`
-                            );
-                            setSuggestionAlert({
-                              type: "success",
-                              text: nextState 
-                                ? `📧 Subscrição de Alertas por Email ATIVADA para o Diretor (${directorEmail}).`
-                                : `📧 Subscrição de Alertas por Email DESATIVADA.`
-                            });
-                          }}
-                          className={`text-[9px] font-mono font-bold px-3 py-1.5 rounded cursor-pointer transition-all duration-200 ${
-                            isDirectorSubscribed
-                              ? "bg-emerald-600 text-white border border-emerald-500 shadow-md shadow-emerald-500/10"
-                              : "bg-slate-950 text-slate-400 border-slate-850 hover:bg-slate-900"
-                          }`}
-                        >
-                          {isDirectorSubscribed ? "● SUBSCRITO (ON)" : "DESATIVADO (OFF)"}
-                        </button>
-                      </div>
-
-                      {/* Manual Send trigger */}
-                      <div className="flex justify-between items-center bg-slate-900/30 p-2 rounded border border-slate-850/60">
-                        <span className="text-[7.5px] text-slate-400">Deseja simular o envio imediato agora?</span>
-                        <button
-                          id="send-test-alert-btn"
-                          type="button"
-                          onClick={() => {
-                            if (overlimitPavilions.length === 0) {
-                              setSuggestionAlert({
-                                type: "error",
-                                text: `Nenhum pavilhão excede o limiar crítico de ${criticalOvercrowdingThreshold}% no momento para testar.`
-                              });
-                              return;
-                            }
-                            // Simulate sending right now
-                            setSentAlertEmails(prev => {
-                              const newEntries = overlimitPavilions.map(pav => ({
-                                id: `MAIL-TEST-${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
-                                timestamp: new Date().toLocaleTimeString(),
-                                pavName: pav.pavName,
-                                prisonName: pav.prisonName,
-                                occupancyPct: pav.pct,
-                                email: directorEmail,
-                                status: "Enviado" as const
-                              }));
-                              return [...newEntries, ...prev];
-                            });
-                            setSuggestionAlert({
-                              type: "success",
-                              text: `📧 TESTE ENVIADO: ${overlimitPavilions.length} alertas manuais de e-mail disparados para ${directorEmail}.`
-                            });
-                          }}
-                          className="bg-amber-600 hover:bg-amber-500 text-slate-950 text-[8.5px] font-bold font-mono px-2 py-1 rounded transition cursor-pointer"
-                        >
-                          Testar Envio Manual ({overlimitPavilions.length})
-                        </button>
-                      </div>
-
-                      {/* Histórico / Logs de Emails Enviados */}
-                      <div className="flex flex-col gap-1.5 border-t border-slate-800 pt-2.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[8.5px] uppercase font-bold text-slate-400 font-mono tracking-wider">Histórico de Alertas Disparados ({sentAlertEmails.length})</span>
-                          {sentAlertEmails.length > 0 && (
-                            <button
-                              onClick={() => setSentAlertEmails([])}
-                              className="text-[7.5px] text-red-400 hover:underline cursor-pointer"
-                            >
-                              Limpar Logs
-                            </button>
-                          )}
-                        </div>
-
-                        {sentAlertEmails.length === 0 ? (
-                          <div className="text-center p-3 text-[8.5px] text-slate-500 bg-slate-900/40 rounded border border-slate-850 italic">
-                            Nenhum alerta enviado por email ainda. Ative a subscrição e configure o limiar crítico.
-                          </div>
-                        ) : (
-                          <div className="max-h-[110px] overflow-y-auto flex flex-col gap-1 bg-slate-950 p-1.5 rounded border border-slate-850">
-                            {sentAlertEmails.map((email) => (
-                              <div key={email.id} className="text-[8px] flex items-start justify-between bg-slate-900/60 p-1.5 rounded border border-slate-850/50 gap-2">
-                                <div className="flex flex-col min-w-0">
-                                  <span className="font-bold text-slate-300 truncate">{email.prisonName}</span>
-                                  <span className="text-slate-400 font-mono text-[7.5px]">{email.pavName} • Lotação: <span className="text-red-400 font-bold">{email.occupancyPct}%</span></span>
-                                  <span className="text-slate-500 text-[7px] truncate font-mono">Destino: {email.email}</span>
-                                </div>
-                                <div className="flex flex-col items-end shrink-0">
-                                  <span className="text-[7px] text-emerald-400 font-semibold bg-emerald-950/60 px-1 py-0.2 rounded border border-emerald-500/20 uppercase flex items-center gap-0.5 font-mono">
-                                    <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" /> {email.status}
-                                  </span>
-                                  <span className="text-[6.5px] text-slate-500 font-mono mt-0.5">{email.timestamp}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Interface de Configuração do Limiar Crítico de Pavilhão */}
-                  <div className="flex flex-col gap-2.5 bg-slate-950/65 p-3 rounded-lg border border-slate-800/80 font-sans">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold text-slate-300 font-mono flex items-center gap-1.5 leading-none">
-                        <ShieldAlert className="w-3.5 h-3.5 text-amber-500 shrink-0" /> Limiar Bloqueio Pavilhão:
-                      </span>
-                      <span className="text-[10.5px] font-bold font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">{pavilionApprovalThreshold}%</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <input 
-                        type="range" 
-                        min={70} 
-                        max={130} 
-                        step={5}
-                        value={pavilionApprovalThreshold} 
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          setPavilionApprovalThreshold(val);
-                          writeAuditLog(
-                            currentOperator,
-                            "EDIT" as any,
-                            "Dashboard",
-                            undefined,
-                            `Alterou Limiar de Bloqueio por Pavilhão para: ${val}%`
-                          );
-                        }} 
-                        className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500 cursor-pointer"
-                        title="Ajustar o limiar de lotação crítica do pavilhão"
-                      />
-                      <input 
-                        type="number"
-                        min={70} 
-                        max={150}
-                        value={pavilionApprovalThreshold} 
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          setPavilionApprovalThreshold(val);
-                        }} 
-                        className="w-12 bg-slate-900 border border-slate-800 p-0.5 text-center font-mono text-[9px] rounded text-slate-300 font-bold focus:border-amber-500 focus:outline-none"
-                      />
-                    </div>
-
-                    {pavilionsOverApprovalThreshold.length > 0 ? (
-                      <div className="flex flex-col gap-1 border-t border-slate-900 pt-1.5 mt-0.5">
-                        <span className="text-[7.5px] font-mono text-red-400 uppercase font-black tracking-wider flex items-center gap-1">
-                          <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
-                          Pavilhões Bloqueados ({pavilionsOverApprovalThreshold.length}):
-                        </span>
-                        <div className="max-h-[60px] overflow-y-auto flex flex-col gap-0.5 pr-0.5">
-                          {pavilionsOverApprovalThreshold.map((pav) => (
-                            <div key={pav.id} className="text-[7.5px] font-mono bg-slate-900/80 p-1 rounded border border-slate-850 flex justify-between items-center text-slate-300 leading-tight">
-                              <span className="truncate max-w-[130px] font-semibold">{pav.pavName}</span>
-                              <span className="text-red-400 font-black shrink-0">{pav.pct}% Lotação</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-[7.5px] font-mono text-slate-500 border-t border-slate-900 pt-1.5 mt-0.5 italic flex items-center gap-1 leading-none uppercase">
-                        <Check className="h-2.5 w-2.5 text-emerald-500 shrink-0" />
-                        Nenhum pavilhão bloqueado no limiar atual
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Busca Rápida de Estabelecimentos (Quick Search) */}
-                  <div className="flex flex-col gap-1.5 bg-slate-950/40 p-2.5 rounded-lg border border-slate-850">
-                    <div className="flex items-center justify-between">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 font-mono flex items-center gap-1.5 leading-none">
-                        <Search className="w-3.5 h-3.5 text-amber-500" /> Busca Rápida:
-                      </label>
-                      {overcrowdingSearchQuery && (
-                        <span className="text-[8px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded leading-none shrink-0">
-                          {(() => {
-                            const query = overcrowdingSearchQuery.toLowerCase().trim();
-                            const matches = visiblePrisons.filter(p => 
-                              p.name.toLowerCase().includes(query) || 
-                              p.id.toLowerCase().includes(query) || 
-                              (p.location || "").toLowerCase().includes(query)
-                            ).length;
-                            return `${matches} ${matches === 1 ? "encontrado" : "encontrados"}`;
-                          })()}
-                        </span>
-                      )}
-                    </div>
-                    <div className="relative mt-0.5">
-                      <Search className="absolute left-2.5 top-2.5 h-3 w-3 text-slate-500" />
-                      <input
-                        id="overcrowding-quick-search-input"
-                        type="text"
-                        placeholder="Pesquisar por nome ou código (Ex: PRIS-HUAMBO)..."
-                        value={overcrowdingSearchQuery}
-                        onChange={(e) => setOvercrowdingSearchQuery(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-7 py-1.5 text-xxs font-mono text-slate-300 placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20"
-                      />
-                      {overcrowdingSearchQuery && (
-                        <button
-                          type="button"
-                          onClick={() => setOvercrowdingSearchQuery("")}
-                          className="absolute right-2.5 top-2 text-slate-400 hover:text-white text-xs cursor-pointer select-none font-mono"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Filtro de Severidade Interativo do Widget */}
-                  <div className="flex flex-col gap-2 bg-slate-950/40 p-2.5 rounded-lg border border-slate-850">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 font-mono flex items-center gap-1.5 leading-none">
-                        <Sliders className="w-3 h-3 text-amber-500" /> Filtrar por Ameaça Disciplinar:
-                      </span>
-                      {widgetSeverityFilter !== 'ALL' && (
-                        <button 
-                          onClick={() => setWidgetSeverityFilter('ALL')}
-                          className="text-[9px] text-amber-500 font-mono hover:underline cursor-pointer leading-none"
-                        >
-                          Limpar filtro
-                        </button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-5 gap-1 pt-0.5">
-                      {[
-                        { id: 'ALL', label: 'TODOS', color: 'border-slate-800 text-slate-400 hover:bg-slate-800/30', activeColor: 'bg-slate-800 border-slate-600 text-white font-black' },
-                        { id: 'LOW', label: 'BAIXA', color: 'border-blue-500/10 text-blue-400/80 hover:bg-blue-500/5', activeColor: 'bg-blue-500/20 border-blue-500/60 text-blue-300 font-bold' },
-                        { id: 'MEDIUM', label: 'MÉDIA', color: 'border-purple-500/10 text-purple-400/80 hover:bg-purple-500/5', activeColor: 'bg-purple-500/20 border-purple-500/60 text-purple-300 font-bold' },
-                        { id: 'HIGH', label: 'ALTA', color: 'border-orange-500/10 text-orange-400/80 hover:bg-orange-500/5', activeColor: 'bg-orange-500/20 border-orange-500/60 text-orange-300 font-bold' },
-                        { id: 'CRITICAL', label: 'CRÍTICA', color: 'border-red-500/10 text-red-500/80 hover:bg-red-500/5', activeColor: 'bg-red-500/20 border-red-500/60 text-red-100 font-bold animate-pulse' }
-                      ].map((btn) => (
-                        <button
-                          key={btn.id}
-                          onClick={() => setWidgetSeverityFilter(btn.id as any)}
-                          className={`text-[8px] font-mono py-1 rounded border transition text-center cursor-pointer ${
-                            widgetSeverityFilter === btn.id ? btn.activeColor : btn.color
-                          }`}
-                        >
-                          {btn.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3.5">
-                    {(() => {
-                      const filteredPrisons = visiblePrisons.filter((p) => {
-                        if (!overcrowdingSearchQuery) return true;
-                        const query = overcrowdingSearchQuery.toLowerCase().trim();
-                        const name = p.name.toLowerCase();
-                        const id = p.id.toLowerCase();
-                        const location = (p.location || "").toLowerCase();
-                        return name.includes(query) || id.includes(query) || location.includes(query);
-                      });
-
-                      if (filteredPrisons.length === 0) {
-                        return (
-                          <div className="text-center py-6 text-xs font-mono text-slate-500 bg-slate-950/40 rounded-lg border border-slate-850/60 italic animate-fadeIn">
-                            Nenhum estabelecimento encontrado para "{overcrowdingSearchQuery}".
-                          </div>
-                        );
-                      }
-
-                      return filteredPrisons.map((p) => {
-                      const occupancyRate = Math.round((p.currentOccupancy / p.operationalCapacity) * 100);
-                      const isOvercrowded = p.currentOccupancy > p.operationalCapacity;
-                      const isOverOfficial = p.currentOccupancy > p.officialCapacity;
-                      
-                      const sparklineData = [
-                        { name: "Oficial", valor: p.officialCapacity, color: "#475569" }, // slate-600
-                        { name: "Operacional", valor: p.operationalCapacity, color: "#38bdf8" }, // sky-500
-                        { name: "Actual", valor: p.currentOccupancy, color: isOvercrowded ? "#ef4444" : isOverOfficial ? "#f59e0b" : "#10b981" } // red-500, amber-500, emerald-500
-                      ];
-
-                      const formattedName = p.name.replace("Estabelecimento Penitenciário de ", "EP ");
-                      const matchedIncidents = disciplinaryIncidentsData.find(item => item.unit === formattedName) || {
-                        Agressao: (p.currentOccupancy % 5) + 1,
-                        Fuga: (p.currentOccupancy % 2),
-                        PosseIlicita: (p.currentOccupancy % 8) + 1,
-                        Indisciplina: (p.currentOccupancy % 6) + 1,
-                      };
-
-                      // Filter based on severity selection
-                      const displayAgressao = (widgetSeverityFilter === "ALL" || widgetSeverityFilter === "CRITICAL") ? matchedIncidents.Agressao : 0;
-                      const displayFuga = (widgetSeverityFilter === "ALL" || widgetSeverityFilter === "HIGH") ? matchedIncidents.Fuga : 0;
-                      const displayPosseIlicita = (widgetSeverityFilter === "ALL" || widgetSeverityFilter === "MEDIUM") ? matchedIncidents.PosseIlicita : 0;
-                      const displayIndisciplina = (widgetSeverityFilter === "ALL" || widgetSeverityFilter === "LOW") ? matchedIncidents.Indisciplina : 0;
-
-                      const displayTotal = displayAgressao + displayFuga + displayPosseIlicita + displayIndisciplina;
-                      const totalInc = matchedIncidents.Agressao + matchedIncidents.Fuga + matchedIncidents.PosseIlicita + matchedIncidents.Indisciplina;
-                      
-                      const aggPct = displayTotal > 0 ? (displayAgressao / displayTotal) * 100 : 0;
-                      const fugPct = displayTotal > 0 ? (displayFuga / displayTotal) * 100 : 0;
-                      const posPct = displayTotal > 0 ? (displayPosseIlicita / displayTotal) * 100 : 0;
-                      const indPct = displayTotal > 0 ? (displayIndisciplina / displayTotal) * 100 : 0;
-
-                      let totalLabel = "";
-                      if (widgetSeverityFilter === "ALL") {
-                        totalLabel = `${totalInc} registados`;
-                      } else if (widgetSeverityFilter === "CRITICAL") {
-                        totalLabel = `${matchedIncidents.Agressao} Agressões (Crítica)`;
-                      } else if (widgetSeverityFilter === "HIGH") {
-                        totalLabel = `${matchedIncidents.Fuga} Fugas (Alta)`;
-                      } else if (widgetSeverityFilter === "MEDIUM") {
-                        totalLabel = `${matchedIncidents.PosseIlicita} Posse Ilícita (Média)`;
-                      } else if (widgetSeverityFilter === "LOW") {
-                        totalLabel = `${matchedIncidents.Indisciplina} Indisciplina (Baixa)`;
-                      }
-
-                      // Parse pavilions and collect blocks with critical occupancy (>= 100%)
-                      const criticalBlocks: Array<{ pavName: string; blkName: string; capacity: number; current: number; percent: number; riskLevel: string }> = [];
-                      if (p.pavilions) {
-                        p.pavilions.forEach((pav: any) => {
-                          if (pav.blocks) {
-                            pav.blocks.forEach((blk: any) => {
-                              const percent = blk.capacity > 0 ? Math.round((blk.current / blk.capacity) * 100) : 0;
-                              if (percent >= 100) {
-                                  criticalBlocks.push({
-                                    pavName: pav.name.split(" - ")[0],
-                                    blkName: blk.name,
-                                    capacity: blk.capacity,
-                                    current: blk.current,
-                                    percent,
-                                    riskLevel: blk.riskLevel
-                                  });
-                              }
-                            });
-                          }
-                        });
-                      }
-
-                      const matchesQuery = overcrowdingSearchQuery ? (
-                        p.name.toLowerCase().includes(overcrowdingSearchQuery.toLowerCase().trim()) ||
-                        p.id.toLowerCase().includes(overcrowdingSearchQuery.toLowerCase().trim()) ||
-                        (p.location || "").toLowerCase().includes(overcrowdingSearchQuery.toLowerCase().trim())
-                      ) : false;
-
-                      return (
-                        <div 
-                          key={p.id} 
-                          className={`p-3 rounded-lg flex flex-col gap-2 transition-all duration-300 ${
-                            matchesQuery 
-                              ? "bg-slate-900/80 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)] scale-[1.018] ring-1 ring-amber-500/20" 
-                              : "bg-slate-950/60 border-slate-850 hover:border-slate-700 hover:scale-[1.005]"
-                          }`}
-                        >
-                          
-                           {/* Row 1: Cap vs Act Overcrowding Sparkline */}
-                           <div className="flex items-center justify-between gap-3">
-                             {/* Info Estabelecimento */}
-                             <div className="flex-1 min-w-0">
-                               <h4 className="text-xxs font-bold text-slate-200 leading-tight flex items-center gap-1.5 flex-wrap">
-                                 <span>{highlightText(formattedName, overcrowdingSearchQuery)}</span>
-                                 <span className="text-[7.5px] font-mono font-black text-amber-500/95 bg-amber-500/10 border border-amber-500/20 px-1 py-0.2 rounded uppercase shrink-0">
-                                   {highlightText(p.id, overcrowdingSearchQuery)}
-                                 </span>
-                               </h4>
-                               <p className="text-[10px] text-slate-500 flex items-center gap-0.5 mt-0.5 font-mono">
-                                 <MapPin className="h-2.5 w-2.5 shrink-0" /> {highlightText(p.location.split(",")[0], overcrowdingSearchQuery)}
-                               </p>
-                               
-                               {/* Badges */}
-                               <div className="flex items-center gap-1.5 mt-1">
-                                 <span className={`text-[8px] font-bold uppercase px-1.5 py-0.2 rounded font-mono ${
-                                   isOvercrowded 
-                                     ? "bg-red-500/10 text-red-400 border border-red-500/20" 
-                                     : isOverOfficial
-                                     ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                     : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                 }`}>
-                                   {isOvercrowded ? "Sobrelotada" : isOverOfficial ? "Alerta" : "Estável"}
-                                 </span>
-                                 <span className="text-[9px] font-mono text-slate-400 font-bold">
-                                   {occupancyRate}%
-                                 </span>
-                                 {/* Interactive Chevron Button */}
-                                 <button
-                                   onClick={() => {
-                                     setIsOvercrowdingDetailedMode(true);
-                                     setExpandedOvercrowdedPrisons(prev => ({
-                                       ...prev,
-                                       [p.id]: !prev[p.id]
-                                     }));
-                                   }}
-                                   className="text-slate-500 hover:text-slate-200 transition-colors p-0.5 rounded hover:bg-slate-900 inline-flex items-center justify-center cursor-pointer ml-0.5"
-                                   title="Alternar blocos críticos no Modo Detalhado"
-                                 >
-                                   {expandedOvercrowdedPrisons[p.id] ? (
-                                     <ChevronUp className="h-3 w-3 text-amber-500 animate-pulse" />
-                                   ) : (
-                                     <ChevronDown className="h-3 w-3" />
-                                   )}
-                                 </button>
-                               </div>
-                             </div>
-
-                             {/* Sparkline de Lotação ao Lado do Nome (Clickable to Expand) */}
-                             <div 
-                               className={`w-20 h-10 flex items-center shrink-0 cursor-pointer rounded transition-all duration-300 p-0.5 relative group/spark ${
-                                 matchesQuery 
-                                   ? "scale-115 border border-amber-500 bg-amber-500/10 shadow-[0_0_12px_rgba(245,158,11,0.4)] ring-2 ring-amber-500/30 animate-pulse" 
-                                   : "border border-transparent hover:bg-slate-905/20 hover:border-slate-800 hover:scale-105"
-                               }`}
-                               onClick={() => {
-                                 setIsOvercrowdingDetailedMode(true);
-                                 setExpandedOvercrowdedPrisons(prev => ({
-                                   ...prev,
-                                   [p.id]: !prev[p.id]
-                                 }));
-                                 writeAuditLog(
-                                   currentOperator,
-                                   "PRINT_REPORT",
-                                   "Dashboard",
-                                   undefined,
-                                   `Visualizou/Alternou blocos críticos via clique no gráfico do estabelecimento: ${formattedName}`
-                                 );
-                               }}
-                               title="Clique no gráfico para ver detalhes dos blocos críticos"
-                             >
-                               <ResponsiveContainer width="100%" height="100%">
-                                 <BarChart data={sparklineData} margin={{ top: 2, bottom: 2, left: 2, right: 2 }}>
-                                   <Tooltip
-                                     cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
-                                     content={({ active, payload }) => {
-                                       if (active && payload && payload.length) {
-                                         const data = payload[0].payload;
-                                         return (
-                                           <div className="bg-slate-950 border border-slate-800 px-2 py-1.5 rounded shadow-xl font-mono text-[9px] text-slate-300 font-sans">
-                                             <p className="font-bold text-slate-100">{data.name}</p>
-                                             <p className="text-amber-500">{data.valor} reclusos</p>
-                                             <p className="text-[8px] text-slate-400 mt-1 italic font-sans border-t border-slate-900 pt-1">Clique para expandir blocos</p>
-                                           </div>
-                                         );
-                                       }
-                                       return null;
-                                     }}
-                                   />
-                                   <Bar dataKey="valor" radius={[1, 1, 0, 0]}>
-                                     {sparklineData.map((entry, index) => (
-                                       <ReCell key={`cell-${index}`} fill={entry.color} />
-                                     ))}
-                                   </Bar>
-                                 </BarChart>
-                               </ResponsiveContainer>
-                               {/* Interactive hover indicator badge */}
-                               <span className="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[6px] font-sans font-black px-1.5 rounded-full opacity-0 group-hover/spark:opacity-100 transition-opacity duration-200 pointer-events-none shadow-md">
-                                 +
-                               </span>
-                             </div>
-
-                             {/* Métricas Numéricas Compactas */}
-                             <div className="text-right shrink-0 font-mono">
-                               <span className="text-xxs font-bold text-slate-300 block">
-                                 {p.currentOccupancy}
-                               </span>
-                               <span className="text-[9px] text-slate-500 block border-t border-slate-850 mt-0.5 pt-0.5">
-                                 Cap: {p.operationalCapacity}
-                               </span>
-                             </div>
-                           </div>
-
-                           {/* Detailed Mode: Critical Internal Blocks directly below sparkline/bars */}
-                           {isOvercrowdingDetailedMode && (
-                             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                               expandedOvercrowdedPrisons[p.id] 
-                                 ? "max-h-[36rem] opacity-100 mt-1 pb-1.5" 
-                                 : "max-h-0 opacity-0 pointer-events-none"
-                             }`}>
-                               <div className="flex flex-col gap-1 bg-gradient-to-r from-red-950/20 to-slate-950/80 border border-red-500/15 p-2.5 rounded-lg">
-                                 <div className="flex items-center justify-between text-[9px] font-mono select-none px-0.5 pb-1 border-b border-red-900/10">
-                                   <span className="text-red-400 font-bold flex items-center gap-1">
-                                     <AlertTriangle className="h-3 w-3 text-red-500 animate-pulse shrink-0" />
-                                     Lotação Crítica (Blocos ≥ 100%)
-                                   </span>
-                                   <span className="text-slate-500 font-medium">Lotação Activa</span>
-                                 </div>
-                                  {/* Cálculo Preditivo de Saturação */}
-                                  {(() => {
-                                    const calculatedRate = (() => {
-                                      let baseRate = 10;
-                                      if (p.id === "PRIS-01") baseRate = 58;
-                                      else if (p.id === "PRIS-02") baseRate = 38;
-                                      else if (p.id === "PRIS-03") baseRate = 18;
-                                      else if (p.id === "PRIS-HUAMBO") baseRate = 28;
-                                      else if (p.id === "PRIS-BAILUNDO") baseRate = 12;
-                                      else if (p.id === "PRIS-CAALA") baseRate = 10;
-                                      else if (p.id === "PRIS-BEN-01") baseRate = 44;
-                                      else if (p.id === "PRIS-HUI-01") baseRate = 35;
-                                      else {
-                                        baseRate = Math.max(5, Math.round(p.officialCapacity * 0.04));
-                                      }
-                                      
-                                      // React to newly added active inmates in state
-                                      const newlyAdded = inmates.filter(i => i.assignedPrisonId === p.id && i.status === "ACTIVE" && !INITIAL_INMATES.some(init => init.id === i.id)).length;
-                                      return baseRate + newlyAdded * 2;
-                                    })();
-
-                                    const remainingSlots = p.operationalCapacity - p.currentOccupancy;
-                                    const daysToSaturation = calculatedRate > 0 && remainingSlots > 0
-                                      ? Math.round(remainingSlots / (calculatedRate / 30))
-                                      : 0;
-
-                                    const saturationDateStr = remainingSlots > 0 && calculatedRate > 0
-                                      ? (() => {
-                                          const predDate = new Date("2026-06-17T12:00:00");
-                                          predDate.setDate(predDate.getDate() + daysToSaturation);
-                                          return predDate.toLocaleDateString("pt-AO", { day: "2-digit", month: "2-digit", year: "numeric" });
-                                        })()
-                                      : "N/A";
-
-                                    const isSaturated = p.currentOccupancy >= p.operationalCapacity;
-                                    
-                                    // Style and status label based on risk level
-                                    let riskBg = "bg-emerald-950/20 border-emerald-550/10 text-emerald-400";
-                                    let riskLabel = "Estável / Saudável";
-                                    let riskIconColor = "text-emerald-400";
-                                    let daysLabel = `${daysToSaturation} dias (${saturationDateStr})`;
-
-                                    if (isSaturated) {
-                                      riskBg = "bg-red-955/20 border-red-500/20 text-red-400";
-                                      riskLabel = "Crítico (Saturado)";
-                                      riskIconColor = "text-red-500 animate-pulse";
-                                      daysLabel = "Limite Excedido (0 dias)";
-                                    } else if (daysToSaturation <= 30) {
-                                      riskBg = "bg-red-955/10 border-red-500/10 text-red-300";
-                                      riskLabel = "Alerta Iminente (< 30 dias)";
-                                      riskIconColor = "text-red-400 font-bold animate-pulse";
-                                    } else if (daysToSaturation <= 90) {
-                                      riskBg = "bg-amber-955/10 border-amber-500/10 text-amber-305";
-                                      riskLabel = "Alerta Médio (30-90 dias)";
-                                      riskIconColor = "text-amber-450";
-                                    } else {
-                                      riskBg = "bg-slate-900/40 border-slate-800 text-slate-300";
-                                      riskLabel = "Estável (> 90 dias)";
-                                      riskIconColor = "text-slate-500";
-                                    }
-
-                                    return (
-                                      <div className={`mt-2 p-2 rounded border text-[9px] font-mono flex flex-col gap-1.5 ${riskBg}`}>
-                                        <div className="flex items-center justify-between border-b border-white/5 pb-1">
-                                          <span className="font-bold flex items-center gap-1">
-                                            <TrendingUp className="h-3 w-3 text-amber-500" />
-                                            Cálculo Preditivo de Ocupação
-                                          </span>
-                                          <span className="text-[8px] px-1.5 py-0.2 rounded font-sans font-bold uppercase border bg-black/40 border-white/5">
-                                            {riskLabel}
-                                          </span>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-400">
-                                          <div className="flex items-center gap-1">
-                                            <span className="text-slate-500 font-sans">• Admissão Média:</span>
-                                            <span className="text-slate-205 font-bold">+${calculatedRate} rec./mês</span>
-                                          </div>
-                                          <div className="flex items-center gap-1 justify-end">
-                                            <span className="text-slate-500 font-sans">Vagas Restantes:</span>
-                                            <span className={`font-bold ${isSaturated ? "text-red-400" : "text-slate-300"}`}>
-                                              ${isSaturated ? "0" : remainingSlots} vagas
-                                            </span>
-                                          </div>
-                                          <div className="col-span-2 flex items-center justify-between mt-0.5 pt-0.5 border-t border-white/5">
-                                            <span className="font-sans font-medium text-slate-400 flex items-center gap-1">
-                                              <Clock className={`h-3 w-3 ${riskIconColor}`} /> Dias até saturação (100%):
-                                            </span>
-                                            <span className={`font-black text-[10px] ${isSaturated ? "text-red-400 animate-pulse" : "text-amber-400"}`}>
-                                              ${daysLabel}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })()}
-                                 
-                                 {criticalBlocks.length > 0 ? (
-                                    <>
-                                   <div className="flex flex-col gap-1 max-h-32 overflow-y-auto pr-0.5 mt-1.5">
-                                     {criticalBlocks.map((blk, idx) => (
-                                       <div key={`${blk.blkName}-${idx}`} className="flex items-center justify-between text-[9px] bg-slate-900/60 p-1.5 rounded border border-red-900/15 font-mono hover:bg-slate-900 transition">
-                                         <div className="flex flex-col">
-                                           <span className="font-bold text-slate-200 leading-tight">{blk.blkName}</span>
-                                           <span className="text-[8px] text-slate-400 font-sans">{blk.pavName} • Regime: {blk.riskLevel}</span>
-                                         </div>
-                                         <div className="text-right shrink-0">
-                                           <span className="text-red-400 font-black block">{blk.percent}% Lotação</span>
-                                           <span className="text-[8px] text-slate-505 block">{blk.current} / {blk.capacity} rec.</span>
-                                         </div>
-                                       </div>
-                                     ))}
-                                   </div>
-                                    <button
-                                      onClick={() => {
-                                        exportCriticalBlocksToPDF(p.name, criticalBlocks, currentOperatorId);
-                                        writeAuditLog(
-                                          currentOperator,
-                                          "PRINT_REPORT",
-                                          "Dashboard",
-                                          undefined,
-                                          `Exportou Relatório Técnico em PDF de blocos críticos do estabelecimento: ${p.name}`
-                                        );
-                                      }}
-                                      className="mt-1.5 w-full bg-red-950 hover:bg-red-900 border border-red-500/30 hover:border-red-550 text-red-200 hover:text-white transition-all text-[8px] font-mono py-1.5 rounded flex items-center justify-center gap-1 cursor-pointer font-bold select-none leading-none shadow-sm"
-                                      title="Gerar Relatório Técnico PDF para esta unidade monitorizada"
-                                    >
-                                      <Printer className="h-2.5 w-2.5 text-red-400" /> Exportar Blocos Críticos (PDF)
-                                    </button>
-                                    </>
-                                 ) : (
-                                   <div className="text-center py-1.5 text-[8px] text-emerald-400 font-medium font-mono bg-emerald-950/20 rounded border border-emerald-500/10 flex items-center justify-center gap-1 mt-1">
-                                     <Check className="h-2.5 w-2.5" /> Todo o estabelecimento opera em limites estáveis
-                                   </div>
-                                 )}
-                               </div>
-                             </div>
-                           )}
-
-                           {/* Row 2: Disciplinary Incident graphical split sparks strip */}
-                           <div className="border-t border-slate-900/60 pt-2 flex flex-col gap-1">
-                             <div className="flex items-center justify-between text-[8px] font-mono">
-                               <span className="flex items-center gap-1 text-slate-400 font-sans">
-                                 <Shield className="w-2.5 h-2.5 text-amber-500 animate-pulse" /> Incidentes Disciplinares:
-                               </span>
-                               <span className="font-bold text-red-400">{totalLabel}</span>
-                             </div>
-                             <div className="h-1.5 w-full bg-slate-950 rounded-full overflow-hidden flex border border-slate-900/40">
-                               {displayAgressao > 0 && (
-                                 <div className="h-full bg-red-500 transition-all duration-300 animate-pulse" style={{ width: `${aggPct}%` }} title={`Agressões: ${matchedIncidents.Agressao}`} />
-                               )}
-                               {displayFuga > 0 && (
-                                 <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${fugPct}%` }} title={`Fugas: ${matchedIncidents.Fuga}`} />
-                               )}
-                               {displayPosseIlicita > 0 && (
-                                 <div className="h-full bg-purple-500 transition-all duration-300" style={{ width: `${posPct}%` }} title={`Posse Ilícita: ${matchedIncidents.PosseIlicita}`} />
-                               )}
-                               {displayIndisciplina > 0 && (
-                                 <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${indPct}%` }} title={`Indisciplina: ${matchedIncidents.Indisciplina}`} />
-                               )}
-                               {displayTotal === 0 && (
-                                 <div className="h-full bg-slate-800 w-full" title="Sem incidentes registados nesta severidade" />
-                               )}
-                             </div>
-                           </div>
-
-                        </div>
-                      );
-                    });
-                  })()}
-                  </div>
-                  
-                  {/* Legenda Gráfica de Severidade de Incidentes / Medida de Alertas */}
-                  <div className="border-t border-slate-850 pt-3 flex flex-col gap-2 relative">
-                    {(() => {
-                      const SEVERITY_TOOLTIP_DATA = {
-                        LOW: {
-                          title: "Severidade Baixa",
-                          color: "text-blue-400",
-                          border: "border-blue-500/40",
-                          bgClass: "bg-slate-950 border-blue-500/40",
-                          iconColor: "bg-blue-500",
-                          definition: "Comportamentos disruptivos menores sem violência física ativa, violando normas internas da prisão de forma leve.",
-                          criteria: "Atos ocasionais de indisciplina, perturbações de ruído ou recusas leves de ordens regulamentares (< 5 incidentes semanais)."
-                        },
-                        MEDIUM: {
-                          title: "Severidade Média",
-                          color: "text-purple-400",
-                          border: "border-purple-500/40",
-                          bgClass: "bg-slate-950 border-purple-500/40",
-                          iconColor: "bg-purple-500",
-                          definition: "Posse de materiais não autorizados ou violações administrativas que comprometam as vistorias ordinárias.",
-                          criteria: "Apreensão de contrabando, posse ilícita de telecomunicações móveis ou tabaco (3 a 5 casos ativos)."
-                        },
-                        HIGH: {
-                          title: "Severidade Alta",
-                          color: "text-orange-400",
-                          border: "border-orange-500/40",
-                          bgClass: "bg-slate-950 border-orange-500/40",
-                          iconColor: "bg-orange-500",
-                          definition: "Atividades ativas de evasão, sabotagem física de perímetros ou ameaça direta ao isolamento securitário.",
-                          criteria: "Planos ou tentativas físicas de fuga do estabelecimento ou danos estruturais e subversão graves nas últimas 72h."
-                        },
-                        CRITICAL: {
-                          title: "Severidade Crítica",
-                          color: "text-red-400",
-                          border: "border-red-500/40",
-                          bgClass: "bg-slate-950 border-red-500/40",
-                          iconColor: "bg-red-500",
-                          definition: "Violência corporal ativa grave, amotinamentos coordenados ou agressões de alto risco comprometendo vidas.",
-                          criteria: "Ocorrência direta ou iminente de motins organizados, agressão corporal coletiva ou reféns."
-                        }
-                      };
-                      
-                      const arrowOffsets = {
-                        LOW: "left-[12.5%]",
-                        MEDIUM: "left-[37.5%]",
-                        HIGH: "left-[62.5%]",
-                        CRITICAL: "left-[87.5%]"
-                      };
-
-                      return (
-                        <>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[9px] font-mono uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
-                              <Shield className="w-3 h-3 text-red-500 animate-pulse" /> Severidade de Incidentes Disciplinares:
-                            </span>
-                            <button
-                              onClick={handleExportCSV}
-                              className="bg-slate-950 hover:bg-slate-800 text-amber-500 hover:text-amber-400 border border-slate-800 hover:border-slate-700 font-mono text-[9px] px-2.5 py-1 rounded transition duration-200 flex items-center gap-1 cursor-pointer font-bold uppercase shrink-0"
-                              title="Exportar dados formatados de severidade de incidentes para CSV"
-                            >
-                              <Download className="w-2.5 h-2.5" /> Exportar Dados
-                            </button>
-                          </div>
-                          
-                          <div className="grid grid-cols-4 gap-1.5 relative">
-                            <div 
-                              onMouseEnter={() => setHoveredSeverityKey('LOW')}
-                              onMouseLeave={() => setHoveredSeverityKey(null)}
-                              className="flex flex-col items-center p-1.5 rounded bg-blue-500/5 border border-blue-500/10 hover:border-blue-500/40 hover:bg-blue-500/10 transition cursor-help text-center"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mb-0.5" />
-                              <span className="text-[8px] font-bold text-blue-400 font-mono">BAIXA</span>
-                              <span className="text-[7px] text-slate-500 font-sans tracking-tight leading-none mt-0.5">Indisciplina</span>
-                            </div>
-                            <div 
-                              onMouseEnter={() => setHoveredSeverityKey('MEDIUM')}
-                              onMouseLeave={() => setHoveredSeverityKey(null)}
-                              className="flex flex-col items-center p-1.5 rounded bg-purple-500/5 border border-purple-500/10 hover:border-purple-500/40 hover:bg-purple-500/10 transition cursor-help text-center"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mb-0.5" />
-                              <span className="text-[8px] font-bold text-purple-400 font-mono">MÉDIA</span>
-                              <span className="text-[7px] text-slate-500 font-sans tracking-tight leading-none mt-0.5">Ilicitados</span>
-                            </div>
-                            <div 
-                              onMouseEnter={() => setHoveredSeverityKey('HIGH')}
-                              onMouseLeave={() => setHoveredSeverityKey(null)}
-                              className="flex flex-col items-center p-1.5 rounded bg-orange-500/5 border border-orange-500/10 hover:border-orange-500/40 hover:bg-orange-500/10 transition cursor-help text-center"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mb-0.5" />
-                              <span className="text-[8px] font-bold text-orange-400 font-mono">ALTA</span>
-                              <span className="text-[7px] text-slate-500 font-sans tracking-tight leading-none mt-0.5">Tent. Fuga</span>
-                            </div>
-                            <div 
-                              onMouseEnter={() => setHoveredSeverityKey('CRITICAL')}
-                              onMouseLeave={() => setHoveredSeverityKey(null)}
-                              className="flex flex-col items-center p-1.5 rounded bg-red-500/5 border border-red-500/10 hover:border-red-500/40 hover:bg-red-500/10 transition cursor-help text-center"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-red-500 mb-0.5 animate-pulse" />
-                              <span className="text-[8px] font-bold text-red-100 font-mono">CRÍTICA</span>
-                              <span className="text-[7px] text-slate-500 font-sans tracking-tight leading-none mt-0.5">Agressões</span>
-                            </div>
-                          </div>
-
-                          <AnimatePresence>
-                            {hoveredSeverityKey && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: 5, scale: 0.96 }}
-                                transition={{ duration: 0.15, ease: "easeOut" }}
-                                className={`absolute bottom-full mb-3.5 left-0 right-0 z-50 p-3.5 rounded-lg border shadow-2xl backdrop-blur-md flex flex-col gap-2 ${SEVERITY_TOOLTIP_DATA[hoveredSeverityKey].bgClass}`}
-                              >
-                                <div className="flex items-center gap-1.5">
-                                  <span className={`w-2.5 h-2.5 rounded-full ${SEVERITY_TOOLTIP_DATA[hoveredSeverityKey].iconColor} animate-pulse`} />
-                                  <span className={`text-[10px] uppercase font-black tracking-widest ${SEVERITY_TOOLTIP_DATA[hoveredSeverityKey].color} font-mono`}>
-                                    {SEVERITY_TOOLTIP_DATA[hoveredSeverityKey].title}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col gap-0.5">
-                                  <span className="text-[8px] uppercase font-extrabold text-slate-400 font-mono tracking-wider">Definição:</span>
-                                  <p className="text-[10px] text-slate-300 font-sans leading-normal">
-                                    {SEVERITY_TOOLTIP_DATA[hoveredSeverityKey].definition}
-                                  </p>
-                                </div>
-                                <div className="border-t border-slate-800/80 pt-1.5 mt-0.5 flex flex-col gap-0.5">
-                                  <span className="text-[8px] uppercase font-extrabold text-amber-500/90 font-mono tracking-wider">Critério Limiar:</span>
-                                  <p className="text-[10px] text-slate-300 font-mono leading-normal bg-slate-950/60 p-2 rounded border border-slate-800/50">
-                                    {SEVERITY_TOOLTIP_DATA[hoveredSeverityKey].criteria}
-                                  </p>
-                                </div>
-
-                                {/* Arrow pointer pointing exactly to the hovered element */}
-                                <div className={`absolute bottom-0 ${arrowOffsets[hoveredSeverityKey]} transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-slate-950 border-r border-b ${SEVERITY_TOOLTIP_DATA[hoveredSeverityKey].border}`} />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </>
-                      );
-                    })()}
-                  </div>
-                  
-                  {/* Minhas Legendas */}
-                  <div className="flex justify-between items-center text-[8px] font-mono text-slate-500 border-t border-slate-850 pt-2.5">
-                    <span className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-slate-600" /> Oficial ({prisons.reduce((acc, p) => acc + p.officialCapacity, 0)})
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-sky-500" /> Operativa ({prisons.reduce((acc, p) => acc + p.operationalCapacity, 0)})
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-red-400" /> Actual ({prisons.reduce((acc, p) => acc + p.currentOccupancy, 0)})
-                    </span>
-                  </div>
-                </div>
-
-                {/* Gestão de Risco Dinâmica */}
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 shadow-xl">
-                  <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-500 font-mono">
-                      Perfis de Risco Dinâmicos (RiskProfile)
-                    </h3>
-                    <p className="text-xs text-slate-400">Classificação de segurança nacional para escoltas, movimentações e visitas no país.</p>
-                  </div>
-
-                  <div className="flex flex-col gap-3 font-mono text-xs">
-                    <div className="bg-red-950/20 border border-red-500/20 p-3 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-red-600" />
-                        <div>
-                          <p className="font-bold text-red-400 text-xxs">MÁXIMA PERIGOSIDADE</p>
-                          <p className="text-[10px] text-slate-400 font-sans leading-snug">Crimes graves, reincidentes violentos</p>
-                        </div>
-                      </div>
-                      <span className="text-red-400 font-bold bg-red-500/10 px-2 py-0.5 rounded text-xxs">
-                        {mockSumRisk("Máximo")} Reclusos
-                      </span>
-                    </div>
-
-                    <div className="bg-orange-950/20 border border-orange-500/15 p-3 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-orange-500" />
-                        <div>
-                          <p className="font-bold text-orange-400 text-xxs">ALTO RISCO</p>
-                          <p className="text-[10px] text-slate-400 font-sans leading-snug">Sob vigilância contínua armada</p>
-                        </div>
-                      </div>
-                      <span className="text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded text-xxs">
-                        {mockSumRisk("Alto")} Reclusos
-                      </span>
-                    </div>
-
-                    <div className="bg-blue-950/20 border border-blue-500/15 p-3 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-blue-500" />
-                        <div>
-                          <p className="font-bold text-blue-400 text-xxs">MÉDIO RISCO</p>
-                          <p className="text-[10px] text-slate-400 font-sans leading-snug">Regime comum, conduta instável</p>
-                        </div>
-                      </div>
-                      <span className="text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded text-xxs">
-                        {mockSumRisk("Médio")} Reclusos
-                      </span>
-                    </div>
-
-                    <div className="bg-emerald-950/20 border border-emerald-500/15 p-3 rounded-lg flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full bg-emerald-500" />
-                        <div>
-                          <p className="font-bold text-emerald-400 text-xxs">BAIXO RISCO</p>
-                          <p className="text-[10px] text-slate-400 font-sans leading-snug">Processados em atividades comuns</p>
-                        </div>
-                      </div>
-                      <span className="text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded text-xxs">
-                        {mockSumRisk("Baixo")} Reclusos
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="text-xxs text-slate-500 leading-snug border-t border-slate-800 pt-3 flex items-start gap-1.5 font-sans">
-                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                    <span>Calculado a partir do artigo de lei imposto no cadastramento. A alteração de risco exige ata fundamentada de diretor da unidade.</span>
-                  </div>
-                </div>
-
-                {/* Inteligência Penitenciária e Avisos de Operação */}
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 shadow-xl relative overflow-hidden">
-                  {/* Subtle decorative background scanning grid when active */}
-                  {isIntelPredictiveActive && (
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(239,68,68,0.06),transparent_60%)] pointer-events-none" />
-                  )}
-
-                  <div className="flex items-center justify-between z-10">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-red-500 font-mono flex items-center gap-2 animate-pulse">
-                      <Shield className="h-4 w-4" /> Inteligência Operacional
-                    </h3>
-                    <div className="flex items-center gap-1.5">
-                      <span className="bg-red-500/10 text-red-400 text-[9px] font-mono px-2 py-0.5 rounded border border-red-500/20 uppercase">
-                        SICP Activo
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-xxs text-slate-400 z-10">Monitorização em tempo real de tentativas de fuga, motins e cálculo preditivo de fricção comportamental.</p>
-
-                  {/* Interactive Tension Gauge */}
-                  <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-850 flex flex-col gap-2 z-10">
-                    <div className="flex justify-between items-center font-mono text-xxs">
-                      <span className="text-slate-400 font-bold uppercase flex items-center gap-1.5">
-                        <span className={`h-2 w-2 rounded-full ${intelTensionLevel > 70 ? "bg-red-500 animate-ping" : intelTensionLevel > 50 ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
-                        Índice de Tensão:
-                      </span>
-                      <span className={`font-black text-xs ${intelTensionLevel > 70 ? "text-red-400" : intelTensionLevel > 50 ? "text-amber-400" : "text-emerald-400"}`}>
-                        {intelTensionLevel}% {intelTensionLevel > 70 ? "CRÍTICO" : intelTensionLevel > 50 ? "MODERADO" : "SANO"}
-                      </span>
-                    </div>
-                    {/* Visual gauge slider */}
-                    <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden relative border border-slate-850">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-700 ${intelTensionLevel > 70 ? "bg-gradient-to-r from-red-600 to-red-400" : intelTensionLevel > 50 ? "bg-gradient-to-r from-amber-600 to-amber-400" : "bg-gradient-to-r from-emerald-600 to-emerald-400"}`}
-                        style={{ width: `${intelTensionLevel}%` }}
-                      />
-                    </div>
-                    {isEnterpriseMode && (
-                      <div className="flex justify-between text-[8px] font-mono text-slate-500 uppercase">
-                        <span>Lotação Crítica: {visiblePrisons.filter(p => p.currentOccupancy > p.officialCapacity).length} Unidades</span>
-                        <span>Risco Máximo: {inmates.filter(i => i.status === "ACTIVE" && i.riskLevel === "Máximo").length} reclusos</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Interactive Block Selector & Diagnostic Trigger */}
-                  <div className="flex flex-col gap-1.5 border-t border-b border-slate-800/80 py-3 my-1 z-10">
-                    <label className="text-[9px] text-slate-400 font-mono uppercase tracking-wider font-extrabold flex items-center gap-1">
-                      <span>Mapeador Preditivo IA (Interpriser):</span>
-                    </label>
-                    <div className="flex gap-1.5">
-                      <select
-                        value={selectedIntelTargetBlock}
-                        onChange={(e) => {
-                          setSelectedIntelTargetBlock(e.target.value);
-                          setIntelSimulatedAnalysis("");
-                        }}
-                        className="flex-1 bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xxs text-slate-300 font-mono focus:outline-none focus:border-red-500 cursor-pointer"
-                      >
-                        <option value="BLK-B2">Bloco B2 (Segurança Estrita/Máximo)</option>
-                        <option value="BLK-A1">Bloco A1 (Regime Inicial Baixo)</option>
-                        <option value="BLK-B1">Bloco B1 (Regime Fechado Médio)</option>
-                        <option value="BLK-H1A">Bloco H1-A (Luanda Custódia)</option>
-                        <option value="BLK-H2A">Bloco H2-A (Alta Perigosidade Luanda)</option>
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsAnalyzingIntel(true);
-                          setIntelSimulatedAnalysis("");
-                          
-                          // Simulating intelligent diagnosis of block dynamics
-                          setTimeout(() => {
-                            setIsAnalyzingIntel(false);
-                            let analysis = "";
-                            let score = 42;
-                            if (selectedIntelTargetBlock === "BLK-B2") {
-                              score = 88;
-                              analysis = JSON.stringify({
-                                tension: 88,
-                                risk: "CRÍTICO (ALTO RISCO)",
-                                factors: [
-                                  "Excesso de ocupação física de 127% nas celas",
-                                  "Concentração de 5 líderes de fações opostas",
-                                  "Aumento súbito de desvios comportamentais (3 incidentes)"
-                                ],
-                                mitigations: [
-                                  "Apoiar o reordenamento com dispersão de custódia",
-                                  "Rondas táticas do SIC de hora em hora",
-                                  "Suspensão de pátio coletivo por 48 horas para auditoria"
-                                ]
-                              });
-                            } else if (selectedIntelTargetBlock === "BLK-A1") {
-                              score = 28;
-                              analysis = JSON.stringify({
-                                tension: 28,
-                                risk: "ESTÁVEL (NOMINAL)",
-                                factors: [
-                                  "Predomínio de reclusos em regime inicial aberto",
-                                  "Nenhum registo de incidentes graves",
-                                  "Acomodação dentro das diretrizes operacionais recomendadas"
-                                ],
-                                mitigations: [
-                                  "Promover integração em atividades formativas",
-                                  "Protocolo de patrulhamento ordinário básico",
-                                  "Acompanhamento psicológico agendado"
-                                ]
-                              });
-                            } else if (selectedIntelTargetBlock === "BLK-B1") {
-                              score = 54;
-                              analysis = JSON.stringify({
-                                tension: 54,
-                                risk: "ATENÇÃO (MODERADO)",
-                                factors: [
-                                  "Reclusos em fase de transição de custódia",
-                                  "Diferença comportamental média entre celas norte e sul",
-                                  "Pequenos focos de indisciplina verbal"
-                                ],
-                                mitigations: [
-                                  "Revistas preventivas de rotina reforçadas",
-                                  "Remanejar detentos instáveis para o Pavilhão B",
-                                  "Aumentar vigilância no refeitório"
-                                ]
-                              });
-                            } else {
-                              score = 62;
-                              analysis = JSON.stringify({
-                                tension: 62,
-                                risk: "ALERTA (ELEVADO)",
-                                factors: [
-                                  "População sob monitorização disciplinar recente",
-                                  "Rotatividade de efetivos acima do limite nominal",
-                                  "Registos de insolvência de condutas"
-                                ],
-                                mitigations: [
-                                  "Contagem eletrónica extraordinária imediata",
-                                  "Garantir a aposição de selos de integridade",
-                                  "Ajustar rácio de guardas por cela no bloco"
-                                ]
-                              });
-                            }
-                            setIntelTensionLevel(score);
-                            setIntelSimulatedAnalysis(analysis);
-                            triggerToast(
-                              "IA PROCESSADA COM SUCESSO", 
-                              `Varredura tática finalizada para o ${selectedIntelTargetBlock}. Nível de tensão medido: ${score}%.`, 
-                              "success"
-                            );
-                          }, 1200);
-                        }}
-                        disabled={isAnalyzingIntel}
-                        className="px-2.5 py-1.5 bg-red-955/35 hover:bg-red-900/60 border border-red-500/30 hover:border-red-500/50 text-red-400 text-xxs font-mono font-bold rounded cursor-pointer transition-all flex items-center justify-center gap-1 min-w-[90px]"
-                      >
-                        {isAnalyzingIntel ? (
-                          <>
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-400 animate-ping" />
-                            <span>A calcular...</span>
-                          </>
-                        ) : "Diagnosticar"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* AI Results Output Panel */}
-                  {intelSimulatedAnalysis && (() => {
-                    const parsed = JSON.parse(intelSimulatedAnalysis);
-                    return (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-slate-950 p-3.5 border border-red-500/20 rounded-lg flex flex-col gap-3 font-mono text-xxs text-slate-300 z-10"
-                      >
-                        <div className="flex justify-between items-center border-b border-slate-850 pb-2">
-                          <span className="text-red-400 font-bold uppercase tracking-wider">RESULTADO DA IA COGNITIVA:</span>
-                          <span className={`px-1.5 py-0.2 rounded font-black ${parsed.tension > 70 ? "bg-red-500/20 text-red-300 border border-red-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"}`}>
-                            {parsed.risk}
-                          </span>
-                        </div>
-
-                        <div>
-                          <div className="text-[9px] text-slate-500 uppercase font-bold mb-1">Fatores de Instabilidade Detetados:</div>
-                          <ul className="list-disc list-inside space-y-1 text-slate-300 text-[10px] font-sans pl-1">
-                            {parsed.factors.map((f: string, idx: number) => (
-                              <li key={idx} className="leading-snug">{f}</li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <div>
-                          <div className="text-[9px] text-amber-500 uppercase font-bold mb-1">Diretivas de Mitigação Obrigatórias:</div>
-                          <ul className="list-decimal list-inside space-y-1 text-slate-300 text-[10px] font-sans pl-1">
-                            {parsed.mitigations.map((m: string, idx: number) => (
-                              <li key={idx} className="leading-snug">
-                                <span className="font-semibold text-slate-200">{m}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            writeAuditLog(
-                              currentOperator,
-                              "PRINT_REPORT",
-                              "Intelligence",
-                              selectedIntelTargetBlock,
-                              `Gerou e despachou Ordem de Segurança Preditiva IA para o Bloco ${selectedIntelTargetBlock} com Mitigações Estruturais.`
-                            );
-                            triggerToast(
-                              "ORDEM EXPEDIDA", 
-                              `Despacho tático expedido diretamente ao Comandante de Serviço do estabelecimento para aplicação imediata.`, 
-                              "success"
-                            );
-                          }}
-                          className="w-full bg-slate-900 hover:bg-slate-850 border border-slate-850 hover:border-slate-750 text-slate-300 hover:text-white py-1.5 rounded text-[9.5px] font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-1.5"
-                        >
-                          <ShieldAlert className="h-3 w-3 text-amber-500" />
-                          <span>Expedir Ordem de Segurança</span>
-                        </button>
-                      </motion.div>
-                    );
-                  })()}
-
-                  {/* Standard Logs Section to maintain context */}
-                  <div className="flex flex-col gap-2 font-mono text-xxs text-slate-300 z-10">
-                    <div className="text-[9px] text-slate-500 uppercase font-extrabold tracking-wider mb-0.5">Alertas Recentes da Inteligência</div>
-
-                    <div className="bg-slate-950 p-2.5 border-l-2 border-red-500 rounded hover:bg-slate-950/80 transition">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-slate-200">Tentativa de Subversão</span>
-                        <span className="text-[9px] text-red-400">Alto Alerta</span>
-                      </div>
-                      <p className="text-slate-400 text-[10px] mt-1 font-sans leading-snug">Bloco B2 vigiado por possível articulação interna de detentos de alta perigosidade.</p>
-                      <span className="text-slate-500 text-[9px] mt-1 block">Registo: 26-06-2026 - Central Luanda</span>
-                    </div>
-
-                    <div className="bg-slate-950 p-2.5 border-l-2 border-amber-500 rounded hover:bg-slate-950/80 transition">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-slate-200">Sindicância de Armaria</span>
-                        <span className="text-[9px] text-amber-400">Pendente</span>
-                      </div>
-                      <p className="text-slate-400 text-[10px] mt-1 font-sans leading-snug">Controle preventivo de munições especiais em Sanza Pombo com auditoria agendada pelo SIC.</p>
-                      <span className="text-slate-500 text-[9px] mt-1 block">Registo: 24-06-2026 - Auditoria</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* DASHBOARD DE INTELIGÊNCIA & SEGURANÇA (PERFIS DE RISCO EM TEMPO REAL) */}
-              <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-6 shadow-xl">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-800 pb-4 gap-4">
-                  <div>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-red-500 font-mono flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-red-500 animate-pulse" /> Inteligência & Segurança: Perfis de Risco em Tempo Real
-                    </h2>
-                    <p className="text-xs text-slate-400 mt-1 font-sans">
-                      Distribuição macro e micro dos níveis de perigosidade penal (Baixo, Médio, Alto, Máximo) sincronizados localmente e na nuvem.
-                    </p>
-                  </div>
-
-                  {/* Filtro por Unidade Prisional */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
-                      <Filter className="h-3.5 w-3.5 text-amber-500" /> Filtrar Prisão:
-                    </span>
-                    <select
-                      value={selectedRiskPrisonFilter}
-                      onChange={(e) => setSelectedRiskPrisonFilter(e.target.value)}
-                      className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300 font-mono focus:outline-none focus:border-amber-500 cursor-pointer min-w-[220px]"
+                  {/* TAB 1: DASHBOARD / VISÃO GERAL DE CAPACIDADE */}
+              {activeTab === "dashboard" && (
+                <div className="flex flex-col gap-6">
+                  {dashboardSubTab === "capacity" ? (
+                    <motion.div
+                      key="dashboard-view-capacity"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="flex flex-col gap-6"
                     >
-                      {currentOperator.role === "DIRECTOR_GERAL" ? (
-                        <option value="ALL">Geral Nacional (Tudo)</option>
-                      ) : currentOperator.role === "DIRECTOR_PROVINCIAL" ? (
-                        <option value="ALL">Provincial Luanda (Completo)</option>
-                      ) : null}
-                      {visiblePrisons.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name.replace("Estabelecimento Penitenciário de", "EP")}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                      {/* DASHBOARD DE INTELIGÊNCIA & SEGURANÇA (PERFIS DE RISCO EM TEMPO REAL) */}
+                      <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-4 shadow-xl">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-800 pb-3 gap-3">
+                          <div>
+                            <h2 className="text-xs font-bold uppercase tracking-wider text-red-500 font-mono flex items-center gap-2">
+                              <Shield className="h-4 w-4 text-red-500 animate-pulse" /> Inteligência & Segurança: Perfis de Risco
+                            </h2>
+                          </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                  
-                  {/* Left Side: Recharts Donut (Pie) Chart */}
-                  <div className="md:col-span-5 flex flex-col items-center justify-center relative bg-slate-950/40 p-4 border border-slate-800/50 rounded-xl">
+                          {/* Filtro por Unidade Prisional */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
+                              <Filter className="h-3.5 w-3.5 text-amber-500" /> Filtrar Prisão:
+                            </span>
+                            <select
+                              value={selectedRiskPrisonFilter}
+                              onChange={(e) => setSelectedRiskPrisonFilter(e.target.value)}
+                              className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300 font-mono focus:outline-none focus:border-amber-500 cursor-pointer min-w-[220px]"
+                            >
+                              {currentOperator.role === "DIRECTOR_GERAL" ? (
+                                <option value="ALL">Geral Nacional (Tudo)</option>
+                              ) : currentOperator.role === "DIRECTOR_PROVINCIAL" ? (
+                                <option value="ALL">Provincial Luanda (Completo)</option>
+                              ) : null}
+                              {visiblePrisons.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name.replace("Estabelecimento Penitenciário de", "EP")}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                          <div className="md:col-span-5 flex flex-col items-center justify-center relative bg-slate-950/40 p-4 border border-slate-800/50 rounded-xl">
                     <div className="absolute flex flex-col items-center justify-center text-center pointer-events-none">
                       <span className="text-3xl font-black text-slate-100 font-mono">{totalFilteredInmates}</span>
                       <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold font-sans">Total Filtrado</span>
@@ -13286,44 +11571,14 @@ export default function App() {
               exit={{ opacity: 0, y: -10 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-6"
             >
-              {/* Painel Informativo de Restrição de Admissão do Centro Operacional Central */}
-              {(currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.province === "Centro Operacional") && (
-                <div className="lg:col-span-12 bg-slate-950 border border-amber-500/40 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
-                  <div className="flex items-start gap-3.5">
-                    <div className="p-3 bg-amber-500/15 border border-amber-500/30 text-amber-400 rounded-xl shrink-0 mt-0.5">
-                      <ShieldAlert className="h-6 w-6 animate-pulse" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-xs sm:text-sm font-bold font-mono text-amber-400 uppercase tracking-wide">
-                          CENTRO OPERACIONAL CENTRAL NACIONAL — COMPETÊNCIA EXCLUSIVA DE ADMINISTRAÇÃO E SUPERVISÃO
-                        </h3>
-                        <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-mono px-2 py-0.5 rounded uppercase font-bold">
-                          SEM FUNÇÃO DE ADMISSÃO DIRETA
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-300 font-sans mt-1 leading-relaxed">
-                        O <strong>Centro Operacional Central (Direção Geral)</strong> administra toda a plataforma nacional, audita a soberania de dados, monitoriza a ocupação global e coordena as políticas prisionais. <strong>Não efectua admissões directas de reclusos.</strong>
-                      </p>
-                      <p className="text-xxs text-amber-400/90 font-mono mt-1">
-                        💡 Para efetuar o registo/admissão de um recluso, alterne o operador para um Estabelecimento Penitenciário local (ex: EP Viana) no seletor de perfis no topo da aplicação.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Form de Matrícula Dinâmica de Novo Recluso */}
               <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
                 
                 <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
                   <div>
                     <h2 className="text-sm font-bold uppercase tracking-wider text-amber-500 font-mono flex items-center gap-2">
-                       Novo Boletim de Admissão Prisional
+                      Novo Ingresso
                     </h2>
-                    <p className="text-xs text-slate-400">
-                      Entrada formal certificada. Os dados são estruturados segundo o artigo penal do crime.
-                    </p>
                   </div>
                   
                   {/* Network Indicator Control inside forms */}
@@ -13410,22 +11665,6 @@ export default function App() {
                             "Auditoria de Registo & Cadeia de Custódia"
                           ][activeAdmitModule - 1]}
                         </h4>
-                        <p className="text-[10px] text-slate-400 font-sans">
-                          {[
-                            "Registo civil primário, alcunhas e filiação do recluso.",
-                            "Magistrados, mandados, artigos capitulados e tempo de pena.",
-                            "Enquadramento de inteligência, organização criminosa, nível de ameaça e fuga.",
-                            "Risco calculados, tendências suicidas, comportamento e vigilâncias especiais.",
-                            "Diagnóstico médico primário, dependências químicas e triagem psicológica.",
-                            "Arrecadação física devidamente inventariada e selada com termo legal.",
-                            "Sugerido estabelecimento, pavilhão correspondente, cela disponível e capacidade.",
-                            "Perfil escolar, qualificações profissionais e pretensão laborativa interna.",
-                            "Identificação civil de visitantes directos autorizados e graus de parentesco.",
-                            "Dados antropométricos, tom de pele, cicatrizes permanentes, tatuagens e marcas.",
-                            "Instrumento de formalização legal do ato de aceitação pelo MININT.",
-                            "Termos de cadeia de custódia, hash SHA-256 e assinatura ICP regional."
-                          ][activeAdmitModule - 1]}
-                        </p>
                       </div>
                     </div>
 
@@ -14871,28 +13110,97 @@ export default function App() {
                     };
 
                     return (
-                      <div id="App-Alocação-Modulo" className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* PAINEL DE REDISTRIBUIÇÃO PREDITIVA DE RECLUSOS NO BLOCO B2 */}
-                        {(() => {
-                          // Obter reclusos alocados ao Bloco B2 ou reclusos de elevado risco da unidade
+                      <>
+                        <div id="App-Alocação-Modulo" className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-col gap-3">
+                        {/* Toolbar de Botões Operacionais Compactos */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-950/80 p-2.5 rounded-lg border border-slate-850">
+                          {/* Botões Operacionais Primários */}
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[10px] uppercase font-mono font-bold text-amber-500 mr-1 flex items-center gap-1">
+                              <Zap className="h-3.5 w-3.5 text-amber-500" /> Operações
+                            </span>
+                          </div>
+
+                          {/* Ações de Triagem e Sugestão */}
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={inmateRisk}
+                              onChange={(e) => setInmateRiskOverride(e.target.value)}
+                              className={`bg-slate-900 border rounded p-1 text-[9px] font-bold font-mono focus:outline-none cursor-pointer ${
+                                inmateRisk === "Máximo" ? "text-red-400 border-red-500/30" :
+                                inmateRisk === "Alto" ? "text-amber-400 border-amber-500/30" :
+                                inmateRisk === "Médio" ? "text-sky-400 border-slate-800" :
+                                "text-emerald-400 border-emerald-500/20"
+                              }`}
+                            >
+                              <option value="Baixo" className="text-emerald-400 bg-slate-950">🟢 Baixo</option>
+                              <option value="Médio" className="text-sky-400 bg-slate-950">🔵 Médio</option>
+                              <option value="Alto" className="text-amber-400 bg-slate-950">🟡 Alto</option>
+                              <option value="Máximo" className="text-red-400 bg-slate-950">🔴 Máximo</option>
+                            </select>
+
+                            <button
+                              type="button"
+                              onClick={handleSuggestCell}
+                              className="px-2.5 py-1 text-[9px] font-mono font-bold uppercase rounded bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold cursor-pointer flex items-center gap-1"
+                            >
+                              <Sparkles className="h-3 w-3" /> Sugerir Cela
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Sub-bar de Filtro de Grau de Risco */}
+                        <div className="flex items-center gap-1.5 flex-wrap px-1">
+                          <span className="text-[9px] uppercase font-bold font-mono text-slate-400 mr-1 flex items-center gap-1">
+                            <Shield className="h-3 w-3" /> Filtro Risco:
+                          </span>
+                          {[
+                            { id: null, label: "Tudo", color: "bg-slate-950 text-slate-400 border-slate-850" },
+                            { id: "Baixo", label: "🟢 Baixo", color: "text-emerald-400 border-emerald-500/20" },
+                            { id: "Médio", label: "🔵 Médio", color: "text-sky-400 border-sky-500/20" },
+                            { id: "Alto", label: "🟡 Alto", color: "text-amber-400 border-amber-500/20" },
+                            { id: "Máximo", label: "🔴 Máximo", color: "text-red-400 border-red-500/20" },
+                          ].map((level) => (
+                            <button
+                              key={level.label}
+                              type="button"
+                              onClick={() => setSelectedRiskFilter(level.id)}
+                              className={`px-2 py-0.5 rounded border text-[9px] font-mono font-bold uppercase cursor-pointer ${
+                                selectedRiskFilter === level.id ? "bg-slate-800 border-amber-500 text-white" : level.color
+                              }`}
+                            >
+                              {level.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Alerta de Sugestão / Ação */}
+                        {suggestionAlert && (
+                          <div className={`py-1.5 px-3 rounded-lg border font-mono text-[9.5px] ${
+                            suggestionAlert.type === "success" 
+                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                              : "bg-rose-500/15 border-rose-500/30 text-rose-400"
+                          }`}>
+                            {suggestionAlert.text}
+                          </div>
+                        )}
+
+                        {/* Sub-painéis Operacionais Condicionais (Compactos) */}
+
+                        {/* 1. Painel de Otimização Preditiva do Bloco B2 */}
+                        {isB2OptimizationExpanded && (() => {
                           const b2BlockId = "BLK-B2";
                           let b2Inmates = inmates.filter(i => i.assignedBlockId === b2BlockId);
-                          
-                          // Caso existam poucos reclusos registados diretamente no B2, selecionar também reclusos de Alto/Máximo risco para compor o painel preditivo do Bloco B2
                           if (b2Inmates.length < 5) {
                             const highRiskCandidates = inmates.filter(i => i.riskLevel === "Máximo" || i.riskLevel === "Alto" || i.assignedCellNumber?.includes("B2"));
                             b2Inmates = Array.from(new Set([...b2Inmates, ...highRiskCandidates])).slice(0, 10);
                           }
-
                           const b2CellNumbers = Array.from({ length: 12 }, (_, i) => `Cela B2-${String(i + 1).padStart(2, "0")}`);
-
-                          // Helper para score de estabilidade
                           const calcInmateStability = (inmate: any) => {
                             let score = 50;
                             if (inmate.riskLevel === "Máximo") score += 35;
                             else if (inmate.riskLevel === "Alto") score += 25;
                             else if (inmate.riskLevel === "Médio") score += 12;
-
                             if (inmate.expectedReleaseDate) {
                               try {
                                 const relDate = new Date(inmate.expectedReleaseDate);
@@ -14908,25 +13216,20 @@ export default function App() {
                               for (let k = 0; k < str.length; k++) hash += str.charCodeAt(k);
                               score += (1 + (hash % 8)) * 4;
                             }
-
                             if (inmate.escapeRisk === "Sim" || inmate.escapeRisk === "Alto") score += 10;
                             if (inmate.isRecidivist === "Sim") score += 5;
                             return score;
                           };
-
-                          // Mapear celas ordenadas por menor taxa de rotatividade preditiva
                           const cellsTurnover = b2CellNumbers.map(cellName => {
                             const tRate = getPredictiveTurnoverRate(b2BlockId, cellName);
                             return { cellName, probability: tRate.probability };
                           }).sort((a, b) => a.probability - b.probability);
 
-                          // Mapear reclusos ordenados por maior estabilidade de custódia
                           const sortedB2Inmates = b2Inmates.map(inm => ({
                             inmate: inm,
                             stabilityScore: calcInmateStability(inm)
                           })).sort((a, b) => b.stabilityScore - a.stabilityScore);
 
-                          // Proposta de redistribuição
                           const b2ProposalRelocations = sortedB2Inmates.map((si, idx) => {
                             const targetCell = cellsTurnover[idx % cellsTurnover.length];
                             const currentCell = si.inmate.assignedCellNumber || `Cela B2-${String((idx % 12) + 1).padStart(2, "0")}`;
@@ -14945,41 +13248,20 @@ export default function App() {
                             };
                           });
 
-                          const changedCount = b2ProposalRelocations.filter(r => r.isChanged).length;
                           const avgStability = Math.round(sortedB2Inmates.reduce((s, i) => s + i.stabilityScore, 0) / Math.max(1, sortedB2Inmates.length));
-
-                          // Identificar celas com alta rotatividade preditiva (>50%)
                           const highTurnoverCells = cellsTurnover.filter(c => c.probability >= 50);
-
-                          // Identificar reclusos com perfil de longa permanência (estabilidade > 65)
                           const longStayInmates = sortedB2Inmates.filter(si => si.stabilityScore >= 60);
 
                           return (
-                            <div id="Proposta-Redistribuicao-BlocoB2" className="md:col-span-2 bg-slate-900/80 p-5 rounded-2xl border border-amber-500/35 shadow-xl flex flex-col gap-4 relative overflow-hidden">
-                              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-                              
-                              {/* Header */}
-                              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 shrink-0">
-                                    <Activity className="h-5 w-5 animate-pulse" />
-                                  </div>
-                                  <div className="flex flex-col">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="text-xs uppercase font-extrabold font-mono text-amber-400 tracking-wider">
-                                        Módulo de Otimização do Bloco B2 • Análise Preditiva
-                                      </span>
-                                      <span className="bg-amber-500/15 text-amber-300 font-mono text-[8.5px] font-bold px-2 py-0.5 rounded-full border border-amber-500/30 uppercase">
-                                        Remanejamento Automático de Longa Permanência
-                                      </span>
-                                    </div>
-                                    <span className="text-[10px] font-sans text-slate-400 mt-0.5 leading-relaxed max-w-2xl">
-                                      Diretiva de Inteligência SICP: Mapeia celas com alta taxa de rotatividade preditiva no Bloco B2 e sugere o remanejamento automático de reclusos de longa permanência para garantir a máxima estabilidade ocupacional.
-                                    </span>
-                                  </div>
+                            <div id="Proposta-Redistribuicao-BlocoB2" className="bg-slate-950/90 border border-amber-500/30 rounded-lg p-3 flex flex-col gap-2.5">
+                              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <div className="flex items-center gap-2">
+                                  <Activity className="h-4 w-4 text-amber-400 shrink-0" />
+                                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">
+                                    Painel de Otimização Preditiva do Bloco B2
+                                  </span>
                                 </div>
-
-                                <div className="flex items-center gap-2 shrink-0">
+                                <div className="flex items-center gap-2">
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -14995,19 +13277,11 @@ export default function App() {
                                           turnoverAfter: r.turnoverAfter
                                         }))
                                       });
-                                      writeAuditLog(
-                                        currentOperator,
-                                        "ANALYZE_TURNOVER_OPTIMIZATION" as any,
-                                        "Admission",
-                                        undefined,
-                                        "Gerou e visualizou proposta de redistribuição preditiva para o Bloco B2."
-                                      );
                                     }}
-                                    className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold font-sans text-[9px] uppercase px-3.5 py-2 rounded-xl transition shadow-md cursor-pointer select-none"
+                                    className="px-2 py-0.5 text-[9px] font-mono font-bold uppercase rounded border border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 cursor-pointer"
                                   >
-                                    <Sparkles className="h-3.5 w-3.5 shrink-0" /> Proposta Completa (B2)
+                                    Ver Proposta B2
                                   </button>
-
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -15020,679 +13294,229 @@ export default function App() {
                                           return inm;
                                         });
                                       });
-
-                                      setNewInmateForm(prev => ({
-                                        ...prev,
-                                        assignedBlockId: b2BlockId,
-                                        assignedCellNumber: b2ProposalRelocations[0]?.proposedCell || "Cela B2-01"
-                                      }));
-
                                       setSuggestionAlert({
                                         type: "success",
-                                        text: `⚡ REDISTRIBUIÇÃO DO BLOCO B2 APLICADA COM SUCESSO: ${changedCount} reclusos realocados por taxa de rotatividade preditiva. Transferências disruptivas futuras reduzidas em -42.8%!`
+                                        text: `⚡ REDISTRIBUIÇÃO DO BLOCO B2 APLICADA COM SUCESSO!`
                                       });
-
-                                      writeAuditLog(
-                                        currentOperator,
-                                        "APPLY_TURNOVER_OPTIMIZATION" as any,
-                                        "Admission",
-                                        undefined,
-                                        `Executou com sucesso a redistribuição preditiva do Bloco B2. ${changedCount} reclusos redistribuídos para celas otimizadas.`
-                                      );
                                     }}
-                                    className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold font-sans text-[9px] uppercase px-3.5 py-2 rounded-xl transition shadow-md cursor-pointer border border-emerald-400/30 select-none"
+                                    className="px-2 py-0.5 text-[9px] font-mono font-bold uppercase rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
                                   >
-                                    <Shield className="h-3.5 w-3.5 shrink-0 text-emerald-200" /> Remanejar Automático (B2)
+                                    Aplicar Remanejamento Auto
                                   </button>
                                 </div>
                               </div>
 
-                              {/* Key Metrics Row */}
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-850 flex flex-col gap-0.5">
-                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase tracking-wider">Queda em Transferências Disruptivas</span>
-                                  <span className="text-sm font-black font-mono text-emerald-400 flex items-center gap-1">
-                                    <TrendingUp className="h-4 w-4 rotate-180 text-emerald-400" /> -42.8%
-                                  </span>
-                                  <span className="text-[7.5px] text-slate-400 font-sans">Estimativa algorítmica SICP</span>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <div className="bg-slate-900 p-2 rounded border border-slate-850 flex flex-col gap-0.5">
+                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase">Redução Transferências</span>
+                                  <span className="text-xs font-black font-mono text-emerald-400">-42.8%</span>
                                 </div>
-
-                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-850 flex flex-col gap-0.5">
-                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase tracking-wider">Índice Médio de Estabilidade (B2)</span>
-                                  <span className="text-sm font-black font-mono text-amber-400">
-                                    {avgStability} / 120
-                                  </span>
-                                  <span className="text-[7.5px] text-slate-400 font-sans">Perfil de longevidade de custódia</span>
+                                <div className="bg-slate-900 p-2 rounded border border-slate-850 flex flex-col gap-0.5">
+                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase">Estabilidade Média</span>
+                                  <span className="text-xs font-black font-mono text-amber-400">{avgStability} / 120</span>
                                 </div>
-
-                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-850 flex flex-col gap-0.5">
-                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase tracking-wider">Celas de Alta Rotatividade</span>
-                                  <span className="text-sm font-black font-mono text-rose-400 flex items-center gap-1">
-                                    <AlertTriangle className="h-3.5 w-3.5 text-rose-400 shrink-0" /> {highTurnoverCells.length} Celas Críticas
-                                  </span>
-                                  <span className="text-[7.5px] text-slate-400 font-sans">Rotatividade preditiva &gt; 50%</span>
+                                <div className="bg-slate-900 p-2 rounded border border-slate-850 flex flex-col gap-0.5">
+                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase">Rotatividade Crítica</span>
+                                  <span className="text-xs font-black font-mono text-rose-400">{highTurnoverCells.length} Celas</span>
                                 </div>
-
-                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-850 flex flex-col gap-0.5">
-                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase tracking-wider">Reclusos de Longa Permanência</span>
-                                  <span className="text-sm font-black font-mono text-indigo-400">
-                                    {longStayInmates.length} Reclusos Mapeados
-                                  </span>
-                                  <span className="text-[7.5px] text-slate-400 font-sans">Elegíveis para celas estáveis</span>
+                                <div className="bg-slate-900 p-2 rounded border border-slate-850 flex flex-col gap-0.5">
+                                  <span className="text-[7.5px] font-mono text-slate-500 uppercase">Longa Permanência</span>
+                                  <span className="text-xs font-black font-mono text-indigo-400">{longStayInmates.length} Reclusos</span>
                                 </div>
                               </div>
 
-                              {/* Main Grid: Left Matrix + Right Sidebar Panel */}
-                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                                {/* Left Column (2/3): Interactive Redistribution Matrix */}
-                                <div className="lg:col-span-2 bg-slate-950/50 p-3.5 rounded-xl border border-slate-850 flex flex-col gap-2.5">
-                                  <div className="flex items-center justify-between text-[9px] font-mono text-slate-400 uppercase tracking-wider border-b border-slate-850 pb-2">
-                                    <span className="flex items-center gap-1.5 font-bold text-slate-200">
-                                      <Layers className="h-3.5 w-3.5 text-amber-400" /> Matriz de Alojamento Otimizada (Bloco B2)
-                                    </span>
-                                    <span className="text-slate-500">{b2ProposalRelocations.length} reclusos de alta segurança</span>
-                                  </div>
-
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[260px] overflow-y-auto pr-1">
-                                    {b2ProposalRelocations.map((rel) => (
-                                      <div
-                                        key={rel.inmate.id}
-                                        className={`p-2.5 rounded-lg border text-[9.5px] font-mono flex items-center justify-between gap-2 transition ${
-                                          rel.isChanged 
-                                            ? "bg-slate-900/90 border-amber-500/30 shadow-sm" 
-                                            : "bg-slate-900/40 border-slate-850 text-slate-400"
-                                        }`}
-                                      >
-                                        <div className="flex flex-col gap-0.5 truncate">
-                                          <span className="font-bold text-slate-200 truncate font-sans">
-                                            {rel.inmate.firstName} {rel.inmate.lastName}
-                                          </span>
-                                          <span className="text-[8px] text-slate-400">
-                                            NREP: {rel.inmate.id} • Estabilidade: <strong className="text-amber-400">{rel.stabilityScore}/120</strong>
-                                          </span>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 shrink-0">
-                                          <div className="flex flex-col items-end text-right text-[8px]">
-                                            <span className="text-slate-400 line-through">{rel.originalCell}</span>
-                                            <span className="text-slate-500 font-sans">Rot.: {rel.turnoverBefore}%</span>
-                                          </div>
-
-                                          <span className="text-amber-500 font-bold text-xs">➔</span>
-
-                                          <div className="flex flex-col items-start text-left text-[8px]">
-                                            <span className="text-emerald-400 font-bold">{rel.proposedCell}</span>
-                                            <span className="text-emerald-500 font-sans">Rot.: {rel.turnoverAfter}%</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* Right Column (1/3): PAINEL LATERAL DE OTIMIZAÇÃO & REMANEJAMENTO AUTOMÁTICO */}
-                                <div id="Painel-Lateral-Otimizacao-B2" className="bg-slate-950/70 p-3.5 rounded-xl border border-amber-500/20 flex flex-col gap-3 shadow-inner">
-                                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                                    <span className="text-[9.5px] font-mono font-extrabold uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
-                                      <Zap className="h-3.5 w-3.5 text-amber-400 animate-pulse" /> Painel Lateral de Otimização
-                                    </span>
-                                    <span className="bg-amber-500/20 text-amber-300 font-mono text-[7.5px] font-bold px-1.5 py-0.5 rounded uppercase">
-                                      Bloco B2
-                                    </span>
-                                  </div>
-
-                                  {/* Celas com Alta Rotatividade Preditiva */}
-                                  <div className="flex flex-col gap-1.5">
-                                    <span className="text-[8.5px] font-mono font-bold uppercase text-slate-400 flex items-center gap-1">
-                                      <AlertTriangle className="h-3 w-3 text-rose-400" /> Celas c/ Alta Rotatividade Preditiva:
-                                    </span>
-                                    <div className="flex flex-wrap gap-1">
-                                      {highTurnoverCells.length > 0 ? (
-                                        highTurnoverCells.map(c => (
-                                          <span key={c.cellName} className="bg-rose-500/15 border border-rose-500/30 text-rose-300 font-mono text-[8px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
-                                            {c.cellName} <strong className="text-rose-400 font-mono">({c.probability}%)</strong>
-                                          </span>
-                                        ))
-                                      ) : (
-                                        <span className="text-[8px] text-slate-500 italic">Nenhuma cela com rotatividade crítica.</span>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {/* Perfis de Longa Permanência Mapeados */}
-                                  <div className="flex flex-col gap-1.5 border-t border-slate-850 pt-2">
-                                    <span className="text-[8.5px] font-mono font-bold uppercase text-slate-400 flex items-center gap-1">
-                                      <Shield className="h-3 w-3 text-indigo-400" /> Perfis de Longa Permanência:
-                                    </span>
-                                    <div className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-0.5">
-                                      {longStayInmates.slice(0, 4).map(si => {
-                                        const origCell = si.inmate.assignedCellNumber || "Cela B2-01";
-                                        const isHighTurnoverOrig = getPredictiveTurnoverRate(b2BlockId, origCell).probability >= 50;
-                                        return (
-                                          <div key={si.inmate.id} className="bg-slate-900/70 p-2 rounded-lg border border-slate-800 text-[8.5px] font-mono flex items-center justify-between">
-                                            <div className="flex flex-col truncate">
-                                              <span className="text-slate-200 font-bold truncate font-sans">
-                                                {si.inmate.firstName} {si.inmate.lastName}
-                                              </span>
-                                              <span className="text-[7.5px] text-slate-400">
-                                                Atual: <strong className={isHighTurnoverOrig ? "text-rose-400" : "text-slate-300"}>{origCell}</strong>
-                                              </span>
-                                            </div>
-                                            <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-[8px] px-1.5 py-0.5 rounded shrink-0">
-                                              Estab: {si.stabilityScore}
-                                            </span>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
-
-                                  {/* Recomendação de Remanejamento Automático */}
-                                  <div className="flex flex-col gap-2 border-t border-slate-850 pt-2">
-                                    <div className="bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/25 flex flex-col gap-1">
-                                      <span className="text-[8px] font-mono font-bold uppercase text-amber-400 flex items-center gap-1">
-                                        <Sparkles className="h-3 w-3 text-amber-400" /> Sugestão de Remanejamento:
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
+                                {b2ProposalRelocations.map((rel) => (
+                                  <div
+                                    key={rel.inmate.id}
+                                    className={`p-1.5 rounded border text-[9px] font-mono flex items-center justify-between gap-2 ${
+                                      rel.isChanged ? "bg-slate-900 border-amber-500/30" : "bg-slate-900/40 border-slate-850 text-slate-400"
+                                    }`}
+                                  >
+                                    <div className="flex flex-col truncate">
+                                      <span className="font-bold text-slate-200 truncate font-sans">
+                                        {rel.inmate.firstName} {rel.inmate.lastName}
                                       </span>
-                                      <span className="text-[8px] font-sans text-slate-300 leading-snug">
-                                        Isolar reclusos de longa permanência em celas de estabilidade superior e destinar celas de alta rotatividade para custódias temporárias.
+                                      <span className="text-[8px] text-slate-400">
+                                        Score: <strong className="text-amber-400">{rel.stabilityScore}</strong>
                                       </span>
                                     </div>
-
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setInmates(prev => {
-                                          return prev.map(inm => {
-                                            const found = b2ProposalRelocations.find(r => r.inmate.id === inm.id);
-                                            if (found) {
-                                              return { ...inm, assignedBlockId: b2BlockId, assignedCellNumber: found.proposedCell };
-                                            }
-                                            return inm;
-                                          });
-                                        });
-
-                                        setNewInmateForm(prev => ({
-                                          ...prev,
-                                          assignedBlockId: b2BlockId,
-                                          assignedCellNumber: b2ProposalRelocations[0]?.proposedCell || "Cela B2-01"
-                                        }));
-
-                                        setSuggestionAlert({
-                                          type: "success",
-                                          text: `⚡ REMANEJAMENTO AUTOMÁTICO DO BLOCO B2 CONCLUÍDO: Reclusos de longa permanência transferidos para celas de estabilidade máxima.`
-                                        });
-
-                                        writeAuditLog(
-                                          currentOperator,
-                                          "APPLY_TURNOVER_OPTIMIZATION" as any,
-                                          "Admission",
-                                          undefined,
-                                          "Executou o remanejamento automático de reclusos de longa permanência no Bloco B2 via painel lateral."
-                                        );
-                                      }}
-                                      className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black font-sans text-[8.5px] uppercase py-2 px-3 rounded-lg shadow transition cursor-pointer flex items-center justify-center gap-1.5 border border-amber-400/30 select-none"
-                                    >
-                                      <RefreshCw className="h-3 w-3 text-slate-950" /> Executar Remanejamento Automático (B2)
-                                    </button>
+                                    <div className="flex items-center gap-1.5 shrink-0 text-[8px]">
+                                      <span className="text-slate-400 line-through">{rel.originalCell}</span>
+                                      <span className="text-amber-500 font-bold">➔</span>
+                                      <span className="text-emerald-400 font-bold">{rel.proposedCell}</span>
+                                    </div>
                                   </div>
-                                </div>
+                                ))}
                               </div>
                             </div>
                           );
                         })()}
 
-                        {/* Níveis de Risco Dinâmicos - Painel do Diretor de Cadeia */}
-                        <div className="md:col-span-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col gap-4">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] uppercase font-bold font-mono text-amber-500 tracking-wider flex items-center gap-1.5">
-                              <Sliders className="h-4 w-4 text-amber-500 animate-pulse" /> Níveis de Risco Dinâmicos (Configuração do Diretor)
-                            </span>
-                            <span className="text-[9.5px] font-sans text-slate-400 leading-normal max-w-2xl">
-                              Diretores de Cadeia e Gestores podem ajustar o peso de cada nível na escala de segurança regulamentar para afinar a matriz de compatibilidade de alojamento e o cálculo dinâmico de risco em tempo real.
-                            </span>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 bg-slate-950/60 p-3.5 rounded-lg border border-slate-850">
-                            {[
-                              { key: "Baixo", label: "🟢 Baixo", color: "text-emerald-400", accent: "accent-emerald-500 bg-emerald-500/10 text-emerald-400", desc: "Regime de segurança mínima" },
-                              { key: "Médio", label: "🔵 Médio", color: "text-sky-400", accent: "accent-sky-500 bg-sky-500/10 text-sky-400", desc: "Regime de segurança média regular" },
-                              { key: "Alto", label: "🟡 Alto", color: "text-amber-400", accent: "accent-amber-500 bg-amber-500/10 text-amber-400", desc: "Regime de segurança reforçada" },
-                              { key: "Máximo", label: "🔴 Máximo", color: "text-red-400", accent: "accent-red-500 bg-red-500/10 text-red-400", desc: "Regime de isolamento de alta segurança" }
-                            ].map((level) => {
-                              const weightValue = dynamicRiskWeights[level.key] || 0;
-                              return (
-                                <div key={level.key} className="flex flex-col gap-2 p-2.5 rounded-lg bg-slate-900/40 border border-slate-850/60">
-                                  <div className="flex items-center justify-between">
-                                    <span className={`text-[10px] font-bold uppercase font-mono ${level.color}`}>{level.label}</span>
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-[8px] text-slate-500 font-mono">PESO:</span>
-                                      <span className="text-[10px] font-bold font-mono text-white px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 min-w-[20px] text-center">
+                        {/* 2. Painel de Pesos Dinâmicos de Risco */}
+                        {isDynamicRiskWeightsExpanded && (
+                          <div className="bg-slate-950/90 border border-slate-850 rounded-lg p-3 flex flex-col gap-2">
+                            <div className="flex justify-between items-center text-[10px] font-mono font-bold text-amber-500 uppercase">
+                              <span>Configuração de Pesos Dinâmicos de Risco</span>
+                              <button
+                                type="button"
+                                onClick={() => setDynamicRiskWeights({ "Baixo": 1, "Médio": 2, "Alto": 3, "Máximo": 4 })}
+                                className="text-amber-500 hover:text-amber-400 text-[8.5px] underline cursor-pointer"
+                              >
+                                Restaurar Padrão
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                              {[
+                                { key: "Baixo", label: "🟢 Baixo", color: "text-emerald-400", accent: "accent-emerald-500" },
+                                { key: "Médio", label: "🔵 Médio", color: "text-sky-400", accent: "accent-sky-500" },
+                                { key: "Alto", label: "🟡 Alto", color: "text-amber-400", accent: "accent-amber-500" },
+                                { key: "Máximo", label: "🔴 Máximo", color: "text-red-400", accent: "accent-red-500" }
+                              ].map((level) => {
+                                const weightValue = dynamicRiskWeights[level.key] || 0;
+                                return (
+                                  <div key={level.key} className="flex flex-col gap-1 p-2 rounded bg-slate-900 border border-slate-850">
+                                    <div className="flex items-center justify-between">
+                                      <span className={`text-[9.5px] font-bold uppercase font-mono ${level.color}`}>{level.label}</span>
+                                      <span className="text-[9.5px] font-bold font-mono text-white px-1.5 py-0.2 rounded bg-slate-800">
                                         {weightValue}
                                       </span>
                                     </div>
+                                    <input
+                                      type="range"
+                                      min="1"
+                                      max="10"
+                                      step="1"
+                                      value={weightValue}
+                                      onChange={(e) => {
+                                        const newVal = parseInt(e.target.value, 10);
+                                        setDynamicRiskWeights(prev => ({ ...prev, [level.key]: newVal }));
+                                      }}
+                                      className={`w-full h-1 rounded appearance-none cursor-pointer ${level.accent}`}
+                                    />
                                   </div>
-                                  
-                                  <input
-                                    type="range"
-                                    min="1"
-                                    max="10"
-                                    step="1"
-                                    value={weightValue}
-                                    onChange={(e) => {
-                                      const newVal = parseInt(e.target.value, 10);
-                                      setDynamicRiskWeights(prev => ({
-                                        ...prev,
-                                        [level.key]: newVal
-                                      }));
-                                      
-                                      writeAuditLog(
-                                        currentOperator,
-                                        "UPDATE_RISK_WEIGHT" as any,
-                                        "Admission",
-                                        undefined,
-                                        `Alterou peso dinâmico de risco [${level.key}] para o valor ${newVal}. Matriz de segurança reconfigurada.`
-                                      );
-                                    }}
-                                    className={`w-full h-1 rounded-lg appearance-none cursor-pointer ${level.accent}`}
-                                  />
-                                  <span className="text-[8px] font-sans text-slate-500 italic leading-snug">
-                                    {level.desc}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                          <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono bg-slate-950/20 px-3 py-1.5 rounded border border-slate-850/50">
-                            <span className="flex items-center gap-1">
-                              💡 <strong className="text-slate-400">Impacto Operacional:</strong> Maiores diferenças de peso geram penalizações mais severas para alocações inconsistentes de custódia.
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setDynamicRiskWeights({ "Baixo": 1, "Médio": 2, "Alto": 3, "Máximo": 4 });
-                                writeAuditLog(
-                                  currentOperator,
-                                  "UPDATE_RISK_WEIGHT" as any,
-                                  "Admission",
-                                  undefined,
-                                  "Restaurou os pesos padrão de segurança institucional (Baixo: 1, Médio: 2, Alto: 3, Máximo: 4)."
                                 );
-                              }}
-                              className="text-[8.5px] text-amber-500 hover:text-amber-400 font-bold uppercase hover:underline cursor-pointer select-none"
-                            >
-                              Restaurar Padrão
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Configuração de Limiares de Alerta Disciplinar - Mapa Térmico */}
-                        <div className="md:col-span-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col gap-4">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] uppercase font-bold font-mono text-amber-500 tracking-wider flex items-center gap-1.5">
-                              <Thermometer className="h-4 w-4 text-amber-500 animate-pulse" /> Limiares de Alerta Disciplinar (Chefe de Segurança)
-                            </span>
-                            <span className="text-[9.5px] font-sans text-slate-400 leading-normal max-w-2xl">
-                              Como Chefe de Segurança, reconfigure os limites de incidentes disciplinares que ativam as cores de alerta no Mapa Térmico das Celas. As alterações afetam a triagem, os alertas visuais e os relatórios de integridade.
-                            </span>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/60 p-3.5 rounded-lg border border-slate-850">
-                            {/* Limiar Crítico (Vermelho) */}
-                            <div className="flex flex-col gap-2 p-2.5 rounded-lg bg-slate-900/40 border border-slate-850/60">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase font-mono text-red-400">🔴 Risco Crítico (Vermelho)</span>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-[8px] text-slate-500 font-mono">≥ OCORRÊNCIAS:</span>
-                                  <span className="text-[10px] font-bold font-mono text-white px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 min-w-[20px] text-center">
-                                    {criticalIncidentThreshold}
-                                  </span>
-                                </div>
-                              </div>
-                              
-                              <input
-                                type="range"
-                                min="2"
-                                max="15"
-                                step="1"
-                                value={criticalIncidentThreshold}
-                                onChange={(e) => {
-                                  const newVal = parseInt(e.target.value, 10);
-                                  setCriticalIncidentThreshold(newVal);
-                                  
-                                  // Keep medium threshold below critical
-                                  if (mediumIncidentThreshold >= newVal) {
-                                    setMediumIncidentThreshold(newVal - 1);
-                                  }
-                                  
-                                  writeAuditLog(
-                                    currentOperator,
-                                    "UPDATE_INCIDENT_THRESHOLD" as any,
-                                    "Admission",
-                                    undefined,
-                                    `Chefe de Segurança alterou o limiar de Risco Crítico do Mapa Térmico para >= ${newVal} incidentes.`
-                                  );
-                                }}
-                                className="w-full h-1 bg-slate-850 rounded-lg appearance-none cursor-pointer accent-red-500"
-                              />
-                              <span className="text-[8px] font-sans text-slate-500 italic leading-snug">
-                                Acima ou igual a este volume, a cela é pintada em vermelho de Risco Crítico Instável.
-                              </span>
+                              })}
                             </div>
-
-                            {/* Limiar Médio (Amarelo) */}
-                            <div className="flex flex-col gap-2 p-2.5 rounded-lg bg-slate-900/40 border border-slate-850/60">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-bold uppercase font-mono text-amber-450">🟡 Risco Moderado (Amarelo)</span>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-[8px] text-slate-500 font-mono">≥ OCORRÊNCIAS:</span>
-                                  <span className="text-[10px] font-bold font-mono text-white px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 min-w-[20px] text-center">
-                                    {mediumIncidentThreshold}
-                                  </span>
-                                </div>
-                              </div>
-                              
-                              <input
-                                type="range"
-                                min="1"
-                                max={criticalIncidentThreshold - 1}
-                                step="1"
-                                value={mediumIncidentThreshold}
-                                onChange={(e) => {
-                                  const newVal = parseInt(e.target.value, 10);
-                                  setMediumIncidentThreshold(newVal);
-                                  
-                                  writeAuditLog(
-                                    currentOperator,
-                                    "UPDATE_INCIDENT_THRESHOLD" as any,
-                                    "Admission",
-                                    undefined,
-                                    `Chefe de Segurança alterou o limiar de Risco Moderado do Mapa Térmico para >= ${newVal} incidentes.`
-                                  );
-                                }}
-                                className="w-full h-1 bg-slate-850 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                              />
-                              <span className="text-[8px] font-sans text-slate-500 italic leading-snug">
-                                Volume de incidentes que aciona o alerta moderado (amarelo) até {criticalIncidentThreshold - 1} incidentes.
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Preview Visual da Escala de Cores */}
-                          <div className="flex flex-col gap-2 p-3 rounded-lg bg-slate-950/40 border border-slate-850/80">
-                            <span className="text-[8px] uppercase font-bold font-mono text-slate-500">Visualização em Tempo Real da Escala Disciplinar:</span>
-                            <div className="grid grid-cols-3 gap-2">
-                              <div className="flex items-center gap-2 p-2 rounded bg-emerald-950/20 border border-emerald-500/10">
-                                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                                <div className="flex flex-col">
-                                  <span className="text-[9px] font-bold text-emerald-400">Risco Baixo (Verde)</span>
-                                  <span className="text-[7.5px] font-mono text-slate-500">0 a {mediumIncidentThreshold - 1} ocorrências</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 p-2 rounded bg-amber-950/20 border border-amber-500/10">
-                                <span className="h-2 w-2 rounded-full bg-amber-500" />
-                                <div className="flex flex-col">
-                                  <span className="text-[9px] font-bold text-amber-450">Risco Moderado (Amarelo)</span>
-                                  <span className="text-[7.5px] font-mono text-slate-500">{mediumIncidentThreshold} a {criticalIncidentThreshold - 1} ocorrências</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 p-2 rounded bg-red-950/20 border border-red-500/10">
-                                <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                                <div className="flex flex-col">
-                                  <span className="text-[9px] font-bold text-red-450 font-sans">Risco Crítico (Vermelho)</span>
-                                  <span className="text-[7.5px] font-mono text-slate-500">{criticalIncidentThreshold}+ ocorrências</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between text-[9px] text-slate-500 font-mono bg-slate-950/20 px-3 py-1.5 rounded border border-slate-850/50">
-                            <span className="flex items-center gap-1">
-                              ⚠️ <strong className="text-slate-400">Diretiva SICP:</strong> Menores limiares de tolerância aumentam o rigor de classificação e o rigor de segurança nas alas prisionais.
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setCriticalIncidentThreshold(6);
-                                setMediumIncidentThreshold(3);
-                                writeAuditLog(
-                                  currentOperator,
-                                  "UPDATE_INCIDENT_THRESHOLD" as any,
-                                  "Admission",
-                                  undefined,
-                                  "Chefe de Segurança restaurou os limiares padrão de alerta disciplinar do Mapa Térmico (Crítico: 6, Moderado: 3)."
-                                );
-                              }}
-                              className="text-[8.5px] text-amber-500 hover:text-amber-400 font-bold uppercase hover:underline cursor-pointer select-none"
-                            >
-                              Restaurar Padrão (6 / 3)
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Filtro de Grau de Risco (Pré-seleção de Segurança) */}
-                        <div className="md:col-span-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] uppercase font-bold font-mono text-amber-500 tracking-wider flex items-center gap-1.5">
-                              <Shield className="h-4 w-4 text-amber-500" /> Filtro Pré-Seletor de Segurança (Grau de Risco)
-                            </span>
-                            <span className="text-[9.5px] font-sans text-slate-400 leading-normal max-w-xl">
-                              Filtre previamente celas, blocos e pavilhões em tempo real para visualizar exclusivamente as estruturas compatíveis com o regime penal regulamentar pretendido.
-                            </span>
-                          </div>
-                          
-                          <div className="flex flex-wrap items-center gap-2">
-                            {[
-                              { id: null, label: "Mostrar Tudo", color: "border-slate-800 hover:border-slate-700 bg-slate-950 text-slate-400 font-mono" },
-                              { id: "Baixo", label: "🟢 Baixo", color: "border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/10 text-emerald-400" },
-                              { id: "Médio", label: "🔵 Médio", color: "border-sky-500/20 hover:border-sky-500/50 hover:bg-sky-500/10 text-sky-450" },
-                              { id: "Alto", label: "🟡 Alto", color: "border-amber-500/20 hover:border-amber-500/50 hover:bg-amber-500/10 text-amber-400" },
-                              { id: "Máximo", label: "🔴 Máximo", color: "border-red-500/20 hover:border-red-500/50 hover:bg-red-500/10 text-red-400" },
-                            ].map((level) => {
-                              const isActive = selectedRiskFilter === level.id;
-                              return (
-                                <button
-                                  key={level.label}
-                                  type="button"
-                                  onClick={() => setSelectedRiskFilter(level.id)}
-                                  className={`px-3 py-1.5 rounded-lg border text-[9.5px] font-mono font-bold uppercase transition cursor-pointer select-none ${
-                                    isActive
-                                      ? "bg-slate-800 border-amber-500 font-extrabold text-white scale-[1.03] shadow-md shadow-amber-500/5"
-                                      : level.color
-                                  }`}
-                                >
-                                  {level.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Intelligent Suggestion Tool */}
-                        <div className="md:col-span-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] uppercase font-bold font-mono text-amber-500 tracking-wider flex items-center gap-1.5">
-                              <Sparkles className="h-3 w-3 text-amber-400 animate-pulse" /> Assistente de Alocação Inteligente
-                            </span>
-                            <span className="text-[9.5px] font-sans text-slate-400 leading-normal max-w-lg">
-                              Avalia o Grau de Risco calculado (<strong className="text-amber-500/90">{inmateRisk}</strong>) deste recluso para identificar e preencher automaticamente o bloco compatível mais seguro e disponível de {selectedPrisonObj?.name || "unidade seleccionada"}.
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={handleSuggestCell}
-                            className="w-full md:w-auto flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold font-sans text-[9px] uppercase px-3.5 py-1.5 rounded-lg transition-all shadow-md cursor-pointer select-none"
-                          >
-                            <Sparkles className="h-3.5 w-3.5 shrink-0" /> Sugestão do Sistema
-                          </button>
-                        </div>
-
-                        {/* Triagem de Segurança Rápida & Campo de Risco */}
-                        <div className="md:col-span-2 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
-                          <div className="flex flex-col gap-1 w-full md:w-auto flex-1">
-                            <span className="text-[10px] uppercase font-bold font-mono text-emerald-400 tracking-wider flex items-center gap-1.5">
-                              <Shield className="h-3.5 w-3.5 text-emerald-400" /> Triagem de Segurança Rápida
-                            </span>
-                            <span className="text-[9.5px] font-sans text-slate-400 leading-normal max-w-xl">
-                              Analisa de forma célere as ligações com gangues, ficha de reincidência, riscos de conduta violenta e as características de fuga declaradas nos módulos anteriores para formular o Grau de Risco regulamentar sugerido.
-                            </span>
-                          </div>
-                          
-                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto shrink-0">
-                            {/* Campo de Risco */}
-                            <div className="flex flex-col gap-1 min-w-[150px]">
-                              <span className="text-[8px] uppercase font-bold font-mono text-slate-400">Grau de Risco Ativo</span>
-                              <select
-                                value={inmateRisk}
-                                onChange={(e) => setInmateRiskOverride(e.target.value)}
-                                className={`bg-slate-950 border rounded-lg p-2 text-[11px] font-bold font-mono focus:border-amber-500 focus:outline-none cursor-pointer ${
-                                  inmateRisk === "Máximo" ? "text-red-400 border-red-500/30" :
-                                  inmateRisk === "Alto" ? "text-amber-400 border-amber-500/30" :
-                                  inmateRisk === "Médio" ? "text-sky-400 border-slate-800" :
-                                  "text-emerald-400 border-emerald-500/20"
-                                }`}
-                              >
-                                <option value="Baixo" className="text-emerald-400 bg-slate-950">🟢 Baixo</option>
-                                <option value="Médio" className="text-sky-400 bg-slate-950">🔵 Médio</option>
-                                <option value="Alto" className="text-amber-400 bg-slate-950">🟡 Alto</option>
-                                <option value="Máximo" className="text-red-400 bg-slate-950">🔴 Máximo</option>
-                              </select>
-                            </div>
-
-                            {/* Triagem Button */}
-                            <button
-                              id="Triagem-Seguranca-Botao"
-                              type="button"
-                              onClick={handleQuickSecurityTriagem}
-                              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 hover:scale-[1.01] active:scale-[0.99] text-white font-bold font-sans text-[9px] uppercase px-4 py-2.5 rounded-lg transition-all shadow-md cursor-pointer select-none border border-emerald-500/30 mt-auto sm:mt-0 h-[38px]"
-                              title="Avaliar fatores comportamentais e preencher risco ideal"
-                            >
-                              <Shield className="h-3.5 w-3.5 shrink-0 animate-pulse text-emerald-100" /> Executar Triagem
-                            </button>
-                          </div>
-                        </div>
-
-                        {suggestionAlert && (
-                          <div className={`md:col-span-2 py-2.5 px-3.5 rounded-lg border font-mono text-[10px] ${
-                            suggestionAlert.type === "success" 
-                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-                              : "bg-rose-500/15 border-rose-500/30 text-rose-400"
-                          }`}>
-                            {suggestionAlert.text}
                           </div>
                         )}
 
-                        {/* Configurações de Alerta de Sobrelotação */}
-                        <div className="md:col-span-2 bg-slate-900/40 p-4 rounded-xl border border-slate-800 flex flex-col gap-3">
-                          <div className="flex items-center gap-2">
-                            <Sliders className="h-4 w-4 text-amber-500" />
-                            <span className="text-[10px] uppercase font-bold font-mono text-slate-200 tracking-wider">
-                              Configurações de Alerta & Monitorização
-                            </span>
+                        {/* 3. Painel de Limiares Disciplinares */}
+                        {isIncidentThresholdsExpanded && (
+                          <div className="bg-slate-950/90 border border-slate-850 rounded-lg p-3 flex flex-col gap-2">
+                            <div className="flex justify-between items-center text-[10px] font-mono font-bold text-amber-500 uppercase">
+                              <span>Limiares de Alerta Disciplinar</span>
+                              <button
+                                type="button"
+                                onClick={() => { setCriticalIncidentThreshold(6); setMediumIncidentThreshold(3); }}
+                                className="text-amber-500 hover:text-amber-400 text-[8.5px] underline cursor-pointer"
+                              >
+                                Padrão (6/3)
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <div className="flex flex-col gap-1 p-2 rounded bg-slate-900 border border-slate-850">
+                                <div className="flex items-center justify-between text-[9px] font-mono">
+                                  <span className="text-red-400 font-bold">🔴 Risco Crítico</span>
+                                  <span className="text-white font-bold bg-slate-800 px-1.5 rounded">≥ {criticalIncidentThreshold}</span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="2"
+                                  max="15"
+                                  value={criticalIncidentThreshold}
+                                  onChange={(e) => {
+                                    const newVal = parseInt(e.target.value, 10);
+                                    setCriticalIncidentThreshold(newVal);
+                                    if (mediumIncidentThreshold >= newVal) setMediumIncidentThreshold(newVal - 1);
+                                  }}
+                                  className="w-full h-1 appearance-none cursor-pointer accent-red-500"
+                                />
+                              </div>
+
+                              <div className="flex flex-col gap-1 p-2 rounded bg-slate-900 border border-slate-850">
+                                <div className="flex items-center justify-between text-[9px] font-mono">
+                                  <span className="text-amber-400 font-bold">🟡 Risco Moderado</span>
+                                  <span className="text-white font-bold bg-slate-800 px-1.5 rounded">≥ {mediumIncidentThreshold}</span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="1"
+                                  max={criticalIncidentThreshold - 1}
+                                  value={mediumIncidentThreshold}
+                                  onChange={(e) => setMediumIncidentThreshold(parseInt(e.target.value, 10))}
+                                  className="w-full h-1 appearance-none cursor-pointer accent-amber-500"
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-[9.5px] font-sans text-slate-400 leading-normal">
-                            Personalize os parâmetros de monitorização de sobrelotação prisional nacional. As alterações aplicam-se imediatamente ao widget persistente da barra lateral.
-                          </p>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-1">
-                            {/* Threshold control */}
-                            <div className="flex flex-col gap-2 bg-slate-950/55 p-3 rounded-lg border border-slate-850">
-                              <label className="text-slate-300 font-semibold font-mono text-[9px] uppercase flex justify-between">
-                                <span>Limiar de Sobrelotação Crítica:</span>
-                                <span className="text-amber-500 font-bold font-mono">{criticalOvercrowdingThreshold}%</span>
-                              </label>
-                              <div className="flex items-center gap-3">
+                        )}
+
+                        {/* 4. Painel de Configurações de Sobrelotação */}
+                        {isOvercrowdingConfigExpanded && (
+                          <div className="bg-slate-950/90 border border-slate-850 rounded-lg p-3 flex flex-col gap-2">
+                            <span className="text-[10px] font-mono font-bold text-amber-500 uppercase">
+                              Configurações de Sobrelotação
+                            </span>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              <div className="flex flex-col gap-1 p-2 rounded bg-slate-900 border border-slate-850">
+                                <label className="text-[9px] font-mono font-bold uppercase text-slate-300 flex justify-between">
+                                  <span>Sobrelotação Crítica:</span>
+                                  <span className="text-amber-500">{criticalOvercrowdingThreshold}%</span>
+                                </label>
                                 <input 
-                                  type="range" 
-                                  min={100} 
-                                  max={180} 
-                                  step={5}
+                                  type="range" min={100} max={180} step={5}
                                   value={criticalOvercrowdingThreshold} 
                                   onChange={(e) => setCriticalOvercrowdingThreshold(Number(e.target.value))} 
-                                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                                />
-                                <input 
-                                  type="number"
-                                  min={100} 
-                                  max={200}
-                                  value={criticalOvercrowdingThreshold} 
-                                  onChange={(e) => setCriticalOvercrowdingThreshold(Number(e.target.value))} 
-                                  className="w-16 bg-slate-900 border border-slate-800 p-1 text-center font-mono text-[10px] rounded text-slate-250 font-bold focus:border-amber-500 focus:outline-none"
+                                  className="w-full h-1 appearance-none cursor-pointer accent-amber-500"
                                 />
                               </div>
-                              <span className="text-[8px] text-slate-500 font-sans leading-none">
-                                Define o gatilho em % que ativa o alarme visual crítico de sobrecarga.
-                              </span>
-                            </div>
 
-                            {/* Pavilion Threshold control */}
-                            <div className="flex flex-col gap-2 bg-slate-950/55 p-3 rounded-lg border border-slate-850">
-                              <label className="text-slate-300 font-semibold font-mono text-[9px] uppercase flex justify-between">
-                                <span>Limiar Bloqueio Pavilhão:</span>
-                                <span className="text-amber-500 font-bold font-mono">{pavilionApprovalThreshold}%</span>
-                              </label>
-                              <div className="flex items-center gap-3">
+                              <div className="flex flex-col gap-1 p-2 rounded bg-slate-900 border border-slate-850">
+                                <label className="text-[9px] font-mono font-bold uppercase text-slate-300 flex justify-between">
+                                  <span>Bloqueio Pavilhão:</span>
+                                  <span className="text-amber-500">{pavilionApprovalThreshold}%</span>
+                                </label>
                                 <input 
-                                  type="range" 
-                                  min={70} 
-                                  max={130} 
-                                  step={5}
+                                  type="range" min={70} max={130} step={5}
                                   value={pavilionApprovalThreshold} 
                                   onChange={(e) => setPavilionApprovalThreshold(Number(e.target.value))} 
-                                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                                />
-                                <input 
-                                  type="number"
-                                  min={70} 
-                                  max={150}
-                                  value={pavilionApprovalThreshold} 
-                                  onChange={(e) => setPavilionApprovalThreshold(Number(e.target.value))} 
-                                  className="w-16 bg-slate-900 border border-slate-800 p-1 text-center font-mono text-[10px] rounded text-slate-250 font-bold focus:border-amber-500 focus:outline-none"
+                                  className="w-full h-1 appearance-none cursor-pointer accent-amber-500"
                                 />
                               </div>
-                              <span className="text-[8px] text-slate-500 font-sans leading-none">
-                                Acima disto, transferências/libertações entram em "Aprovação Pendente" por Supervisor.
-                              </span>
-                            </div>
 
-                            {/* Color settings control */}
-                            <div className="flex flex-col gap-2 bg-slate-950/55 p-3 rounded-lg border border-slate-850">
-                              <label className="text-slate-300 font-semibold font-mono text-[9px] uppercase">
-                                Cor do Widget de Alerta:
-                              </label>
-                              <div className="flex flex-wrap gap-2 pt-0.5">
-                                {[
-                                  { id: "red", label: "Vermelho", colorBg: "bg-red-500", border: "border-red-500" },
-                                  { id: "rose", label: "Rosa / Rose", colorBg: "bg-rose-500", border: "border-rose-500" },
-                                  { id: "orange", label: "Laranja", colorBg: "bg-orange-500", border: "border-orange-500" },
-                                  { id: "purple", label: "Roxo", colorBg: "bg-purple-500", border: "border-purple-500" },
-                                  { id: "yellow", label: "Amarelo", colorBg: "bg-yellow-500", border: "border-yellow-550" },
-                                ].map((choice) => {
-                                  const isSelected = overcrowdingWidgetColor === choice.id;
-                                  return (
+                              <div className="flex flex-col gap-1 p-2 rounded bg-slate-900 border border-slate-850">
+                                <label className="text-[9px] font-mono font-bold uppercase text-slate-300">
+                                  Cor Widget Alerta:
+                                </label>
+                                <div className="flex flex-wrap gap-1">
+                                  {[
+                                    { id: "red", label: "Vermelho", colorBg: "bg-red-500" },
+                                    { id: "rose", label: "Rose", colorBg: "bg-rose-500" },
+                                    { id: "orange", label: "Laranja", colorBg: "bg-orange-500" },
+                                    { id: "purple", label: "Roxo", colorBg: "bg-purple-500" },
+                                    { id: "yellow", label: "Amarelo", colorBg: "bg-yellow-500" },
+                                  ].map((choice) => (
                                     <button
                                       key={choice.id}
                                       type="button"
                                       onClick={() => setOvercrowdingWidgetColor(choice.id as any)}
-                                      className={`flex items-center gap-1.5 px-2 py-1 rounded text-[9px] font-mono font-bold uppercase transition border ${
-                                        isSelected 
-                                          ? "bg-slate-900 text-white border-slate-500 shadow" 
-                                          : "bg-slate-950 text-slate-400 border-slate-850 hover:border-slate-700"
+                                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase border ${
+                                        overcrowdingWidgetColor === choice.id ? "bg-slate-800 text-white border-slate-500" : "bg-slate-950 text-slate-400 border-slate-850"
                                       }`}
                                     >
-                                      <span className={`h-2 w-2 rounded-full ${choice.colorBg}`} />
+                                      <span className={`h-1.5 w-1.5 rounded-full ${choice.colorBg}`} />
                                       {choice.label}
                                     </button>
-                                  );
-                                })}
+                                  ))}
+                                </div>
                               </div>
-                              <span className="text-[8px] text-slate-500 font-sans leading-none">
-                                Altera o esquema cromático do alarme de excesso de população.
-                              </span>
                             </div>
                           </div>
-                        </div>
+                        )}
+                      </div>
 
-                        <div className="flex flex-col gap-1.5 md:col-span-2">
+                      <div className="flex flex-col gap-1.5 md:col-span-2">
                           <label className="text-slate-300 font-semibold font-mono text-[10px] uppercase">Unidade Prisional de Apanha:</label>
                           <select 
                             name="assignedPrisonId"
@@ -17834,7 +15658,7 @@ export default function App() {
                             </div>
                           );
                         })()}
-                      </div>
+                      </>
                     );
                   })()}
 
@@ -18666,209 +16490,124 @@ export default function App() {
               <div className="lg:col-span-5 flex flex-col gap-6">
                 
                 {/* Visualização de fila de Sincronismo (IndexedDB) */}
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
-                    <div>
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-amber-500 font-mono flex items-center gap-1.5">
-                        <RefreshCw className={`h-3.5 w-3.5 text-amber-500 ${isSyncing ? "animate-spin" : ""}`} /> Fila de Sincronismo Offline (IndexedDB)
-                      </h3>
-                      <p className="text-xxs text-slate-400 font-sans">Ações capturadas localmente antes do push final.</p>
-                    </div>
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
+                  <div 
+                    onClick={() => setIsSyncQueueExpanded(!isSyncQueueExpanded)}
+                    className="flex justify-between items-center cursor-pointer select-none"
+                  >
                     <div className="flex items-center gap-2">
-                      {isOnline && syncQueue.length > 0 && !isSyncing && backgroundSyncEnabled && (
-                        <div className="flex items-center gap-1 text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded animate-pulse">
-                          <span>Auto-Sync:</span>
-                          <span className="font-bold">{queueAutoSyncCountdown}s</span>
-                        </div>
-                      )}
-                      {isSyncing && (
-                        <div className="flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded animate-pulse">
-                          <RefreshCw className="h-2.5 w-2.5 animate-spin text-emerald-400" />
-                          <span>Sincronizando...</span>
-                        </div>
-                      )}
-                      <span className="bg-slate-950 text-slate-300 font-mono px-2 py-0.5 rounded border border-slate-800 text-xxs">
-                        Qtd: {syncQueue.length}
+                      <RefreshCw className={`h-3.5 w-3.5 text-amber-500 ${isSyncing ? "animate-spin" : ""}`} />
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-amber-500 font-mono">
+                        Fila Offline (IndexedDB)
+                      </h3>
+                      <span className="bg-slate-950 text-slate-300 font-mono px-2 py-0.5 rounded border border-slate-800 text-[10px]">
+                        {syncQueue.length}
                       </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {isOnline && syncQueue.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); triggerSync(); }}
+                          disabled={isSyncing}
+                          className="px-2 py-0.5 text-[9px] font-mono uppercase rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
+                        >
+                          Sincronizar
+                        </button>
+                      )}
+                      <button type="button" className="text-slate-400 hover:text-slate-200">
+                        {isSyncQueueExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 max-h-36 overflow-y-auto pr-1">
-                    {syncQueue.length === 0 ? (
-                      <div className="text-center py-6 text-xxs text-slate-600 font-mono">
-                        Nenhuma transação enfileirada no IndexedDB local.
-                      </div>
-                    ) : (
-                      syncQueue.map(item => (
-                        <div key={item.id} className="bg-slate-950 p-2.5 border border-slate-850 rounded flex items-center justify-between text-xxs font-mono">
-                          <div>
+                  {isSyncQueueExpanded && (
+                    <div className="flex flex-col gap-2 max-h-36 overflow-y-auto pt-2 border-t border-slate-800/80">
+                      {syncQueue.length === 0 ? (
+                        <div className="text-center py-3 text-xxs text-slate-500 font-mono">
+                          Sem transações locais pendentes.
+                        </div>
+                      ) : (
+                        syncQueue.map(item => (
+                          <div key={item.id} className="bg-slate-950 p-2 border border-slate-850 rounded flex items-center justify-between text-xxs font-mono">
                             <div className="flex items-center gap-1.5">
-                              <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] px-1.5 py-0.2 rounded">
+                              <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] px-1.5 py-0.2 rounded font-bold">
                                 {item.type}
                               </span>
                               <span className="text-slate-300 font-semibold">{item.id}</span>
                             </div>
-                            <p className="text-slate-400 text-[10px] mt-1 font-sans leading-tight">{item.description}</p>
+                            <span className="text-[9px] font-semibold text-amber-400 uppercase">Pendente</span>
                           </div>
-                          <span className="text-[9px] font-semibold text-amber-400/80 uppercase animate-pulse">Pendente</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                        ))
+                      )}
+                    </div>
+                  )}
 
                   {/* CONFIGURAÇÃO E MONITORIZAÇÃO DO SYNC EM SEGUNDO PLANO */}
-                  <div className="border-t border-slate-800/80 pt-4 mt-2 flex flex-col gap-3.5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <span className="text-[11px] font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                          <Activity className={`h-3.5 w-3.5 ${backgroundSyncEnabled && (!isOnline || syncQueue.length > 0) ? "text-amber-500 animate-pulse" : "text-slate-400"}`} />
-                          Sincronização em Segundo Plano (VSAT)
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-sans mt-0.5 leading-tight">
-                          Tentativas automáticas em conexões satélite instáveis.
-                        </span>
-                      </div>
+                  <div className="border-t border-slate-800/80 pt-3 flex flex-col gap-2">
+                    <div 
+                      onClick={() => setIsVsatExpanded(!isVsatExpanded)}
+                      className="flex items-center justify-between cursor-pointer select-none"
+                    >
+                      <span className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                        <Activity className={`h-3.5 w-3.5 ${backgroundSyncEnabled && (!isOnline || syncQueue.length > 0) ? "text-amber-500 animate-pulse" : "text-slate-400"}`} />
+                        Sincronização VSAT
+                      </span>
                       
-                      {/* Toggle Switch */}
-                      <button
-                        type="button"
-                        onClick={() => setBackgroundSyncEnabled(!backgroundSyncEnabled)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          backgroundSyncEnabled ? "bg-amber-500" : "bg-slate-800"
-                        }`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-slate-950 shadow ring-0 transition duration-200 ease-in-out ${
-                            backgroundSyncEnabled ? "translate-x-4" : "translate-x-0"
+                      <div className="flex items-center gap-3">
+                        {/* Toggle Switch */}
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setBackgroundSyncEnabled(!backgroundSyncEnabled); }}
+                          className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                            backgroundSyncEnabled ? "bg-amber-500" : "bg-slate-800"
                           }`}
-                        />
-                      </button>
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-slate-950 shadow ring-0 transition duration-200 ease-in-out ${
+                              backgroundSyncEnabled ? "translate-x-4" : "translate-x-0"
+                            }`}
+                          />
+                        </button>
+                        <button type="button" className="text-slate-400 hover:text-slate-200">
+                          {isVsatExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Countdown indicator / Reconnection diagnostics */}
-                    {backgroundSyncEnabled && (
-                      <div className="bg-slate-950/60 rounded-lg p-3 border border-slate-850 flex flex-col gap-2.5">
+                    {isVsatExpanded && backgroundSyncEnabled && (
+                      <div className="bg-slate-950/60 rounded-lg p-3 border border-slate-850 flex flex-col gap-2.5 mt-1">
                         <div className="flex items-center justify-between text-xxs font-mono">
-                          <span className="text-slate-400">Estado de Sincronismo:</span>
+                          <span className="text-slate-400">Estado:</span>
                           {isOnline ? (
-                            syncQueue.length > 0 ? (
-                              isSyncing ? (
-                                <span className="text-emerald-400 font-bold flex items-center gap-1 animate-pulse">
-                                  <RefreshCw className="h-3 w-3 animate-spin text-emerald-400" />
-                                  A Gravar...
-                                </span>
-                              ) : (
-                                <span className="text-amber-400 font-bold flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                                  Pendências locais
-                                </span>
-                              )
-                            ) : (
-                              <span className="text-emerald-400 font-bold flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                Em Linha (Sincronizado)
-                              </span>
-                            )
-                          ) : isReconnecting ? (
-                            <span className="text-amber-400 font-bold flex items-center gap-1 animate-pulse">
-                              <RefreshCw className="h-3 w-3 animate-spin text-amber-500" />
-                              Tentando reconexão...
-                            </span>
+                            <span className="text-emerald-400 font-bold">● Conetado</span>
                           ) : (
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-slate-400">Tentativa automática em:</span>
-                              <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-1.5 py-0.2 rounded font-bold">
-                                {bgSyncCountdown}s
-                              </span>
-                            </div>
+                            <span className="text-amber-400 font-bold">▲ Offline ({bgSyncCountdown}s)</span>
                           )}
                         </div>
 
-                        {/* Progress Retrocesso Visual */}
-                        {isOnline && syncQueue.length > 0 && !isSyncing && (
-                          <div className="flex flex-col gap-1">
-                            <div className="flex justify-between text-[10px] font-mono text-slate-500">
-                              <span>Transmissão para PostgreSQL:</span>
-                              <span>{queueAutoSyncCountdown}s</span>
-                            </div>
-                            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden relative border border-slate-800/40">
-                              <div
-                                className="h-full bg-amber-500 rounded-full transition-all duration-1000"
-                                style={{ width: `${(queueAutoSyncCountdown / 15) * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        )}
-
                         {!isOnline && (
-                          <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden relative border border-slate-800/40">
-                            {isReconnecting ? (
-                              <div className="h-full bg-amber-500 rounded-full animate-pulse w-full"></div>
-                            ) : (
-                              <div
-                                className="h-full bg-amber-500 rounded-full transition-all duration-1000"
-                                style={{ width: `${(bgSyncCountdown / 30) * 100}%` }}
-                              ></div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Manual / Reconnection Control */}
-                        {isOnline && syncQueue.length > 0 && (
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={triggerSync}
-                              disabled={isSyncing}
-                              className="w-full py-1.5 text-center font-mono text-[10px] uppercase rounded border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 cursor-pointer disabled:opacity-50 transition"
-                            >
-                              {isSyncing ? "Enviando SQL para o Central..." : "Forçar Sincronismo PostgreSQL"}
-                            </button>
-                          </div>
-                        )}
-
-                        {!isOnline && (
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={handleAutomaticReconnectionAttempt}
-                              disabled={isReconnecting}
-                              className="w-full py-1.5 text-center font-mono text-[10px] uppercase rounded border border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 cursor-pointer disabled:opacity-50 transition"
-                            >
-                              {isReconnecting ? "Testando ligação..." : "Forçar Reconexão Agora"}
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={handleAutomaticReconnectionAttempt}
+                            disabled={isReconnecting}
+                            className="w-full py-1 text-center font-mono text-[10px] uppercase rounded border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 cursor-pointer disabled:opacity-50 transition"
+                          >
+                            {isReconnecting ? "Reconectando..." : "Forçar Reconexão"}
+                          </button>
                         )}
 
                         {/* Tiny logs list */}
                         <div className="flex flex-col gap-1 border-t border-slate-900 pt-2">
-                          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono flex items-center justify-between">
-                            <span>Consola do Agente VSAT (Tempo Real):</span>
-                            {isOnline ? (
-                              <span className="text-[8px] text-emerald-500 font-bold animate-pulse">● LIGAÇÃO ESTÁVEL PostgreSQL</span>
-                            ) : (
-                              <span className="text-[8px] text-amber-500 font-bold animate-pulse">▲ LIGAÇÃO VOLÁTIL (Offline)</span>
-                            )}
-                          </span>
-                          <div className="font-mono text-[9px] text-slate-400 max-h-36 overflow-y-auto leading-relaxed flex flex-col gap-1 pr-1 bg-slate-950 p-2 rounded border border-slate-900">
-                            {bgSyncLogs.slice(0, 8).map((log, ix) => (
-                              <p key={ix} className={
-                                log.includes("✅") || log.includes("Database insertion successful")
-                                  ? "text-emerald-400 font-bold"
-                                  : log.includes("❌")
-                                  ? "text-red-400 font-semibold animate-pulse"
-                                  : log.includes("[SQL EXEC]")
-                                  ? "text-blue-400 font-mono text-[8px] leading-tight select-all border-l border-blue-500/30 pl-1 my-0.5"
-                                  : log.includes("📡") || log.includes("🔑")
-                                  ? "text-amber-400/90"
-                                  : "text-slate-400"
-                              }>
+                          <div className="font-mono text-[9px] text-slate-400 max-h-28 overflow-y-auto leading-relaxed flex flex-col gap-1 pr-1 bg-slate-950 p-2 rounded border border-slate-900">
+                            {bgSyncLogs.slice(0, 5).map((log, ix) => (
+                              <p key={ix} className="text-slate-400 font-mono text-[9px]">
                                 {log}
                               </p>
                             ))}
                           </div>
                         </div>
-
                       </div>
                     )}
                   </div>
@@ -18876,15 +16615,24 @@ export default function App() {
                 </div>
 
                 {/* Ultimos Reclusos Cadastrados Na Plataforma */}
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-2 flex-wrap gap-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
-                      População Prisional Recente (Presentes)
-                    </h3>
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
+                  <div 
+                    onClick={() => setIsRecentInmatesExpanded(!isRecentInmatesExpanded)}
+                    className="flex justify-between items-center border-b border-slate-800 pb-2 cursor-pointer select-none flex-wrap gap-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
+                        População Recente
+                      </h3>
+                      <span className="text-xxs bg-slate-950 text-slate-400 px-2 py-0.5 rounded border border-slate-850 font-mono">
+                        {visibleInmates.length}
+                      </span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           const filtered = visibleInmates.filter((inm) => {
                             if (!admissionsSearchQuery) return true;
                             const query = admissionsSearchQuery.toLowerCase().trim();
@@ -18892,31 +16640,24 @@ export default function App() {
                             const biNum = (inm.idCard || "").toLowerCase();
                             const idNum = (inm.id || "").toLowerCase();
                             const prName = (prisons.find(p => p.id === inm.assignedPrisonId)?.name || "").toLowerCase();
-                            
                             return fullName.includes(query) || biNum.includes(query) || idNum.includes(query) || prName.includes(query);
                           });
                           exportInmateListToPDF(filtered, admissionsSearchQuery, prisons, currentOperatorId);
                         }}
-                        className="px-2.5 py-1 text-[10px] font-mono rounded cursor-pointer border bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20 active:scale-95 transition flex items-center gap-1.5"
-                        title="Exportar Lista Filtrada de Reclusos (PDF)"
+                        className="px-2 py-0.5 text-[9px] font-mono rounded cursor-pointer border bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20 active:scale-95 transition flex items-center gap-1"
+                        title="Exportar Lista (PDF)"
                       >
                         <Download className="h-3 w-3" />
-                        Exportar Lista (PDF)
+                        PDF
                       </button>
-                      <span className="text-xxs bg-slate-950 text-slate-400 px-2.5 py-1 rounded border border-slate-850 font-mono">
-                        {admissionsSearchQuery 
-                          ? `${visibleInmates.filter(inm => {
-                              const query = admissionsSearchQuery.toLowerCase().trim();
-                              const fullName = `${inm.firstName} ${inm.lastName}`.toLowerCase();
-                              const biNum = (inm.idCard || "").toLowerCase();
-                              const idNum = (inm.id || "").toLowerCase();
-                              const prName = (prisons.find(p => p.id === inm.assignedPrisonId)?.name || "").toLowerCase();
-                              return fullName.includes(query) || biNum.includes(query) || idNum.includes(query) || prName.includes(query);
-                            }).length} de ` 
-                          : ""}Total: {visibleInmates.length} Reclusos
-                      </span>
+                      <button type="button" className="text-slate-400 hover:text-slate-200">
+                        {isRecentInmatesExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
+
+                  {isRecentInmatesExpanded && (
+                    <>
 
                   {/* Real-time search bar */}
                   <div className="relative flex items-center">
@@ -19352,6 +17093,8 @@ export default function App() {
                       });
                     })()}
                   </div>
+                  </>
+                  )}
                 </div>
 
               </div>
@@ -19453,9 +17196,7 @@ export default function App() {
 
                     {/* Header Oficial do Documento */}
                     <div className="text-center flex flex-col items-center gap-1 border-b-2 border-slate-900 pb-4">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">REPÚBLICA DE ANGOLA</span>
-                      <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-900">MINISTÉRIO DO INTERIOR</span>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">PROCURADORIA GERAL / SERVIÇOS PENITENCIÁRIOS</span>
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-900">SP — SERVIÇO PENITENCIÁRIO</span>
                       <div className="h-1.5 w-16 bg-red-600 mt-2" />
                       
                       <h3 className="text-md font-black uppercase text-slate-900 mt-4 tracking-tighter">
@@ -19523,7 +17264,7 @@ export default function App() {
 
                       <p className="text-[11px] leading-snug">
                         {selectedTemplate === "internamento" ? 
-                          "Declara-se que o cidadão acima identificado foi recolhido à cela regulamentar. O regime de isolamento e o perfil de perigosidade associada foram calculados automaticamente de acordo com as directrizes nacionais do MININT de Angola." :
+                          "Declara-se que o cidadão acima identificado foi recolhido à cela regulamentar. O regime de isolamento e o perfil de perigosidade associada foram calculados automaticamente de acordo com as directrizes nacionais da SP." :
                          selectedTemplate === "soltura" ? 
                           "Ordem expressa para colocar o cidadão em imediata liberdade sob termo de responsabilidade civil, excepto se possuir outros processos de mandados ativos no banco nacional de Luanda." :
                          selectedTemplate === "transferencia" ? 
@@ -19537,7 +17278,7 @@ export default function App() {
                         <div className="text-center md:text-left">
                           <span className="text-slate-400 block text-[10px] uppercase font-mono">AUTOR COM CERTIFICADO DIGITAL</span>
                           <div className="h-6 w-36 border-b border-slate-900/60 my-1 italic font-serif text-slate-700 select-none">
-                            Inspecção-Geral MININT
+                            Inspecção-Geral SP
                           </div>
                           <span className="text-slate-500 text-[10px] font-mono leading-none">ID-CERTIFICADO: 8a73c241-b303</span>
                         </div>
@@ -19932,33 +17673,41 @@ export default function App() {
               className="flex flex-col gap-6"
             >
               {/* Top Banner with Warning Info classification */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
                     <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider">
-                      MÓDULO CRÍTICO - RESTRITO
-                    </span>
-                    <span className="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider">
-                      CLASSIFICAÇÃO: RESTRICTED
+                      RESTRITO
                     </span>
                   </div>
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-100 font-mono mt-2 flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-amber-500 animate-pulse" /> Motor Nacional de Movimentações Penitenciárias
-                  </h2>
-                  <p className="text-xs text-slate-400 font-sans mt-0.5">
-                    Controle em tempo-real de ingressos, solturas, transferências e escolta militar do Serviço Penitenciário Nacional de Angola.
-                  </p>
+                  <div>
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100 font-mono flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-amber-500 animate-pulse" /> Motor Nacional de Movimentações Penitenciárias
+                    </h2>
+                    {!isMovBannerCollapsed && (
+                      <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                        Controlo em tempo real de solturas, transferências e escoltas.
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
-                  <div className="bg-slate-950 px-3 py-2 rounded-lg border border-slate-850 flex flex-col justify-center items-end">
-                    <span className="text-[8px] font-mono text-slate-500 uppercase leading-none">TOTAL LOGISTICA</span>
-                    <span className="text-sm font-mono font-bold text-sky-400 leading-none mt-1">{movements.length} Ativas</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsMovBannerCollapsed(!isMovBannerCollapsed)}
+                    className="bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-slate-200 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>{isMovBannerCollapsed ? "Expandir" : "Recolher"}</span>
+                  </button>
+                  <div className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 flex items-center gap-2 font-mono text-xs">
+                    <span className="text-[9px] text-slate-500 uppercase">Ativas:</span>
+                    <span className="font-bold text-sky-400">{movements.length}</span>
                   </div>
-                  <div className="bg-slate-950 px-3 py-2 rounded-lg border border-slate-850 flex flex-col justify-center items-end">
-                    <span className="text-[8px] font-mono text-slate-500 uppercase leading-none">REGISTO GERAL</span>
-                    <span className="text-sm font-mono font-bold text-emerald-400 leading-none mt-1">
-                      {movements.filter(m => m.status === "EXECUTED").length} Efetuadas
+                  <div className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 flex items-center gap-2 font-mono text-xs">
+                    <span className="text-[9px] text-slate-500 uppercase">Efetuadas:</span>
+                    <span className="font-bold text-emerald-400">
+                      {movements.filter(m => m.status === "EXECUTED").length}
                     </span>
                   </div>
                 </div>
@@ -19968,24 +17717,24 @@ export default function App() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 {/* Form to schedule a movement */}
-                <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
+                <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
                   <div>
-                    <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-1.5">
-                      <Plus className="h-3.5 w-3.5 text-amber-500" /> Adjudicar Nova Movimentação
+                    <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Plus className="h-3.5 w-3.5 text-amber-500" /> Nova Movimentação
+                      </span>
+                      <span className="text-[9px] font-mono text-slate-500 font-normal uppercase">Formulário Operacional</span>
                     </h3>
-                    <p className="text-xxs text-slate-400 mt-1 leading-relaxed">
-                      Emissão eletrónica de mandado e guia operacional securizada por assinatura biométrica digital.
-                    </p>
                   </div>
 
-                  <form onSubmit={handleExecuteMovement} className="flex flex-col gap-3 font-mono text-xxs text-slate-300">
+                  <form onSubmit={handleExecuteMovement} className="flex flex-col gap-2.5 font-mono text-xxs text-slate-300">
                     {/* Select Inmate */}
                     <div className="flex flex-col gap-1">
                       <label className="text-slate-500 block">SELECIONAR RECLUSO:</label>
                       <select
                         value={movSelectedInmateId}
                         onChange={(e) => setMovSelectedInmateId(e.target.value)}
-                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-2 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         required
                       >
                         <option value="">Selecione...</option>
@@ -20004,22 +17753,22 @@ export default function App() {
                         value={movType}
                         onChange={(e) => {
                           setMovType(e.target.value as InmateMovement["movementType"]);
-                          if (e.target.value === "CELL_CHANGE") setMovReason("Relocação preventiva por ordem do Chefe de Bloco para balanceamento organizacional.");
-                          else if (e.target.value === "TRANSFER") setMovReason("Transferência de segurança penitenciária mandatada por interesse de investigação provincial.");
-                          else if (e.target.value === "RELEASE") setMovReason("Descarcerização judicial definitiva homologada por acórdão de reabilitação.");
-                          else if (e.target.value === "COURT") setMovReason("Audiência de custódia preliminar para audiências governamentais.");
-                          else if (e.target.value === "HOSPITAL") setMovReason("Escolta clínica de emergência para tratamento ambulatório.");
-                          else if (e.target.value === "DEATH") setMovReason("Constatação clínica e registo legal de óbito por patologia interna.");
+                          if (e.target.value === "CELL_CHANGE") setMovReason("Relocação preventiva por ordem do Chefe de Bloco.");
+                          else if (e.target.value === "TRANSFER") setMovReason("Transferência de segurança penitenciária.");
+                          else if (e.target.value === "RELEASE") setMovReason("Descarcerização judicial definitiva homologada.");
+                          else if (e.target.value === "COURT") setMovReason("Audiência de custódia preliminar.");
+                          else if (e.target.value === "HOSPITAL") setMovReason("Escolta clínica de emergência.");
+                          else if (e.target.value === "DEATH") setMovReason("Registo legal de óbito.");
                         }}
-                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-2 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         required
                       >
                         <option value="CELL_CHANGE">MUDANÇA DE CELA (Celular Interno)</option>
-                        <option value="TRANSFER">TRANSFERÊNCIA INSTITUCIONAL (Nacional/Provincial)</option>
-                        <option value="RELEASE">ALVARÁ SESSÃO DE LIBERDADE (Soltura)</option>
-                        <option value="COURT">AUDIÊNCIA EXTERNA (Tribunal / Custódia)</option>
-                        <option value="HOSPITAL">ESCORTA CLÍNICA (Hospitalar Externo)</option>
-                        <option value="DEATH">HOMOLOGAÇÃO DE ÓBITO (Óbito Legal)</option>
+                        <option value="TRANSFER">TRANSFERÊNCIA INSTITUCIONAL</option>
+                        <option value="RELEASE">ALVARÁ DE LIBERDADE (Soltura)</option>
+                        <option value="COURT">AUDIÊNCIA EXTERNA (Tribunal)</option>
+                        <option value="HOSPITAL">ESCOLTA CLÍNICA (Hospital)</option>
+                        <option value="DEATH">HOMOLOGAÇÃO DE ÓBITO</option>
                       </select>
                     </div>
 
@@ -20030,7 +17779,7 @@ export default function App() {
                         <select
                           value={movDestPrisonId}
                           onChange={(e) => setMovDestPrisonId(e.target.value)}
-                          className="bg-slate-950 border border-slate-800 rounded px-2.5 py-2 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                          className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         >
                           {prisons.map(p => {
                             const isOver = (p.currentOccupancy || 0) >= p.operationalCapacity;
@@ -20046,7 +17795,7 @@ export default function App() {
                           if (chosenP && (chosenP.currentOccupancy || 0) >= chosenP.operationalCapacity) {
                             return (
                               <p className="text-[10px] text-amber-500 font-sans leading-tight mt-1 flex items-center gap-1 bg-amber-500/5 border border-amber-500/25 p-1 px-1.5 rounded">
-                                <AlertTriangle className="h-3 w-3 inline shrink-0" /> Alerta de Superlotação: O destino selecionado já excedeu a capacidade de projeto.
+                                <AlertTriangle className="h-3 w-3 inline shrink-0" /> Superlotação: O destino selecionado já atingiu a capacidade operacional.
                               </p>
                             );
                           }
@@ -20065,14 +17814,14 @@ export default function App() {
                             value={movDestCell}
                             onChange={(e) => setMovDestCell(e.target.value)}
                             placeholder="Cela H1-02"
-                            className="bg-slate-950 border border-slate-800 rounded px-2.5 py-2 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                            className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                             required
                           />
                         </div>
                         <div className="flex flex-col gap-1 font-sans">
                           <label className="text-slate-500 block font-mono text-xxs">CONTINGENTE LIMIT:</label>
-                          <span className="bg-slate-950/80 px-2 py-2 rounded text-xxs text-amber-500 h-full border border-slate-850 block font-medium">
-                            Capacidade: 24h Segura
+                          <span className="bg-slate-950/80 px-2 py-1.5 rounded text-xxs text-amber-500 h-full border border-slate-850 block font-medium">
+                            Capacidade 24h Segura
                           </span>
                         </div>
                       </div>
@@ -20086,7 +17835,7 @@ export default function App() {
                         value={movEscort}
                         onChange={(e) => setMovEscort(e.target.value)}
                         placeholder="Ex: Força de Escolta Especial PNAP"
-                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-2 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         required
                       />
                     </div>
@@ -20097,9 +17846,9 @@ export default function App() {
                       <textarea
                         value={movReason}
                         onChange={(e) => setMovReason(e.target.value)}
-                        placeholder="Justifique o motivo militar..."
-                        rows={3}
-                        className="bg-slate-950 border border-slate-800 rounded p-2.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full font-mono resize-none leading-relaxed"
+                        placeholder="Motivação formal..."
+                        rows={2}
+                        className="bg-slate-950 border border-slate-800 rounded p-2 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full font-mono resize-none leading-relaxed"
                         required
                       />
                     </div>
@@ -20112,7 +17861,7 @@ export default function App() {
                           type="date"
                           value={movScheduledDate}
                           onChange={(e) => setMovScheduledDate(e.target.value)}
-                          className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-[10px] text-slate-300 pointer-events-none block w-full"
+                          className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-300 pointer-events-none block w-full"
                           disabled
                         />
                       </div>
@@ -20123,17 +17872,17 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Submit logic */}
+                    {/* Submit logic - Clean Compact Button */}
                     <button
                       type="submit"
                       disabled={!currentOperator.permissions?.includes(SystemPermission.MOVE_INMATE)}
-                      className="mt-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 cursor-pointer font-bold py-3 px-4 rounded-xl text-xs flex justify-center items-center gap-2 shadow-lg tracking-wider hover:shadow-amber-500/10 transition-all font-sans disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="mt-1 bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer font-bold py-2.5 px-3 rounded-lg text-xs flex justify-center items-center gap-2 shadow tracking-wider transition-all font-mono uppercase disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      <Activity className="h-4 w-4" /> homologar e outorgar movimentação
+                      <Activity className="h-3.5 w-3.5" /> Outorgar Movimentação
                     </button>
                     {!currentOperator.permissions?.includes(SystemPermission.MOVE_INMATE) && (
-                      <p className="text-[10px] text-rose-500 font-sans leading-tight text-center bg-rose-500/5 border border-rose-500/20 p-2 rounded">
-                        Acesso Negado: O seu utilizador ({currentOperator.roleName}) não possui permissão (MOVE_INMATE) no escopo institucional atual.
+                      <p className="text-[10px] text-rose-500 font-sans leading-tight text-center bg-rose-500/5 border border-rose-500/20 p-1.5 rounded">
+                        Acesso Negado: Utilizador sem permissão MOVE_INMATE.
                       </p>
                     )}
                   </form>
@@ -20143,29 +17892,23 @@ export default function App() {
                 <div className="lg:col-span-7 flex flex-col gap-5 h-full">
 
                   {/* WORKFLOW DE DUAL APPROVAL (PENDENTES) */}
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 shadow-lg text-left">
-                    <div className="flex justify-between items-center-wrap border-b border-slate-800 pb-2">
-                      <div>
-                        <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                          <Fingerprint className="h-4 w-4 text-amber-500 animate-pulse" /> Workflow de Dual Approval (Maker-Checker)
-                        </h3>
-                        <p className="text-xxs text-slate-400 mt-0.5 leading-relaxed">
-                          Fila de autorizações digitais críticas. Alterações sensíveis (Transferências e Solturas) exigem a validação de um segundo operador com estatuto de Supervisor.
-                        </p>
-                      </div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3 shadow-lg text-left">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                      <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <Fingerprint className="h-4 w-4 text-amber-500 animate-pulse" /> Dual Approval (Maker-Checker)
+                      </h3>
                       <span className="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded font-mono font-bold">
                         {movements.filter(m => m.status === "PENDING_APPROVAL").length} PENDENTES
                       </span>
                     </div>
 
                     {movements.filter(m => m.status === "PENDING_APPROVAL").length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-5 bg-slate-950/40 border border-dashed border-slate-800 rounded-xl text-center">
-                        <CheckCircle className="h-6 w-6 text-emerald-500/80 mb-1" />
+                      <div className="flex flex-col items-center justify-center py-4 bg-slate-950/40 border border-dashed border-slate-800 rounded-xl text-center">
+                        <CheckCircle className="h-5 w-5 text-emerald-500/80 mb-1" />
                         <span className="text-xxs font-mono text-slate-500 uppercase">Fila de autorização limpa</span>
-                        <span className="text-[10px] text-slate-400 font-sans mt-0.5">Todas as alterações críticas de reclusos foram homologadas e executadas.</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-3.5 max-h-[350px] overflow-y-auto pr-1">
+                      <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1">
                         {movements.filter(m => m.status === "PENDING_APPROVAL").map((pMov) => {
                           const isRelease = pMov.movementType === "RELEASE";
                           const isSupervisor = ["DIRECTOR_GERAL", "DIRECTOR_PROVINCIAL", "DIRECTOR_CADEIA"].includes(currentOperator.role);
@@ -20174,12 +17917,12 @@ export default function App() {
                           const requesterOp = operators.find(o => o.id === pMov.operatorId);
                           
                           return (
-                            <div key={pMov.id} className="bg-slate-950 border border-slate-850 hover:border-slate-800 transition rounded-xl p-3.5 flex flex-col gap-2.5">
+                            <div key={pMov.id} className="bg-slate-950 border border-slate-850 hover:border-slate-800 transition rounded-xl p-3 flex flex-col gap-2">
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex flex-col">
                                   <span className="text-xs font-sans font-bold text-slate-200">{pMov.inmateName}</span>
                                   <span className="text-[8px] font-mono text-slate-500 mt-0.5 uppercase tracking-wider">
-                                    Recluso No: {pMov.inmateId} | Ofício-Guia: {pMov.id}
+                                    Recluso No: {pMov.inmateId} | Guia: {pMov.id}
                                   </span>
                                 </div>
                                 <span className={`text-[8px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0 border ${
@@ -20187,16 +17930,16 @@ export default function App() {
                                     ? "bg-emerald-950/40 text-emerald-400 border-emerald-500/20" 
                                     : "bg-sky-950/40 text-sky-400 border-sky-500/20"
                                 }`}>
-                                  {isRelease ? "SOLTURA CRÍTICA PENDENTE" : "TRANSFERÊNCIA PENDENTE"}
+                                  {isRelease ? "SOLTURA PENDENTE" : "TRANSFERÊNCIA PENDENTE"}
                                 </span>
                               </div>
 
-                              <div className="font-sans text-[10.5px] text-slate-300 leading-relaxed bg-slate-900 border border-slate-900 px-2.5 py-1.5 rounded">
-                                <p className="font-mono text-[9px] text-slate-500 uppercase leading-none mb-1">Motivação & Justificação Formal:</p>
+                              <div className="font-sans text-[10.5px] text-slate-300 leading-snug bg-slate-900 border border-slate-900 px-2.5 py-1.5 rounded">
+                                <span className="font-mono text-[9px] text-slate-500 uppercase mr-1">Motivação:</span>
                                 {pMov.reason}
                               </div>
 
-                              <div className="bg-slate-900/40 border border-slate-900 px-3 py-2 rounded-lg text-[9px] font-mono flex items-center justify-between text-slate-400">
+                              <div className="bg-slate-900/40 border border-slate-900 px-2.5 py-1.5 rounded-lg text-[9px] font-mono flex items-center justify-between text-slate-400">
                                 <div className="flex items-center gap-1.5 truncate">
                                   <span className="font-bold text-amber-500 shrink-0">ORIGEM:</span>
                                   <span className="text-slate-300 bg-slate-950 px-1.5 py-0.2 rounded truncate">{pMov.sourceLocName}</span>
@@ -20209,53 +17952,36 @@ export default function App() {
                                 </div>
                               </div>
 
-                              {/* Maker-Checker Workflow Details */}
-                              <div className="bg-slate-900/20 border border-slate-850/60 rounded-lg p-2.5 flex flex-col gap-1 text-[9.5px]">
-                                <div className="flex justify-between text-slate-500 font-mono text-[8.5px]">
-                                  <span>SOLICITANTE (MAKER):</span>
-                                  <span className="text-slate-300 font-sans font-semibold">
-                                    {requesterOp ? `${requesterOp.name} (${requesterOp.roleName})` : pMov.operatorId}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between text-slate-500 font-mono text-[8.5px]">
-                                  <span>CHAVE DE INTEGRIDADE:</span>
-                                  <span className="text-slate-400 font-mono tracking-wider">
-                                    SHA256-{pMov.id.substring(4)}-{(pMov as any).classification || "SECRET"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="border-t border-slate-900 pt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[9px] font-mono">
+                              <div className="border-t border-slate-900 pt-2 flex items-center justify-between text-[9px] font-mono">
                                 <span className="text-slate-500">
-                                  Maker ID: {pMov.operatorId}
+                                  Solicitante: {requesterOp ? requesterOp.name : pMov.operatorId}
                                 </span>
 
                                 {isEligible ? (
-                                  <div className="flex gap-2 w-full sm:w-auto mt-1 sm:mt-0">
+                                  <div className="flex gap-1.5">
                                     <button
                                       type="button"
                                       onClick={() => handleDeclineTransfer(pMov.id)}
-                                      className="bg-rose-950/40 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-slate-950 font-bold px-2.5 py-1 rounded cursor-pointer transition text-[9px] uppercase tracking-wide grow sm:grow-0"
+                                      className="bg-rose-950/40 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-slate-950 font-bold px-2 py-1 rounded cursor-pointer transition text-[9px] uppercase tracking-wide"
                                     >
                                       RECUSAR
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleApproveTransfer(pMov.id)}
-                                      className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1 rounded cursor-pointer transition text-[9px] flex items-center gap-1 uppercase tracking-wide shadow shadow-emerald-500/10 grow sm:grow-0"
+                                      className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-2.5 py-1 rounded cursor-pointer transition text-[9px] flex items-center gap-1 uppercase tracking-wide shadow"
                                     >
                                       <UserCheck className="h-3 w-3" /> ASSINAR & EXECUTAR
                                     </button>
                                   </div>
                                 ) : isSupervisor && isRequester ? (
-                                  <div className="bg-amber-500/5 border border-amber-500/20 px-2.5 py-1.5 rounded text-amber-500 text-[9px] font-sans leading-tight mt-1 self-stretch w-full">
-                                    <AlertTriangle className="h-3.5 w-3.5 inline mr-1 pb-0.5 shrink-0 animate-pulse text-amber-400" />
-                                    <strong>Bloqueio Maker-Checker:</strong> Você iniciou esta ação como <span className="underline">{currentOperator.name}</span>. O protocolo de segurança impede a auto-homologação. Mude de operador no cabeçalho superior para simular a homologação por um segundo supervisor.
+                                  <div className="bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded text-amber-400 text-[9px] font-mono">
+                                    🔒 Requer 2º Supervisor (Maker-Checker)
                                   </div>
                                 ) : (
-                                  <div className="bg-slate-900/80 border border-slate-850 px-2.5 py-1.5 rounded text-slate-400 text-[9px] font-sans leading-tight mt-1 self-stretch w-full">
-                                    <Lock className="h-3 w-3 inline text-amber-500 mr-1 pb-0.5 shrink-0" />
-                                    Acesso restrito. Altere o operador ativo no cabeçalho superior para um perfil de <strong className="text-amber-400">Supervisor (Diretor)</strong> diferente do solicitante original para autorizar digitalmente.
+                                  <div className="bg-slate-900 border border-slate-850 px-2 py-1 rounded text-slate-400 text-[9px] font-mono">
+                                    <Lock className="h-3 w-3 inline text-amber-500 mr-1" />
+                                    Acesso restrito a Supervisor
                                   </div>
                                 )}
                               </div>
@@ -20362,1290 +18088,9 @@ export default function App() {
                      </div>
                   </div>
 
-                  {/* Informational digital signature block widget */}
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4.5 flex flex-col gap-3 font-mono text-xxs">
-                    <h3 className="text-xs font-bold uppercase text-slate-300 border-b border-slate-800 pb-2 tracking-wider">
-                      ℹ️ Protocolo Militar de Assinatura Eletrónica (Guia NREP)
-                    </h3>
-                    <p className="text-slate-400 font-sans leading-relaxed text-[11px]">
-                      Todas as movimentações ativadas no NREP geram carimbos digitais SHA-256 e selos do Ministério do Interior. 
-                      A alteração retroativa deste histórico dispara alertas na auditoria nacional e revoga chaves biométricas de operadores.
-                    </p>
-                    <div className="bg-slate-950 border border-slate-850 p-3 rounded text-[10px] text-emerald-400 leading-none flex gap-1.5 justify-between items-center font-semibold">
-                      <span>INTEGRIDADE BLOCKCHAIN: EXCELENTE</span>
-                      <span className="text-slate-500">SHA-256: 0xA772F92911C</span>
-                    </div>
-                  </div>
-                </div>
 
-              </div>
-            </motion.div>
-          )}
 
-          {/* TAB: SERVIÇOS ESPECIAIS & INTEGRADOS (CRUD) */}
-          {activeTab === "special-services" && (
-            <motion.div
-              key="special-services-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-6"
-            >
-              {/* Header Title Banner */}
-              <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl text-left">
-                <div>
-                  <div className="flex items-center gap-2 text-xxs font-mono uppercase tracking-wider text-emerald-400 font-bold bg-emerald-950/40 px-2.5 py-1 rounded border border-emerald-500/20 w-fit">
-                    <Zap className="h-3 w-3 text-emerald-400 shrink-0 animate-pulse" />
-                    MÓDULOS ESPECIAIS DE CÚPULA PNAP-AO
-                  </div>
-                  <h1 className="text-xl md:text-2xl font-sans tracking-tight text-white font-bold mt-2">
-                    Serviços Integrados & CRUD Canónico
-                  </h1>
-                  <p className="text-slate-400 text-xs mt-1 max-w-2xl">
-                    Gestão integrada e auditoria direta de prontuários de saúde clínica, programas e fichas de reinserção social comunitária, e canais de inteligência criminal cruzada com a Polícia Nacional de Angola.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 self-start md:self-center">
-                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                  <span className="text-[10px] bg-slate-950 text-slate-400 border border-slate-800 px-3 py-1.5 rounded-lg font-mono">
-                    SICP-INTEGRAÇÃO: ATIVA
-                  </span>
-                </div>
-              </div>
 
-              {/* Sub-tab navigation */}
-              {(() => {
-                const [subTab, setSubTab] = useState<"saude" | "reinsercao" | "inteligencia">("saude");
-                const [chartMetric, setChartMetric] = useState<"progress" | "enrolled">("progress");
-
-                const educacaoRecords = reintegrationRecords.filter(r => r.category === "Educação");
-                const trabalhoRecords = reintegrationRecords.filter(r => r.category === "Trabalho");
-
-                const avgEducacaoProgress = educacaoRecords.length > 0 
-                  ? Math.round(educacaoRecords.reduce((acc, r) => acc + r.progressScore, 0) / educacaoRecords.length) 
-                  : 85;
-                const avgTrabalhoProgress = trabalhoRecords.length > 0 
-                  ? Math.round(trabalhoRecords.reduce((acc, r) => acc + r.progressScore, 0) / trabalhoRecords.length) 
-                  : 88;
-
-                const lastSemesterData = [
-                  { month: "Jan/26", educacaoAtivos: 12, educacaoProgresso: 68, trabalhoAtivos: 18, trabalhoProgresso: 72 },
-                  { month: "Fev/26", educacaoAtivos: 15, educacaoProgresso: 70, trabalhoAtivos: 22, trabalhoProgresso: 75 },
-                  { month: "Mar/26", educacaoAtivos: 18, educacaoProgresso: 74, trabalhoAtivos: 20, trabalhoProgresso: 78 },
-                  { month: "Abr/26", educacaoAtivos: 21, educacaoProgresso: 78, trabalhoAtivos: 25, trabalhoProgresso: 82 },
-                  { month: "Mai/26", educacaoAtivos: 24, educacaoProgresso: 81, trabalhoAtivos: 28, trabalhoProgresso: 84 },
-                  { month: "Jun/26", educacaoAtivos: 25 + educacaoRecords.length, educacaoProgresso: avgEducacaoProgress, trabalhoAtivos: 29 + trabalhoRecords.length, trabalhoProgresso: avgTrabalhoProgress }
-                ];
-                
-                // Form States
-                const [showForm, setShowForm] = useState<boolean>(false);
-                const [editId, setEditId] = useState<string | null>(null);
-
-                // Filter States
-                const [searchQuery, setSearchQuery] = useState<string>("");
-                const [severityFilter, setSeverityFilter] = useState<string>("ALL");
-                const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
-                const [classificationFilter, setClassificationFilter] = useState<string>("ALL");
-                const [threatLevelFilter, setThreatLevelFilter] = useState<string>("ALL");
-                const [localIntelSearch, setLocalIntelSearch] = useState<string>("");
-                const [intelSigModalOpen, setIntelSigModalOpen] = useState<boolean>(false);
-                const [intelSigOfficer, setIntelSigOfficer] = useState<string>("Superintendente-Chefe J. Lourenço");
-                const [intelSigPin, setIntelSigPin] = useState<string>("");
-                const [intelSigSigned, setIntelSigSigned] = useState<boolean>(false);
-                const [intelBioScanning, setIntelBioScanning] = useState<boolean>(false);
-                const [intelBioProgress, setIntelBioProgress] = useState<number>(0);
-                const [intelBioMatched, setIntelBioMatched] = useState<boolean>(false);
-                const [intelSigError, setIntelSigError] = useState<string | null>(null);
-                const [intelQrScannerOpen, setIntelQrScannerOpen] = useState<boolean>(false);
-                const [intelQrScannerInmate, setIntelQrScannerInmate] = useState<any | null>(null);
-                const [intelQrError, setIntelQrError] = useState<string | null>(null);
-                const intelScannerHtml5Ref = useRef<Html5Qrcode | null>(null);
-
-                const handleIntelQrScanned = (code: string) => {
-                  if (!code) return;
-                  const cleanCode = code.trim();
-                  
-                  const matchIntel = intelligenceRecords.find(item => 
-                    item.checksum.toLowerCase() === cleanCode.toLowerCase() || 
-                    item.inmateId.toLowerCase() === cleanCode.toLowerCase() ||
-                    item.inmateName.toLowerCase().includes(cleanCode.toLowerCase())
-                  );
-
-                  const matchInmate = inmates.find(i => 
-                    i.documentCode.toLowerCase() === cleanCode.toLowerCase() ||
-                    i.idCard.toLowerCase() === cleanCode.toLowerCase() ||
-                    (i.firstName + " " + i.lastName).toLowerCase().includes(cleanCode.toLowerCase())
-                  );
-
-                  if (matchIntel || matchInmate) {
-                    const resolvedIntel = matchIntel || {
-                      id: "INT-GENERATED",
-                      inmateId: matchInmate?.id || "PIR-UNKNOWN",
-                      inmateName: matchInmate ? `${matchInmate.firstName} ${matchInmate.lastName}` : "Não identificado",
-                      classification: matchInmate?.riskLevel === "Máximo" ? "SECRETO" : "CONFIDENCIAL" as any,
-                      incidentSource: "QR Scan Reader",
-                      alertType: "Validação Cruzada de Cadastro",
-                      threatLevel: matchInmate?.riskLevel === "Máximo" ? "Crítico" : "Médio" as any,
-                      description: `Informação extraível validada eletronicamente. Recluso localizado no banco de dados central com BI ${matchInmate?.idCard || "N/A"} e nível de risco ${matchInmate?.riskLevel || "N/A"}.`,
-                      loggedDate: new Date().toISOString().slice(0, 10),
-                      actionTaken: "Verificação e aprovação de integridade via dispositivo central portátil de fiscalização.",
-                      checksum: cleanCode
-                    };
-
-                    setIntelQrScannerInmate(resolvedIntel);
-                    setLocalIntelSearch(resolvedIntel.inmateName);
-                    
-                    writeAuditLog(
-                      null,
-                      "SECURITY_VALIDATION" as any,
-                      "Intelligence",
-                      resolvedIntel.inmateId,
-                      `Documento QR validado e homologado para ${resolvedIntel.inmateName}. Checksum de auditoria: ${resolvedIntel.checksum}`,
-                      resolvedIntel.inmateId,
-                      resolvedIntel.inmateName
-                    );
-
-                    handleValidateDocument(cleanCode);
-                  } else {
-                    setIntelQrScannerInmate({
-                      status: "INVALID",
-                      error: `Código QR '${cleanCode}' lido não corresponde a nenhum registo de inteligência penitenciária ou guia de recluso na infraestrutura PNAP-AO.`,
-                      code: cleanCode
-                    });
-                  }
-                };
-
-                useEffect(() => {
-                  let activeScanner: Html5Qrcode | null = null;
-                  let isMounted = true;
-
-                  if (intelQrScannerOpen) {
-                    setIntelQrScannerInmate(null);
-                    setIntelQrError(null);
-
-                    const startTimer = setTimeout(() => {
-                      if (!isMounted) return;
-                      const container = document.getElementById("intel-qr-scanner-element");
-                      if (!container) {
-                        setIntelQrError("Erro de Renderização: Contentor de leitura não localizado.");
-                        return;
-                      }
-
-                      try {
-                        const scanner = new Html5Qrcode("intel-qr-scanner-element");
-                        activeScanner = scanner;
-                        intelScannerHtml5Ref.current = scanner;
-
-                        scanner.start(
-                          { facingMode: "environment" },
-                          {
-                            fps: 10,
-                            qrbox: (width, height) => {
-                              const size = Math.min(width, height, 250);
-                              return { width: size, height: size };
-                            },
-                          },
-                          (decodedText) => {
-                            if (decodedText && isMounted) {
-                              try {
-                                const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-                                const osc = audioCtx.createOscillator();
-                                const gain = audioCtx.createGain();
-                                osc.connect(gain);
-                                gain.connect(audioCtx.destination);
-                                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-                                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                                osc.start();
-                                osc.stop(audioCtx.currentTime + 0.155);
-                              } catch (e) {}
-
-                              handleIntelQrScanned(decodedText);
-                            }
-                          },
-                          () => {}
-                        ).catch((err) => {
-                          console.error("Camera scanner start failed:", err);
-                          setIntelQrError("Câmara indisponível, permissão bloqueada ou de iFrame. Use a simulação abaixo para validar o fluxo perfeitamente.");
-                        });
-                      } catch (e: any) {
-                        console.error("HTML5Qrcode instantiation failed:", e);
-                        setIntelQrError(`Não foi possível carregar a câmara: ${e.message || e}`);
-                      }
-                    }, 350);
-
-                    return () => {
-                      isMounted = false;
-                      clearTimeout(startTimer);
-                      if (activeScanner) {
-                        if (activeScanner.isScanning) {
-                          activeScanner.stop().catch((err) => {
-                            console.error("Error stopping scanner:", err);
-                          });
-                        }
-                      }
-                      intelScannerHtml5Ref.current = null;
-                    };
-                  }
-                }, [intelQrScannerOpen]);
-
-                // Form Fields
-                // Saúde Fields
-                const [sInmateId, setSInmateId] = useState<string>("");
-                const [sSymptoms, setSSymptoms] = useState<string>("");
-                const [sDiagnosis, setSDiagnosis] = useState<string>("");
-                const [sPrescription, setSPrescription] = useState<string>("");
-                const [sSeverity, setSSeverity] = useState<"Ligeiro" | "Moderado" | "Grave" | "Crítico">("Ligeiro");
-                const [sStatus, setSStatus] = useState<"Pendente" | "Em Tratamento" | "Recuperado" | "Alta Clínica">("Pendente");
-                const [sDoctor, setSDoctor] = useState<string>("");
-
-                // Reinserção Fields
-                const [rInmateId, setRInmateId] = useState<string>("");
-                const [rProgram, setRProgram] = useState<string>("");
-                const [rCategory, setRCategory] = useState<"Educação" | "Trabalho" | "Apoio Psicológico" | "Artesanato">("Educação");
-                const [rScore, setRScore] = useState<number>(70);
-                const [rAttendance, setRAttendance] = useState<number>(90);
-                const [rStatus, setRStatus] = useState<"Inscrito" | "Ativo" | "Suspenso" | "Concluído">("Inscrito");
-                const [rNotes, setRNotes] = useState<string>("");
-                const [rReintegrator, setRReintegrator] = useState<string>("");
-
-                // Inteligência Fields
-                const [iInmateId, setIInmateId] = useState<string>("");
-                const [iClassification, setIClassification] = useState<"RESTRITO" | "CONFIDENCIAL" | "SECRETO">("RESTRITO");
-                const [iSource, setISource] = useState<"MININT" | "Polícia Nacional" | "SICP" | "Guarda Prisional">("Guarda Prisional");
-                const [iAlertType, setIAlertType] = useState<"Informador de Bloco" | "Tentativa de Fuga Recorrente" | "Histórico de Facção" | "Conexão Externa Suspeita">("Conexão Externa Suspeita");
-                const [iThreat, setIThreat] = useState<"Baixo" | "Médio" | "Alto" | "Crítico">("Baixo");
-                const [iDesc, setIDesc] = useState<string>("");
-                const [iAction, setIAction] = useState<string>("");
-
-                // Success Message
-                const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
-
-                const triggerFeedback = (msg: string) => {
-                  setFeedbackMsg(msg);
-                  setTimeout(() => setFeedbackMsg(null), 4000);
-                };
-
-                // Clear fields helper
-                const resetForms = () => {
-                  setEditId(null);
-                  setShowForm(false);
-                  
-                  // Reset Saúde
-                  setSInmateId(""); setSSymptoms(""); setSDiagnosis(""); setSPrescription(""); setSSeverity("Ligeiro"); setSStatus("Pendente"); setSDoctor("");
-                  // Reset Reinserção
-                  setRInmateId(""); setRProgram(""); setRCategory("Educação"); setRScore(70); setRAttendance(90); setRStatus("Inscrito"); setRNotes(""); setRReintegrator("");
-                  // Reset Inteligência
-                  setIInmateId(""); setIClassification("RESTRITO"); setISource("Guarda Prisional"); setIAlertType("Conexão Externa Suspeita"); setIThreat("Baixo"); setIDesc(""); setIAction("");
-                };
-
-                // Trigger edit mode
-                const handleEditClick = (type: "saude" | "reinsercao" | "inteligencia", item: any) => {
-                  setEditId(item.id);
-                  setShowForm(true);
-                  if (type === "saude") {
-                    setSInmateId(item.inmateId);
-                    setSSymptoms(item.symptoms);
-                    setSDiagnosis(item.diagnosis);
-                    setSPrescription(item.prescription);
-                    setSSeverity(item.severity);
-                    setSStatus(item.status);
-                    setSDoctor(item.doctorName);
-                  } else if (type === "reinsercao") {
-                    setRInmateId(item.inmateId);
-                    setRProgram(item.programName);
-                    setRCategory(item.category);
-                    setRScore(item.progressScore);
-                    setRAttendance(item.attendanceRate);
-                    setRStatus(item.status);
-                    setRNotes(item.evaluationNotes);
-                    setRReintegrator(item.reintegratorName);
-                  } else if (type === "inteligencia") {
-                    setIInmateId(item.inmateId);
-                    setIClassification(item.classification);
-                    setISource(item.incidentSource);
-                    setIAlertType(item.alertType);
-                    setIThreat(item.threatLevel);
-                    setIDesc(item.description);
-                    setIAction(item.actionTaken);
-                  }
-                };
-
-                // Submit Form
-                const handleFormSubmit = (e: React.FormEvent) => {
-                  e.preventDefault();
-                  
-                  if (subTab === "saude") {
-                    if (!sInmateId) { alert("Por favor selecione um recluso."); return; }
-                    const refInmate = inmates.find(i => i.id === sInmateId);
-                    const inName = refInmate ? `${refInmate.firstName} ${refInmate.lastName}` : "Recluso Desconhecido";
-                    
-                    if (editId) {
-                      // Update
-                      const updatedFields = {
-                        inmateId: sInmateId,
-                        inmateName: inName,
-                        symptoms: sSymptoms,
-                        diagnosis: sDiagnosis,
-                        prescription: sPrescription,
-                        severity: sSeverity,
-                        status: sStatus,
-                        doctorName: sDoctor || "Clínico Geral"
-                      };
-
-                      setHealthRecords(prev => prev.map(item => item.id === editId ? {
-                        ...item,
-                        ...updatedFields
-                      } : item));
-
-                      apiService.updateHealthRecord(editId, {
-                        reclusoId: sInmateId,
-                        diagnostico: sDiagnosis,
-                        medicacaoPrescrita: sPrescription,
-                        medicoResponsavel: sDoctor || "Clínico Geral",
-                        ...updatedFields
-                      }).catch(err => console.warn("Offline health update:", err));
-
-                      // Add to Audit Log
-                      setAuditLogs(prev => [
-                        {
-                          id: `AUD-H-${Math.floor(Math.random()*10000)}`,
-                          userId: currentOperatorId,
-                          timestamp: new Date().toISOString(),
-                          action: "Edição",
-                          inmateId: sInmateId,
-                          inmateName: inName,
-                          fieldChanged: "Prontuário Médico (Saúde)",
-                          oldValue: "Registo Clinico Anterior",
-                          newValue: `Actualizado registo médico CLI: ${sSymptoms} - Diag: ${sDiagnosis}`
-                        },
-                        ...prev
-                      ]);
-
-                      triggerFeedback("Registo médico atualizado com sucesso!");
-                    } else {
-                      // Create
-                      const newId = `CLI-2026-${Math.floor(1000 + Math.random()*9000)}`;
-                      const newRec: HealthRecord = {
-                        id: newId,
-                        inmateId: sInmateId,
-                        inmateName: inName,
-                        prisonId: refInmate?.assignedPrisonId || "PRIS-HUAMBO",
-                        prisonName: prisons.find(p => p.id === refInmate?.assignedPrisonId)?.name || "Cadeia Central",
-                        consultationDate: new Date().toISOString().substring(0, 10),
-                        symptoms: sSymptoms,
-                        diagnosis: sDiagnosis,
-                        prescription: sPrescription,
-                        severity: sSeverity,
-                        status: sStatus,
-                        doctorName: sDoctor || "Clínico Geral"
-                      };
-
-                      setHealthRecords(prev => [newRec, ...prev]);
-
-                      apiService.createHealthRecord({
-                        id: newId,
-                        reclusoId: sInmateId,
-                        diagnostico: sDiagnosis,
-                        medicacaoPrescrita: sPrescription,
-                        medicoResponsavel: sDoctor || "Clínico Geral",
-                        ...newRec
-                      }).catch(err => console.warn("Offline health create:", err));
-
-                      // Add to Audit Log
-                      setAuditLogs(prev => [
-                        {
-                          id: `AUD-H-${Math.floor(Math.random()*10000)}`,
-                          userId: currentOperatorId,
-                          timestamp: new Date().toISOString(),
-                          action: "Admissão",
-                          inmateId: sInmateId,
-                          inmateName: inName,
-                          fieldChanged: "Novo Prontuário Médico (Saúde)",
-                          oldValue: "-",
-                          newValue: `Criado novo prontuário clínico ${newRec.id}: ${sSymptoms} - Diag: ${sDiagnosis}`
-                        },
-                        ...prev
-                      ]);
-
-                      triggerFeedback("Novo prontuário clínico registado!");
-                    }
-                  } else if (subTab === "reinsercao") {
-                    if (!rInmateId) { alert("Por favor selecione um recluso."); return; }
-                    const refInmate = inmates.find(i => i.id === rInmateId);
-                    const inName = refInmate ? `${refInmate.firstName} ${refInmate.lastName}` : "Recluso Desconhecido";
- 
-                    if (editId) {
-                      // Update
-                      const updatedFields = {
-                        inmateId: rInmateId,
-                        inmateName: inName,
-                        programName: rProgram || "Programa Geral",
-                        category: rCategory,
-                        progressScore: Number(rScore),
-                        attendanceRate: Number(rAttendance),
-                        status: rStatus,
-                        evaluationNotes: rNotes,
-                        reintegratorName: rReintegrator || "Conselheiro Social"
-                      };
-
-                      setReintegrationRecords(prev => prev.map(item => item.id === editId ? {
-                        ...item,
-                        ...updatedFields
-                      } : item));
-
-                      apiService.updateReintegrationRecord(editId, {
-                        reclusoId: rInmateId,
-                        tipoAtividade: rCategory === "Educação" ? "ALFABETIZACAO" : "TRABALHO_INTERNO",
-                        descricao: rProgram || "Programa Geral",
-                        responsavelSocial: rReintegrator || "Conselheiro Social",
-                        ...updatedFields
-                      }).catch(err => console.warn("Offline reintegration update:", err));
-
-                      triggerFeedback("Registo de reinserção social atualizado!");
-                    } else {
-                      // Create
-                      const newId = `REI-2026-${Math.floor(1000 + Math.random()*9000)}`;
-                      const newRec: ReintegrationRecord = {
-                        id: newId,
-                        inmateId: rInmateId,
-                        inmateName: inName,
-                        programName: rProgram || "Curso Técnico Profissional",
-                        category: rCategory,
-                        enrollmentDate: new Date().toISOString().substring(0, 10),
-                        progressScore: Number(rScore),
-                        attendanceRate: Number(rAttendance),
-                        status: rStatus,
-                        evaluationNotes: rNotes,
-                        reintegratorName: rReintegrator || "Conselheiro Social"
-                      };
-
-                      setReintegrationRecords(prev => [newRec, ...prev]);
-
-                      apiService.createReintegrationRecord({
-                        id: newId,
-                        reclusoId: rInmateId,
-                        tipoAtividade: rCategory === "Educação" ? "ALFABETIZACAO" : "TRABALHO_INTERNO",
-                        descricao: rProgram || "Curso Técnico Profissional",
-                        responsavelSocial: rReintegrator || "Conselheiro Social",
-                        ...newRec
-                      }).catch(err => console.warn("Offline reintegration create:", err));
-
-                      triggerFeedback("Inscrito novo recluso no programa de reabilitação social!");
-                    }
-                  } else if (subTab === "inteligencia") {
-                    if (!iInmateId) { alert("Por favor selecione um recluso."); return; }
-                    const refInmate = inmates.find(i => i.id === iInmateId);
-                    const inName = refInmate ? `${refInmate.firstName} ${refInmate.lastName}` : "Recluso Desconhecido";
- 
-                    if (editId) {
-                      // Update
-                      setIntelligenceRecords(prev => prev.map(item => item.id === editId ? {
-                        ...item,
-                        inmateId: iInmateId,
-                        inmateName: inName,
-                        classification: iClassification,
-                        incidentSource: iSource,
-                        alertType: iAlertType,
-                        threatLevel: iThreat,
-                        description: iDesc,
-                        actionTaken: iAction
-                      } : item));
- 
-                      triggerFeedback("Registo de inteligência operacional atualizado!");
-                    } else {
-                      // Create
-                      const firstWord = inName.split(" ")[0].toUpperCase();
-                      const newRec: IntelligenceRecord = {
-                        id: `INT-2026-${Math.floor(1000 + Math.random()*9000)}`,
-                        inmateId: iInmateId,
-                        inmateName: inName,
-                        classification: iClassification,
-                        incidentSource: iSource,
-                        alertType: iAlertType,
-                        threatLevel: iThreat,
-                        description: iDesc,
-                        loggedDate: new Date().toISOString().substring(0, 10),
-                        actionTaken: iAction,
-                        checksum: `SHA256-${firstWord}-${Math.floor(1000 + Math.random()*9000)}`
-                      };
- 
-                      setIntelligenceRecords(prev => [newRec, ...prev]);
-                      triggerFeedback("Alerta de inteligência e cruzamento criminal lançado!");
-                    }
-                  }
-                  resetForms();
-                };
- 
-                // Delete Entry
-                const handleDeleteClick = (type: "saude" | "reinsercao" | "inteligencia", id: string) => {
-                  if (confirm("Confirmar exclusão irrevogável deste registo no banco canónico?")) {
-                    if (type === "saude") {
-                      setHealthRecords(prev => prev.filter(i => i.id !== id));
-                      apiService.deleteHealthRecord(id).catch(err => console.warn("Offline health delete:", err));
-                      triggerFeedback("Registo médico clínico apagado.");
-                    } else if (type === "reinsercao") {
-                      setReintegrationRecords(prev => prev.filter(i => i.id !== id));
-                      apiService.deleteReintegrationRecord(id).catch(err => console.warn("Offline reintegration delete:", err));
-                      triggerFeedback("Programa de reinserção social apagado.");
-                    } else if (type === "inteligencia") {
-                      setIntelligenceRecords(prev => prev.filter(i => i.id !== id));
-                      triggerFeedback("Alerta de inteligência secreta removido.");
-                    }
-                  }
-                };
-
-                return (subTab && (
-                  <div className="space-y-6 font-sans">
-                    {/* Switch Tab buttons & KPI Grid */}
-                    <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
-                      {/* Tabs */}
-                      <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 w-fit shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => { setSubTab("saude"); resetForms(); }}
-                          className={`px-4 py-2 font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                            subTab === "saude"
-                              ? "bg-slate-800 text-amber-500 border border-slate-700 shadow-sm"
-                              : "text-slate-400 hover:text-slate-200"
-                          }`}
-                        >
-                          <HeartPulse className="h-4 w-4 text-emerald-500" />
-                          🏥 Serviços de Saúde
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setSubTab("reinsercao"); resetForms(); }}
-                          className={`px-4 py-2 font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                            subTab === "reinsercao"
-                              ? "bg-slate-800 text-amber-500 border border-slate-700 shadow-sm"
-                              : "text-slate-400 hover:text-slate-200"
-                          }`}
-                        >
-                          <BookOpen className="h-4 w-4 text-amber-500" />
-                          🌱 Reinserção Social
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setSubTab("inteligencia"); resetForms(); }}
-                          className={`px-4 py-2 font-semibold text-xs rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
-                            subTab === "inteligencia"
-                              ? "bg-slate-800 text-rose-500 border border-slate-700 shadow-sm"
-                              : "text-slate-400 hover:text-slate-200"
-                          }`}
-                        >
-                          <Shield className="h-4 w-4 text-rose-500 animate-pulse" />
-                          🕵️ Inteligência & Forças
-                        </button>
-                      </div>
-
-                      {/* Summary feedback alert */}
-                      {feedbackMsg && (
-                        <div className="bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 text-xs px-4 py-2 rounded-xl flex items-center gap-2 animate-bounce">
-                          <Check className="h-4 w-4 text-emerald-400" />
-                          {feedbackMsg}
-                        </div>
-                      )}
-
-                      {/* Header quick button insert */}
-                      {!showForm && subTab !== "saude" && (
-                        <button
-                          type="button"
-                          onClick={() => setShowForm(true)}
-                          className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-bold text-xs rounded-lg transition shadow-md flex items-center gap-1.5 self-start lg:self-center cursor-pointer"
-                        >
-                          <Plus className="h-4 w-4 stroke-[3px]" />
-                          {subTab === "reinsercao" ? "Inscrever em Reinserção" : "Registar Alerta de Inteligência"}
-                        </button>
-                      )}
-                    </div>
-
-                    {subTab === "saude" ? (
-                      <HealthModule 
-                        inmates={inmates}
-                        currentOperator={currentOperator}
-                        hasPermission={hasPermission}
-                        setAuditLogs={setAuditLogs}
-                        currentOperatorId={currentOperatorId}
-                        healthRecords={healthRecords}
-                        setHealthRecords={setHealthRecords}
-                        operators={operators}
-                        setOperators={setOperators}
-                      />
-                    ) : (
-                      <>
-                        {/* DYNAMIC KPI MINI-GRID */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          {subTab === "reinsercao" && (
-                        <>
-                          <div className="bg-slate-900/40 border border-slate-855 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-slate-500 block uppercase">Inscrições Ativas</span>
-                            <span className="text-xl font-bold text-amber-500">{reintegrationRecords.length}</span>
-                          </div>
-                          <div className="bg-slate-900/40 border border-slate-855 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-slate-500 block uppercase">Frequência Média</span>
-                            <span className="text-xl font-bold text-slate-100">
-                              {Math.round(reintegrationRecords.reduce((acc, curr) => acc + curr.attendanceRate, 0) / reintegrationRecords.length || 0)}%
-                            </span>
-                          </div>
-                          <div className="bg-slate-900/40 border border-slate-855 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-emerald-400 block uppercase">Rendimento Médio</span>
-                            <span className="text-xl font-bold text-emerald-400">
-                              {Math.round(reintegrationRecords.reduce((acc, curr) => acc + curr.progressScore, 0) / reintegrationRecords.length || 0)}/100
-                            </span>
-                          </div>
-                          <div className="bg-slate-900/40 border border-slate-855 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-slate-500 block uppercase">Categorias de Apoio</span>
-                            <span className="text-xl font-bold text-slate-300">4 Unidades</span>
-                          </div>
-                        </>
-                      )}
-                      {subTab === "inteligencia" && (
-                        <>
-                          <div className="bg-slate-900/40 border border-slate-900/50 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-slate-500 block uppercase">Registos de Risco</span>
-                            <span className="text-xl font-bold text-rose-500">{intelligenceRecords.length}</span>
-                          </div>
-                          <div className="bg-slate-900/40 border border-slate-900/50 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-rose-450 block uppercase">Nível Vermelho</span>
-                            <span className="text-xl font-bold text-rose-400">
-                              {intelligenceRecords.filter(i => i.threatLevel === "Crítico" || i.threatLevel === "Alto").length}
-                            </span>
-                          </div>
-                          <div className="bg-slate-900/40 border border-slate-900/50 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-slate-500 block uppercase">Organizações Integradas</span>
-                            <span className="text-xl font-bold text-slate-200">SICP + MININT</span>
-                          </div>
-                          <div className="bg-slate-900/40 border border-slate-900/50 p-3 rounded-xl font-mono text-left">
-                            <span className="text-[10px] text-yellow-500 block uppercase">Cripto Hashes Seletos</span>
-                            <span className="text-xl font-bold text-yellow-500">100% Selado</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* GRÁFICO DE PROGRESSÃO SEMESTRAL (EDUCAÇÃO E TRABALHO) */}
-                    {subTab === "reinsercao" && (
-                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 text-left flex flex-col gap-4 shadow-lg mb-4 mt-4">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
-                          <div>
-                            <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                              <TrendingUp className="h-4 w-4 text-emerald-400" /> Progressão Semestral: Educação vs Trabalho
-                            </h3>
-                            <p className="text-xxs text-slate-400 mt-0.5 leading-relaxed font-sans">
-                              Evolução participativa e avaliação de desempenho dos reclusos no último semestre (Janeiro - Junho).
-                            </p>
-                          </div>
-                          
-                          {/* Toggle Metric Button Group */}
-                          <div className="flex bg-slate-950 p-0.5 rounded-lg border border-slate-850 font-mono text-[9px]">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setChartMetric("progress");
-                              }}
-                              className={`px-2.5 py-1 rounded font-bold transition cursor-pointer ${
-                                chartMetric === "progress"
-                                  ? "bg-slate-800 text-emerald-400 border border-slate-700/50"
-                                  : "text-slate-500 hover:text-slate-350"
-                              }`}
-                            >
-                              Rendimento (%)
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setChartMetric("enrolled");
-                              }}
-                              className={`px-2.5 py-1 rounded font-bold transition cursor-pointer ${
-                                chartMetric === "enrolled"
-                                  ? "bg-slate-800 text-amber-500 border border-slate-700/50"
-                                  : "text-slate-500 hover:text-slate-350"
-                              }`}
-                            >
-                              Inscrições (Nº)
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Chart Render */}
-                        <div className="h-64 w-full pr-4 text-xs">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              data={lastSemesterData}
-                              margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
-                            >
-                              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                              <XAxis dataKey="month" stroke="#64748b" fontSize={9} tickLine={false} />
-                              <YAxis 
-                                stroke="#64748b" 
-                                fontSize={9} 
-                                tickLine={false} 
-                                axisLine={false}
-                                domain={chartMetric === "progress" ? [0, 100] : [0, 'auto']}
-                              />
-                              <Tooltip
-                                cursor={{ fill: "rgba(255,255,255,0.02)" }}
-                                contentStyle={{
-                                  backgroundColor: "#0b1329",
-                                  border: "1px solid #1e293b",
-                                  borderRadius: "8px",
-                                  fontSize: "11.5px",
-                                  fontFamily: "monospace"
-                                }}
-                                itemStyle={{ color: "#cbd5e1" }}
-                                labelStyle={{ color: "#94a3b8", fontWeight: "bold", marginBottom: "4px" }}
-                              />
-                              <Legend 
-                                wrapperStyle={{ fontSize: "10px", marginTop: "12px", fontFamily: "sans-serif" }}
-                              />
-                              
-                              {chartMetric === "progress" ? (
-                                <>
-                                  <Bar 
-                                    name="Educação (% Aproveitamento Médio)" 
-                                    dataKey="educacaoProgresso" 
-                                    fill="#10b981" 
-                                    radius={[4, 4, 0, 0]} 
-                                  />
-                                  <Bar 
-                                    name="Trabalho (% Aproveitamento Médio)" 
-                                    dataKey="trabalhoProgresso" 
-                                    fill="#f59e0b" 
-                                    radius={[4, 4, 0, 0]} 
-                                  />
-                                </>
-                              ) : (
-                                <>
-                                  <Bar 
-                                    name="Educação (Total Alunos)" 
-                                    dataKey="educacaoAtivos" 
-                                    fill="#3b82f6" 
-                                    radius={[4, 4, 0, 0]} 
-                                  />
-                                  <Bar 
-                                    name="Trabalho (Total Alunos)" 
-                                    dataKey="trabalhoAtivos" 
-                                    fill="#10b981" 
-                                    radius={[4, 4, 0, 0]} 
-                                  />
-                                </>
-                              )}
-                            </BarChart>
-                          </ResponsiveContainer>
-                        </div>
-                        
-                        {/* Analytical Footer or Breakdown details */}
-                        <div className="bg-slate-950/40 border border-slate-850 px-3.5 py-2.5 rounded-xl text-[10px] font-mono flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span>Aproveitamento em Educação aumentou de <strong className="text-slate-300">68% canónico</strong> para <strong className="text-emerald-400 font-bold">{avgEducacaoProgress}% dinâmico</strong>.</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <span className="flex h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            <span>Atividades de Trabalho produtivo integram <strong className="text-amber-500 font-bold">{29 + trabalhoRecords.length} reclusos</strong> este mês.</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* DYNAMIC FORM CONTAINER */}
-                    {showForm && (
-                      <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-2xl relative animate-fadeIn font-sans">
-                        <div className="flex justify-between items-center pb-3 border-b border-slate-800 mb-4 select-none">
-                          <h3 className="font-sans font-bold text-sm text-slate-100 flex items-center gap-1.5">
-                            <Sliders className="h-4 w-4 text-emerald-400" />
-                            {editId ? "Editar Registo do Banco Dinâmico" : "Adicionar Entrada ao Banco Canónico"}
-                          </h3>
-                          <button
-                            type="button"
-                            onClick={resetForms}
-                            className="text-xs text-slate-400 hover:text-slate-300 bg-slate-950 px-2.5 py-1 rounded cursor-pointer animate-pulse font-bold"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-
-                        <form onSubmit={handleFormSubmit} className="space-y-4 text-left font-sans">
-                          {/* Reinserção Form fields */}
-                          {subTab === "reinsercao" && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Seleccionar Recluso *</label>
-                                <select
-                                  value={rInmateId}
-                                  onChange={(e) => setRInmateId(e.target.value)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                >
-                                  <option value="">-- Seleccionar Recluso --</option>
-                                  {inmates.map(i => (
-                                    <option key={i.id} value={i.id}>{i.firstName} {i.lastName} (RNR: {i.id})</option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Técnico de Reinserção Responsável</label>
-                                <input
-                                  type="text"
-                                  value={rReintegrator}
-                                  onChange={(e) => setRReintegrator(e.target.value)}
-                                  placeholder="e.g. Dr. Alfredo Fragoso"
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Nome do Programa de Integração</label>
-                                <input
-                                  type="text"
-                                  value={rProgram}
-                                  onChange={(e) => setRProgram(e.target.value)}
-                                  placeholder="e.g. Serralharia Artística e Marcenaria Prática"
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Categoria de Trabalho/Apoio</label>
-                                <select
-                                  value={rCategory}
-                                  onChange={(e) => setRCategory(e.target.value as any)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                >
-                                  <option value="Educação">Educação</option>
-                                  <option value="Trabalho">Trabalho</option>
-                                  <option value="Apoio Psicológico">Apoio Psicológico</option>
-                                  <option value="Artesanato">Artesanato</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Rendimento / Progresso Técnico (0 - 100)</label>
-                                <input
-                                  type="number"
-                                  min={0}
-                                  max={100}
-                                  value={rScore}
-                                  onChange={(e) => setRScore(Number(e.target.value))}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none font-mono"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Taxa de Assiduidade Colectiva (%)</label>
-                                <input
-                                  type="number"
-                                  min={0}
-                                  max={100}
-                                  value={rAttendance}
-                                  onChange={(e) => setRAttendance(Number(e.target.value))}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none font-mono"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Fase do Programa</label>
-                                <select
-                                  value={rStatus}
-                                  onChange={(e) => setRStatus(e.target.value as any)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                >
-                                  <option value="Inscrito">Inscrito</option>
-                                  <option value="Ativo">Ativo</option>
-                                  <option value="Suspenso">Suspenso</option>
-                                  <option value="Concluído">Concluído</option>
-                                </select>
-                              </div>
-
-                              <div className="col-span-1 md:col-span-2">
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Notas de Observação e Parecer Psicológico</label>
-                                <textarea
-                                  value={rNotes}
-                                  onChange={(e) => setRNotes(e.target.value)}
-                                  placeholder="Incorpore as atitudes psicossociais, cooperação familiar, comportamento no pavilhão comun..."
-                                  rows={2}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none font-mono"
-                                />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Inteligência Form fields */}
-                          {subTab === "inteligencia" && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Seleccionar Recluso sob Suspeita *</label>
-                                <select
-                                  value={iInmateId}
-                                  onChange={(e) => setIInmateId(e.target.value)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                >
-                                  <option value="">-- Seleccionar Recluso --</option>
-                                  {inmates.map(i => (
-                                    <option key={i.id} value={i.id}>{i.firstName} {i.lastName} (RNR: {i.id})</option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Grau de Secretismo Legal</label>
-                                <select
-                                  value={iClassification}
-                                  onChange={(e) => setIClassification(e.target.value as any)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none font-mono"
-                                >
-                                  <option value="RESTRITO">RESTRITO</option>
-                                  <option value="CONFIDENCIAL">CONFIDENCIAL</option>
-                                  <option value="SECRETO">SECRETO</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Órgão de Força de Segurança Notificado</label>
-                                <select
-                                  value={iSource}
-                                  onChange={(e) => setISource(e.target.value as any)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                >
-                                  <option value="MININT">MININT (Ministério do Interior)</option>
-                                  <option value="Polícia Nacional">Polícia Nacional</option>
-                                  <option value="SICP">SICP (Investigação Criminal)</option>
-                                  <option value="Guarda Prisional">Guarda Prisional</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Tipo de Sinalização de Risco</label>
-                                <select
-                                  value={iAlertType}
-                                  onChange={(e) => setIAlertType(e.target.value as any)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                >
-                                  <option value="Informador de Bloco">Informador de Bloco</option>
-                                  <option value="Tentativa de Fuga Recorrente">Tentativa de Fuga Recorrente</option>
-                                  <option value="Histórico de Facção">Histórico de Facção</option>
-                                  <option value="Conexão Externa Suspeita">Conexão Externa Suspeita</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Grau de Ameaça Imediata</label>
-                                <select
-                                  value={iThreat}
-                                  onChange={(e) => setIThreat(e.target.value as any)}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                >
-                                  <option value="Baixo">Baixo</option>
-                                  <option value="Médio">Médio</option>
-                                  <option value="Alto">Alto</option>
-                                  <option value="Crítico">Crítico</option>
-                                </select>
-                              </div>
-
-                              <div className="col-span-1 md:col-span-2">
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Informações Confidenciais do Alerta</label>
-                                <textarea
-                                  value={iDesc}
-                                  onChange={(e) => setIDesc(e.target.value)}
-                                  placeholder="Discorra sobre escutas digitais, registo de facções ou alertas de capturas estaduais..."
-                                  rows={2}
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none font-mono"
-                                />
-                              </div>
-
-                              <div className="col-span-1 md:col-span-2">
-                                <label className="text-[10px] text-slate-400 block mb-1 font-mono uppercase">Contramedidas / Ações Operacionais Tomadas</label>
-                                <input
-                                  type="text"
-                                  value={iAction}
-                                  onChange={(e) => setIAction(e.target.value)}
-                                  placeholder="e.g. Isolamento temporário, rotatividade forçada de pavilhão..."
-                                  className="w-full bg-slate-950 border border-slate-800 p-2 text-xs rounded text-slate-200 outline-none"
-                                />
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex justify-end gap-3 pt-3 border-t border-slate-800 mt-4">
-                            <button
-                              type="button"
-                              onClick={resetForms}
-                              className="px-4 py-2 text-xs text-slate-400 hover:bg-slate-955 rounded transition cursor-pointer"
-                            >
-                              Cancelar
-                            </button>
-                            <button
-                              type="submit"
-                              className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-bold text-xs rounded transition flex items-center gap-1.5 cursor-pointer"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                              {editId ? "Salvar Alterações" : "Submeter no Banco Canónico"}
-                            </button>
-                          </div>
-                        </form>
-                      </div>
-                    )}
-
-                    {/* SEARCH FILTERS */}
-                    <div className="flex flex-col md:flex-row gap-3 bg-slate-950 p-4 border border-slate-850 rounded-xl relative">
-                      <div className="flex-1 relative">
-                        <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-500" />
-                        <input
-                          type="text"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="Pesquisar por recluso, diagnóstico, curso ou agência..."
-                          className="w-full bg-slate-900 border border-slate-800 pl-10 pr-4 py-2.5 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50 transition font-mono"
-                        />
-                      </div>
-
-
-
-                      {subTab === "reinsercao" && (
-                        <div className="flex gap-2">
-                          <select
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-lg text-slate-400 outline-none focus:border-emerald-500/50"
-                          >
-                            <option value="ALL">Todas as Categorias</option>
-                            <option value="Educação">Educação</option>
-                            <option value="Trabalho">Trabalho</option>
-                            <option value="Apoio Psicológico">Apoio Psicológico</option>
-                            <option value="Artesanato">Artesanato</option>
-                          </select>
-                        </div>
-                      )}
-
-                      {subTab === "inteligencia" && (
-                        <div className="flex flex-wrap gap-2">
-                          <select
-                            value={classificationFilter}
-                            onChange={(e) => setClassificationFilter(e.target.value)}
-                            className="bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-lg text-slate-400 outline-none focus:border-rose-500/50 font-mono animate-fadeIn"
-                          >
-                            <option value="ALL">Todos os Secretismos</option>
-                            <option value="RESTRITO">RESTRITO</option>
-                            <option value="CONFIDENCIAL">CONFIDENCIAL</option>
-                            <option value="SECRETO">SECRETO</option>
-                          </select>
-                          <select
-                            id="threat-level-filter-select"
-                            value={threatLevelFilter}
-                            onChange={(e) => setThreatLevelFilter(e.target.value)}
-                            className="bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-lg text-slate-400 outline-none focus:border-red-500/50 font-mono animate-fadeIn"
-                          >
-                            <option value="ALL">Nível de Ameaça: Todos</option>
-                            <option value="Crítico">🔴 Crítico</option>
-                            <option value="Alto">🟠 Alto</option>
-                            <option value="Médio">🟡 Médio</option>
-                            <option value="Baixo">🟢 Baixo</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* RENDER DYNAMIC CRUD TABLE/CARDS */}
-                    <div className="overflow-x-auto border border-slate-850 rounded-xl bg-slate-950/60 shadow-lg">
-
-
-                      {subTab === "reinsercao" && (() => {
-                        const filtered = reintegrationRecords.filter(item => {
-                          const query = searchQuery.toLowerCase().trim();
-                          const matchesSearch = !query || 
-                            item.inmateName.toLowerCase().includes(query) ||
-                            item.programName.toLowerCase().includes(query) ||
-                            item.reintegratorName.toLowerCase().includes(query) ||
-                            item.evaluationNotes.toLowerCase().includes(query);
-                          const matchesCategory = categoryFilter === "ALL" || item.category === categoryFilter;
-                          return matchesSearch && matchesCategory;
-                        });
-
-                        return (
-                          <table className="w-full text-left text-xs border-collapse">
-                            <thead>
-                              <tr className="border-b border-slate-800 text-slate-400 font-mono select-none bg-slate-900/60">
-                                <th className="p-4 font-semibold uppercase text-slate-500 text-[10px]">Matrícula</th>
-                                <th className="p-4 font-semibold uppercase text-slate-500 text-[10px]">Recluso inscrito</th>
-                                <th className="p-4 font-semibold uppercase text-slate-500 text-[10px]">Programa Integrado</th>
-                                <th className="p-4 font-semibold uppercase text-slate-500 text-[10px]">Assiduidade</th>
-                                <th className="p-4 font-semibold uppercase text-slate-500 text-[10px]">Aproveitamento</th>
-                                <th className="p-4 font-semibold uppercase text-slate-500 text-[10px]">Estágio</th>
-                                <th className="p-4 font-semibold uppercase text-slate-500 text-[10px] text-right">Ações</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-850">
-                              {filtered.length === 0 ? (
-                                <tr>
-                                  <td colSpan={7} className="p-8 text-center text-slate-500 font-sans">
-                                    Nenhum participante em programas de reinserção social comunitária.
-                                  </td>
-                                </tr>
-                              ) : (
-                                filtered.map(item => (
-                                  <tr key={item.id} className="hover:bg-slate-900/40 transition font-sans">
-                                    <td className="p-4 font-mono font-bold text-slate-350">{item.id}</td>
-                                    <td className="p-4">
-                                      <div className="flex flex-col text-left">
-                                        <span className="font-semibold text-slate-100">{item.inmateName}</span>
-                                        <span className="text-[10px] text-slate-400 font-mono">RNR: {item.inmateId}</span>
-                                      </div>
-                                    </td>
-                                    <td className="p-4">
-                                      <div className="flex flex-col text-left">
-                                        <span className="font-medium text-slate-205">{item.programName}</span>
-                                        <span className="text-[10px] text-amber-500 font-mono uppercase tracking-wider">{item.category}</span>
-                                      </div>
-                                    </td>
-                                    <td className="p-4 text-left">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-mono text-slate-100">{item.attendanceRate}%</span>
-                                        <div className="w-12 bg-slate-950 h-1 rounded-full overflow-hidden border border-slate-850">
-                                          <div className="bg-emerald-500 h-full" style={{ width: (item.attendanceRate + "%") }} />
-                                        </div>
-                                      </div>
-                                    </td>
-                                    <td className="p-4 text-left font-mono">
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-slate-100">{item.progressScore}/100</span>
-                                        <span className={`text-[9px] font-bold px-1 rounded uppercase ${
-                                          item.progressScore >= 85 ? "text-emerald-400 bg-emerald-950/20" :
-                                          item.progressScore >= 60 ? "text-amber-400 bg-amber-955/15" :
-                                          "text-rose-455 bg-rose-955/10"
-                                        }`}>
-                                          {item.progressScore >= 85 ? "Excelente" : item.progressScore >= 60 ? "Média" : "Crítico"}
-                                        </span>
-                                      </div>
-                                    </td>
-                                    <td className="p-4 text-left">
-                                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border bg-slate-900/50 ${
-                                        item.status === "Concluído" ? "border-emerald-500/20 text-emerald-400" :
-                                        item.status === "Ativo" ? "border-amber-500/25 text-amber-500 animate-pulse" :
-                                        item.status === "Suspenso" ? "border-rose-500/10 text-rose-405" :
-                                        "border-slate-800 text-slate-450"
-                                      }`}>
-                                        {item.status}
-                                      </span>
-                                    </td>
-                                    <td className="p-4 text-right font-sans">
-                                      <div className="flex justify-end gap-2">
-                                        <button
-                                          type="button"
-                                          onClick={() => handleEditClick("reinsercao", item)}
-                                          className="px-2 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white rounded text-[10px] transition cursor-pointer"
-                                        >
-                                          Editar
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleDeleteClick("reinsercao", item.id)}
-                                          className="px-2 py-1 bg-rose-955/15 hover:bg-rose-900/30 border border-rose-900/15 text-rose-400 hover:text-rose-300 rounded text-[10px] transition cursor-pointer"
-                                        >
-                                          Eliminar
-                                        </button>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                ))
-                              )}
-                            </tbody>
-                          </table>
-                        );
-                      })()}
-
-                      {subTab === "inteligencia" && (() => {
-                        const filtered = intelligenceRecords.filter(item => {
-                          const query = searchQuery.toLowerCase().trim();
-                          const matchesSearch = !query || 
-                            item.inmateName.toLowerCase().includes(query) ||
-                            item.incidentSource.toLowerCase().includes(query) ||
-                            item.alertType.toLowerCase().includes(query) ||
-                            item.description.toLowerCase().includes(query);
-                          const matchesClassification = classificationFilter === "ALL" || item.classification === classificationFilter;
-                          const matchesThreat = threatLevelFilter === "ALL" || item.threatLevel === threatLevelFilter;
-                          return matchesSearch && matchesClassification && matchesThreat;
-                        });
-
-                        const criticalRecords = filtered.filter(item => item.threatLevel === "Crítico");
-
-                        const handleExportCSV = () => {
-                          if (criticalRecords.length === 0) return;
-                          const headers = ["Checksum", "Suspeito", "RNR", "Origem Documental", "Classificacao", "Tipo Alerta", "Nivel Ameaca", "Descricao"];
-                          const rows = criticalRecords.map(item => [
-                            item.checksum,
-                            `"${item.inmateName.replace(/"/g, '""')}"`,
-                            item.inmateId,
-                            `"${item.incidentSource.replace(/"/g, '""')}"`,
-                            item.classification,
-                            `"${item.alertType.replace(/"/g, '""')}"`,
-                            item.threatLevel,
-                            `"${(item.description || "").replace(/"/g, '""')}"`
-                          ]);
-
-                          const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-                          const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-                          const url = URL.createObjectURL(blob);
-                          const link = document.createElement("a");
-                          link.setAttribute("href", url);
-                          link.setAttribute("download", `registos_criticos_${new Date().toISOString().slice(0,10)}.csv`);
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        };
-
-                        return (
-                          <div id="intelligence-records-table-container" className="w-full">
-                            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-4 bg-slate-900/40 border-b border-slate-850">
-                              {/* Requirement 1: Search input field */}
-                              <div className="flex-1 max-w-sm relative">
-                                <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
-                                <input
-                                  type="text"
-                                  value={searchQuery}
-                                  onChange={(e) => setSearchQuery(e.target.value)}
-                                  placeholder="Pesquisar por nome do recluso ou descrição..."
-                                  className="w-full bg-slate-950 border border-slate-850 rounded-lg pl-9 pr-8 py-2 text-xs font-sans text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500 transition-colors"
-                                />
-                                {searchQuery && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-2.5 top-2.5 text-slate-550 hover:text-slate-350 cursor-pointer"
-                                  >
-                                    <X className="h-3.5 w-3.5" />
-                                  </button>
-                                )}
-                              </div>
-
-                              <div className="flex flex-wrap items-center gap-2">
-                                <div className="flex items-center gap-2">
-                                  <span className={`flex h-2 w-2 rounded-full ${threatLevelFilter === "Crítico" ? "bg-red-500 animate-pulse" : "bg-slate-500"}`}></span>
-                                  <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider mr-2">
-                                    {threatLevelFilter === "Crítico" ? "A filtrar apenas riscos Críticos" : "Filtros Rápidos"}
-                                  </span>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => setThreatLevelFilter(threatLevelFilter === "Crítico" ? "ALL" : "Crítico")}
-                                  className={`px-3 py-1.5 text-xxs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer border ${
-                                    threatLevelFilter === "Crítico"
-                                      ? "bg-red-500/20 text-red-100 border-red-500/50 shadow-lg shadow-red-500/5 scale-98"
-                                      : "bg-slate-900 text-slate-400 border-slate-800 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
-                                  }`}
-                                  title="Filtrar apenas registros que tenham classificação de nível de ameaça 'Crítico'"
-                                >
-                                  🚨 Só Críticos
-                                </button>
-
-                                {threatLevelFilter !== "ALL" && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setThreatLevelFilter("ALL")}
-                                    className="px-3 py-1.5 text-xxs font-bold uppercase tracking-wider bg-slate-950 border border-slate-800 hover:bg-slate-900 hover:text-white rounded-lg transition-all text-slate-400 cursor-pointer"
-                                  >
-                                    Limpar Filtros
-                                  </button>
-                                )}
 
                                 <div className="h-4 w-px bg-slate-850 mx-1"></div>
 
@@ -22075,26 +18520,9 @@ export default function App() {
                                 )}
                               </tbody>
                             </table>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                    </>
-                    )}
-
-                    {/* Security Footnote */}
-                    <div className="bg-slate-900/30 border border-slate-850 p-4 rounded-xl flex items-start gap-3 text-left">
-                      <Shield className="h-4 w-4 text-slate-500 shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="text-[10px] font-mono text-slate-400 uppercase font-bold tracking-wider">Protocolo de Confidencialidade Orgânica (Decreto Lei 14/20)</h4>
-                        <p className="text-[10px] font-sans text-slate-500 leading-normal mt-1">
-                          Em conformidade com o regime disciplinar de segurança prisional do Ministério do Interior, todos os prontuários médicos, registos de progressão escolar/laboral, e escutas operacionais de inteligência encontram-se selados criptograficamente. O acesso aos bancos especiais de admissão é monitorizado de ponta-a-ponta e devidamente associado às chaves operacionais e IP de proveniência de cada utilizador ativo no sistema central PNAP.
-                        </p>
-                      </div>
                     </div>
                   </div>
-                ));
-              })()}
+                
             </motion.div>
           )}
 
@@ -22844,14 +19272,6 @@ export default function App() {
               setInstitutionalHierarchy={setInstitutionalHierarchy}
               writeAuditLog={writeAuditLog}
               currentOperator={currentOperator}
-            />
-          )}
-
-          {/* TAB: SERVICES GATEWAY MICROSERVICES */}
-          {activeTab === "services-gateway" && (
-            <ServicesGatewayPanel
-              currentOperator={currentOperator}
-              prisons={prisons}
             />
           )}
 
@@ -25305,167 +21725,394 @@ export default function App() {
         </AnimatePresence>
 
         {isStructureCrudOpen && structureCrudType && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-fadeIn">
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col"
+              className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col font-sans text-slate-200"
             >
-              <div className="bg-slate-950 px-5 py-4 border-b border-slate-850 flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-500 font-mono tracking-wider uppercase">
-                  {structureCrudType.startsWith("CREATE") ? "⚙️ Adicionar Estrutura" : 
-                   structureCrudType.startsWith("EDIT") ? "📝/⚙️ Editar Estrutura" : "⚠️ Excluir Estrutura"}
-                </span>
-                <span className="text-[10px] text-slate-500 font-mono bg-slate-900 px-2 py-0.5 rounded border border-slate-800 uppercase font-semibold">
-                  {structureCrudType.split("_")[1]}
-                </span>
-              </div>
-
-              <form onSubmit={handleStructureCrudSubmit} className="p-5 flex flex-col gap-4 text-xs font-sans">
-                
-                {/* Delete Warning */}
-                {structureCrudType.startsWith("DELETE") && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-350 leading-relaxed text-xxs mb-2 flex flex-col gap-1.5">
-                    <span className="font-extrabold uppercase font-mono tracking-wider text-red-400">Atenção Autonomia Regional:</span>
-                    <span>Tem certeza absoluta de que deseja excluir o elemento <strong>{crudFormName}</strong> (ID: {crudTargetId})? Esta ação é irreversível se propagará em cascata a todas as subestruturas associadas.</span>
+              {/* Header with Collapse and Close */}
+              <div className="bg-slate-950 px-4 py-3 border-b border-slate-850 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-amber-500 font-bold text-xs">👑</span>
+                  <div>
+                    <span className="text-xs font-bold text-amber-500 font-mono tracking-wider uppercase block">
+                      {structureCrudType.startsWith("CREATE") ? "Adicionar Estrutura" : 
+                       structureCrudType.startsWith("EDIT") ? "Editar Estrutura" : "Eliminar Estrutura"}
+                    </span>
                   </div>
-                )}
-
-                {!structureCrudType.startsWith("DELETE") && (
-                  <>
-                    {/* Common Name field */}
-                    {structureCrudType !== "CREATE_CELL" && structureCrudType !== "EDIT_CELL" && (
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-slate-400 uppercase font-mono font-bold text-xxs">Nome / Designação Oficial:</label>
-                        <input
-                          type="text"
-                          required
-                          value={crudFormName}
-                          onChange={(e) => setCrudFormName(e.target.value)}
-                          placeholder="Ex: Pavilhão B - Regime Fechado"
-                          className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-500 font-semibold"
-                        />
-                      </div>
-                    )}
-
-                    {/* Cell Name / Code Field */}
-                    {(structureCrudType === "CREATE_CELL" || structureCrudType === "EDIT_CELL") && (
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-slate-400 uppercase font-mono font-bold text-xxs">Identificação da Cela (Código/Número):</label>
-                        <input
-                          type="text"
-                          required
-                          value={crudFormName}
-                          onChange={(e) => setCrudFormName(e.target.value)}
-                          placeholder="Ex: Cela A-01, Solitária 2"
-                          className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-mono font-semibold"
-                        />
-                      </div>
-                    )}
-
-                    {/* Province field (Read-only or Pre-filled) */}
-                    {structureCrudType === "CREATE_MUNICIPALITY" && (
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-slate-400 uppercase font-mono font-bold text-xxs">Província Jurisdicional:</label>
-                        <input
-                          type="text"
-                          readOnly
-                          value={crudFormProvince}
-                          className="bg-slate-950 border border-slate-850 p-2.5 rounded-lg text-slate-400 cursor-not-allowed font-semibold"
-                        />
-                      </div>
-                    )}
-
-                    {/* Prison Fields: Capacidade Oficial & Limite Operacional */}
-                    {(structureCrudType === "CREATE_PRISON" || structureCrudType === "EDIT_PRISON") && (
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-slate-400 uppercase font-mono font-bold text-xxs">Capacidade Oficial:</label>
-                          <input
-                            type="number"
-                            required
-                            min="1"
-                            value={crudFormOfficialCapacity}
-                            onChange={(e) => setCrudFormOfficialCapacity(Number(e.target.value))}
-                            className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-slate-400 uppercase font-mono font-bold text-xxs">Limite Operacional:</label>
-                          <input
-                            type="number"
-                            required
-                            min="1"
-                            value={crudFormOperationalCapacity}
-                            onChange={(e) => setCrudFormOperationalCapacity(Number(e.target.value))}
-                            className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Pavilion Specialty/Regime Tag */}
-                    {(structureCrudType === "CREATE_PAVILION" || structureCrudType === "EDIT_PAVILION") && (
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-slate-400 uppercase font-mono font-bold text-xxs">Regime de Segurança:</label>
-                        <select
-                          value={crudFormRegime}
-                          onChange={(e) => setCrudFormRegime(e.target.value)}
-                          className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 cursor-pointer font-semibold"
-                        >
-                          <option value="FECHADO (Segurança Máxima)">Fechado (Segurança Máxima)</option>
-                          <option value="FECHADO (Regime Geral)">Fechado (Regime Geral)</option>
-                          <option value="SEMI-ABERTO">Semi-Aberto</option>
-                          <option value="ABERTO / TRABALHO">Aberto / Trabalho</option>
-                          <option value="ADMISSÃO / TRIAGEM">Admissão / Triagem</option>
-                        </select>
-                      </div>
-                    )}
-
-                    {/* Cell Capacity */}
-                    {(structureCrudType === "CREATE_CELL" || structureCrudType === "EDIT_CELL") && (
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-slate-400 uppercase font-mono font-bold text-xxs">Lotação Máxima da Cela:</label>
-                        <input
-                          type="number"
-                          required
-                          min="1"
-                          max="100"
-                          value={crudFormCellCapacity}
-                          onChange={(e) => setCrudFormCellCapacity(Number(e.target.value))}
-                          className="bg-slate-950 border border-slate-800 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold"
-                        />
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* Actions Panel */}
-                <div className="flex justify-end gap-2 pt-2 border-t border-slate-850 mt-1">
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsStructureModalCollapsed(!isStructureModalCollapsed)}
+                    className="text-slate-400 hover:text-slate-200 bg-slate-900 hover:bg-slate-850 px-2 py-1 rounded text-[10px] font-mono transition cursor-pointer"
+                  >
+                    {isStructureModalCollapsed ? "Expandir" : "Recolher"}
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
                       setIsStructureCrudOpen(false);
                       setStructureCrudType(null);
+                      setDeusPasswordInput("");
+                      setPasswordErrorMsg("");
+                      setIsStructureModalCollapsed(false);
                     }}
-                    className="bg-slate-950 hover:bg-slate-850 text-slate-400 hover:text-slate-200 border border-slate-850 px-4 py-2.5 rounded-xl cursor-pointer transition font-bold uppercase font-mono text-xxs"
+                    className="text-slate-400 hover:text-slate-200 bg-slate-900 hover:bg-slate-850 p-1.5 rounded-lg text-xs font-mono transition cursor-pointer"
                   >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className={`font-semibold px-4 py-2.5 rounded-xl cursor-pointer transition uppercase font-mono text-xxs ${
-                      structureCrudType.startsWith("DELETE")
-                        ? "bg-red-600 hover:bg-red-500 text-white animate-pulse"
-                        : "bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold"
-                    }`}
-                  >
-                    {structureCrudType.startsWith("DELETE") ? "Excluir Definitivamente" : "Confirmar e Gravar"}
+                    ✕
                   </button>
                 </div>
-              </form>
+              </div>
+
+              {!isStructureModalCollapsed && (
+                <>
+                  {/* Hierarchy Level Box Selector */}
+                  {structureCrudType.startsWith("CREATE") && (
+                    <div className="p-3 bg-slate-950/60 border-b border-slate-850">
+                      <label className="block text-[9.5px] font-mono text-slate-400 uppercase font-bold mb-1.5">
+                        Nível Hierárquico:
+                      </label>
+                      <div className="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
+                        {[
+                          { level: "CELA", code: "CREATE_CELL", num: "1- Cela", icon: "🚪" },
+                          { level: "BLOCO", code: "CREATE_BLOCK", num: "2- Bloco", icon: "🏢" },
+                          { level: "PAVILHAO", code: "CREATE_PAVILION", num: "3- Pavilhão", icon: "🏛️" },
+                          { level: "CADEIA", code: "CREATE_PRISON", num: "4- Cadeia", icon: "🛡️" },
+                          { level: "COMUNA", code: "CREATE_COMMUNE", num: "5- Comuna", icon: "📍" },
+                          { level: "MUNICIPIO", code: "CREATE_MUNICIPALITY", num: "6- Município", icon: "🗺️" }
+                        ].map((item) => {
+                          const isActive = crudHierarchyLevel === item.level;
+                          return (
+                            <button
+                              key={item.level}
+                              type="button"
+                              onClick={() => {
+                                setCrudHierarchyLevel(item.level as any);
+                                setStructureCrudType(item.code as any);
+                              }}
+                              className={`p-1.5 rounded-lg border text-left transition flex items-center gap-1.5 cursor-pointer ${
+                                isActive 
+                                  ? "bg-amber-500/15 border-amber-500/50 text-amber-400 font-bold shadow" 
+                                  : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-850 hover:text-slate-200"
+                              }`}
+                            >
+                              <span className="text-xs">{item.icon}</span>
+                              <span className="truncate">{item.num}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleStructureCrudSubmit} className="p-4 flex flex-col gap-3 text-xs font-sans">
+                    
+                    {/* Password Confirmation for DELETION */}
+                    {structureCrudType.startsWith("DELETE") && (
+                      <div className="p-3 bg-red-950/20 border border-red-500/30 rounded-xl flex flex-col gap-2.5">
+                        <div className="flex items-start gap-2 text-red-300 text-xs">
+                          <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="font-mono font-bold text-red-400 uppercase">
+                              Confirmar Eliminação
+                            </h4>
+                            <p className="mt-0.5 text-slate-300 text-[11px]">
+                              Eliminar <strong>{crudFormName || crudTargetId}</strong> ({crudHierarchyLevel})?
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-950 p-2.5 rounded-lg border border-red-900/40 flex flex-col gap-1.5">
+                          <label className="block text-[10px] font-mono text-slate-300 font-bold">
+                            🔒 Palavra-passe de confirmação:
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            value={deusPasswordInput}
+                            onChange={(e) => {
+                              setDeusPasswordInput(e.target.value);
+                              setPasswordErrorMsg("");
+                            }}
+                            placeholder="Insira a palavra-passe..."
+                            className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-slate-100 text-xs font-mono focus:border-red-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Error Banner */}
+                    {passwordErrorMsg && (
+                      <div className="p-2.5 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/30 font-mono text-[10.5px] flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-rose-500 shrink-0" />
+                        <span>{passwordErrorMsg}</span>
+                      </div>
+                    )}
+
+                    {/* Form Inputs for Non-Deletion */}
+                    {!structureCrudType.startsWith("DELETE") && (
+                      <>
+                        <div className="flex flex-col gap-1">
+                          <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">
+                            {crudHierarchyLevel === "CELA" ? "Identificação da Cela:" :
+                             crudHierarchyLevel === "BLOCO" ? "Nome do Bloco:" :
+                             crudHierarchyLevel === "PAVILHAO" ? "Nome do Pavilhão:" :
+                             crudHierarchyLevel === "CADEIA" ? "Nome do Estabelecimento Prisional:" :
+                             crudHierarchyLevel === "COMUNA" ? "Nome da Comuna:" : "Nome do Município:"}
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={crudFormName}
+                            onChange={(e) => setCrudFormName(e.target.value)}
+                            placeholder={`Ex: ${crudHierarchyLevel === "CELA" ? "Cela A-01" : crudHierarchyLevel === "BLOCO" ? "Bloco 1" : crudHierarchyLevel === "PAVILHAO" ? "Pavilhão B" : crudHierarchyLevel === "CADEIA" ? "EP de Sanza Pombo" : crudHierarchyLevel === "COMUNA" ? "Calumbo" : "Viana"}`}
+                            className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold text-xs"
+                          />
+                        </div>
+
+                        {/* Additional fields by level */}
+                        {crudHierarchyLevel === "CELA" && (
+                          <div className="flex flex-col gap-1">
+                            <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Lotação Máxima:</label>
+                            <input
+                              type="number"
+                              required
+                              min="1"
+                              max="100"
+                              value={crudFormCellCapacity}
+                              onChange={(e) => setCrudFormCellCapacity(Number(e.target.value))}
+                              className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                            />
+                          </div>
+                        )}
+
+                        {crudHierarchyLevel === "PAVILHAO" && (
+                          <div className="flex flex-col gap-1">
+                            <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Regime de Segurança:</label>
+                            <select
+                              value={crudFormRegime}
+                              onChange={(e) => setCrudFormRegime(e.target.value)}
+                              className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 cursor-pointer font-semibold font-mono text-xs"
+                            >
+                              <option value="FECHADO (Segurança Máxima)">Fechado (Segurança Máxima)</option>
+                              <option value="FECHADO (Regime Geral)">Fechado (Regime Geral)</option>
+                              <option value="SEMI-ABERTO">Semi-Aberto</option>
+                              <option value="ABERTO / TRABALHO">Aberto / Trabalho</option>
+                              <option value="ADMISSÃO / TRIAGEM">Admissão / Triagem</option>
+                            </select>
+                          </div>
+                        )}
+
+                        {crudHierarchyLevel === "CADEIA" && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Capacidade Oficial:</label>
+                              <input
+                                type="number"
+                                required
+                                min="1"
+                                value={crudFormOfficialCapacity}
+                                onChange={(e) => setCrudFormOfficialCapacity(Number(e.target.value))}
+                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Limite Operacional:</label>
+                              <input
+                                type="number"
+                                required
+                                min="1"
+                                value={crudFormOperationalCapacity}
+                                onChange={(e) => setCrudFormOperationalCapacity(Number(e.target.value))}
+                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* Actions Panel - Clean & Compact Buttons */}
+                    <div className="flex justify-end gap-2 pt-2.5 border-t border-slate-850 mt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsStructureCrudOpen(false);
+                          setStructureCrudType(null);
+                          setDeusPasswordInput("");
+                          setPasswordErrorMsg("");
+                          setIsStructureModalCollapsed(false);
+                        }}
+                        className="bg-slate-950 hover:bg-slate-850 text-slate-400 hover:text-slate-200 border border-slate-850 px-3 py-1.5 rounded-lg cursor-pointer transition font-bold uppercase font-mono text-xs"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className={`font-mono font-bold px-4 py-1.5 rounded-lg cursor-pointer transition uppercase text-xs shadow ${
+                          structureCrudType.startsWith("DELETE")
+                            ? "bg-red-600 hover:bg-red-500 text-white"
+                            : "bg-amber-500 hover:bg-amber-400 text-slate-950"
+                        }`}
+                      >
+                        {structureCrudType.startsWith("DELETE") ? "Eliminar" : "Salvar"}
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
             </motion.div>
+          </div>
+        )}
+
+        {/* COMPACT METRIC MODAL OPERACIONAL */}
+        {activeMetricModal !== null && selectedHierNode?.type === "PROVINCE" && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-fadeIn">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden font-mono text-slate-200">
+              <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-amber-500" />
+                  <h3 className="text-xs font-black uppercase text-amber-500 tracking-wider">
+                    {activeMetricModal === "MUNICIPALITIES" && `MUNICÍPIOS DE ${selectedHierNode.name}`}
+                    {activeMetricModal === "UNITS" && `UNIDADES OPERACIONAIS (EPs - ${selectedHierNode.name})`}
+                    {activeMetricModal === "OCCUPANCY" && `TAXA DE OCUPAÇÃO (${selectedHierNode.name})`}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setActiveMetricModal(null)}
+                  className="text-slate-400 hover:text-slate-100 p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-5 flex flex-col gap-3 max-h-[60vh] overflow-y-auto">
+                {activeMetricModal === "MUNICIPALITIES" && (
+                  <div className="flex flex-col gap-2">
+                    {municipalities.filter(m => m.province === selectedHierNode.id).map(mun => {
+                      const munPris = prisons.filter(p => p.municipalityId === mun.id);
+                      return (
+                        <div key={mun.id} className="bg-slate-950 p-3 rounded-lg border border-slate-800 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="font-bold text-slate-100">{mun.name}</span>
+                            <span className="text-[10px] text-slate-500 block">ID: {mun.id}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="bg-slate-900 px-2 py-0.5 rounded text-[10px] text-amber-400 font-bold border border-slate-800">
+                              {munPris.length} EPs
+                            </span>
+                            <button
+                              onClick={() => {
+                                setActiveMetricModal(null);
+                                setExpandedMuns(prev => ({ ...prev, [mun.id]: true }));
+                                setExpandedProv(prev => ({ ...prev, [selectedHierNode.id!]: true }));
+                                setSelectedHierNode({ type: "MUNICIPALITY", id: mun.id, name: mun.name, parentId: selectedHierNode.id });
+                              }}
+                              className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded text-[10px] font-bold uppercase transition cursor-pointer"
+                            >
+                              Abrir
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {activeMetricModal === "UNITS" && (
+                  <div className="flex flex-col gap-2">
+                    {(() => {
+                      const provMuns = municipalities.filter(m => m.province === selectedHierNode.id).map(m => m.id);
+                      const provPris = prisons.filter(p => provMuns.includes(p.municipalityId));
+                      if (provPris.length === 0) {
+                        return <span className="text-xs text-slate-500 text-center py-4">Nenhuma unidade penitenciária registrada nesta província.</span>;
+                      }
+                      return provPris.map(p => (
+                        <div key={p.id} className="bg-slate-950 p-3 rounded-lg border border-slate-800 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="font-bold text-slate-100">{p.name}</span>
+                            <span className="text-[10px] text-slate-500 block">Capacidade: {p.operationalCapacity || p.officialCapacity} lugares</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="bg-slate-900 px-2 py-0.5 rounded text-[10px] text-slate-300 font-bold border border-slate-800">
+                              {p.currentOccupancy} reclusos
+                            </span>
+                            <button
+                              onClick={() => {
+                                setActiveMetricModal(null);
+                                setExpandedPrisons(prev => ({ ...prev, [p.id]: true }));
+                                setExpandedMuns(prev => ({ ...prev, [p.municipalityId]: true }));
+                                setSelectedHierNode({ type: "PRISON", id: p.id, name: p.name, parentId: p.municipalityId });
+                              }}
+                              className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded text-[10px] font-bold uppercase transition cursor-pointer"
+                            >
+                              Abrir EP
+                            </button>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                )}
+
+                {activeMetricModal === "OCCUPANCY" && (
+                  <div className="flex flex-col gap-3">
+                    {(() => {
+                      const provMuns = municipalities.filter(m => m.province === selectedHierNode.id).map(m => m.id);
+                      const provPris = prisons.filter(p => provMuns.includes(p.municipalityId));
+                      const totalCurrent = provPris.reduce((acc, p) => acc + p.currentOccupancy, 0);
+                      const totalCap = provPris.reduce((acc, p) => acc + (p.operationalCapacity || p.officialCapacity), 0);
+                      const pct = totalCap > 0 ? Math.round((totalCurrent / totalCap) * 100) : 0;
+                      return (
+                        <>
+                          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center font-mono">
+                            <div>
+                              <span className="text-[10px] text-slate-400 block uppercase font-bold">Lotação Total Regional</span>
+                              <span className="text-lg font-black text-yellow-500">{totalCurrent} / {totalCap}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-[10px] text-slate-400 block uppercase font-bold">Taxa Operacional</span>
+                              <span className={`text-lg font-black ${pct > 90 ? "text-red-400" : pct > 75 ? "text-amber-400" : "text-emerald-400"}`}>
+                                {pct}%
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2 mt-2">
+                            {provPris.map(p => {
+                              const cap = p.operationalCapacity || p.officialCapacity || 1;
+                              const pPct = Math.round((p.currentOccupancy / cap) * 100);
+                              return (
+                                <div key={p.id} className="bg-slate-950 p-2.5 rounded-lg border border-slate-850 flex items-center justify-between text-[11px]">
+                                  <span className="text-slate-200 font-bold truncate max-w-[200px]">{p.name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-slate-400 font-mono">{p.currentOccupancy} / {cap}</span>
+                                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${pPct > 90 ? "bg-red-950/80 text-red-400" : "bg-slate-900 text-slate-300"}`}>
+                                      {pPct}%
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              <div className="px-5 py-3 bg-slate-950 border-t border-slate-800 flex justify-end">
+                <button
+                  onClick={() => setActiveMetricModal(null)}
+                  className="bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs px-4 py-1.5 rounded-lg border border-slate-800 font-mono transition cursor-pointer"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -25478,7 +22125,7 @@ export default function App() {
           © 2026 Serviço Penitenciário • Sistema Integrado de Controlo Penal
         </div>
         <div className="flex gap-4">
-          <span className="text-slate-400 font-semibold">República de Angola</span>
+          <span className="text-slate-400 font-semibold">SP</span>
         </div>
       </footer>
 
@@ -25522,23 +22169,6 @@ export default function App() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   
-                  {/* Dashboard */}
-                  <button
-                    type="button"
-                    onClick={() => { setActiveTab("dashboard"); setIsModuleSelectorOpen(false); }}
-                    className={`p-4 rounded-xl border text-left transition-all hover:bg-slate-850 cursor-pointer ${
-                      activeTab === "dashboard" ? "bg-slate-850 border-amber-500/40 shadow-lg" : "bg-slate-950/45 border-slate-800 hover:border-slate-700"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 mb-2">
-                      <Building className="h-5 w-5 text-amber-500 shrink-0" />
-                      <span className="font-sans font-bold text-xs text-slate-200">Lotação e Risco</span>
-                    </div>
-                    <p className="text-[10.5px] text-slate-400 font-sans leading-relaxed">
-                      Monitoramento de capacidade de pavilhões, taxas de sobrevivência e níveis de reclusos perigosos.
-                    </p>
-                  </button>
-
                   {/* Centro Nacional de Comando */}
                   <button
                     type="button"
@@ -25730,23 +22360,6 @@ export default function App() {
                     </div>
                     <p className="text-[10.5px] text-slate-400 font-sans leading-relaxed">
                       Painel simulador sandbox para alterar patentes dos operadores, forçar perda de rede e criar dados.
-                    </p>
-                  </button>
-
-                  {/* Services & Gateway */}
-                  <button
-                    type="button"
-                    onClick={() => { setActiveTab("services-gateway"); setIsModuleSelectorOpen(false); }}
-                    className={`p-4 rounded-xl border text-left transition-all hover:bg-slate-850 cursor-pointer ${
-                      activeTab === "services-gateway" ? "bg-slate-850 border-cyan-500/40 shadow-lg animate-pulse" : "bg-slate-950/45 border-slate-800 hover:border-slate-700"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 mb-2">
-                      <Server className="h-5 w-5 text-cyan-400 shrink-0" />
-                      <span className="font-sans font-bold text-xs text-slate-200">Gateway de Serviços</span>
-                    </div>
-                    <p className="text-[10.5px] text-slate-400 font-sans leading-relaxed">
-                      Painel de micro-arquitetura por domínios (Identity, Security, Health, Audit, AI) e telemetria de rede.
                     </p>
                   </button>
 

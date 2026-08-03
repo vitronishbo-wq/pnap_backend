@@ -398,7 +398,7 @@ export const AngolaHolographicMapBackground: React.FC<AngolaHolographicMapBackgr
           {/* Strategic Watermark Headers */}
           <g transform="translate(80, 720)">
             <text fill="#38bdf8" fontSize="13" fontFamily="monospace" fontWeight="bold" letterSpacing="3px">
-              REPÚBLICA DE ANGOLA • MININT - DGSP
+              SP - DGSP
             </text>
             <text fill="#64748b" fontSize="10" fontFamily="monospace" y="16" letterSpacing="1px">
               SISTEMA INTEGRADO DE GESTÃO PENITENCIÁRIA (SIGP) • MAPA HOLOGRÁFICO TERRESTRE

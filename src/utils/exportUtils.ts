@@ -169,10 +169,10 @@ export function exportDelegationsToExcel(delegations: Delegation[], operators: a
     <body>
       <table>
         <tr>
-          <td colspan="9" class="title-cell" style="border:none;">REPÚBLICA DE ANGOLA</td>
+          <td colspan="9" class="title-cell" style="border:none;">SP</td>
         </tr>
         <tr>
-          <td colspan="9" class="subtitle-cell" style="border:none;font-weight:bold;">MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL</td>
+          <td colspan="9" class="subtitle-cell" style="border:none;font-weight:bold;">SERVIÇO PENITENCIÁRIO (SP)</td>
         </tr>
         <tr>
           <td colspan="9" class="subtitle-cell" style="border:none;padding-bottom:15px;">Registo de Auditoria de Atos Administrativos e Outorgas de Poderes (PNAP-AO)</td>

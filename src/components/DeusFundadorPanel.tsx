@@ -679,23 +679,20 @@ export default function DeusFundadorPanel({
       className="flex flex-col gap-6"
     >
       {/* Supreme Banner */}
-      <div className="bg-gradient-to-r from-amber-600/10 via-slate-900 to-amber-700/5 border border-amber-500/30 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-slate-900 border border-amber-500/30 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex gap-3 items-center">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-500 shrink-0">
-            <Crown className="h-6 w-6 animate-pulse" />
+          <div className="p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-500 shrink-0">
+            <Crown className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-sm font-bold uppercase tracking-widest text-amber-500 font-mono flex items-center gap-1.5 leading-none">
-              Portal Supremo Deus Fundador (DPA 2024 • 21 Províncias)
+            <h2 className="text-xs font-bold uppercase tracking-wider text-amber-500 font-mono flex items-center gap-1.5 leading-none">
+              Gestão de Topologia & Estrutura (21 Províncias)
             </h2>
-            <p className="text-xs text-slate-400 font-sans mt-1.5 leading-relaxed">
-              Consola suprema de edição de topologia territorial policial de Angola. Crie dinamicamente estabelecimentos, pavilhões, blocos, celas e operadores funcionais.
-            </p>
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
-          <span className="bg-slate-950 text-amber-500 px-3 py-1.5 text-[10px] border border-amber-500/20 rounded-lg font-mono flex items-center gap-1.5">
-            <Fingerprint className="h-4 w-4" /> FUNDADOR ATIVO
+          <span className="bg-slate-950 text-amber-500 px-2.5 py-1 text-[10px] border border-amber-500/20 rounded-lg font-mono flex items-center gap-1.5 font-bold">
+            <Fingerprint className="h-3.5 w-3.5" /> ATIVO
           </span>
         </div>
       </div>

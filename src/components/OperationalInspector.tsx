@@ -131,8 +131,8 @@ export function OperationalInspector({
       if (selectedHierNode.type === "PROVINCE") {
         const provinceName = selectedHierNode.name || "";
         scopeType = "PROVINCE";
-        title = `PROVÍNCIA DO ${provinceName.toUpperCase()}`;
-        subTitle = `Direção Provincial do SP de ${provinceName}`;
+        title = provinceName.toUpperCase();
+        subTitle = "";
         badge = "NÍVEL REGIONAL";
 
         const provPrisons = prisons.filter(p => p.location.toLowerCase() === provinceName.toLowerCase());
@@ -152,7 +152,7 @@ export function OperationalInspector({
         const prisonObj = prisons.find(p => p.id === prisonId);
         scopeType = "ESTABLISHMENT";
         title = prisonObj?.name || selectedHierNode.name || "ESTABELECIMENTO";
-        subTitle = `Unidade Prisional de Custódia Local`;
+        subTitle = "";
         badge = "NÍVEL UNIDADE";
 
         capacity = prisonObj?.operationalCapacity || prisonObj?.capacity || 250;
@@ -166,7 +166,7 @@ export function OperationalInspector({
       } else if (selectedHierNode.type === "PAVILION") {
         scopeType = "PAVILION";
         title = `PAVILHÃO ${selectedHierNode.name?.toUpperCase()}`;
-        subTitle = `Módulo de Confinamento Interno`;
+        subTitle = "";
         badge = "NÍVEL PAVILHÃO";
 
         capacity = 80; // Hardcoded default for single pavilion size
@@ -179,7 +179,7 @@ export function OperationalInspector({
       } else if (selectedHierNode.type === "CELL") {
         scopeType = "CELL";
         title = `CELA N.º ${selectedHierNode.name}`;
-        subTitle = `Compartimento Prisional Coletivo`;
+        subTitle = "";
         badge = "NÍVEL COMPARTIMENTO";
 
         capacity = 12; // cell capacity
@@ -293,21 +293,20 @@ export function OperationalInspector({
             </div>
 
             {/* Scope Badge & Main Info Block */}
-            <div className="p-4 bg-gradient-to-b from-[#090e16]/80 to-[#070a10] border-b border-slate-900/40 shrink-0">
-              <div className="flex items-center justify-between mb-2">
+            <div className="p-3.5 bg-gradient-to-b from-[#090e16]/80 to-[#070a10] border-b border-slate-900/40 shrink-0">
+              <div className="flex items-center justify-between">
                 <span className="bg-slate-900 border border-slate-800 text-slate-350 px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-widest">
                   {stats.badge}
                 </span>
-                <span className="text-[8px] font-mono text-slate-500">
-                  ID: <strong className="text-slate-400 uppercase">{selectedHierNode?.id || "NULO"}</strong>
+                <span className="text-[8px] font-mono text-slate-400">
+                  ID: <strong className="text-amber-400 uppercase font-bold">{selectedHierNode?.id || "NULO"}</strong>
                 </span>
               </div>
-              <h3 className="text-xs font-sans font-black text-slate-100 tracking-tight leading-snug">
-                {stats.title}
-              </h3>
-              <p className="text-[9px] font-mono text-slate-500 mt-0.5">
-                {stats.subTitle}
-              </p>
+              {stats.subTitle ? (
+                <p className="text-[9px] font-mono text-slate-500 mt-1">
+                  {stats.subTitle}
+                </p>
+              ) : null}
             </div>
 
             {/* TAB SELECTOR: STATUS VS TELEMETRY TERMINAL */}

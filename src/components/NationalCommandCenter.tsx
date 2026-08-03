@@ -25,7 +25,8 @@ import {
   Eye,
   Info,
   Server,
-  Zap
+  Zap,
+  BarChart2
 } from "lucide-react";
 
 // Types
@@ -122,6 +123,9 @@ export default function NationalCommandCenter({
   const [mapMode, setMapMode] = useState<"STATUS" | "HEATMAP" | "MOVEMENTS">("STATUS");
   const [filterSeverity, setFilterSeverity] = useState<string>("ALL");
   const [tacticalAlertLevel, setTacticalAlertLevel] = useState<"VERDE" | "AMARELO" | "LARANJA" | "VERMELHO">("AMARELO");
+  const [isMetricsModalOpen, setIsMetricsModalOpen] = useState<boolean>(false);
+  const [isOccurrencesModalOpen, setIsOccurrencesModalOpen] = useState<boolean>(false);
+  const [isEscortsModalOpen, setIsEscortsModalOpen] = useState<boolean>(false);
 
   // Dynamic lists
   const [occurrences, setOccurrences] = useState<CommandOccurrence[]>([
@@ -416,47 +420,64 @@ export default function NationalCommandCenter({
         )}
       </AnimatePresence>
 
-      {/* 🛡️ CENTRAL HEADER & SITUATION LEVEL PANEL */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-10 -translate-y-1/2 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl pointer-events-none" />
+      {/* 🛡️ ULTRA-COMPACT OPERATIONAL CONTROL BAR */}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-2 flex flex-wrap items-center justify-between gap-2 shadow-md">
         
-        <div className="flex items-start gap-4 text-left">
-          <div className="bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 text-rose-500 shrink-0 relative">
-            <Radio className="h-6 w-6 animate-[pulse_2s_infinite]" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-rose-400 animate-ping"></span>
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="text-[9.5px] uppercase font-bold tracking-widest text-rose-400 font-mono bg-rose-550/10 px-2 py-0.5 border border-rose-500/20 rounded">
-                Sala de Crise SICP-AO
-              </span>
-              <span className="text-[9.5px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-                • Emissão em Tempo Real
-              </span>
-            </div>
-            <h2 className="text-lg font-black text-slate-100 tracking-tight mt-1 flex items-center gap-2">
-              Centro Nacional de Comando de Contingência Prisional (CNCCP)
-            </h2>
-            <p className="text-[11px] text-slate-400 font-sans mt-0.5 max-w-2xl leading-relaxed">
-              Consola táctica nacional de monitorização de segurança prisional, escoltas militares de transferência e controle de motins integrados sob arquitetura de chaves descentralizadas.
-            </p>
-          </div>
+        {/* Compact Action Modals Triggers */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Metrics Modal Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsMetricsModalOpen(true)}
+            className="bg-slate-950 hover:bg-slate-850 text-slate-200 text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg border border-slate-800 transition cursor-pointer flex items-center gap-1.5"
+          >
+            <BarChart2 className="h-3.5 w-3.5 text-amber-400" />
+            <span>KPIs</span>
+          </button>
+
+          {/* Occurrences Modal Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsOccurrencesModalOpen(true)}
+            className="bg-slate-950 hover:bg-slate-850 text-slate-200 text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg border border-slate-800 transition cursor-pointer flex items-center gap-1.5"
+          >
+            <Radio className="h-3.5 w-3.5 text-rose-400 animate-pulse" />
+            <span>Ocorrências ({occurrences.filter(o => o.status !== "RESOLVED").length})</span>
+          </button>
+
+          {/* Escorts Modal Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsEscortsModalOpen(true)}
+            className="bg-slate-950 hover:bg-slate-850 text-slate-200 text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg border border-slate-800 transition cursor-pointer flex items-center gap-1.5"
+          >
+            <Truck className="h-3.5 w-3.5 text-sky-400" />
+            <span>Escoltas ({liveEscorts.filter(e => e.status !== "ARRIVED").length})</span>
+          </button>
+
+          {/* New Incident Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsOccModalOpen(true)}
+            className="bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 text-[10px] font-mono font-bold px-2.5 py-1.5 rounded-lg border border-rose-800/60 transition cursor-pointer flex items-center gap-1.5"
+          >
+            <Plus className="h-3.5 w-3.5 text-rose-400" />
+            <span>Incidente</span>
+          </button>
         </div>
 
-        {/* Operational Status Selector */}
-        <div className="flex flex-col items-end gap-2 shrink-0 w-full md:w-auto bg-slate-950/60 p-3 rounded-xl border border-slate-850">
-          <div className="flex items-center gap-2 text-left self-stretch justify-between md:justify-end">
-            <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">
-              Nível de Alerta Nacional:
-            </span>
+        {/* Compact Controls: Alert & Map Mode */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Tactical Alert Selector */}
+          <div className="flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-850">
+            <span className="text-[9px] font-mono text-slate-400 font-bold uppercase">Alerta:</span>
             <div className="flex gap-1">
               {(["VERDE", "AMARELO", "LARANJA", "VERMELHO"] as const).map(lvl => {
                 const colorMap = {
-                  "VERDE": "bg-emerald-500 border-emerald-600/30 text-emerald-100",
-                  "AMARELO": "bg-amber-500 border-amber-600/30 text-amber-950",
-                  "LARANJA": "bg-orange-500 border-orange-600/30 text-orange-950",
-                  "VERMELHO": "bg-rose-600 border-rose-700/30 text-rose-100 animate-pulse"
+                  "VERDE": "bg-emerald-500 text-emerald-100",
+                  "AMARELO": "bg-amber-500 text-amber-950",
+                  "LARANJA": "bg-orange-500 text-orange-950",
+                  "VERMELHO": "bg-rose-600 text-rose-100 animate-pulse"
                 };
                 const isSelected = tacticalAlertLevel === lvl;
 
@@ -471,13 +492,13 @@ export default function NationalCommandCenter({
                         "CELL_CHANGE_EXECUTE",
                         "SecurityLevel",
                         "NATIONAL",
-                        `[ALERTA ALTERADO] Alteração do nível de Alerta Táctico Nacional para ${lvl} por despacho de comando.`
+                        `[ALERTA] ${lvl}`
                       );
                     }}
-                    className={`px-2 py-0.5 rounded text-[8.5px] font-black border transition cursor-pointer ${
+                    className={`px-1.5 py-0.5 rounded text-[8px] font-black border transition cursor-pointer ${
                       isSelected 
-                        ? `${colorMap[lvl]} font-extrabold shadow-md scale-105` 
-                        : "bg-slate-900 border-slate-800 text-slate-550 hover:bg-slate-850 hover:text-slate-350"
+                        ? `${colorMap[lvl]} font-extrabold shadow scale-105 border-transparent` 
+                        : "bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300"
                     }`}
                   >
                     {lvl}
@@ -486,140 +507,233 @@ export default function NationalCommandCenter({
               })}
             </div>
           </div>
-          <div className="flex items-center gap-2 text-right">
-            <span className="text-[9.5px] font-mono text-slate-500">Operador Activo:</span>
-            <span className="text-[10.5px] font-mono font-bold text-amber-400">
-              {currentOperator.name} ({currentOperator.roleName})
-            </span>
+
+          {/* Map Mode selector */}
+          <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-850 gap-1 shrink-0">
+            {(["STATUS", "HEATMAP", "MOVEMENTS"] as const).map(mode => {
+              const labelMap = {
+                "STATUS": "Lotação",
+                "HEATMAP": "Calor",
+                "MOVEMENTS": "Rotas"
+              };
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setMapMode(mode)}
+                  className={`px-2 py-0.5 rounded text-[8.5px] font-mono tracking-wider uppercase transition cursor-pointer ${
+                    mapMode === mode 
+                      ? "bg-slate-800 text-amber-500 font-bold border border-slate-700/50" 
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  {labelMap[mode]}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* 🛡️ CENTRAL NATIONAL KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
-        
-        {/* KPI 1 */}
-        <div className="bg-slate-900 border border-slate-850 rounded-xl p-3.5 flex flex-col items-start text-left shadow-sm">
-          <div className="bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-indigo-400 mb-2 shrink-0">
-            <Users className="h-4 w-4" />
+      {/* 📊 RECOLHÍVEL METRICS MODAL */}
+      <AnimatePresence>
+        {isMetricsModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 shadow-2xl flex flex-col gap-4 relative text-left"
+            >
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="text-sm font-bold text-slate-100 font-mono flex items-center gap-2">
+                  <BarChart2 className="h-4 w-4 text-amber-400" /> Métricas & KPIs Nacionais
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsMetricsModalOpen(false)}
+                  className="text-slate-400 hover:text-slate-200 p-1"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span className="text-[9px] uppercase font-mono font-bold text-slate-500">Efetivo Total</span>
+                  <p className="text-xl font-black text-slate-100 font-mono mt-0.5">{nationalKPIs.totalInmatesCount}</p>
+                </div>
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span className="text-[9px] uppercase font-mono font-bold text-slate-500">Vagas Operacionais</span>
+                  <p className="text-xl font-black text-slate-100 font-mono mt-0.5">{nationalKPIs.totalVacancies}</p>
+                </div>
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span className="text-[9px] uppercase font-mono font-bold text-slate-500">Ocupação Média</span>
+                  <p className={`text-xl font-black font-mono mt-0.5 ${nationalKPIs.avgOccupancy > 100 ? "text-rose-400" : "text-amber-400"}`}>{nationalKPIs.avgOccupancy}%</p>
+                </div>
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span className="text-[9px] uppercase font-mono font-bold text-slate-500">Escoltas Ativas</span>
+                  <p className="text-xl font-black text-slate-100 font-mono mt-0.5">{nationalKPIs.activeEscortsCount}</p>
+                </div>
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span className="text-[9px] uppercase font-mono font-bold text-slate-500">Incidentes Ativos</span>
+                  <p className={`text-xl font-black font-mono mt-0.5 ${nationalKPIs.activeIncidentsCount > 0 ? "text-rose-400" : "text-slate-300"}`}>{nationalKPIs.activeIncidentsCount}</p>
+                </div>
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <span className="text-[9px] uppercase font-mono font-bold text-slate-500">Alertas Críticos</span>
+                  <p className={`text-xl font-black font-mono mt-0.5 ${nationalKPIs.criticalIncidentsCount > 0 ? "text-rose-400" : "text-slate-300"}`}>{nationalKPIs.criticalIncidentsCount}</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-            Efetivo Prisional Total
-          </span>
-          <span className="text-xl font-black text-slate-100 font-mono tracking-tight mt-1">
-            {nationalKPIs.totalInmatesCount} <span className="text-xs font-semibold text-slate-400">Reclusos</span>
-          </span>
-        </div>
+        )}
+      </AnimatePresence>
 
-        {/* KPI 2 */}
-        <div className="bg-slate-900 border border-slate-850 rounded-xl p-3.5 flex flex-col items-start text-left shadow-sm">
-          <div className="bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-emerald-450 mb-2 shrink-0">
-            <Building className="h-4 w-4" />
+      {/* 📡 RECOLHÍVEL OCORRÊNCIAS MODAL */}
+      <AnimatePresence>
+        {isOccurrencesModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full p-5 shadow-2xl flex flex-col gap-4 relative text-left"
+            >
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-3">
+                  <Radio className="h-4 w-4 text-rose-400 animate-pulse" />
+                  <h3 className="text-sm font-bold text-slate-100 font-mono">Console de Ocorrências</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={filterSeverity}
+                    onChange={(e) => setFilterSeverity(e.target.value)}
+                    className="bg-slate-950 border border-slate-800 text-[10px] text-slate-300 rounded px-2 py-1 font-mono focus:outline-none"
+                  >
+                    <option value="ALL">Severidade: Todas</option>
+                    <option value="CRÍTICA">Crítica</option>
+                    <option value="MÉDIA">Média</option>
+                    <option value="LIGEIRA">Ligeira</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setIsOccurrencesModalOpen(false)}
+                    className="text-slate-400 hover:text-slate-200 p-1"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[450px] scrollbar-thin">
+                {filteredOccurrences.length === 0 ? (
+                  <div className="py-8 bg-slate-950/50 rounded-xl text-center text-xs text-slate-400 font-mono">
+                    Sem ocorrências ativas.
+                  </div>
+                ) : (
+                  filteredOccurrences.map((occ) => (
+                    <div 
+                      key={occ.id}
+                      className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col gap-2 text-xs"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2 font-mono text-[10px]">
+                          <span className="font-bold text-slate-200">{occ.id}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 font-bold border border-rose-500/20">{occ.severity}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-slate-900 text-slate-300 uppercase">{occ.status}</span>
+                        </div>
+                        <span className="text-[9px] font-mono text-slate-500">{new Date(occ.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-mono text-amber-400 font-bold block">{occ.prisonName}</span>
+                        <p className="text-slate-300 mt-0.5 font-sans text-xs">{occ.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-slate-900 pt-2 mt-1">
+                        <span className="text-[9px] font-mono text-slate-500">Equipa: {occ.dispatchedTeam || "Nenhuma"}</span>
+                        {occ.status !== "RESOLVED" && (
+                          <div className="flex gap-1">
+                            {occ.status === "ACTIVE" && (
+                              <button
+                                type="button"
+                                onClick={() => handleDispatchTeam(occ.id, "PIR (Intervenção Rápida)")}
+                                className="bg-slate-900 hover:bg-slate-800 text-rose-400 text-[9px] font-mono font-bold px-2 py-0.5 rounded border border-slate-800"
+                              >
+                                Despachar PIR
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleResolveOccurrence(occ.id)}
+                              className="bg-emerald-600 hover:bg-emerald-500 text-slate-100 text-[9px] font-mono font-bold px-2 py-0.5 rounded"
+                            >
+                              Resolver
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
           </div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-            Vagas Operacionais
-          </span>
-          <span className="text-xl font-black text-slate-100 font-mono tracking-tight mt-1">
-            {nationalKPIs.totalVacancies} <span className="text-xs font-semibold text-slate-400">Vagas</span>
-          </span>
-        </div>
+        )}
+      </AnimatePresence>
 
-        {/* KPI 3 */}
-        <div className="bg-slate-900 border border-slate-850 rounded-xl p-3.5 flex flex-col items-start text-left shadow-sm">
-          <div className="bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-amber-500 mb-2 shrink-0">
-            <TrendingUp className="h-4 w-4" />
+      {/* 🚛 RECOLHÍVEL ESCOLTAS MODAL */}
+      <AnimatePresence>
+        {isEscortsModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-5 shadow-2xl flex flex-col gap-4 relative text-left"
+            >
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2 font-mono text-sm font-bold text-slate-100">
+                  <Truck className="h-4 w-4 text-sky-400" />
+                  <span>Escoltas Penais Ativas</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEscortsModalOpen(false)}
+                  className="text-slate-400 hover:text-slate-200 p-1"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[450px] scrollbar-thin">
+                {liveEscorts.map((esc) => (
+                  <div key={esc.id} className="bg-slate-950 border border-slate-800 rounded-xl p-3 flex flex-col gap-2">
+                    <div className="flex justify-between items-center text-[10px] font-mono">
+                      <span className="font-bold text-slate-200">{esc.id} - {esc.inmateName}</span>
+                      <span className="text-sky-400 font-bold">{esc.progress}%</span>
+                    </div>
+                    <div className="flex justify-between text-[9px] font-mono text-slate-400">
+                      <span>Origem: {esc.origin}</span>
+                      <span>Destino: {esc.destination}</span>
+                    </div>
+                    <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                      <div className="bg-sky-500 h-full transition-all duration-500" style={{ width: `${esc.progress}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-            Ocupação Média Nacional
-          </span>
-          <span className={`text-xl font-black font-mono tracking-tight mt-1 ${
-            nationalKPIs.avgOccupancy > 100 ? "text-rose-450" : "text-amber-400"
-          }`}>
-            {nationalKPIs.avgOccupancy}%
-          </span>
-        </div>
+        )}
+      </AnimatePresence>
 
-        {/* KPI 4 */}
-        <div className="bg-slate-900 border border-slate-850 rounded-xl p-3.5 flex flex-col items-start text-left shadow-sm">
-          <div className="bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-sky-450 mb-2 shrink-0">
-            <Truck className="h-4 w-4 animate-pulse" />
-          </div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-            Escoltas Ativas
-          </span>
-          <span className="text-xl font-black text-slate-100 font-mono tracking-tight mt-1">
-            {nationalKPIs.activeEscortsCount} <span className="text-xs font-semibold text-slate-400">Transf.</span>
-          </span>
-        </div>
-
-        {/* KPI 5 */}
-        <div className="bg-slate-900 border border-slate-850 rounded-xl p-3.5 flex flex-col items-start text-left shadow-sm">
-          <div className="bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-rose-400 mb-2 shrink-0">
-            <ShieldAlert className="h-4 w-4" />
-          </div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-            Incidentes Ativos
-          </span>
-          <span className={`text-xl font-black font-mono tracking-tight mt-1 ${
-            nationalKPIs.activeIncidentsCount > 0 ? "text-rose-500" : "text-slate-450"
-          }`}>
-            {nationalKPIs.activeIncidentsCount}
-          </span>
-        </div>
-
-        {/* KPI 6 */}
-        <div className="bg-slate-900 border border-slate-850 rounded-xl p-3.5 flex flex-col items-start text-left shadow-sm">
-          <div className="bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-yellow-500 mb-2 shrink-0">
-            <Zap className="h-4 w-4" />
-          </div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-            Alertas Críticos
-          </span>
-          <span className={`text-xl font-black font-mono tracking-tight mt-1 ${
-            nationalKPIs.criticalIncidentsCount > 0 ? "text-rose-500" : "text-slate-450"
-          }`}>
-            {nationalKPIs.criticalIncidentsCount}
-          </span>
-        </div>
-
-      </div>
-
-      {/* 🌍 INTERACTIVE MAP & PRISON LISTING */}
+      {/* 🌍 INTERACTIVE MAP */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left Side: Tactictal Angola Map */}
-        <div className="lg:col-span-7 bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 text-left relative min-h-[500px]">
-          <div className="flex items-center justify-between border-b border-slate-850 pb-3">
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase font-bold font-mono text-indigo-400 flex items-center gap-1">
-                <Compass className="h-3 w-3 animate-spin" /> Mapeamento Cartográfico Vectorial
-              </span>
-              <h3 className="text-sm font-bold text-slate-200 mt-0.5">Mapa Táctico de Monitorização - Angola</h3>
-            </div>
-
-            {/* Map Mode selector */}
-            <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-850 gap-1 shrink-0">
-              {(["STATUS", "HEATMAP", "MOVEMENTS"] as const).map(mode => {
-                const labelMap = {
-                  "STATUS": "Lotação",
-                  "HEATMAP": "Calor Risco",
-                  "MOVEMENTS": "Rotas Trânsito"
-                };
-                return (
-                  <button
-                    key={mode}
-                    onClick={() => setMapMode(mode)}
-                    className={`px-2 py-1 rounded text-[8.5px] font-mono tracking-wider uppercase transition cursor-pointer ${
-                      mapMode === mode 
-                        ? "bg-slate-800 text-amber-500 font-bold border border-slate-700/50" 
-                        : "text-slate-400 hover:text-slate-200"
-                    }`}
-                  >
-                    {labelMap[mode]}
-                  </button>
-                );
-              })}
-            </div>
+        {/* Tactictal Angola Map */}
+        <div className="lg:col-span-12 bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 text-left relative min-h-[500px]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-850 pb-2">
+            <span className="text-[10px] font-mono text-slate-400 font-bold uppercase flex items-center gap-1.5">
+              <Compass className="h-3.5 w-3.5 text-indigo-400 animate-spin" /> Mapa Táctico - Angola
+            </span>
           </div>
 
           {/* SVG MAP WRAPPER */}
@@ -896,365 +1010,9 @@ export default function NationalCommandCenter({
           </div>
         </div>
 
-        {/* Right Side: Detailed Prisons Ledger */}
-        <div className="lg:col-span-5 bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 text-left">
-          <div className="border-b border-slate-850 pb-3 flex justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase font-bold font-mono text-emerald-400">Ledger das Unidades</span>
-              <h3 className="text-sm font-bold text-slate-200 mt-0.5">Estado Operacional das Prisões</h3>
-            </div>
-            <span className="text-[9px] font-mono bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-slate-400">
-              Total: {prisons.length} Estabelecimentos
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-[400px] scrollbar-thin">
-            {prisons.map((p) => {
-              const prisonInmatesCount = inmates.filter(
-                i => i.status === "ACTIVE" && i.assignedPrisonId === p.id
-              ).length;
-              const cap = p.operationalCapacity || p.officialCapacity || 100;
-              const occPercent = Math.round((prisonInmatesCount / cap) * 100);
-              const riskIndex = getPrisonRiskIndex(p);
-
-              let statusColor = "bg-emerald-500 border-emerald-500/35 text-emerald-400";
-              let statusText = "Operação Normal";
-              if (occPercent > 110) {
-                statusColor = "bg-rose-500 border-rose-500/35 text-rose-400 animate-pulse";
-                statusText = "Sobre-Lotação Crítica";
-              } else if (occPercent > 90) {
-                statusColor = "bg-amber-500 border-amber-500/35 text-amber-400";
-                statusText = "Capacidade de Alerta";
-              }
-
-              // Check if any active alarms are occurring here
-              const localUnresolved = occurrences.filter(
-                o => o.prisonId === p.id && o.status !== "RESOLVED"
-              );
-
-              return (
-                <div 
-                  key={p.id}
-                  className={`bg-slate-950/45 border rounded-xl p-3.5 flex flex-col gap-2.5 transition hover:bg-slate-950 hover:border-slate-800 ${
-                    selectedPrisonId === p.id ? "border-amber-500/40 bg-slate-950" : "border-slate-850"
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col">
-                      <h4 className="font-bold text-xs text-slate-200">
-                        {formatEPName(p.name)}
-                      </h4>
-                      <span className="text-[8.5px] font-mono text-slate-550 mt-0.5 flex items-center gap-1">
-                        <MapPin className="h-2.5 w-2.5" /> {p.location || "Angola"}
-                      </span>
-                    </div>
-
-                    <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider border ${statusColor}`}>
-                      {statusText}
-                    </span>
-                  </div>
-
-                  {/* Micro Indicators */}
-                  <div className="grid grid-cols-3 gap-2 bg-slate-950/80 p-2 rounded-lg border border-slate-900/60 font-mono text-[9px]">
-                    <div className="flex flex-col">
-                      <span className="text-[7.5px] text-slate-500 uppercase">Reclusos</span>
-                      <span className="text-[10px] font-bold text-slate-200">{prisonInmatesCount} / {cap}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[7.5px] text-slate-500 uppercase">Ocupação</span>
-                      <span className={`text-[10px] font-bold ${occPercent > 100 ? "text-rose-400" : "text-emerald-450"}`}>{occPercent}%</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[7.5px] text-slate-500 uppercase">Risco Táctico</span>
-                      <span className={`text-[10px] font-bold ${riskIndex > 60 ? "text-rose-400" : riskIndex > 35 ? "text-amber-400" : "text-emerald-400"}`}>
-                        {riskIndex}/100
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Local Incident Notification */}
-                  {localUnresolved.length > 0 ? (
-                    <div className="bg-rose-950/30 border border-rose-500/20 text-rose-300 p-1.5 rounded text-[8.5px] font-mono flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0" />
-                        <span className="truncate"><strong>{localUnresolved.length} Incidente(s) Ativo(s)</strong> no local</span>
-                      </div>
-                      <span className="text-[7.5px] font-black text-rose-400 uppercase tracking-widest animate-pulse">Sinal de Alerta</span>
-                    </div>
-                  ) : (
-                    <div className="bg-emerald-950/10 border border-emerald-500/10 text-emerald-400 p-1 rounded text-[8.5px] font-mono flex items-center gap-1.5">
-                      <ShieldCheck className="h-3 w-3 shrink-0 text-emerald-400" />
-                      <span>Sem ocorrências críticas de segurança prontas.</span>
-                    </div>
-                  )}
-
-                  {/* Direct quick action */}
-                  <div className="flex gap-2 mt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPrisonId(selectedPrisonId === p.id ? null : p.id)}
-                      className="flex-1 bg-slate-900 hover:bg-slate-850 text-slate-300 text-[8.5px] font-mono font-bold py-1 rounded border border-slate-800 text-center uppercase tracking-wider transition cursor-pointer"
-                    >
-                      {selectedPrisonId === p.id ? "Remover Foco" : "Focar no Mapa"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNewOccPrisonId(p.id);
-                        setIsOccModalOpen(true);
-                      }}
-                      className="bg-slate-900 hover:bg-slate-850 text-rose-400 text-[8.5px] font-mono font-bold px-2.5 py-1 rounded border border-slate-800 transition cursor-pointer"
-                      title="Declarar nova ocorrência tática imediata"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
       </div>
 
-      {/* 🛡️ TODAS AS OCORRÊNCIAS / INCIDENTES E ALERTA CONSOLE */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Left 7 Columns: Real-Time Occurrence Feed */}
-        <div className="lg:col-span-7 bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 text-left">
-          <div className="border-b border-slate-850 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase font-bold font-mono text-rose-450 flex items-center gap-1">
-                <Radio className="h-3.5 w-3.5 text-rose-550 animate-pulse" /> Console Integrado de Ocorrências
-              </span>
-              <h3 className="text-sm font-bold text-slate-200 mt-0.5">Todas as Ocorrências e Alertas Críticos</h3>
-            </div>
 
-            {/* Severity Filter & Add Incident trigger */}
-            <div className="flex items-center gap-2">
-              <select
-                value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value)}
-                className="bg-slate-950 border border-slate-850 text-[10px] text-slate-300 rounded px-2 py-1 font-mono focus:outline-none"
-              >
-                <option value="ALL">Severidade: Todas</option>
-                <option value="CRÍTICA">Crítica</option>
-                <option value="MÉDIA">Média</option>
-                <option value="LIGEIRA">Ligeira</option>
-              </select>
-
-              <button
-                type="button"
-                onClick={() => setIsOccModalOpen(true)}
-                className="bg-rose-650 hover:bg-rose-600 text-[10px] font-mono font-bold text-slate-100 px-3 py-1 rounded-lg border border-rose-550/25 flex items-center gap-1.5 transition cursor-pointer"
-              >
-                <Plus className="h-3.5 w-3.5" /> Novo Incidente
-              </button>
-            </div>
-          </div>
-
-          {/* Incidents feed list */}
-          <div className="flex flex-col gap-3 overflow-y-auto max-h-[380px] scrollbar-thin">
-            {filteredOccurrences.length === 0 ? (
-              <div className="py-12 bg-slate-950/45 rounded-xl border border-slate-850 text-center flex flex-col items-center gap-2.5">
-                <CheckCircle2 className="h-8 w-8 text-emerald-450" />
-                <span className="text-xs text-slate-400 font-bold font-sans">Sem ocorrências críticas ativas nas unidades.</span>
-                <p className="text-[9.5px] text-slate-550 font-mono">Consola de não-repúdio táctica limpa às {new Date().toLocaleTimeString()}</p>
-              </div>
-            ) : (
-              filteredOccurrences.map((occ) => {
-                const isCrit = occ.severity === "CRÍTICA";
-                const isMed = occ.severity === "MÉDIA";
-                
-                let sevBadge = "bg-rose-500/10 border-rose-550/20 text-rose-400";
-                if (isMed) sevBadge = "bg-amber-500/10 border-amber-550/20 text-amber-400";
-                else if (occ.severity === "LIGEIRA") sevBadge = "bg-sky-500/10 border-sky-550/20 text-sky-450";
-
-                let statusBadge = "bg-rose-500/20 text-rose-400 border border-rose-500/30 animate-pulse";
-                if (occ.status === "RESOLVING") statusBadge = "bg-amber-500/20 text-amber-400 border border-amber-500/30";
-                else if (occ.status === "RESOLVED") statusBadge = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-
-                return (
-                  <div 
-                    key={occ.id}
-                    className={`bg-slate-950/45 border rounded-xl p-3.5 flex flex-col gap-2.5 transition hover:bg-slate-950 ${
-                      isCrit && occ.status !== "RESOLVED"
-                        ? "border-rose-550/25 bg-rose-950/5" 
-                        : "border-slate-850"
-                    }`}
-                  >
-                    <div className="flex flex-wrap justify-between items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10.5px] font-black font-mono text-slate-300">
-                          {occ.id}
-                        </span>
-                        <span className={`px-1.5 py-0.2 rounded text-[7.5px] font-mono tracking-widest font-black uppercase border ${sevBadge}`}>
-                          {occ.severity}
-                        </span>
-                        <span className={`px-1.5 py-0.2 rounded text-[7.5px] font-mono tracking-widest font-bold uppercase ${statusBadge}`}>
-                          {occ.status === "ACTIVE" ? "Activo" : occ.status === "RESOLVING" ? "Em Resolução" : "Resolvido"}
-                        </span>
-                      </div>
-
-                      <span className="text-[8.5px] font-mono text-slate-500">
-                        {new Date(occ.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
-
-                    <div className="text-left">
-                      <span className="text-[8.5px] font-mono text-indigo-400 font-bold uppercase block">
-                        Unidade: {occ.prisonName}
-                      </span>
-                      <p className="text-[10.5px] text-slate-200 font-sans leading-relaxed mt-1">
-                        {occ.description}
-                      </p>
-                    </div>
-
-                    {/* Response units info & manual rapid intervention panel */}
-                    <div className="border-t border-slate-900/80 pt-2.5 mt-0.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-1.5 font-mono text-[8.5px] text-slate-450">
-                        <Truck className="h-3.5 w-3.5 text-slate-400" />
-                        <span>Equipa Operacional: <strong className="text-slate-300">{occ.dispatchedTeam || "Nenhuma Atribuída"}</strong></span>
-                      </div>
-
-                      {occ.status !== "RESOLVED" ? (
-                        <div className="flex gap-1.5 self-end sm:self-auto">
-                          {/* Dispatch pirate squad if active */}
-                          {occ.status === "ACTIVE" && (
-                            <div className="flex gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleDispatchTeam(occ.id, "PIR (Intervenção Rápida)")}
-                                className="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-rose-400 text-[8.5px] font-mono font-bold px-2 py-0.5 rounded cursor-pointer transition"
-                              >
-                                Enviar PIR
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDispatchTeam(occ.id, "Gendarmeria / Patrulha")}
-                                className="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-amber-500 text-[8.5px] font-mono font-bold px-2 py-0.5 rounded cursor-pointer transition"
-                              >
-                                Força Local
-                              </button>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleResolveOccurrence(occ.id)}
-                            className="bg-emerald-650 hover:bg-emerald-600 text-slate-100 text-[8.5px] font-mono font-bold px-2.5 py-0.5 rounded border border-emerald-550/20 cursor-pointer transition"
-                          >
-                            Declarar Resolvido
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-[8.5px] font-mono text-emerald-450 italic">
-                          Normalizado às {new Date(occ.resolvedAt || "").toLocaleTimeString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Right 5 Columns: Live Movements / Escorts Monitor */}
-        <div className="lg:col-span-5 bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 text-left">
-          <div className="border-b border-slate-850 pb-3 flex justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase font-bold font-mono text-sky-450 flex items-center gap-1">
-                <Truck className="h-3.5 w-3.5 text-sky-500 animate-[bounce_1.5s_infinite]" /> Movimentação ao Vivo
-              </span>
-              <h3 className="text-sm font-bold text-slate-200 mt-0.5">Escoltas Penais Militares Activas</h3>
-            </div>
-            <span className="text-[9.5px] font-mono bg-slate-950 text-sky-400 px-2 py-0.5 border border-sky-950/30 rounded">
-              GPS Activo
-            </span>
-          </div>
-
-          {/* Live escorts lists */}
-          <div className="flex flex-col gap-3.5 overflow-y-auto max-h-[380px] scrollbar-thin">
-            {liveEscorts.map((esc) => {
-              let color = "text-sky-400 bg-sky-500/10 border-sky-550/20";
-              let statusText = "Em Trânsito";
-              if (esc.status === "DEPARTED") {
-                color = "text-amber-400 bg-amber-500/10 border-amber-550/20";
-                statusText = "Iniciando Rota";
-              } else if (esc.status === "ARRIVED") {
-                color = "text-emerald-400 bg-emerald-500/10 border-emerald-550/20";
-                statusText = "Concluído";
-              }
-
-              return (
-                <div 
-                  key={esc.id}
-                  className="bg-slate-950/45 border border-slate-850 rounded-xl p-3 flex flex-col gap-2.5 transition hover:bg-slate-950"
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-mono font-bold text-slate-300">
-                      {esc.id}
-                    </span>
-                    <span className={`px-2 py-0.2 rounded text-[8px] font-mono tracking-widest font-black uppercase border ${color}`}>
-                      {statusText}
-                    </span>
-                  </div>
-
-                  {/* Transfer metadata */}
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10.5px] font-sans font-extrabold text-slate-200">
-                      {esc.inmateName}
-                    </span>
-                    <div className="grid grid-cols-2 mt-1.5 font-mono text-[8.5px] text-slate-450 border-y border-slate-900 py-1.5 gap-1">
-                      <div>
-                        <span>Origem:</span>
-                        <p className="text-slate-300 truncate font-semibold">{esc.origin}</p>
-                      </div>
-                      <div>
-                        <span>Destino:</span>
-                        <p className="text-slate-300 truncate font-semibold">{esc.destination}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Simulated progression bar */}
-                  <div className="flex flex-col gap-1 text-left">
-                    <div className="flex justify-between items-center text-[8.5px] font-mono">
-                      <span className="text-slate-500">Trajectória Militar</span>
-                      <strong className="text-sky-400 font-extrabold">{esc.progress}%</strong>
-                    </div>
-                    <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-1000 ${
-                          esc.status === "ARRIVED" ? "bg-emerald-500" : "bg-sky-500 animate-pulse"
-                        }`}
-                        style={{ width: `${esc.progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Escort forces details */}
-                  <div className="flex items-center justify-between font-mono text-[8px] text-slate-550">
-                    <span>Força: {esc.escortTeam}</span>
-                    <span className="bg-slate-900 px-1 rounded text-slate-400">
-                      {esc.personnelCount} Militares Armados
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Simulated actions to add custom escort */}
-            <div className="bg-slate-950/20 p-2.5 rounded-lg border border-slate-850/40 text-left">
-              <span className="text-[8.5px] font-mono text-slate-550 block">SIMULAÇÃO DE TRANSFERÊNCIA DE SEGURANÇA:</span>
-              <p className="text-[9px] text-slate-450 font-sans mt-0.5">
-                Utilize o módulo principal "Movimentação" para gerar escoltas e guias de detenção de reclusos oficiais que serão rastreadas automaticamente aqui.
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div>
 
       {/* 🔴 DECLARE NEW INCIDENT DIALOG MODAL */}
       <AnimatePresence>

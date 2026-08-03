@@ -256,13 +256,13 @@ export async function exportInmateFichaToPDF(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42); // Navy
-  doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+  doc.text("SP", 105, currentY, { align: "center" });
   currentY += 5;
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
-  doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+  doc.text("SERVIÇO PENITENCIÁRIO (SP)", 105, currentY, { align: "center" });
   currentY += 8;
 
   // Large document header
@@ -587,14 +587,14 @@ export async function exportCriticalBlocksToPDF(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(15, 23, 42); // Slate-900 / Navy
-    doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+    doc.text("SP", 105, currentY, { align: "center" });
     currentY += 5;
 
     // Ministry details
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139); // Slate-500
-    doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+    doc.text("SERVIÇO PENITENCIÁRIO (SP)", 105, currentY, { align: "center" });
     currentY += 7;
 
     // Report Title
@@ -858,14 +858,14 @@ export async function exportIncidentHeatmapToPDF(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(15, 23, 42); // Slate-900 / Navy
-    doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+    doc.text("SP", 105, currentY, { align: "center" });
     currentY += 5;
 
     // Ministry details
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139); // Slate-500
-    doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+    doc.text("SERVIÇO PENITENCIÁRIO (SP)", 105, currentY, { align: "center" });
     currentY += 7;
 
     // Report Title
@@ -1224,14 +1224,14 @@ export async function exportWeeklySecurityReportToPDF(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(15, 23, 42); // Navy
-    doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+    doc.text("SP", 105, currentY, { align: "center" });
     currentY += 5;
 
     // Ministry details
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
-    doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+    doc.text("SERVIÇO PENITENCIÁRIO (SP)", 105, currentY, { align: "center" });
     currentY += 7;
 
     // Report Title
@@ -1545,14 +1545,14 @@ export async function exportDelegationListToPDF(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(15, 23, 42); // Slate-900 / Navy
-    doc.text("REPÚBLICA DE ANGOLA", 105, currentY, { align: "center" });
+    doc.text("SP", 105, currentY, { align: "center" });
     currentY += 5;
 
     // Ministry details
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139); // Slate-500
-    doc.text("MINISTÉRIO DO INTERIOR | SERVIÇO PENITENCIÁRIO NACIONAL", 105, currentY, { align: "center" });
+    doc.text("SERVIÇO PENITENCIÁRIO (SP)", 105, currentY, { align: "center" });
     currentY += 7;
 
     // Report Title
