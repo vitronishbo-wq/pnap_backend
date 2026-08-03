@@ -143,3 +143,84 @@ export interface PrisonState {
   pavilions: any[];
   municipalityId: string;
 }
+
+
+export interface HealthRecord {
+  id: string;
+  inmateId: string;
+  inmateName: string;
+  prisonId: string;
+  prisonName: string;
+  consultationDate: string;
+  symptoms: string;
+  diagnosis: string;
+  prescription: string;
+  severity: "Ligeiro" | "Moderado" | "Grave" | "Crítico";
+  status: "Pendente" | "Em Tratamento" | "Recuperado" | "Alta Clínica";
+  doctorName: string;
+}
+
+export interface ReintegrationRecord {
+  id: string;
+  inmateId: string;
+  inmateName: string;
+  programName: string;
+  category: "Educação" | "Trabalho" | "Apoio Psicológico" | "Artesanato";
+  enrollmentDate: string;
+  progressScore: number;
+  attendanceRate: number;
+  status: "Inscrito" | "Ativo" | "Suspenso" | "Concluído";
+  evaluationNotes: string;
+  reintegratorName: string;
+}
+
+export interface IntelligenceRecord {
+  id: string;
+  inmateId: string;
+  inmateName: string;
+  classification: "RESTRITO" | "CONFIDENCIAL" | "SECRETO";
+  incidentSource: "MININT" | "Polícia Nacional" | "SICP" | "Guarda Prisional";
+  alertType: "Informador de Bloco" | "Tentativa de Fuga Recorrente" | "Histórico de Facção" | "Conexão Externa Suspeita";
+  threatLevel: "Baixo" | "Médio" | "Alto" | "Crítico";
+  description: string;
+  loggedDate: string;
+  actionTaken: string;
+  checksum: string;
+}
+
+export interface OperatorProfile {
+  id: string;
+  name: string;
+  role: "DIRECTOR_GERAL" | "DIRECTOR_PROVINCIAL" | "DIRECTOR_CADEIA" | "CHEFE_SEGURANCA" | "CHEFE_SAUDE";
+  roleName: string;
+  roleDescription: string;
+  level: "NATIONAL" | "PROVINCIAL" | "ESTABLISHMENT" | "PAVILION" | "BLOCK";
+  province?: string;
+  assignedPrisonId?: string;
+  sigla: string;
+  username: string;
+  senha_hash: string;
+  permissions: string[];
+  sensitivityLevel: "PUBLICO" | "RESTRITO" | "CONFIDENCIAL" | "SECRETO";
+}
+
+export interface InmateState {
+  id: string;
+  fullName: string;
+  firstName?: string;
+  lastName?: string;
+  biNumber: string;
+  idCard?: string;
+  documentCode?: string;
+  prisonId: string;
+  assignedPrisonId?: string;
+  prisonName: string;
+  status: "PREVENTIVO" | "CONDENADO" | "SOLTO" | "TRANSFERIDO";
+  crimeCategory: string;
+  riskLevel?: "Baixo" | "Médio" | "Alto" | "Máximo";
+  admissionDate: string;
+  photoUrl?: string;
+  cellNumber?: string;
+  pavilionName?: string;
+  reintegrationProgress?: number;
+}

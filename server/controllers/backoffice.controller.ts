@@ -532,6 +532,68 @@ router.post("/cluster-config", authenticateJWT, async (req: Request, res: Respon
   }
 });
 
+// GET /api/backoffice/cluster-config/db-connections
+router.get("/cluster-config/db-connections", authenticateJWT, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const connections = GatewayService.Cluster.getDbConnections();
+    res.status(200).json({
+      success: true,
+      connections
+    });
+  } catch (error: any) {
+    console.error("Erro ao obter conexões PostgreSQL:", error);
+    res.status(500).json({
+      error: "DB Connections Fetch Error",
+      message: error.message || "Erro ao obter conexões de banco de dados."
+    });
+  }
+});
+
+// POST /api/backoffice/cluster-config/db-connections
+router.post("/cluster-config/db-connections", authenticateJWT, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = (req as any).user as SystemUserPayload;
+    const { connections } = req.body;
+    const updatedConnections = await GatewayService.Cluster.updateDbConnections(
+      user?.id || "admin-system",
+      user?.nome || "Administrador",
+      connections
+    );
+    res.status(200).json({
+      success: true,
+      connections: updatedConnections
+    });
+  } catch (error: any) {
+    console.error("Erro ao atualizar conexões PostgreSQL:", error);
+    res.status(500).json({
+      error: "DB Connections Update Error",
+      message: error.message || "Erro ao guardar conexões de banco de dados."
+    });
+  }
+});
+
+// POST /api/backoffice/cluster-config/test-db
+router.post("/cluster-config/test-db", authenticateJWT, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { connectionId, customUrl } = req.body;
+    if (!connectionId || !["primary", "audit", "bi"].includes(connectionId)) {
+      res.status(400).json({ error: "Invalid connectionId. Must be 'primary', 'audit', or 'bi'." });
+      return;
+    }
+    const result = await GatewayService.Cluster.testDbConnection(connectionId, customUrl);
+    res.status(200).json({
+      success: true,
+      result
+    });
+  } catch (error: any) {
+    console.error("Erro no teste de conectividade PostgreSQL:", error);
+    res.status(500).json({
+      error: "DB Connection Test Error",
+      message: error.message || "Falha ao executar teste de conexão ao PostgreSQL."
+    });
+  }
+});
+
 // ==========================================
 // 9. CENTRO NACIONAL DE ENGENHARIA LEGISLATIVA (CNEL)
 // ==========================================

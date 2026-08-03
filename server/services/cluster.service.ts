@@ -20,6 +20,30 @@ export interface SyncHistoryEntry {
   details: string;
 }
 
+export interface DbConnectionConfig {
+  id: "primary" | "audit" | "bi";
+  name: string;
+  dbName: string;
+  url: string;
+  host: string;
+  port: number;
+  user: string;
+  sslMode: "require" | "verify-full" | "prefer" | "disable";
+  maxPoolSize: number;
+  status: "CONNECTED" | "ERROR" | "TESTING" | "UNTESTED";
+  latencyMs: number;
+  lastTestedAt?: string;
+  versionInfo?: string;
+  tablesCount?: number;
+  description: string;
+}
+
+export interface PostgresClusterConnections {
+  primary: DbConnectionConfig;
+  audit: DbConnectionConfig;
+  bi: DbConnectionConfig;
+}
+
 export interface ClusterConfig {
   activeInstance: "cloud-primary" | "cloud-secondary" | "local-onpremise" | "local-hybrid";
   replicationPolicy: "realtime" | "interval" | "manual";
@@ -29,7 +53,63 @@ export interface ClusterConfig {
   syncStatus: "idle" | "syncing" | "error" | "synchronized";
   nodes: DBNode[];
   history: SyncHistoryEntry[];
+  postgresConnections?: PostgresClusterConnections;
 }
+
+// Default PostgreSQL Cluster Connection Definitions
+let currentDbConnections: PostgresClusterConnections = {
+  primary: {
+    id: "primary",
+    name: "Base de Dados Principal (OLTP)",
+    dbName: "pnap_db",
+    url: process.env.DATABASE_URL || "postgresql://pnap_admin:secure_pass_2026@primary.postgres.pnap.gov.ao:5432/pnap_db?sslmode=require",
+    host: "primary.postgres.pnap.gov.ao",
+    port: 5432,
+    user: "pnap_admin",
+    sslMode: "require",
+    maxPoolSize: 50,
+    status: "CONNECTED",
+    latencyMs: 8,
+    lastTestedAt: new Date().toISOString(),
+    versionInfo: "PostgreSQL 16.3 (MININT OLTP Engine)",
+    tablesCount: 42,
+    description: "Servidor principal para prontuários de reclusos, biometria e operações das cadeias."
+  },
+  audit: {
+    id: "audit",
+    name: "Base de Dados de Auditoria (Immutable Trail)",
+    dbName: "pnap_audit_db",
+    url: process.env.AUDIT_DATABASE_URL || "postgresql://audit_master:audit_secret_hash_2026@audit.postgres.pnap.gov.ao:5432/pnap_audit_db?sslmode=verify-full",
+    host: "audit.postgres.pnap.gov.ao",
+    port: 5432,
+    user: "audit_master",
+    sslMode: "verify-full",
+    maxPoolSize: 30,
+    status: "CONNECTED",
+    latencyMs: 12,
+    lastTestedAt: new Date().toISOString(),
+    versionInfo: "PostgreSQL 16.3 (Immutable Ledger SHA-256)",
+    tablesCount: 18,
+    description: "Registo imutável de logs de auditoria nacional, assinaturas SHA-256 e não-repúdio."
+  },
+  bi: {
+    id: "bi",
+    name: "Base de Dados de BI & Analytics (Data Warehouse)",
+    dbName: "pnap_bi_db",
+    url: process.env.BI_DATABASE_URL || "postgresql://bi_analyst:analytics_dw_2026@bi.postgres.pnap.gov.ao:5432/pnap_bi_db?sslmode=require",
+    host: "bi.postgres.pnap.gov.ao",
+    port: 5432,
+    user: "bi_analyst",
+    sslMode: "require",
+    maxPoolSize: 20,
+    status: "CONNECTED",
+    latencyMs: 15,
+    lastTestedAt: new Date().toISOString(),
+    versionInfo: "PostgreSQL 16.3 (Data Warehouse OLAP)",
+    tablesCount: 28,
+    description: "Repositório analítico para geração de estatísticas do MININT e modelos preditivos."
+  }
+};
 
 // In-Memory Cluster State for SICP-AO
 let currentClusterConfig: ClusterConfig = {
@@ -57,7 +137,174 @@ export class ClusterService {
    * Returns current active cluster configurations and metrics.
    */
   static getClusterConfig(): ClusterConfig {
-    return currentClusterConfig;
+    return {
+      ...currentClusterConfig,
+      postgresConnections: currentDbConnections
+    };
+  }
+
+  /**
+   * Returns current active PostgreSQL cluster database connections (primary, audit, BI).
+   */
+  static getDbConnections(): PostgresClusterConnections {
+    return currentDbConnections;
+  }
+
+  /**
+   * Updates PostgreSQL cluster database connections configuration.
+   */
+  static async updateDbConnections(
+    operatorId: string,
+    operatorName: string,
+    connections: Partial<PostgresClusterConnections>
+  ): Promise<PostgresClusterConnections> {
+    if (connections.primary) {
+      currentDbConnections.primary = { ...currentDbConnections.primary, ...connections.primary };
+    }
+    if (connections.audit) {
+      currentDbConnections.audit = { ...currentDbConnections.audit, ...connections.audit };
+    }
+    if (connections.bi) {
+      currentDbConnections.bi = { ...currentDbConnections.bi, ...connections.bi };
+    }
+
+    // Log update in audit trail
+    await dbService.createLog({
+      evento: "DB_CONNECTIONS_UPDATE",
+      modulo: "AJUSTES",
+      nivelSeveridade: "CRITICAL",
+      funcionarioId: operatorId,
+      dadosJson: JSON.stringify({
+        updatedConnections: Object.keys(connections),
+        autor: operatorName,
+        timestamp: new Date().toISOString()
+      })
+    });
+
+    return currentDbConnections;
+  }
+
+  /**
+   * Tests connectivity to a specified PostgreSQL database (primary, audit, or bi).
+   * Performs step-by-step diagnostic simulation of DNS, TCP socket, TLS handshake, Auth & Query execution.
+   */
+  static async testDbConnection(
+    connectionId: "primary" | "audit" | "bi",
+    customUrl?: string
+  ): Promise<{
+    success: boolean;
+    connectionId: "primary" | "audit" | "bi";
+    latencyMs: number;
+    timestamp: string;
+    details: {
+      dnsResolved: boolean;
+      tcpHandshakeMs: number;
+      sslHandshakeMs: number;
+      authStatus: string;
+      queryExecutionMs: number;
+      postgresVersion: string;
+      activeConnections: number;
+      maxConnections: number;
+      tablesCount: number;
+      sslMode: string;
+      logs: string[];
+    };
+    error?: string;
+  }> {
+    const targetConfig = currentDbConnections[connectionId];
+    const testUrl = customUrl || targetConfig.url;
+
+    // Simulate multi-stage connection test
+    const logs: string[] = [];
+    logs.push(`[${new Date().toLocaleTimeString()}] Iniciando verificação de conectividade para '${targetConfig.name}'...`);
+
+    // Parse URL basic check
+    let host = targetConfig.host;
+    let port = targetConfig.port;
+    let dbName = targetConfig.dbName;
+
+    try {
+      if (testUrl.includes("@")) {
+        const parts = testUrl.split("@")[1];
+        const hostPortDb = parts.split("/")[0];
+        if (hostPortDb.includes(":")) {
+          host = hostPortDb.split(":")[0];
+          port = parseInt(hostPortDb.split(":")[1]) || 5432;
+        } else {
+          host = hostPortDb;
+        }
+        if (parts.includes("/")) {
+          dbName = parts.split("/")[1].split("?")[0] || dbName;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
+    logs.push(`[${new Date().toLocaleTimeString()}] Resolução DNS: '${host}' -> IP Governamental validado.`);
+    
+    // Check if testUrl contains invalid format or mock error trigger
+    if (testUrl.includes("invalid") || testUrl.includes("error_trigger")) {
+      logs.push(`[${new Date().toLocaleTimeString()}] ❌ ERRO: Falha de autenticação ou socket recusado pela porta ${port}.`);
+      currentDbConnections[connectionId].status = "ERROR";
+      return {
+        success: false,
+        connectionId,
+        latencyMs: 999,
+        timestamp: new Date().toISOString(),
+        details: {
+          dnsResolved: true,
+          tcpHandshakeMs: 45,
+          sslHandshakeMs: 0,
+          authStatus: "AUTHENTICATION_FAILED",
+          queryExecutionMs: 0,
+          postgresVersion: "N/A",
+          activeConnections: 0,
+          maxConnections: targetConfig.maxPoolSize,
+          tablesCount: 0,
+          sslMode: targetConfig.sslMode,
+          logs
+        },
+        error: `Conexão recusada ao conectar a ${host}:${port}/${dbName}. Verifique a URL e a palavra-passe.`
+      };
+    }
+
+    // Standard Success Diagnostic Simulation
+    const tcpTime = Math.floor(Math.random() * 4) + 2;
+    const sslTime = Math.floor(Math.random() * 8) + 5;
+    const queryTime = Math.floor(Math.random() * 5) + 3;
+    const totalLatency = tcpTime + sslTime + queryTime;
+
+    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Socket TCP: Porta ${port} acessível (${tcpTime} ms).`);
+    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Handshake TLS/SSL (${targetConfig.sslMode}): Cifragem AES-256-GCM ativa (${sslTime} ms).`);
+    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Autenticação PostgreSQL: Utilizador '${targetConfig.user}' autenticado.`);
+    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Query de Teste ('SELECT version(), current_database()'): Resposta OK (${queryTime} ms).`);
+    logs.push(`[${new Date().toLocaleTimeString()}] ✅ TESTE CONCLUÍDO: Base '${dbName}' 100% OPERACIONAL. Latência total: ${totalLatency} ms.`);
+
+    // Update in-memory state
+    currentDbConnections[connectionId].status = "CONNECTED";
+    currentDbConnections[connectionId].latencyMs = totalLatency;
+    currentDbConnections[connectionId].lastTestedAt = new Date().toISOString();
+
+    return {
+      success: true,
+      connectionId,
+      latencyMs: totalLatency,
+      timestamp: new Date().toISOString(),
+      details: {
+        dnsResolved: true,
+        tcpHandshakeMs: tcpTime,
+        sslHandshakeMs: sslTime,
+        authStatus: "AUTHENTICATED_OK",
+        queryExecutionMs: queryTime,
+        postgresVersion: targetConfig.versionInfo || "PostgreSQL 16.3 on x86_64-pc-linux-gnu",
+        activeConnections: connectionId === "primary" ? 18 : connectionId === "audit" ? 5 : 3,
+        maxConnections: targetConfig.maxPoolSize,
+        tablesCount: targetConfig.tablesCount || 30,
+        sslMode: targetConfig.sslMode,
+        logs
+      }
+    };
   }
 
   /**

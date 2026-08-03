@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { Html5Qrcode } from "html5-qrcode";
-import { HealthModule } from "./HealthModule";
+import HealthModule from "./HealthModule";
 import { apiService } from "../services/apiService";
 import { 
   ReintegrationRecord, IntelligenceRecord, HealthRecord, InmateState, OperatorProfile 

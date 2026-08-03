@@ -351,6 +351,38 @@ export const apiService = {
     return result.config;
   },
 
+  async getDbConnections(): Promise<any> {
+    const response = await fetch(`${API_BASE}/backoffice/cluster-config/db-connections`, {
+      method: "GET",
+      headers: this.getHeaders(),
+    });
+    if (!response.ok) throw new Error("Falha ao obter conexões de base de dados.");
+    const result = await response.json();
+    return result.connections;
+  },
+
+  async updateDbConnections(connections: any): Promise<any> {
+    const response = await fetch(`${API_BASE}/backoffice/cluster-config/db-connections`, {
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify({ connections }),
+    });
+    if (!response.ok) throw new Error("Falha ao guardar conexões de base de dados.");
+    const result = await response.json();
+    return result.connections;
+  },
+
+  async testDbConnection(connectionId: "primary" | "audit" | "bi", customUrl?: string): Promise<any> {
+    const response = await fetch(`${API_BASE}/backoffice/cluster-config/test-db`, {
+      method: "POST",
+      headers: this.getHeaders(),
+      body: JSON.stringify({ connectionId, customUrl }),
+    });
+    if (!response.ok) throw new Error("Falha ao executar teste de conectividade.");
+    const result = await response.json();
+    return result.result;
+  },
+
   // --- PERSISTÊNCIA DO BARRAMENTO DE EVENTOS INSTITUCIONAIS ---
   async getEvents(): Promise<any[]> {
     try {
