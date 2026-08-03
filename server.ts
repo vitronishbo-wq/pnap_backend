@@ -13,7 +13,7 @@ import { dbService } from "./server/db-service";
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // Body Parsing Middlewares
   app.use(express.json());
