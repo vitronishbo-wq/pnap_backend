@@ -49,6 +49,10 @@ export interface OrganizationalUnit {
   parentId?: string;
   province?: string;
   prisonId?: string;
+  divisionType?: "DIRECAO_PROVINCIAL" | "DEPARTAMENTO" | "SECCAO" | "REPARTICAO" | "GABINETE" | "ESTAB_PENITENCIARIO";
+  code?: string;
+  legalBasis?: string;
+  headOfficerName?: string;
 }
 
 export interface Delegation {

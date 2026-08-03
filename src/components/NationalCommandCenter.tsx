@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { formatEPName } from "../utils/formatUtils";
 import {
   Shield,
   ShieldAlert,
@@ -47,12 +48,13 @@ interface NationalCommandCenterProps {
   isOnline: boolean;
 }
 
-// Coordinate mappings for Angola provinces on a 600x600 coordinate system
+// Coordinate mappings for Angola 21 provinces on a 600x600 coordinate system
 const PROVINCES_COORDS: Record<string, { x: number; y: number; name: string }> = {
   "Cabinda": { x: 180, y: 70, name: "Cabinda" },
   "Zaire": { x: 210, y: 130, name: "Zaire" },
   "Uíge": { x: 270, y: 160, name: "Uíge" },
   "Bengo": { x: 220, y: 220, name: "Bengo" },
+  "Icolo e Bengo": { x: 205, y: 245, name: "Icolo e Bengo" },
   "Luanda": { x: 190, y: 240, name: "Luanda" },
   "Cuanza Norte": { x: 280, y: 230, name: "Cuanza Norte" },
   "Malanje": { x: 350, y: 250, name: "Malanje" },
@@ -62,11 +64,13 @@ const PROVINCES_COORDS: Record<string, { x: number; y: number; name: string }> =
   "Benguela": { x: 210, y: 380, name: "Benguela" },
   "Huambo": { x: 290, y: 390, name: "Huambo" },
   "Bié": { x: 370, y: 380, name: "Bié" },
-  "Moxico": { x: 480, y: 400, name: "Moxico" },
+  "Moxico": { x: 460, y: 400, name: "Moxico" },
+  "Moxico Leste": { x: 510, y: 410, name: "Moxico Leste" },
   "Namibe": { x: 170, y: 490, name: "Namibe" },
   "Huíla": { x: 250, y: 480, name: "Huíla" },
   "Cunene": { x: 260, y: 550, name: "Cunene" },
-  "Cuando Cubango": { x: 410, y: 520, name: "Cuando Cubango" }
+  "Cubango": { x: 380, y: 510, name: "Cubango" },
+  "Quando": { x: 430, y: 530, name: "Quando" }
 };
 
 // Map prison IDs to province coords
@@ -307,7 +311,7 @@ export default function NationalCommandCenter({
     if (!newOccDesc.trim()) return;
 
     const matchedPrison = prisons.find(p => p.id === newOccPrisonId);
-    const prisonName = matchedPrison ? matchedPrison.name.replace("Estabelecimento Penitenciário de ", "EP ") : "Unidade Desconhecida";
+    const prisonName = matchedPrison ? formatEPName(matchedPrison.name) : "Unidade Desconhecida";
 
     const newOcc: CommandOccurrence = {
       id: `OCC-${Math.floor(410 + Math.random() * 80)}`,
@@ -850,7 +854,7 @@ export default function NationalCommandCenter({
                 <div className="absolute top-3 right-3 bg-slate-900/95 border border-slate-750 p-3 rounded-lg text-left w-56 font-sans text-[10.5px] shadow-2xl flex flex-col gap-2">
                   <div className="flex justify-between items-start border-b border-slate-800 pb-1.5">
                     <h4 className="font-extrabold text-amber-500 leading-tight">
-                      {matchedPrison.name.replace("Estabelecimento Penitenciário de ", "EP ")}
+                      {formatEPName(matchedPrison.name)}
                     </h4>
                     <button onClick={() => setSelectedPrisonId(null)} className="text-slate-500 hover:text-slate-300">
                       <X className="h-3 w-3" />
@@ -938,7 +942,7 @@ export default function NationalCommandCenter({
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
                       <h4 className="font-bold text-xs text-slate-200">
-                        {p.name.replace("Estabelecimento Penitenciário de ", "EP ")}
+                        {formatEPName(p.name)}
                       </h4>
                       <span className="text-[8.5px] font-mono text-slate-550 mt-0.5 flex items-center gap-1">
                         <MapPin className="h-2.5 w-2.5" /> {p.location || "Angola"}
@@ -1287,7 +1291,7 @@ export default function NationalCommandCenter({
                   >
                     {prisons.map(p => (
                       <option key={p.id} value={p.id}>
-                        {p.name.replace("Estabelecimento Penitenciário de ", "EP ")}
+                        {formatEPName(p.name)}
                       </option>
                     ))}
                   </select>

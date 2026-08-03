@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { formatEPName } from "../utils/formatUtils";
 import { 
   Shield, 
   ShieldAlert, 
@@ -125,7 +126,7 @@ export default function RiskMapDashboard({ visiblePrisons, inmates }: RiskMapDas
                 pavId: pav.id,
                 pavName: pav.name.split(" - ")[0],
                 prisonId: prison.id,
-                prisonName: prison.name.replace("Estabelecimento Penitenciário de ", "EP "),
+                prisonName: formatEPName(prison.name),
                 capacity: blk.capacity || 200,
                 current: totalCount,
                 baixoCount: baixo,
@@ -480,7 +481,7 @@ export default function RiskMapDashboard({ visiblePrisons, inmates }: RiskMapDas
             >
               <option value="ALL">🚨 TODOS OS ESTABELECIMENTOS</option>
               {visiblePrisons.map(p => (
-                <option key={p.id} value={p.id}>🏢 {p.name.replace("Estabelecimento Penitenciário de ", "EP ")}</option>
+                <option key={p.id} value={p.id}>🏢 {formatEPName(p.name)}</option>
               ))}
             </select>
           </div>

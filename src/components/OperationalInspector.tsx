@@ -390,62 +390,58 @@ export function OperationalInspector({
                     <div className="grid grid-cols-2 gap-2">
                       
                       {/* Critical Security Risk */}
-                      <div className="bg-[#090d15] border border-slate-900 rounded-xl p-2.5 flex flex-col gap-1">
-                        <div className="flex items-center gap-1 text-[8px] font-mono text-slate-500 uppercase tracking-wider">
+                      <div className="bg-[#090d15] border border-slate-900 rounded-lg p-2.5 flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1 text-[8.5px] font-mono text-slate-400 uppercase font-bold tracking-wider">
                           <ShieldAlert className="h-3 w-3 text-red-500" /> Risco Crítico
                         </div>
-                        <div className="text-base font-bold font-mono text-slate-200 mt-1">
+                        <div className="text-sm font-bold font-mono text-slate-200 mt-0.5">
                           {stats.criticalInmates}
                         </div>
-                        <div className="text-[8px] font-sans text-slate-550 text-slate-500">Reclusos sob monitoria</div>
                       </div>
 
                       {/* Clinical Health Emergency Alerts */}
-                      <div className="bg-[#090d15] border border-slate-900 rounded-xl p-2.5 flex flex-col gap-1">
-                        <div className="flex items-center gap-1 text-[8px] font-mono text-slate-500 uppercase tracking-wider">
+                      <div className="bg-[#090d15] border border-slate-900 rounded-lg p-2.5 flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1 text-[8.5px] font-mono text-slate-400 uppercase font-bold tracking-wider">
                           <HeartPulse className="h-3 w-3 text-emerald-500 animate-pulse" /> Emergência
                         </div>
-                        <div className="text-base font-bold font-mono text-slate-200 mt-1">
+                        <div className="text-sm font-bold font-mono text-slate-200 mt-0.5">
                           {stats.healthAlerts}
                         </div>
-                        <div className="text-[8px] font-sans text-slate-550 text-slate-500">Alertas clínicos ativos</div>
                       </div>
 
                       {/* Active Tactical Incidents */}
-                      <div className="bg-[#090d15] border border-slate-900 rounded-xl p-2.5 flex flex-col gap-1">
-                        <div className="flex items-center gap-1 text-[8px] font-mono text-slate-500 uppercase tracking-wider">
+                      <div className="bg-[#090d15] border border-slate-900 rounded-lg p-2.5 flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1 text-[8.5px] font-mono text-slate-400 uppercase font-bold tracking-wider">
                           <Flame className="h-3 w-3 text-amber-500 animate-bounce" /> Ocorrências
                         </div>
-                        <div className="text-base font-bold font-mono text-slate-200 mt-1">
+                        <div className="text-sm font-bold font-mono text-slate-200 mt-0.5">
                           {stats.activeIncidents}
                         </div>
-                        <div className="text-[8px] font-sans text-slate-550 text-slate-500">No escopo operacional</div>
                       </div>
 
                       {/* Active Physical Infrastructure */}
-                      <div className="bg-[#090d15] border border-slate-900 rounded-xl p-2.5 flex flex-col gap-1">
-                        <div className="flex items-center gap-1 text-[8px] font-mono text-slate-500 uppercase tracking-wider">
+                      <div className="bg-[#090d15] border border-slate-900 rounded-lg p-2.5 flex flex-col gap-0.5">
+                        <div className="flex items-center gap-1 text-[8.5px] font-mono text-slate-400 uppercase font-bold tracking-wider">
                           <Layers className="h-3 w-3 text-sky-500" /> Instalações
                         </div>
-                        <div className="text-base font-bold font-mono text-slate-200 mt-1">
+                        <div className="text-sm font-bold font-mono text-slate-200 mt-0.5">
                           {stats.scopeType === "NATIONAL" ? stats.prisonCount : stats.scopeType === "PROVINCE" ? stats.prisonCount : 1}
                         </div>
-                        <div className="text-[8px] font-sans text-slate-550 text-slate-500">EPs/Pavilhões/Celas</div>
                       </div>
 
                     </div>
 
                     {/* 3. CONTEXT OPERATIONS PANEL (ACTION BUTTONS) */}
-                    <div className="flex flex-col gap-1.5 mt-2">
-                      <div className="text-[8px] font-mono tracking-widest text-slate-500 font-bold uppercase mb-1">Ações do Escopo Focado</div>
+                    <div className="flex flex-col gap-1.5 mt-1">
+                      <div className="text-[8px] font-mono tracking-widest text-slate-500 font-bold uppercase mb-0.5">Acções Rápidas</div>
                       
                       <button
                         type="button"
                         onClick={handleTriggerLocalIncident}
-                        className="w-full bg-red-950/20 hover:bg-red-950/40 border border-red-900/60 hover:border-red-500/50 text-red-300 font-mono font-bold py-2 px-3 rounded-lg text-[9px] flex items-center justify-between cursor-pointer transition-all active:scale-95 shadow-md"
+                        className="w-full bg-red-950/30 hover:bg-red-900/40 border border-red-900/60 hover:border-red-500/50 text-red-300 font-mono font-bold py-1.5 px-3 rounded text-[9px] flex items-center justify-between cursor-pointer transition-all active:scale-95 shadow-sm"
                       >
                         <span className="flex items-center gap-1.5">
-                          <AlertTriangle className="h-3 w-3 text-red-500 animate-pulse" /> LANÇAR ALERTA TÁTICO
+                          <AlertTriangle className="h-3 w-3 text-red-500 animate-pulse" /> ALERTA TÁTICO
                         </span>
                         <ArrowUpRight className="h-3 w-3 text-red-400 opacity-60" />
                       </button>
@@ -453,10 +449,10 @@ export function OperationalInspector({
                       <button
                         type="button"
                         onClick={handleExportScopeReport}
-                        className="w-full bg-slate-900 hover:bg-[#0c111e] border border-slate-800 hover:border-slate-700 text-slate-300 font-mono font-bold py-2 px-3 rounded-lg text-[9px] flex items-center justify-between cursor-pointer transition-all active:scale-95 shadow-md"
+                        className="w-full bg-slate-900 hover:bg-[#0c111e] border border-slate-800 hover:border-slate-700 text-slate-300 font-mono font-bold py-1.5 px-3 rounded text-[9px] flex items-center justify-between cursor-pointer transition-all active:scale-95 shadow-sm"
                       >
                         <span className="flex items-center gap-1.5">
-                          <Printer className="h-3 w-3 text-slate-400" /> EXPORTAR AUDITORIA ESCOPO
+                          <Printer className="h-3 w-3 text-slate-400" /> EXPORTAR AUDITORIA
                         </span>
                         <ArrowUpRight className="h-3 w-3 text-slate-400 opacity-60" />
                       </button>
@@ -470,21 +466,13 @@ export function OperationalInspector({
                             "info"
                           );
                         }}
-                        className="w-full bg-slate-900 hover:bg-[#0c111e] border border-slate-800 hover:border-slate-700 text-slate-300 font-mono font-bold py-2 px-3 rounded-lg text-[9px] flex items-center justify-between cursor-pointer transition-all active:scale-95 shadow-md"
+                        className="w-full bg-slate-900 hover:bg-[#0c111e] border border-slate-800 hover:border-slate-700 text-slate-300 font-mono font-bold py-1.5 px-3 rounded text-[9px] flex items-center justify-between cursor-pointer transition-all active:scale-95 shadow-sm"
                       >
                         <span className="flex items-center gap-1.5">
-                          <Lock className="h-3 w-3 text-amber-500/80" /> VERIFICAR INTEGRIDADE VPN
+                          <Lock className="h-3 w-3 text-amber-500/80" /> VERIFICAR VPN
                         </span>
                         <ArrowUpRight className="h-3 w-3 text-slate-400 opacity-60" />
                       </button>
-                    </div>
-
-                    {/* 4. SECURITY DISCLOSURE WARN CARD */}
-                    <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 flex gap-2.5 items-start text-xxs mt-2 text-amber-300/80 leading-normal font-sans shadow-inner select-none">
-                      <Lock className="h-4 w-4 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
-                      <div>
-                        <strong>PROTOCOLOS DE SEGURANÇA NACIONAL:</strong> Esta consola transmite comandos assinados eletronicamente sob a regulamentação penal militar angolana. Todas as transações são auditadas com criptografia forense de rastreio de não-repúdio.
-                      </div>
                     </div>
 
                   </motion.div>

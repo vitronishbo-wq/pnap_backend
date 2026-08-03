@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { formatEPName } from "../utils/formatUtils";
 import { 
   Users, 
   Shield, 
@@ -291,7 +292,7 @@ export default function RHIndicatorsPanel({
             <span className="text-[8.5px] font-mono text-slate-500 uppercase tracking-wider font-bold">Ponto Crítico de Risco</span>
             <span className="text-lg font-bold font-mono text-red-400">
               {workloadHeatmapData.length > 0 
-                ? workloadHeatmapData.reduce((prev, curr) => (curr.scores.CHEFE_SEGURANCA > prev.scores.CHEFE_SEGURANCA ? curr : prev)).prisonName.replace("Estabelecimento Penitenciário do ", "EP ").replace("Estabelecimento Penitenciário de ", "EP ")
+                ? formatEPName(workloadHeatmapData.reduce((prev, curr) => (curr.scores.CHEFE_SEGURANCA > prev.scores.CHEFE_SEGURANCA ? curr : prev)).prisonName)
                 : "Nenhum"
               }
             </span>
@@ -420,7 +421,7 @@ export default function RHIndicatorsPanel({
                       <td className="p-3.5">
                         <div className="flex flex-col text-left">
                           <span className="font-bold text-slate-100 font-sans text-xxs">
-                            {row.prisonName.replace("Estabelecimento Penitenciário do ", "EP ").replace("Estabelecimento Penitenciário de ", "EP ")}
+                            {formatEPName(row.prisonName)}
                           </span>
                           <span className="text-[9px] text-slate-500 flex items-center gap-1 mt-0.5">
                             <MapPin className="h-2.5 w-2.5 text-slate-600" /> {row.province}
@@ -588,7 +589,7 @@ export default function RHIndicatorsPanel({
                       return (
                         <tr key={prison.id} className="hover:bg-slate-900/25 transition">
                           <td className="px-3 py-2.5 font-bold text-slate-200">
-                            {prison.name.replace("Estabelecimento Penitenciário do ", "EP ").replace("Estabelecimento Penitenciário de ", "EP ")}
+                            {formatEPName(prison.name)}
                           </td>
                           <td className="px-3 py-2.5 text-center text-amber-500 font-bold">{altaPatente || "—"}</td>
                           <td className="px-3 py-2.5 text-center text-sky-400 font-bold">{inspectores || "—"}</td>
@@ -667,7 +668,7 @@ export default function RHIndicatorsPanel({
                       return (
                         <tr key={prison.id} className="hover:bg-slate-900/25 transition">
                           <td className="px-3 py-2 font-bold text-slate-200">
-                            {prison.name.replace("Estabelecimento Penitenciário do ", "EP ").replace("Estabelecimento Penitenciário de ", "EP ")}
+                            {formatEPName(prison.name)}
                           </td>
                           <td className="px-2 py-2 text-center font-bold text-red-400">{armas || "—"}</td>
                           <td className="px-2 py-2 text-center font-bold text-orange-400">{chaves || "—"}</td>

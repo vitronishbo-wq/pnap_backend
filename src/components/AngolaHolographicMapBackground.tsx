@@ -16,11 +16,12 @@ export const AngolaHolographicMapBackground: React.FC<AngolaHolographicMapBackgr
 }) => {
   const [hoveredProv, setHoveredProv] = useState<string | null>(null);
 
-  // List of all 18 provinces with geographical SVG map coordinates
+  // List of all 21 official provinces (Divisão Político-Administrativa 2024) with geographical SVG map coordinates
   const PROVINCES_MAP = [
     { id: "LUA", name: "Luanda", code: "LUA", x: 365, y: 310, isCapital: true, region: "Litoral Norte" },
+    { id: "ICB", name: "Icolo e Bengo", code: "ICB", x: 380, y: 320, isCapital: false, region: "Litoral Norte" },
     { id: "HUA", name: "Huambo", code: "HUA", x: 445, y: 450, isCapital: false, region: "Planalto Central" },
-    { id: "BEN", name: "Benguela", code: "BEN", x: 380, y: 460, isCapital: false, region: "Litoral Centro" },
+    { id: "BEN", name: "Benguela", code: "BGU", x: 380, y: 460, isCapital: false, region: "Litoral Centro" },
     { id: "CAB", name: "Cabinda", code: "CAB", x: 425, y: 140, isCapital: false, region: "Norte Enclave" },
     { id: "BGO", name: "Bengo", code: "BGO", x: 395, y: 300, isCapital: false, region: "Norte" },
     { id: "CNO", name: "Cuanza-Norte", altName: "Cuanza Norte", code: "CNO", x: 440, y: 320, isCapital: false, region: "Norte" },
@@ -28,12 +29,14 @@ export const AngolaHolographicMapBackground: React.FC<AngolaHolographicMapBackgr
     { id: "MAL", name: "Malanje", code: "MAL", x: 520, y: 300, isCapital: false, region: "Norte Interior" },
     { id: "LNO", name: "Lunda-Norte", altName: "Lunda Norte", code: "LNO", x: 610, y: 250, isCapital: false, region: "Leste" },
     { id: "LSU", name: "Lunda-Sul", altName: "Lunda Sul", code: "LSU", x: 630, y: 330, isCapital: false, region: "Leste" },
-    { id: "MOX", name: "Moxico", altName: "Moxico Leste", code: "MOX", x: 640, y: 480, isCapital: false, region: "Leste" },
+    { id: "MOX", name: "Moxico", code: "MOX", x: 620, y: 460, isCapital: false, region: "Leste" },
+    { id: "MXL", name: "Moxico Leste", code: "MXL", x: 670, y: 470, isCapital: false, region: "Leste Fronteira" },
     { id: "BIE", name: "Bié", code: "BIE", x: 510, y: 435, isCapital: false, region: "Planalto Central" },
     { id: "HUI", name: "Huíla", code: "HUI", x: 460, y: 540, isCapital: false, region: "Sul" },
     { id: "NAM", name: "Namibe", code: "NAM", x: 370, y: 570, isCapital: false, region: "Sul Litoral" },
-    { id: "CUN", name: "Cunene", code: "CUN", x: 450, y: 620, isCapital: false, region: "Sul Fronteira" },
-    { id: "CCU", name: "Cuando Cubango", altName: "Cuando", code: "CCU", x: 570, y: 590, isCapital: false, region: "Sudeste" },
+    { id: "CUN", name: "Cunene", code: "CNN", x: 450, y: 620, isCapital: false, region: "Sul Fronteira" },
+    { id: "CCU", name: "Cubango", altName: "Cuando Cubango", code: "CCU", x: 540, y: 580, isCapital: false, region: "Sudeste" },
+    { id: "CND", name: "Cuando", code: "CND", x: 600, y: 600, isCapital: false, region: "Sudeste Fronteira" },
     { id: "UIG", name: "Uíge", code: "UIG", x: 470, y: 240, isCapital: false, region: "Norte" },
     { id: "ZAI", name: "Zaire", code: "ZAI", x: 410, y: 220, isCapital: false, region: "Norte Litoral" }
   ];

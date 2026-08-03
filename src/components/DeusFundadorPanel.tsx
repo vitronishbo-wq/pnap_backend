@@ -18,8 +18,10 @@ import {
   Clock,
   Shield,
   Fingerprint,
-  Crown
+  Crown,
+  GitFork
 } from "lucide-react";
+import HierarchyConfigPanel from "./HierarchyConfigPanel";
 
 interface DeusFundadorPanelProps {
   provinces: { name: string; code: string }[];
@@ -57,7 +59,7 @@ export default function DeusFundadorPanel({
   currentOperator
 }: DeusFundadorPanelProps) {
   const [activeSection, setActiveSection] = useState<
-    "overview" | "prisons" | "pavilions" | "blocks" | "cells" | "users"
+    "overview" | "prisons" | "pavilions" | "blocks" | "cells" | "users" | "hierarchy"
   >("overview");
 
   // Selection states for hierarchies
@@ -809,6 +811,21 @@ export default function DeusFundadorPanel({
           >
             <Users className="h-4 w-4" />
             6. Utilizadores & Operadores
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveSection("hierarchy");
+              setSearchTerm("");
+            }}
+            className={`p-3.5 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer font-sans text-xs font-bold leading-none ${
+              activeSection === "hierarchy"
+                ? "bg-indigo-500/20 border-indigo-500/60 text-indigo-300 shadow-md"
+                : "bg-slate-950/60 border-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-900/60"
+            }`}
+          >
+            <GitFork className="h-4 w-4 text-indigo-400" />
+            7. Hierarquia Orgânica (Sub-Níveis)
           </button>
 
           <div className="mt-4 p-4 rounded-xl border border-slate-850 bg-slate-950 font-mono text-[9.5px] leading-relaxed text-slate-500 flex flex-col gap-1.5">
@@ -1660,6 +1677,22 @@ export default function DeusFundadorPanel({
 
               </div>
             </div>
+          )}
+
+          {/* SECTION 7: ORGANIZATIONAL HIERARCHY SUBLEVELS CONFIGURATION */}
+          {activeSection === "hierarchy" && (
+            <HierarchyConfigPanel
+              provinces={provinces}
+              prisons={prisons}
+              setPrisons={setPrisons}
+              operators={operators}
+              organizationalUnits={organizationalUnits}
+              setOrganizationalUnits={setOrganizationalUnits}
+              institutionalHierarchy={institutionalHierarchy}
+              setInstitutionalHierarchy={setInstitutionalHierarchy}
+              writeAuditLog={writeAuditLog}
+              currentOperator={currentOperator}
+            />
           )}
 
         </div>

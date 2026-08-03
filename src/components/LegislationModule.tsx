@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { eventBus } from "../utils/eventBus";
+import { NEPComplianceAuditor } from "./NEPComplianceAuditor";
 import { 
   Scale, 
   FileText, 
@@ -29,6 +30,7 @@ import {
   Cpu,
   Bookmark,
   Activity,
+  ShieldAlert,
   FileCheck2,
   Database,
   Plus,
@@ -206,18 +208,18 @@ const DECRETO_184_17_CHAPTERS: LawChapter[] = [
         articles: [
           {
             number: "Artigo 1.º",
-            title: "Definição",
+            title: "Definição do Serviço Penitenciário",
             content: "O Serviço Penitenciário é o órgão executivo central do Ministério do Interior ao qual incumbe executar as medidas privativas de liberdade dos cidadãos, determinadas pelas autoridades judiciais competentes, aplicar as políticas de reabilitação e reintegração social do recluso, efectivar a fiscalização do cumprimento da prisão preventiva, assim como dos prazos para a liberdade condicional."
           },
           {
             number: "Artigo 2.º",
-            title: "Natureza",
+            title: "Natureza e Autonomia",
             content: "O Serviço Penitenciário é um serviço executivo central dependente do Ministério do Interior, com autonomia administrativa e gestão orçamental, sem prejuízo dos poderes de superintendência do respectivo Ministro no âmbito do asseguramento do interesse público, da execução da estratégia do Ministério do Interior, da legalidade e do mérito dos actos e das medidas operacionais."
           },
           {
             number: "Artigo 3.º",
-            title: "Atribuições",
-            content: "O Serviço Penitenciário tem as seguintes atribuições principais:",
+            title: "Atribuições Fundamentais",
+            content: "O Serviço Penitenciário tem as seguintes atribuições estatutárias:",
             paragraphs: [
               "a) Garantir a aplicação da Constituição da República, das leis, normas e regulamentos na execução das penas e demais medidas privativas de liberdade;",
               "b) Aplicar as políticas de reabilitação e reintegração social dos cidadãos condenados pelos tribunais em medidas privativas de liberdade;",
@@ -227,7 +229,7 @@ const DECRETO_184_17_CHAPTERS: LawChapter[] = [
               "f) Cooperar com as instituições congéneres visando o intercâmbio e a cooperação, no quadro da política superiormente definida;",
               "g) Promover a formação e superação técnico-profissional do efectivo;",
               "h) Estabelecer protocolos de intercâmbio e cooperação com organismos do sector produtivo, público e privado, visando a obtenção de apoio e experiências tecnológicas, sempre que tal se mostre necessário à formação da população penal e ao normal funcionamento do órgão;",
-              "i) Desempenhar as demais atribuições que lhe forem cometidas por lei ou determinadas superiormente."
+              "i) Desempenhar as demais atribuições que lhe forem acometidas por lei ou determinadas superiormente."
             ]
           }
         ]
@@ -242,14 +244,14 @@ const DECRETO_184_17_CHAPTERS: LawChapter[] = [
         articles: [
           {
             number: "Artigo 4.º",
-            title: "Estrutura",
-            content: "O Serviço Penitenciário tem a seguinte estrutura de topo:",
+            title: "Estrutura Orgânica (5 Pilares de Governação)",
+            content: "O Serviço Penitenciário tem a seguinte estrutura orgânica completa:",
             paragraphs: [
-              "1. Órgãos de Direcção: a) Director Geral, b) Directores Gerais-Adjuntos.",
+              "1. Órgãos de Direcção: a) Director-Geral, b) Directores-Gerais Adjuntos.",
               "2. Órgãos de Apoio Consultivo: a) Conselho Consultivo, b) Conselho de Quadros, c) Conselho de Justiça e Disciplina.",
-              "3. Serviços de Apoio Técnico: a) Gabinete de Inspecção, b) Direcção de Educação Patriótica, c) Gabinete Jurídico, d) Direcção de Estudos, Informação e Análise, e) Direcção de Recursos Humanos, f) Direcção de Planeamento e Finanças, g) Direcção de Logística, h) Gabinete de Infra-Estruturas e Equipamentos, i) Gabinete de Telecomunicações e Tecnologias de Informação, j) Gabinete de Comunicação Institucional e Imprensa, k) Gabinete de Administração e Serviços, l) Gabinete de Intercâmbio e Cooperação, m) Gabinete de Segurança Institucional, n) Instituto de Ciências Penitenciárias.",
-              "4. Serviços de Apoio Instrumental: a) Gabinete do Director Geral, b) Gabinetes dos Directores Gerais-Adjuntos, c) Corpo de Conselheiros.",
-              "5. Serviços Executivos Centrais: a) Direcção de Segurança Penitenciária, b) Direcção de Assistência e Reabilitação Penitenciária, c) Direcção de Controlo Penal, d) Direcção de Produção e Actividades Económicas, e) Direcção de Penas Alternativas e Reinserção Social, f) Serviço de Inteligência Penitenciária, g) Direcção de Saúde, h) Unidade Especial de Segurança e Intervenção.",
+              "3. Serviços de Apoio Técnico: a) Gabinete de Inspecção (GI), b) Direcção de Educação Patriótica (DEP), c) Gabinete Jurídico (GJ), d) Direcção de Estudos, Informação e Análise (GEIA), e) Direcção de Recursos Humanos (DRH), f) Direcção de Planeamento e Finanças (DPF), g) Direcção de Logística (DL), h) Gabinete de Infra-Estruturas e Equipamentos (GIE), i) Gabinete de Telecomunicações e Tecnologias de Informação (GTTI), j) Gabinete de Comunicação Institucional e Imprensa (GCII), k) Direcção de Administração e Serviços (DAS), l) Gabinete de Intercâmbio e Cooperação (GIC), m) Gabinete de Segurança Institucional (GSI), n) Instituto de Ciências Penitenciárias (ICP).",
+              "4. Serviços de Apoio Instrumental: a) Gabinete do Director-Geral, b) Gabinetes dos Directores-Gerais Adjuntos, c) Corpo de Conselheiros.",
+              "5. Serviços Executivos Centrais: a) Direcção de Segurança Penitenciária (DSP), b) Direcção de Assistência e Reabilitação Penitenciária (DARP), c) Direcção de Controlo Penal (DCP), d) Direcção de Produção e Actividades Económicas (DPAE), e) Direcção de Penas Alternativas e Reinserção Social (DPARS), f) Serviço de Inteligência Penitenciária (SIP), g) Direcção de Saúde (DS), h) Unidade Especial de Segurança e Intervenção (UESI).",
               "6. Serviços Executivos Locais: Direcções Provinciais."
             ]
           }
@@ -265,13 +267,13 @@ const DECRETO_184_17_CHAPTERS: LawChapter[] = [
         articles: [
           {
             number: "Artigo 5.º",
-            title: "Director Geral",
-            content: "O Serviço Penitenciário é dirigido por um Director Geral, a quem compete coordenar, organizar, dirigir e fiscalizar todas as actividades do órgão, assegurar a aplicação das leis, decidir sobre estabelecimentos destinados aos reclusos e propor classificação ou desactivação de estabelecimentos."
+            title: "Competências do Director-Geral",
+            content: "O Serviço Penitenciário é dirigido por um Director-Geral a quem compete coordenar, organizar, dirigir e fiscalizar todas as actividades do órgão; assegurar a aplicação adequada das leis e regulamentos; decidir sobre o local de cumprimento de pena; propor a criação, classificação e desactivação de estabelecimentos; emitir pareceres legislativos e autorizar provimentos até ao posto de oficiais subalternos."
           },
           {
             number: "Artigo 6.º",
-            title: "Directores Gerais-Adjuntos",
-            content: "O Director Geral é coadjuvado, no exercício das suas funções, por dois Directores Gerais-Adjuntos, que exercem as competências delegadas ou subdelegadas e o substituem nas suas ausências e impedimentos."
+            title: "Directores-Gerais Adjuntos",
+            content: "O Director-Geral é coadjuvado por dois Directores-Gerais Adjuntos que exercem as competências delegadas ou subdelegadas e asseguram a substituição legal no comando do órgão."
           }
         ]
       },
@@ -281,62 +283,340 @@ const DECRETO_184_17_CHAPTERS: LawChapter[] = [
           {
             number: "Artigo 7.º",
             title: "Conselho Consultivo",
-            content: "O Conselho Consultivo é o órgão consultivo ao qual incumbe analisar e formular pareceres sobre questões relacionadas com as atribuições e competências do Serviço Penitenciário, sua organização e gestão."
+            content: "Incumbe analisar e formular pareceres sobre questões operativas, organizacionais e estratégicas. Subdivide-se em operativo, normal e alargado."
           },
           {
             number: "Artigo 8.º",
             title: "Conselho de Quadros",
-            content: "O Conselho de Quadros é o órgão de apoio consultivo do Director Geral ao qual incumbe analisar e formular pareceres respeitantes à gestão e desenvolvimento dos quadros de pessoal."
+            content: "Órgão consultivo encarregue de emitir pareceres sobre a gestão de quadros, progressão nas carreiras e alocação de pessoal do Serviço Penitenciário."
           },
           {
             number: "Artigo 9.º",
             title: "Conselho de Justiça e Disciplina",
-            content: "O Conselho de Justiça e Disciplina é o órgão de apoio consultivo ao qual incumbe proceder à análise e emitir pareceres sobre matérias disciplinares e de justiça aplicáveis ao pessoal do Serviço Penitenciário."
+            content: "Órgão de apoio incumbido de analisar e formular pareceres atinentes à justiça, honra e disciplina do efectivo penitenciário."
           }
         ]
       },
       {
-        title: "SECÇÃO III - Serviços de Apoio Técnico & Executivos Centrais",
+        title: "SECÇÃO III - Serviços de Apoio Técnico",
+        articles: [
+          {
+            number: "Artigo 10.º",
+            title: "Gabinete de Inspecção (GI)",
+            content: "Incumbe assegurar as funções de inspecção e inquérito a todas as unidades legalmente tuteladas pelo Serviço Penitenciário, velando pela observância das leis e eficácia da gestão."
+          },
+          {
+            number: "Artigo 12.º",
+            title: "Gabinete Jurídico (GJ)",
+            content: "Responsável pela elaboração de diplomas legais, elaboração/apreciação de contratos e articulação com as autoridades judiciais para a regularização processual dos reclusos."
+          },
+          {
+            number: "Artigo 14.º",
+            title: "Direcção de Recursos Humanos (DRH)",
+            content: "Gerir os recursos humanos, recrutamento, avaliação de desempenho, processamento de salários e propostas de aposentação do efectivo carcerário."
+          },
+          {
+            number: "Artigo 18.º",
+            title: "Gabinete de Telecomunicações e Tecnologias de Informação (GTTI)",
+            content: "Estudar, planear e conceber a arquitectura dos sistemas de informação, infra-estrutura informática e comunicações do Serviço Penitenciário de Angola."
+          },
+          {
+            number: "Artigo 23.º",
+            title: "Instituto de Ciências Penitenciárias (ICP)",
+            content: "Dirigido por um Subcomissário Prisional, é o centro de formação académica média/superior, superação técnico-profissional e investigação de ciências penitenciárias."
+          }
+        ]
+      },
+      {
+        title: "SECÇÃO IV - Serviços Executivos Centrais (Especialidades Operativas)",
         articles: [
           {
             number: "Artigo 27.º",
-            title: "Direcção de Segurança Penitenciária",
-            content: "Direcção responsável por elaborar, controlar e fiscalizar o cumprimento das normas de segurança física e perimetral, prevenir fugas, motins e garantir a ordem interna e integridade física de todos os ocupantes dos estabelecimentos penitenciários."
+            title: "Direcção de Segurança Penitenciária (DSP)",
+            content: "Assegurar a ordem e a segurança nas instituições penitenciárias, prevenir greves, motins e fugas, controlar revistas e contagens programadas, e garantir a integridade física dos reclusos."
+          },
+          {
+            number: "Artigo 28.º",
+            title: "Direcção de Assistência e Reabilitação Penitenciária (DARP)",
+            content: "Conceber e executar as políticas reabilitativas e psicossociais, zelar pelo cumprimento dos Direitos Humanos, promover ensino escolar, formação profissional e assistência religiosa."
           },
           {
             number: "Artigo 29.º",
-            title: "Direcção de Controlo Penal",
-            content: "Direcção responsável pelo controlo e actualização dos registos penais, biográficos e estatísticos dos reclusos, prazos de prisão preventiva, emissão e execução de guias de soltura, e cálculo de benefícios penitenciários e liberdade condicional."
+            title: "Direcção de Controlo Penal (DCP)",
+            content: "Gestão processual, registo penal, biometria NREP-AO, controlo do tempo de permanência, fiscalização de prazos de prisão preventiva e emissão de mandados/guias de soltura."
+          },
+          {
+            number: "Artigo 30.º",
+            title: "Direcção de Produção e Actividades Económicas (DPAE)",
+            content: "Execução de políticas produtivas no seio da população penal com base no binómio 'produção-reabilitação' em sectores agro-pecuários, industriais e fabris."
           },
           {
             number: "Artigo 31.º",
-            title: "Direcção de Penas Alternativas e Reinserção Social",
-            content: "Órgão executivo responsável por conceber, aplicar e fiscalizar medidas e penas alternativas à prisão, bem como implementar as metodologias de reinserção social pós-penitenciária."
+            title: "Direcção de Penas Alternativas e Reinserção Social (DPARS)",
+            content: "Executar penas alternativas à prisão (prestação de trabalho comunitário), políticas de reinserção social e acompanhamento pós-institucional."
+          },
+          {
+            number: "Artigo 32.º",
+            title: "Serviço de Inteligência Penitenciária (SIP)",
+            content: "Garantir a investigação, prevenção e neutralização de ameaças à ordem e estabilidade penitenciária, recolhendo informações operativas e articulando com o Sistema Nacional de Inteligência."
           },
           {
             number: "Artigo 33.º",
-            title: "Direcção de Saúde do S.P.A.",
-            content: "Direcção responsável por organizar e dirigir a assistência médica e medicamentosa aos reclusos e efectivos, coordenar a prevenção epidemiológica e estabelecer parcerias com o Sistema Nacional de Saúde de Angola."
+            title: "Direcção de Saúde (DS)",
+            content: "Assistência médica e medicamentosa aos reclusos e efectivos, controlo epidemiológico e coordenação das Juntas de Saúde para determinação de incapacidade definitiva."
+          },
+          {
+            number: "Artigo 34.º",
+            title: "Unidade Especial de Segurança e Intervenção (UESI)",
+            content: "Unidade táctica de intervenção para reposição da ordem, resgate de reféns, escoltas de alto risco e apoio à recaptura de reclusos evadidos."
+          }
+        ]
+      },
+      {
+        title: "SECÇÃO V - Serviços Executivos Locais",
+        articles: [
+          {
+            number: "Artigo 35.º",
+            title: "Direcções Provinciais (21 Províncias - DPA 2024)",
+            content: "Dirigidas por Directores Provinciais subordinados funcionalmente aos Delegados Provinciais do MININT e metodologicamente ao Director-Geral do Serviço Penitenciário, abrangendo todas as 21 províncias de Angola."
           }
         ]
       }
     ]
   },
   {
-    title: "CAPÍTULO IV - Disposições Finais",
+    title: "CAPÍTULO IV - Disposições Finais & Símbolos",
     sections: [
       {
-        title: "SECÇÃO I - Símbolos e Lemas do S.P.A.",
+        title: "SECÇÃO I - Emblemas e Carreiras",
         articles: [
           {
+            number: "Artigo 37.º",
+            title: "Quadro de Pessoal (Anexo I)",
+            content: "Quadro permanente fixado em 21.318 vagas para oficialidade, patentes de comando e agentes penitenciários."
+          },
+          {
             number: "Artigo 41.º",
-            title: "Insígnia",
-            content: "A insígnia oficial do Serviço Penitenciário é formada por um pentágono onde estão sobrepostos dois triângulos, sendo um invertido, tendo ao centro a balança da justiça e um livro aberto, rodeado por ramos de louros e café, com a inscrição 'Serviço Penitenciário' e o nome 'Angola'."
+            title: "Insígnia Oficial",
+            content: "Pentágono com dois triângulos sobrepostos, balança da justiça, livro aberto 'lex lex', duas chaves cruzadas e ramos laterais de café e algodão."
           },
           {
             number: "Artigo 43.º",
-            title: "Lema Oficial",
-            content: "O lema do Serviço Penitenciário de Angola é estabelecido por lei como sendo: 'Humanização, Reabilitação e Reintegração', reflectindo a tripla missão fundamental do sistema prisional nacional."
+            title: "Lema Oficial do S.P.A.",
+            content: "O lema oficial do Serviço Penitenciário de Angola é: 'Humanização, Reabilitação e Reintegração'."
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const DECRETO_272_16_CHAPTERS: LawChapter[] = [
+  {
+    title: "TÍTULO I - NORMAS DE EXECUÇÃO PERMANENTE DO SISTEMA PENITENCIÁRIO (DISPOSIÇÕES GERAIS)",
+    sections: [
+      {
+        title: "CAPÍTULO I - Disposições Gerais, Internamento e Compartimentação",
+        articles: [
+          {
+            number: "Artigo 1.º e 2.º",
+            title: "Objecto e Âmbito das N.E.P.",
+            content: "Estabelece as bases gerais de execução das medidas operativas e procedimentos do Sistema Penitenciário em Angola em 5 áreas de actuação: Segurança Penitenciária, Controlo Penal, Assistência/Reabilitação/Reinserção, Produção Penitenciária e Ordem Interna."
+          },
+          {
+            number: "Artigo 4.º e 5.º",
+            title: "Internamento e Proibição Absoluta de Menores de 16 Anos",
+            content: "O internamento exige Mandado de Condução assinado por Magistrado. É expressamente PROIBIDO o internamento de menores de 16 anos. Havendo tentativa, o Oficial Superior de Assistência deve fotocopiar o mandado, devolver o menor ao órgão condutor e notificar imediatamente o Ministério Público e o Director do Estabelecimento."
+          },
+          {
+            number: "Artigo 6.º e 14.º",
+            title: "Formalidades de Entrada, Exame Médico em 72h e Boletim Biográfico",
+            content: "Registo obrigatório no Livro de Registo e SISPA, preenchimento do Boletim Biográfico com dados antropométricos e dactiloscópicos, e submissão obrigatória do recluso a exame médico no prazo máximo de 72 horas para diagnóstico de doenças/anomalias mentais."
+          },
+          {
+            number: "Artigo 17.º",
+            title: "Critério Geral de Compartimentação (Família Delitiva)",
+            content: "O internamento obedece obrigatoriamente ao critério da Família Delitiva: Bloco A (Crimes contra as Pessoas), Bloco B (Crimes contra a Propriedade), Bloco C (Crimes contra a Ordem e Tranquilidade Pública), mantendo-se a separação por sexo, faixa etária, situação legal e regime."
+          },
+          {
+            number: "Artigo 19.º e 21.º",
+            title: "Pavilhão de Recepção (Observação 30 Dias) e Plano Individual (PIR)",
+            content: "O recém-internado permanece 30 dias em observação no Pavilhão de Recepção para elaboração do Plano Individual de Reabilitação (PIR) para condenados ou de Acompanhamento para detidos, assinado pelo recluso."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "TÍTULO II - NORMAS DE EXECUÇÃO PERMANENTE DE SEGURANÇA PENITENCIÁRIA",
+    sections: [
+      {
+        title: "CAPÍTULO I a V - Serviço de Guarda, Escoltas, Cordão de Segurança e Armamento",
+        articles: [
+          {
+            number: "Artigo 27.º e 40.º",
+            title: "Estrutura da Guarda Prisional e Rácio do Efectivo",
+            content: "Guarda Prisional chefiada por Oficial Superior de Segurança. Rácio obrigatório: Condução (2 agentes para 1 recluso); Escolta interna/produção (1 agente para 2 reclusos); Posto de guarita (3 agentes por posto)."
+          },
+          {
+            number: "Artigo 42.º",
+            title: "Formaturas e Parada da Guarda (Horário Rígido 07h00)",
+            content: "Formatura diária de Parada da Guarda às 07h00. Faltas ou atrasos superiores a 15 minutos são obrigatoriamente sancionados com prestação de serviço extraordinário por mais 48 horas continuadas."
+          },
+          {
+            number: "Artigo 46.º e 48.º",
+            title: "Escolta Celular e Transferências Inter-Provinciais",
+            content: "Transporte em viatura celular, algemamento preventivo do recluso antes de iniciar a marcha e elaboração de Plano Operativo de Segurança aprovado pelo Director Provincial e visado em 24h."
+          },
+          {
+            number: "Artigo 53.º e 55.º",
+            title: "Cordão de Segurança Perimétrico e Guaritas de 7 Metros",
+            content: "Cercas perimétricas (1.ª de 5m betão com pescoço de cavalo, 2.ª de 5m em malha de aço a 6m, 3.ª preventiva de 1.5m com zona neutra de 10m com bandeirinhas vermelhas). Guaritas de 7m com reflectores giratórios, sensores e comunicações."
+          },
+          {
+            number: "Artigo 65.º e 67.º",
+            title: "Guiché de Atendimento, Revista e Passes de Acesso",
+            content: "Atendimento por equipa de Segurança, Ordem Interna, Reabilitação e Finanças. Acesso condicionado à exibição de Passe Permanente ou Ordinário no peito e registo no livro de viaturas."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "TÍTULO III - NORMAS DE EXECUÇÃO PERMANENTE DE ORDEM INTERNA",
+    sections: [
+      {
+        title: "CAPÍTULO I a XI - Contagens, Revistas, Bens do Recluso, Cela Disciplinar e Barbearia",
+        articles: [
+          {
+            number: "Artigo 77.º e 80.º",
+            title: "Ordem Interna e Meios Coercivos sem Arma de Fogo",
+            content: "É expressamente proibido o uso de armas de fogo no interior penal pelos agentes da Ordem Interna. Uso exclusivo de algemas, gás lacrimogéneo, rádio, apito, cacetete e megafone."
+          },
+          {
+            number: "Artigo 94.º",
+            title: "Contagem Ordinária Obrigatória (05h00, 08h00 e 18h00)",
+            content: "O controlo físico e numérico da população penal é executado diariamente e sem excepção às 05h00, 08h00 e 18h00, com paralisação das actividades e confronto com a Ficha Modelo 12."
+          },
+          {
+            number: "Artigo 102.º e 110.º",
+            title: "Procedimentos de Revistas e Inspecção de Saco/Volume",
+            content: "Buscas e revistas programadas ou de surpresa. Todos os alimentos de visitantes devem ser esquartejados e transportados em recipientes plásticos transparentes. PROIBIÇÃO ABSOLUTA de enlatados e recipientes de vidro."
+          },
+          {
+            number: "Artigo 124.º e 137.º",
+            title: "Fardamento Castanho, Barbearia (Corte Max 3mm) e Cantina",
+            content: "Reclusos detidos usam fardamento regulamentar de cor castanha. Corte de cabelo máximo de 3 mm. Abertura de Cantina com meio de pagamento por Senha Penitenciária (depósito familiar máximo de 10.000,00 Kz/mês)."
+          },
+          {
+            number: "Artigo 135.º",
+            title: "Sanção em Cela Disciplinar (Horário de Colchões)",
+            content: "Durante a execução de sanção disciplinar, o colchão, mantas e lençóis são obrigatoriamente retirados às 06h00 e devolvidos às 18h00 diariamente pelo Especialista da Ordem Interna."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "TÍTULO IV - PLANOS OPERATIVOS DE SEGURANÇA E CONTINGÊNCIA",
+    sections: [
+      {
+        title: "CAPÍTULO I - Gestão de Crises, Evasões, Motins, Incêndios e Simulacros",
+        articles: [
+          {
+            number: "Artigo 144.º e 148.º",
+            title: "Planos Operativos e Simulacros Semestrais",
+            content: "Elaboração de planos operativos aprovados pelo Delegado do MININT. Realização obrigatória de simulacros semestrais de execução operativa com envio de relatório conclusivo à Direcção Geral."
+          },
+          {
+            number: "Artigo 153.º",
+            title: "Plano Operativo Contra Greve de Fome",
+            content: "Isolamento do local, constituição de equipa multidisciplinar de persuasão, revista à cela para remoção de disfarces (mantendo água) e acompanhamento médico e psicológico contínuo."
+          },
+          {
+            number: "Artigo 155.º",
+            title: "Plano Operativo Contra Fuga e Evasão",
+            content: "Acionamento de alarme de alerta total, mobilização de forças em formatura, cerco perimétrico com técnica canina, comunicação às autoridades policiais e circulação de fotos dos evadidos."
+          },
+          {
+            number: "Artigo 159.º",
+            title: "Plano Operativo Contra Motim ou Rixa",
+            content: "Isolamento do bloco amotinado, equipa de negociação, evacuação dos reclusos não amotinados, intervenção do dispositivo anti-distúrbios (gás lacrimogéneo, jactos de água). Proibição absoluta de maus-tratos a reclusos rendidos."
+          },
+          {
+            number: "Artigo 161.º e 162.º",
+            title: "Transferências (Max 60 km/h) e Plano de Localização de Efectivo",
+            content: "Velocidade máxima da caravana celular fixada em 60 km/h. Plano de Localização e Aviso de pessoal em 3 Variantes codificadas (Variante 1: Localizado, Variante 2: Apresentação, Variante 3: Ocorrência)."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "TÍTULO V - NORMAS DE EXECUÇÃO PERMANENTE DE CONTROLO PENAL",
+    sections: [
+      {
+        title: "CAPÍTULO I a IV - Processo do Recluso, Ficheiros, Solturas e Prisão Preventiva",
+        articles: [
+          {
+            number: "Artigo 167.º e 169.º",
+            title: "Deveres do Controlador Penal e Gestão dos 7 Ficheiros",
+            content: "Cada Controlador gerencia de 60 a 100 processos individuais. Controlo obrigatório dos 7 Ficheiros: Existência, Saída, Evasão, Falecido, Estrangeiro, Calendário (1/4, 1/2, conversão e extinção) e Prisão Preventiva."
+          },
+          {
+            number: "Artigo 171.º e 173.º",
+            title: "Procedimentos de Soltura Judicial e Registo de Óbito",
+            content: "Soltura sob Mandado Judicial, confrontação biométrica e certidão negativa de pendências. Em caso de morte: certidão de óbito, autópsia com o SIC e identificação dactiloscópica do cadáver."
+          },
+          {
+            number: "Artigo 180.º",
+            title: "Registo Fotográfico e Biométrico em 3 Posições",
+            content: "Fotografia biométrica em 3 posições (Frontal, Perfil e Sinais Particulares/Tatuagens) conservadas no SISPA e atualizadas anualmente."
+          },
+          {
+            number: "Artigo 181.º",
+            title: "Mapeamento e Alerta do Excesso de Prisão Preventiva",
+            content: "Controlo do tempo de permanência em faixas de 0-30 dias até 10 anos. Elaboração e envio mensal obrigatório do mapa e ofício de excesso de prisão preventiva aos Magistrados com proposta de soltura ou julgamento."
+          },
+          {
+            number: "Artigo 186.º",
+            title: "Matrícula SISPA e Numeração Quinquenal",
+            content: "Matrícula atribuída no internamento, gerida centralmente e renovada a cada 5 anos."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "TÍTULO VI - ASSISTÊNCIA, REABILITAÇÃO E ÓRGÃOS COLEGIAIS",
+    sections: [
+      {
+        title: "CAPÍTULO I a XI - Reabilitadores, Competição 100pts, Conselhos e Benefícios",
+        articles: [
+          {
+            number: "Artigo 193.º e 195.º",
+            title: "Deveres do Reabilitador, Entrevistas e Sistema de Brigadas",
+            content: "Cada Reabilitador atende 60 a 100 reclusos. Entrevistas às 2.ª e 4.ª feiras, Inquéritos Sociais às 3.ª e 5.ª feiras. Organização da população em Brigadas por família delitiva."
+          },
+          {
+            number: "Artigo 202.º e 207.º",
+            title: "Conselho de Educadores e Comissão de Reclusos (8 Promotores)",
+            content: "Equipa multidisciplinar. Comissão de Reclusos da Brigada com 8 promotores (Ensino, Saúde, Cultura/Desporto, Religião, Disciplina/Ordem) para apoio reabilitativo."
+          },
+          {
+            number: "Artigo 224.º e 246.º",
+            title: "Trabalho Remunerado, Senha Penitenciária e Biblioteca (Max 3 Livros)",
+            content: "Salários depositados em conta bancária do recluso. Uso de Senha Penitenciária na cantina do EP. Leitura na cela limitada ao máximo de 3 livros/revistas em simultâneo."
+          },
+          {
+            number: "Artigo 272.º, 278.º e 284.º",
+            title: "Órgãos Colegiais: Conselho de Família, Profiláctico e Técnico",
+            content: "Conselho de Família (reuniões bimestrais com parentes), Conselho Profiláctico (para reclusos com inadaptação/tendência indisciplinar) e Conselho Técnico (pareceres de benefícios)."
+          },
+          {
+            number: "Artigo 285.º e 287.º",
+            title: "Tabela de Competição Trimestral (Fórmula 100 Pontos)",
+            content: "Pontuação máxima de 100 pontos: 20 Disciplina/Conduta + 20 Trabalho + 20 Escolarização + 20 Formação Profissional + 10 Desporto + 10 Cultura. Classificações: Regular (90-95), Bom (96-100), Excelente (100 pts x 3 trimestres consecutivos = Estímulos/Licença Saída)."
           }
         ]
       }
@@ -351,7 +631,7 @@ const STAFF_SPOTS_DATA: Array<{ role: string; spots: number; category: string }>
   { role: "Director do I.C.P", spots: 1, category: "Chefia" },
   { role: "Chefes de Departamentos", spots: 64, category: "Chefia" },
   { role: "Sub Directores da I.C.P", spots: 2, category: "Chefia" },
-  { role: "Directores Provinciais", spots: 18, category: "Chefia" },
+  { role: "Directores Provinciais", spots: 21, category: "Chefia" },
   { role: "Directores de Complexo Penitenciário", spots: 6, category: "Chefia" },
   { role: "Directores de E.P. Especiais", spots: 8, category: "Chefia" },
   { role: "Directores de E.P. Regionais", spots: 6, category: "Chefia" },
@@ -443,6 +723,54 @@ const TRACEABILITY_MAPPINGS: TraceabilityLink[] = [
     ],
     complianceStatus: "EM_REVISAO",
     operationalAuditRule: "Garante que nenhuma escolta militarizada ocorra sem uma Ordem de Transferência homologada em Diário Prisional."
+  },
+  {
+    featureId: "nep_admissions",
+    featureName: "Protocolo NEP de Admissão, Observação (30d) e Exame Médico (72h)",
+    systemComponent: "src/App.tsx & HealthModule.tsx",
+    legalBasis: "Decreto Executivo n.º 272/16 - Artigos 5.º, 6.º, 14.º e 19.º (N.E.P.)",
+    mandelaRulesBasis: "Regras Mínimas de Nelson Mandela 7, 24 e 30",
+    competentOrgan: "Oficial Superior de Assistência, Controlador Dia e Serviço de Saúde",
+    mandatoryFlow: [
+      "Validação de mandado e verificação estrita de idade (bloqueio total < 16 anos)",
+      "Inspecção médica e abertura de História Clínica obrigatória em 72 horas",
+      "Período de observação obrigatório de 30 dias no Pavilhão de Recepção para elaboração do PIR",
+      "Classificação e separação por Família Delitiva (Blocos A, B, C) e fardamento castanho para detidos"
+    ],
+    complianceStatus: "CONFORME",
+    operationalAuditRule: "Impossibilita o encerramento do processo de ingresso sem o boletim biográfico, biometria em 3 posições e registo de inspecção médica."
+  },
+  {
+    featureId: "nep_contagens",
+    featureName: "Sistema de Contagem Física Ordinária Trina (05h, 08h e 18h)",
+    systemComponent: "src/components/NationalCommandCenter.tsx",
+    legalBasis: "Decreto Executivo n.º 272/16 - Artigo 94.º (Controlo Físico da População Penal)",
+    mandelaRulesBasis: "Regra Mínima Nelson Mandela 7 (Conferência Física e Integridade Prisional)",
+    competentOrgan: "Chefia de Ordem Interna, Oficial de Dia e Comandante de Pelotão",
+    mandatoryFlow: [
+      "Paralisação total das actividades operacionais e recolha de reclusos aos dormitórios/locais",
+      "Execução de contagem física às 05:00, 08:00 e 18:00 com verificação presencial de rostos",
+      "Confronto automático com a Ficha Modelo 12 e livros de ocorrência das casernas",
+      "Emissão de relatório e lavratura de acta caso haja divergência numérica ou física"
+    ],
+    complianceStatus: "CONFORME",
+    operationalAuditRule: "Gera alerta crítico nacional no Centro de Comando em caso de não confirmação das 3 contagens ordinárias diárias."
+  },
+  {
+    featureId: "nep_competicao",
+    featureName: "Motor de Competição Trimestral (Fórmula 100 Pontos)",
+    systemComponent: "src/components/ServicesGatewayPanel.tsx",
+    legalBasis: "Decreto Executivo n.º 272/16 - Artigos 285.º a 293.º (Tratamento Reabilitativo)",
+    mandelaRulesBasis: "Regras Mínimas de Nelson Mandela 91 a 108 (Tratamento e Reabilitação)",
+    competentOrgan: "Conselho de Educadores, Conselho Técnico e Comissão de Análise e Classificação",
+    mandatoryFlow: [
+      "Avaliação trimestral ponderada em 6 eixos (20 Disciplina + 20 Trabalho + 20 Escola + 20 Formação + 10 Desporto + 10 Cultura)",
+      "Atribuição de patamares: Regular (90-95), Bom (96-100), Excelente (100 pts x 3 trimestres)",
+      "Parecer vinculativo do Conselho Técnico para Licença de Saída Prolongada e Liberdade Condicional",
+      "Emissão de certificados e prémios para Brigadas Destacadas"
+    ],
+    complianceStatus: "CONFORME",
+    operationalAuditRule: "Verifica se os benefícios prisionais concedidos possuem pontuação formal e atas do Conselho de Educadores anexadas."
   }
 ];
 
@@ -697,6 +1025,29 @@ const COVERAGE_DOCS_DATA: CoverageDoc[] = [
       { number: "Regra 37", title: "Contactos Familiares e Correspondência", status: "PARCIAL", component: "src/App.tsx (Visitors)", description: "Registro de visitas ativas." },
       { number: "Regra 47", title: "Uso de Força e Meios de Coação", status: "IMPLEMENTADO", component: "src/components/NationalCommandCenter.tsx", description: "Registro eletrónico auditável de incidentes táticos e uso progressivo de força." }
     ]
+  },
+  {
+    id: "decreto-272-16",
+    name: "Normas de Execução Permanente do Sistema Penitenciário (Decreto Executivo n.º 272/16)",
+    acronym: "N.E.P. (Decreto 272/16)",
+    articlesCount: "316 Artigos",
+    implemented: 92,
+    partial: 6,
+    nonImplemented: 2,
+    color: "amber",
+    articlesList: [
+      { number: "Artigo 5.º", title: "Proibição Absoluta de Menores de 16 Anos", status: "IMPLEMENTADO", component: "src/App.tsx (Admissions)", description: "Bloqueio estrito de admissão e notificação imediata do MP para menores de 16 anos." },
+      { number: "Artigo 6.º e 14.º", title: "Inspecção Médica Obrigatória em 72h", status: "IMPLEMENTADO", component: "src/components/HealthModule.tsx", description: "Exame sanitário completo e abertura de História Clínica nas primeiras 72 horas." },
+      { number: "Artigo 17.º", title: "Compartimentação por Família Delitiva", status: "IMPLEMENTADO", component: "src/components/RiskMapDashboard.tsx", description: "Classificação em Blocos A (Pessoas), B (Propriedade) e C (Ordem Pública)." },
+      { number: "Artigo 19.º", title: "Pavilhão de Recepção e Observação (30 Dias)", status: "IMPLEMENTADO", component: "src/App.tsx (Admissions)", description: "Período obrigatório de observação para elaboração do Plano Individual de Reabilitação (PIR)." },
+      { number: "Artigo 42.º", title: "Parada da Guarda (07h00 e Sanção 48h)", status: "IMPLEMENTADO", component: "src/components/NationalCommandCenter.tsx", description: "Controlo de pontualidade com sanção de 48h extra por atraso superior a 15 min." },
+      { number: "Artigo 94.º", title: "Contagens Físicas Ordinárias (05h, 08h e 18h)", status: "IMPLEMENTADO", component: "src/components/NationalCommandCenter.tsx", description: "Conferência física diária obrigatória nos 3 turnos regulamentares." },
+      { number: "Artigo 102.º-110.º", title: "Revista a Sacos e Proibição de Enlatados/Vidros", status: "IMPLEMENTADO", component: "src/App.tsx (Guiché de Atendimento)", description: "Revista rigorosa, esquartejamento de alimentos e recipientes plásticos transparentes." },
+      { number: "Artigo 135.º", title: "Regime de Colchões na Cela Disciplinar", status: "IMPLEMENTADO", component: "src/components/NationalCommandCenter.tsx", description: "Recolha obrigatória de colchões às 06h00 e devolução às 18h00 na cela disciplinar." },
+      { number: "Artigo 181.º", title: "Alerta de Excesso de Prisão Preventiva", status: "IMPLEMENTADO", component: "src/App.tsx (Controlo Penal)", description: "Mapeamento de 0-30d a 10 anos e notificação mensal aos Juízes/Procuradores." },
+      { number: "Artigo 224.º", title: "Cantina e Senha Penitenciária (Max Kz 10.000)", status: "IMPLEMENTADO", component: "src/components/ServicesGatewayPanel.tsx", description: "Meio de pagamento exclusivo por Senha Penitenciária com tecto mensal." },
+      { number: "Artigo 285.º", title: "Tabela de Competição Trimestral (100 Pontos)", status: "IMPLEMENTADO", component: "src/components/ServicesGatewayPanel.tsx", description: "Fórmula ponderada em 6 eixos para estímulos, saídas prolongadas e liberdade condicional." }
+    ]
   }
 ];
 
@@ -843,8 +1194,24 @@ function generateCnelLocalFallback(text: string): any {
 
 // --- MAIN COMPONENT IMPLEMENTATION ---
 
-export function LegislationModule() {
-  const [activeSubTab, setActiveSubTab] = useState<"doctrine" | "decreto" | "trace" | "pessoal" | "evolution" | "simulator" | "penal" | "assistant">("doctrine");
+export interface LegislationModuleProps {
+  inmates?: any[];
+  pendingMovements?: any[];
+  movementLogs?: any[];
+  prisons?: any[];
+  triggerToast?: (title: string, message: string, type: "success" | "warning" | "info" | "error") => void;
+  currentOperator?: any;
+}
+
+export function LegislationModule({
+  inmates = [],
+  pendingMovements = [],
+  movementLogs = [],
+  prisons = [],
+  triggerToast,
+  currentOperator
+}: LegislationModuleProps = {}) {
+  const [activeSubTab, setActiveSubTab] = useState<"doctrine" | "decreto" | "trace" | "pessoal" | "evolution" | "simulator" | "penal" | "assistant" | "nep_audit">("nep_audit");
   
   // Real-time compliance events evaluated by the Digital Twin
   const [twinEvaluations, setTwinEvaluations] = useState<any[]>([]);
@@ -962,8 +1329,9 @@ export function LegislationModule() {
   };
 
   // Chapter State
+  const [selectedDiploma, setSelectedDiploma] = useState<"184/17" | "272/16">("272/16");
   const [selectedChapterIdx, setSelectedChapterIdx] = useState<number>(0);
-  const [selectedArticle, setSelectedArticle] = useState<LawArticle | null>(DECRETO_184_17_CHAPTERS[0].sections?.[0].articles[0] || null);
+  const [selectedArticle, setSelectedArticle] = useState<LawArticle | null>(DECRETO_272_16_CHAPTERS[0].sections?.[0].articles[0] || null);
 
   // Doctrine State
   const [selectedDoctrineId, setSelectedDoctrineId] = useState<string>("cra");
@@ -1010,7 +1378,31 @@ export function LegislationModule() {
       let reply = "";
       let source = "Decreto Presidencial n.º 184/17";
 
-      if (lowerQuery.includes("atribuições") || lowerQuery.includes("atribuicoes") || lowerQuery.includes("atribuir")) {
+      if (lowerQuery.includes("272") || lowerQuery.includes("nep") || lowerQuery.includes("normas de execução") || lowerQuery.includes("execucao permanente")) {
+        reply = "O Decreto Executivo n.º 272/16 de 21 de Junho estabelece as Normas de Execução Permanente (N.E.P.) do Sistema Penitenciário. Regulamenta os procedimentos minuciosos de Segurança, Ordem Interna, Controlo Penal, Assistência/Reabilitação e Produção Penitenciária em 316 Artigos organizados por 7 Títulos.";
+        source = "Decreto Executivo n.º 272/16 (N.E.P.)";
+      } else if (lowerQuery.includes("menor") || lowerQuery.includes("16 anos") || lowerQuery.includes("criança")) {
+        reply = "O Artigo 5.º do Decreto Executivo n.º 272/16 estabelece a PROIBIÇÃO ABSOLUTA de internamento de menores de 16 anos. Se houver tentativa de entrega, o Oficial Superior de Assistência deve fotocopiar o mandado, devolver o menor ao órgão condutor e notificar imediatamente o Ministério Público e o Director do EP.";
+        source = "Decreto Executivo 272/16, Artigo 5.º";
+      } else if (lowerQuery.includes("médico") || lowerQuery.includes("medico") || lowerQuery.includes("72h") || lowerQuery.includes("72 horas")) {
+        reply = "Conforme os Artigos 6.º e 14.º do Decreto Executivo 272/16, todo o recluso recém-internado deve ser submetido obrigatoriamente a exame médico e diagnóstico de saúde mental no prazo máximo improrrogável de 72 horas, abrindo a respetiva História Clínica.";
+        source = "Decreto Executivo 272/16, Artigos 6.º e 14.º";
+      } else if (lowerQuery.includes("contagem") || lowerQuery.includes("contagens") || lowerQuery.includes("05h") || lowerQuery.includes("18h")) {
+        reply = "O Artigo 94.º do Decreto Executivo 272/16 impõe a realização obrigatória de 3 contagens físicas ordinárias diárias: às 05:00, 08:00 e 18:00 horas, com paralisação total das actividades e conferência presencial de rostos contra a Ficha Modelo 12.";
+        source = "Decreto Executivo 272/16, Artigo 94.º";
+      } else if (lowerQuery.includes("parada") || lowerQuery.includes("atraso") || lowerQuery.includes("formatura")) {
+        reply = "De acordo com o Artigo 42.º do Decreto Executivo 272/16, a Parada da Guarda realiza-se diariamente às 07:00h. Qualquer falta ou atraso superior a 15 minutos é sancionado com a obrigação de prestar serviço extraordinário continuado por mais 48 horas.";
+        source = "Decreto Executivo 272/16, Artigo 42.º";
+      } else if (lowerQuery.includes("família delitiva") || lowerQuery.includes("familia delitiva") || lowerQuery.includes("bloco a") || lowerQuery.includes("bloco b")) {
+        reply = "O Artigo 17.º do Decreto Executivo 272/16 determina a compartimentação estrita por Família Delitiva: Bloco A (Crimes contra as Pessoas), Bloco B (Crimes contra a Propriedade) e Bloco C (Crimes contra a Ordem Pública).";
+        source = "Decreto Executivo 272/16, Artigo 17.º";
+      } else if (lowerQuery.includes("competição") || lowerQuery.includes("competicao") || lowerQuery.includes("100 pontos") || lowerQuery.includes("pontuação")) {
+        reply = "Os Artigos 285.º a 293.º do Decreto Executivo 272/16 instituem a Tabela de Competição Trimestral (Fórmula 100 Pontos): 20 pts Disciplina, 20 pts Trabalho, 20 pts Escola, 20 pts Formação Profissional, 10 pts Desporto e 10 pts Cultura. Obter 100 pts em 3 trimestres consecutivos garante licença de saída prolongada e prioridade na Liberdade Condicional.";
+        source = "Decreto Executivo 272/16, Artigos 285.º-287.º";
+      } else if (lowerQuery.includes("cantina") || lowerQuery.includes("senha") || lowerQuery.includes("10.000") || lowerQuery.includes("10000")) {
+        reply = "O Artigo 224.º do Decreto Executivo 272/16 estabelece que as compras na cantina penitenciária são pagas exclusivamente via Senha Penitenciária (depósito máximo familiar de 10.000,00 Kz/mês), sendo expressamente proibida a circulação de dinheiro vivo dentro do estabelecimento.";
+        source = "Decreto Executivo 272/16, Artigo 224.º";
+      } else if (lowerQuery.includes("atribuições") || lowerQuery.includes("atribuicoes") || lowerQuery.includes("atribuir")) {
         reply = "Segundo o Artigo 3.º do Regulamento Orgânico, as atribuições do S.P.A. englobam: aplicação da CRA, execução de penas, assistência médica, reintegração social através de protocolos industriais e formação do efectivo. Essas diretivas alimentam diretamente os fluxos de trabalho do sistema.";
         source = "Artigo 3.º (Atribuições)";
       } else if (lowerQuery.includes("mandela") || lowerQuery.includes("nelson") || lowerQuery.includes("regras")) {
@@ -1168,6 +1560,17 @@ export function LegislationModule() {
           </button>
           <button
             type="button"
+            onClick={() => { setActiveSubTab("nep_audit"); }}
+            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+              activeSubTab === "nep_audit" 
+                ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold shadow-sm" 
+                : "text-slate-400 hover:text-slate-200 border border-transparent"
+            }`}
+          >
+            <ShieldCheck className="h-3 w-3 text-amber-400 animate-pulse" /> Auditoria N.E.P. (Dec. 272/16)
+          </button>
+          <button
+            type="button"
             onClick={() => { setActiveSubTab("assistant"); }}
             className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "assistant" 
@@ -1302,67 +1705,121 @@ export function LegislationModule() {
           </div>
         )}
 
-        {/* SUBTAB 2: DECRETO PRESIDENCIAL EXPLORER */}
-        {activeSubTab === "decreto" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Chapters list */}
-            <div className="lg:col-span-4 flex flex-col gap-3">
-              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-semibold block px-1">
-                Capítulos do Decreto n.º 184/17:
-              </span>
-              <div className="flex flex-col gap-1.5 bg-slate-950 p-3 rounded-xl border border-slate-850">
-                {DECRETO_184_17_CHAPTERS.map((ch, idx) => (
+        {/* SUBTAB 2: DECRETO & NEP EXPLORER */}
+        {activeSubTab === "decreto" && (() => {
+          const currentChapters = selectedDiploma === "272/16" ? DECRETO_272_16_CHAPTERS : DECRETO_184_17_CHAPTERS;
+          const safeChapterIdx = Math.min(selectedChapterIdx, currentChapters.length - 1);
+          const currentChapter = currentChapters[safeChapterIdx] || currentChapters[0];
+
+          return (
+            <div className="flex flex-col gap-6">
+              {/* Diploma Selection Tabs */}
+              <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-850">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-slate-300 uppercase mr-2">Diploma em Análise:</span>
                   <button
-                    key={idx}
                     type="button"
                     onClick={() => {
-                      setSelectedChapterIdx(idx);
-                      const firstArt = ch.sections?.[0]?.articles[0] || ch.articles?.[0] || null;
+                      setSelectedDiploma("272/16");
+                      setSelectedChapterIdx(0);
+                      const firstArt = DECRETO_272_16_CHAPTERS[0].sections?.[0]?.articles[0] || null;
                       setSelectedArticle(firstArt);
                     }}
-                    className={`w-full text-left p-3 rounded-lg text-xxs font-mono flex items-center justify-between transition cursor-pointer ${
-                      selectedChapterIdx === idx
-                        ? "bg-slate-900 border border-indigo-500/30 text-indigo-400 font-bold"
-                        : "border border-transparent hover:bg-slate-900/60 text-slate-300"
+                    className={`px-3 py-1.5 font-mono text-xs rounded-lg transition cursor-pointer flex items-center gap-2 font-bold ${
+                      selectedDiploma === "272/16"
+                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm"
+                        : "bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800"
                     }`}
                   >
-                    <span className="truncate pr-2">{ch.title}</span>
-                    <ChevronRight className={`h-3.5 w-3.5 shrink-0 transition ${selectedChapterIdx === idx ? "transform rotate-90" : ""}`} />
+                    <ShieldAlert className="h-3.5 w-3.5 text-amber-400" /> Decreto Executivo n.º 272/16 (N.E.P.)
                   </button>
-                ))}
-              </div>
-
-              {/* Informative Note */}
-              <div className="bg-slate-950/45 p-4 rounded-xl border border-slate-850 flex flex-col gap-2.5 font-sans">
-                <div className="flex items-start gap-2">
-                  <Info className="h-4 w-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span className="text-xxs text-slate-300 font-semibold">Consolidação de Gabinete</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDiploma("184/17");
+                      setSelectedChapterIdx(0);
+                      const firstArt = DECRETO_184_17_CHAPTERS[0].sections?.[0]?.articles[0] || null;
+                      setSelectedArticle(firstArt);
+                    }}
+                    className={`px-3 py-1.5 font-mono text-xs rounded-lg transition cursor-pointer flex items-center gap-2 font-bold ${
+                      selectedDiploma === "184/17"
+                        ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 shadow-sm"
+                        : "bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800"
+                    }`}
+                  >
+                    <FileText className="h-3.5 w-3.5 text-indigo-400" /> Decreto Presidencial n.º 184/17 (Estatuto Orgânico)
+                  </button>
                 </div>
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  O Decreto Presidencial n.º 184/17 revoga o estatuto anterior de 2014, re-estruturando o Serviço Penitenciário para garantir autonomia orçamental e administrativa ao órgão carcerário.
-                </p>
-                <div className="pt-2 border-t border-slate-900 flex justify-between items-center text-[9px] font-mono text-slate-500">
-                  <span>José Eduardo dos Santos</span>
-                  <span>31 Julho 2017</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Articles view of selected Chapter */}
-            <div className="lg:col-span-8 bg-slate-950 border border-slate-850 rounded-xl p-5 flex flex-col gap-5">
-              <div className="border-b border-slate-900 pb-3 flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-100 font-mono uppercase">
-                  {DECRETO_184_17_CHAPTERS[selectedChapterIdx].title}
-                </span>
-                <span className="bg-slate-900 border border-slate-800 text-[10px] text-indigo-400 px-2 py-0.5 font-mono rounded">
-                  Diário da República I Série - N.º 137
+                <span className="text-[10px] font-mono text-slate-500 hidden md:inline-block">
+                  {selectedDiploma === "272/16" ? "Normas de Execução Permanente (316 Artigos)" : "Estatuto Orgânico do S.P.A. (43 Artigos)"}
                 </span>
               </div>
 
-              {/* Browse sections of the chapter */}
-              <div className="flex flex-col gap-4">
-                {DECRETO_184_17_CHAPTERS[selectedChapterIdx].sections?.map((section, sIdx) => (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                {/* Chapters list */}
+                <div className="lg:col-span-4 flex flex-col gap-3">
+                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-semibold block px-1">
+                    {selectedDiploma === "272/16" ? "Títulos do Decreto 272/16 (NEP):" : "Capítulos do Decreto 184/17:"}
+                  </span>
+                  <div className="flex flex-col gap-1.5 bg-slate-950 p-3 rounded-xl border border-slate-850">
+                    {currentChapters.map((ch, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setSelectedChapterIdx(idx);
+                          const firstArt = ch.sections?.[0]?.articles[0] || ch.articles?.[0] || null;
+                          setSelectedArticle(firstArt);
+                        }}
+                        className={`w-full text-left p-3 rounded-lg text-xxs font-mono flex items-center justify-between transition cursor-pointer ${
+                          safeChapterIdx === idx
+                            ? selectedDiploma === "272/16"
+                              ? "bg-slate-900 border border-amber-500/40 text-amber-400 font-bold"
+                              : "bg-slate-900 border border-indigo-500/40 text-indigo-400 font-bold"
+                            : "border border-transparent hover:bg-slate-900/60 text-slate-300"
+                        }`}
+                      >
+                        <span className="truncate pr-2">{ch.title}</span>
+                        <ChevronRight className={`h-3.5 w-3.5 shrink-0 transition ${safeChapterIdx === idx ? "transform rotate-90" : ""}`} />
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Informative Note */}
+                  <div className="bg-slate-950/45 p-4 rounded-xl border border-slate-850 flex flex-col gap-2.5 font-sans">
+                    <div className="flex items-start gap-2">
+                      <Info className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+                      <span className="text-xxs text-slate-300 font-semibold">
+                        {selectedDiploma === "272/16" ? "Fundamento Legal Permanente" : "Consolidação de Gabinete"}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      {selectedDiploma === "272/16"
+                        ? "O Decreto Executivo n.º 272/16 de 21 de Junho estabelece o regulamento operativo interno vinculativo (N.E.P.) para os 5 pilares: Segurança, Controlo Penal, Ordem Interna, Reabilitação e Produção."
+                        : "O Decreto Presidencial n.º 184/17 revoga o estatuto anterior de 2014, re-estruturando o Serviço Penitenciário para garantir autonomia orçamental e administrativa ao órgão carcerário."}
+                    </p>
+                    <div className="pt-2 border-t border-slate-900 flex justify-between items-center text-[9px] font-mono text-slate-500">
+                      <span>{selectedDiploma === "272/16" ? "Ministério do Interior" : "José Eduardo dos Santos"}</span>
+                      <span>{selectedDiploma === "272/16" ? "21 Junho 2016" : "31 Julho 2017"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Articles view of selected Chapter */}
+                <div className="lg:col-span-8 bg-slate-950 border border-slate-850 rounded-xl p-5 flex flex-col gap-5">
+                  <div className="border-b border-slate-900 pb-3 flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-100 font-mono uppercase">
+                      {currentChapter.title}
+                    </span>
+                    <span className="bg-slate-900 border border-slate-800 text-[10px] text-amber-400 px-2 py-0.5 font-mono rounded">
+                      {selectedDiploma === "272/16" ? "Diário da República I Série - Decreto Executivo 272/16" : "Diário da República I Série - N.º 137"}
+                    </span>
+                  </div>
+
+                  {/* Browse sections of the chapter */}
+                  <div className="flex flex-col gap-4">
+                    {currentChapter.sections?.map((section, sIdx) => (
                   <div key={sIdx} className="flex flex-col gap-3">
                     <span className="text-xxs font-mono text-indigo-400 font-bold uppercase tracking-wider bg-slate-900/60 px-2.5 py-1 rounded inline-block w-fit">
                       {section.title}
@@ -1442,7 +1899,9 @@ export function LegislationModule() {
 
             </div>
           </div>
-        )}
+          </div>
+          );
+        })()}
 
         {/* SUBTAB 3: GÊMEO DIGITAL E COBERTURA LEGISLATIVA */}
         {activeSubTab === "trace" && (
@@ -3135,6 +3594,18 @@ export function LegislationModule() {
               </button>
             </form>
           </div>
+        )}
+
+        {/* SUBTAB 9: AUDITORIA DE CONFORMIDADE LEGAL N.E.P. (DECRETO EXECUTIVO 272/16) */}
+        {activeSubTab === "nep_audit" && (
+          <NEPComplianceAuditor
+            inmates={inmates}
+            pendingMovements={pendingMovements}
+            movementLogs={movementLogs}
+            prisons={prisons}
+            triggerToast={triggerToast}
+            currentOperator={currentOperator}
+          />
         )}
 
       </div>

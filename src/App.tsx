@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Database,
   Shield,
+  FolderTree,
   Scale,
   Users,
   FileText,
@@ -171,6 +172,7 @@ import {
   Table
 } from "./data/schemaData";
 import { exportInmateListToPDF, exportInmateFichaToPDF, exportCriticalBlocksToPDF, exportIncidentHeatmapToPDF, exportWeeklySecurityReportToPDF } from "./utils/pdfGenerator";
+import { formatEPName } from "./utils/formatUtils";
 import { QRCodeImg } from "./components/QRCodeImg";
 import { Html5Qrcode } from "html5-qrcode";
 import DeusFundadorPanel from "./components/DeusFundadorPanel";
@@ -187,6 +189,9 @@ import IntelligenceCenter from "./components/IntelligenceCenter";
 import { LegislationModule } from "./components/LegislationModule";
 import { MNCPModule } from "./components/MNCPModule";
 import { OperationalInspector } from "./components/OperationalInspector";
+import { NEPComplianceAuditor } from "./components/NEPComplianceAuditor";
+import { OrganizationalHierarchyConfig } from "./components/OrganizationalHierarchyConfig";
+import { NEPVerificationInterceptor, NEPVerificationPayload } from "./components/NEPVerificationInterceptor";
 
 // New Architectural Core Models
 import { 
@@ -1009,8 +1014,61 @@ const HealthDashboard = ({
   );
 };
 
-const ENHANCED_PRISONS_DB = [
+const ENHANCED_PRISONS_DB: any[] = [];
+const _IGNORED_HARDCODED_PRISONS = [
   ...PRISONS_DB,
+  {
+    id: "PRIS-FEM-VIANA",
+    name: "Estabelecimento Penitenciário Feminino de Viana",
+    location: "Luanda, Angola",
+    officialCapacity: 350,
+    operationalCapacity: 400,
+    currentOccupancy: 320,
+    riskBreakdown: { "Baixo": 180, "Médio": 100, "Alto": 30, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-FEM-A", name: "Pavilhão Feminino A - Maternidade e Admissão",
+        blocks: [
+          { id: "BLK-FEM-A1", name: "Bloco Berçário/Admissão", capacity: 150, current: 140, cellCount: 15, riskLevel: "Baixo" },
+          { id: "BLK-FEM-A2", name: "Bloco Regime Comum", capacity: 250, current: 180, cellCount: 20, riskLevel: "Médio" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-FEM-BENGUELA",
+    name: "Estabelecimento Penitenciário Feminino de Benguela",
+    location: "Benguela, Angola",
+    officialCapacity: 250,
+    operationalCapacity: 300,
+    currentOccupancy: 210,
+    riskBreakdown: { "Baixo": 110, "Médio": 70, "Alto": 20, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-FEM-BEN1", name: "Pavilhão Feminino Sul",
+        blocks: [
+          { id: "BLK-FEM-B1", name: "Bloco Geral Feminino", capacity: 300, current: 210, cellCount: 18, riskLevel: "Baixo" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-FEM-HUAMBO",
+    name: "Estabelecimento Penitenciário Feminino do Huambo",
+    location: "Huambo, Angola",
+    officialCapacity: 200,
+    operationalCapacity: 250,
+    currentOccupancy: 180,
+    riskBreakdown: { "Baixo": 90, "Médio": 60, "Alto": 20, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-FEM-HUA1", name: "Pavilhão Feminino Planalto",
+        blocks: [
+          { id: "BLK-FEM-H1", name: "Bloco Geral Feminino", capacity: 250, current: 180, cellCount: 15, riskLevel: "Baixo" }
+        ]
+      }
+    ]
+  },
   {
     id: "PRIS-HUAMBO",
     name: "Cadeia Central do Huambo",
@@ -1399,6 +1457,7 @@ export default function App() {
   const [openTabs, setOpenTabs] = useState<string[]>(["dashboard", "services-gateway"]);
 
   // --- CORE INSTITUTIONAL OS STATES ---
+  const [showNEPAuditor, setShowNEPAuditor] = useState(false);
   const [currentMission, setCurrentMission] = useState<"nova-admissao" | "transferencia-recluso" | "declaracao-motim" | "inspecao-sanitaria" | null>(null);
   const [selectedInmateForInspector, setSelectedInmateForInspector] = useState<any | null>(null);
   const [selectedCellForInspector, setSelectedCellForInspector] = useState<any | null>(null);
@@ -2561,6 +2620,10 @@ export default function App() {
   };
 
   const handleCreateInmateAtCell = () => {
+    if (currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.province === "Centro Operacional") {
+      triggerToast("Acesso Restrito", "O Centro Operacional Central tem competência exclusiva de administração e supervisão da plataforma nacional e não admite reclusos.", "error");
+      return;
+    }
     if (!newInmateForm.firstName.trim() || !newInmateForm.lastName.trim()) return;
     const cellId = selectedHierNode?.id;
     const pavId = selectedHierNode?.parentId;
@@ -5205,6 +5268,14 @@ export default function App() {
   // Admissions system registration
   const handleRegisterInmate = (e: React.FormEvent) => {
     e.preventDefault();
+    if (currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.province === "Centro Operacional") {
+      triggerToast(
+        "Admissão Não Permitida no Centro Operacional",
+        "O Centro Operacional Central (Direção Geral) tem competência exclusiva de Administração, Supervisão e Auditoria da Plataforma Nacional. Admissões de reclusos só podem ser efetuadas no âmbito de Estabelecimentos Penitenciários operacionais.",
+        "error"
+      );
+      return;
+    }
     if (!admitFormValidation.isAllBlockingValid) {
       setShowAdmitValidationErrorsModal(true);
       // Go to the step of the first error to make it easy to fix
@@ -6354,7 +6425,11 @@ export default function App() {
   const [inmateDetailsSubTab, setInmateDetailsSubTab] = useState<"document" | "timeline">("document");
   
   // Settings Tab sub-section
-  const [settingsSubTab, setSettingsSubTab] = useState<"auditing" | "delegations" | "rh" | "cluster">("auditing");
+  const [settingsSubTab, setSettingsSubTab] = useState<"auditing" | "delegations" | "rh" | "cluster" | "hierarchy">("hierarchy");
+  
+  // Interceptador de Conformidade Decreto Executivo n.º 272/16 (Admissões e Movimentações)
+  const [nepInterceptorPayload, setNepInterceptorPayload] = useState<NEPVerificationPayload | null>(null);
+  const [nepInterceptorCallback, setNepInterceptorCallback] = useState<((note?: string) => void) | null>(null);
   
   // Sub-tab de RH: 'roster' (Efetivo), 'unidades' (Unidades Orgânicas), 'equipas' (Gestão de Equipas) ou 'indicadores' (Indicadores de Carga)
   const [rhActiveSubTab, setRhActiveSubTab] = useState<"roster" | "unidades" | "equipas" | "indicadores">("roster");
@@ -7883,20 +7958,17 @@ export default function App() {
       )}
 
       {isOnline && (
-        <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-4 py-1 flex items-center justify-between text-xs text-emerald-300 shrink-0 select-none">
-          <div className="flex items-center gap-2">
-            <Wifi className="h-3.5 w-3.5 text-emerald-400" />
-            <span><strong>CONEXÃO RECONHECIDA:</strong> Base Centralizada de Angola Activa. Sincronismo automático ligado.</span>
+        <div className="bg-[#07090e] border-b border-slate-900 px-4 py-1 flex items-center justify-between text-xs text-slate-400 shrink-0 select-none">
+          <div className="flex items-center gap-2 font-mono text-[10.5px]">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-slate-300 font-medium">Sincronização Ativa</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] bg-emerald-950 border border-emerald-500/30 px-2 py-0.2 rounded-sm">
-              Terminal: Luanda-Cen1
-            </span>
+          <div className="flex items-center gap-3 font-mono text-[10px]">
             <button 
               onClick={() => setIsOnline(false)}
-              className="text-slate-400 hover:text-amber-400 text-[10px] underline cursor-pointer"
+              className="text-slate-500 hover:text-amber-400 cursor-pointer transition-colors"
             >
-              Simular perda de internet
+              Simular Offline
             </button>
           </div>
         </div>
@@ -7910,40 +7982,29 @@ export default function App() {
           <div className="bg-[#040609] p-1 rounded border border-slate-800 shadow-md flex items-center justify-center shrink-0">
             <Shield className="h-4 w-4 text-amber-500" />
           </div>
-          <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
-            <span className="font-bold text-slate-200 tracking-wider">PNAP-AO OS</span>
+          <div className="flex items-center gap-2 text-[10.5px] font-mono text-slate-400">
+            <span className="font-bold text-slate-200 tracking-wider">SICP • ANGOLA</span>
             <span className="text-slate-600 font-bold">/</span>
             {selectedHierNode !== null ? (
               <>
-                <span className="text-slate-500">estrutura_territorial</span>
-                <span className="text-slate-700 font-black">&gt;</span>
-                <span className="text-slate-500 lowercase">{selectedHierNode.type.toLowerCase()}</span>
-                <span className="text-slate-700 font-black">&gt;</span>
-                <span className="text-amber-500 font-bold">{selectedHierNode.name}</span>
+                <span className="text-slate-400">{selectedHierNode.name}</span>
               </>
             ) : (
               <>
-                <span className="text-slate-500">
-                  {activeTab === "dashboard" || activeTab === "centro-comando" || activeTab === "centro-inteligencia" || activeTab === "auditing" || activeTab === "services-gateway" ? "centro_nacional" :
-                   activeTab === "deus-fundador" ? "estrutura_suprema" :
-                   activeTab === "admissions" || activeTab === "movements" || activeTab === "documents" || activeTab === "special-services" ? "operacoes_penais" :
-                   activeTab === "penal-code" ? "doutrina_legislacao" : "sandbox_modelagem"}
-                </span>
-                <span className="text-slate-700 font-black">&gt;</span>
                 <span className="text-amber-500 font-bold">
-                  {activeTab === "dashboard" ? "painel_lotação.json" :
-                   activeTab === "centro-comando" ? "comando_vsat.io" :
-                   activeTab === "centro-inteligencia" ? "inteligencia_siem.ai" :
-                   activeTab === "auditing" ? "auditoria_geral.log" :
-                   activeTab === "services-gateway" ? "gateway_servicos.conf" :
-                   activeTab === "deus-fundador" ? "consola_suprema.sh" :
-                   activeTab === "admissions" ? "cadastro_admissao.db" :
-                   activeTab === "movements" ? "movimentacoes.sql" :
-                   activeTab === "documents" ? "guias_transito.doc" :
-                   activeTab === "special-services" ? "reinsercao_social.db" :
-                   activeTab === "penal-code" ? "cnel_doctrine.txt" :
-                   activeTab === "erd" ? "schema_erd.sql" :
-                   activeTab === "settings" ? "config_simulador.ini" : "dicionario_sandbox.json"}
+                  {activeTab === "dashboard" ? "Lotação & Risco" :
+                   activeTab === "centro-comando" ? "Centro de Comando" :
+                   activeTab === "centro-inteligencia" ? "Inteligência" :
+                   activeTab === "auditing" ? "Auditoria Central" :
+                   activeTab === "services-gateway" ? "Gateway de Serviços" :
+                   activeTab === "deus-fundador" ? "Direção Geral" :
+                   activeTab === "admissions" ? "Admissão & Cadastro" :
+                   activeTab === "movements" ? "Movimentações" :
+                   activeTab === "documents" ? "Guias de Trânsito" :
+                   activeTab === "special-services" ? "Reinserção Social" :
+                   activeTab === "penal-code" ? "Doutrina CNEL" :
+                   activeTab === "erd" ? "Esquema ERD" :
+                   activeTab === "settings" ? "Ajustes & Config" : "Dicionário Sandbox"}
                 </span>
               </>
             )}
@@ -8020,29 +8081,6 @@ export default function App() {
               <span className="font-mono text-[9px] tracking-tight">{syncQueue.length} Transações</span>
             </button>
           )}
-
-          {/* Enterprise Mode Compact Toggle */}
-          <button
-            onClick={() => {
-              setIsEnterpriseMode(!isEnterpriseMode);
-              writeAuditLog(
-                currentOperator,
-                "PRINT_REPORT",
-                "Dashboard",
-                undefined,
-                `Alternou modo do painel para: ${!isEnterpriseMode ? "NÍVEL ENTERPRISE" : "STANDARD"}`
-              );
-            }}
-            className={`px-2 h-7 rounded border font-mono text-[9px] font-bold flex items-center gap-1 cursor-pointer transition-all duration-300 ${
-              isEnterpriseMode 
-                ? "bg-amber-500/10 border-amber-500/40 text-amber-400" 
-                : "bg-[#040609] border-slate-800 text-slate-500 hover:text-slate-350"
-            }`}
-            title="Alternar entre Modo Standard e Enterprise"
-          >
-            <Crown className="h-3 w-3 text-amber-500" />
-            <span className="hidden xl:inline text-[9px]">{isEnterpriseMode ? "ENTERPRISE" : "STANDARD"}</span>
-          </button>
 
           {/* Alert Notifications Count */}
           <div className="relative cursor-pointer hover:bg-slate-800 p-1 rounded text-slate-400 hover:text-slate-200 transition-colors shrink-0 h-7 w-7 flex items-center justify-center">
@@ -8250,7 +8288,7 @@ export default function App() {
             
             {/* Sidebar Explorer Title Header Bar */}
             <div className="h-9 px-3 border-b border-slate-900 flex items-center justify-between bg-[#06080c] shrink-0">
-              <span className="text-[10px] font-mono font-bold text-slate-400 tracking-wider uppercase">EXPLORER: ORGÂNICA INSTITUCIONAL</span>
+              <span className="text-[10px] font-mono font-bold text-slate-400 tracking-wider uppercase">Estrutura Institucional</span>
               <button 
                 onClick={() => {
                   setExpandedWorkspaceFolders(prev => ({
@@ -8274,458 +8312,394 @@ export default function App() {
 
             <div className="flex-1 overflow-y-auto scrollbar-thin select-none">
               
-              {/* SECTION 1: LIVE INSTITUTIONAL MODEL TREE */}
-              <div className="flex flex-col text-[11px] font-mono py-1">
+              {/* SECTION 1: CLEAN ICON-FIRST INSTITUTIONAL NAVIGATION */}
+              <div className="flex flex-col text-[11px] font-mono p-2 gap-3">
                 
-                {/* ROOT: REPÚBLICA DE ANGOLA */}
-                <div className="flex flex-col">
+                {/* DEPARTMENTS & CENTRAL COMMAND (HIGH-CONTRAST ICON-FIRST BUTTONS) */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider px-1 mb-0.5">Departamentos & Comando</span>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {/* DGP */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("deus-fundador");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "deus-fundador" && !selectedHierNode && !currentMission
+                          ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Direção Geral (DGP-Consola)"
+                    >
+                      <Crown className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">DGP Consola</span>
+                    </button>
+
+                    {/* Gabinete DG */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("settings");
+                        setSettingsSubTab("delegations");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "settings" && settingsSubTab === "delegations" && !selectedHierNode && !currentMission
+                          ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Gabinete do Director Geral"
+                    >
+                      <File className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">Gabinete DG</span>
+                    </button>
+
+                    {/* Auditoria */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("auditing");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "auditing" && !selectedHierNode && !currentMission
+                          ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Órgãos Consultivos / Auditoria"
+                    >
+                      <Shield className="h-3.5 w-3.5 text-sky-400 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">Auditoria</span>
+                    </button>
+
+                    {/* VSAT Segurança */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("centro-comando");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "centro-comando" && !selectedHierNode && !currentMission
+                          ? "bg-rose-500/20 border-rose-500/60 text-rose-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Segurança / VSAT"
+                    >
+                      <Radio className="h-3.5 w-3.5 text-rose-500 shrink-0 animate-pulse" />
+                      <span className="text-[10px] font-mono font-bold truncate">VSAT Seg.</span>
+                    </button>
+
+                    {/* Controlo Penal */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("movements");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "movements" && !selectedHierNode && !currentMission
+                          ? "bg-sky-500/20 border-sky-500/60 text-sky-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Controlo Penal / Movimentações"
+                    >
+                      <Activity className="h-3.5 w-3.5 text-sky-400 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">Controlo Penal</span>
+                    </button>
+
+                    {/* Saúde */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("dashboard");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "dashboard" && !selectedHierNode && !currentMission
+                          ? "bg-red-500/20 border-red-500/60 text-red-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Saúde Penitenciária"
+                    >
+                      <Stethoscope className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">Saúde</span>
+                    </button>
+
+                    {/* Reinserção */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("special-services");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "special-services" && !selectedHierNode && !currentMission
+                          ? "bg-teal-500/20 border-teal-500/60 text-teal-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Reinserção Social"
+                    >
+                      <UserCheck className="h-3.5 w-3.5 text-teal-400 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">Reinserção</span>
+                    </button>
+
+                    {/* Produção */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("services-gateway");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "services-gateway" && !selectedHierNode && !currentMission
+                          ? "bg-emerald-500/20 border-emerald-500/60 text-emerald-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Produção & Logística"
+                    >
+                      <Server className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">Produção</span>
+                    </button>
+
+                    {/* SIEM */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("centro-inteligencia");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "centro-inteligencia" && !selectedHierNode && !currentMission
+                          ? "bg-rose-500/20 border-rose-500/60 text-rose-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Inteligência (SIEM)"
+                    >
+                      <ShieldAlert className="h-3.5 w-3.5 text-rose-500 shrink-0 animate-pulse" />
+                      <span className="text-[10px] font-mono font-bold truncate">SIEM Intel</span>
+                    </button>
+
+                    {/* Legislação */}
+                    <button
+                      onClick={() => {
+                        setActiveTab("penal-code");
+                        setSelectedHierNode(null);
+                        setCurrentMission(null);
+                      }}
+                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
+                        activeTab === "penal-code" && !selectedHierNode && !currentMission
+                          ? "bg-sky-500/20 border-sky-500/60 text-sky-300 font-bold shadow-sm"
+                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                      }`}
+                      title="Engenharia Legislativa"
+                    >
+                      <Scale className="h-3.5 w-3.5 text-sky-400 shrink-0" />
+                      <span className="text-[10px] font-mono font-bold truncate">Legislação</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* PROVINCIAL TERRITORIAL HIERARCHY & EPS */}
+                <div className="flex flex-col gap-1 border-t border-slate-850 pt-2 mt-1">
                   <div 
-                    onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, republica_angola: !p.republica_angola }))}
-                    className="pl-3 pr-2 py-1.5 flex items-center gap-1.5 hover:bg-[#0f141f] cursor-pointer text-slate-300 transition-colors border-b border-slate-900/40 bg-[#0d0f14]/30"
+                    onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, direcoes_provinciais: !p.direcoes_provinciais }))}
+                    className="flex items-center justify-between px-1 py-1 hover:bg-slate-850/50 rounded cursor-pointer text-slate-300 font-bold text-[10px]"
                   >
-                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.republica_angola ? "" : "-rotate-90"}`} />
-                    <span className="font-mono text-[9px] uppercase font-bold tracking-wider text-amber-500">REPÚBLICA DE ANGOLA</span>
+                    <span className="flex items-center gap-1.5">
+                      <LayoutGrid className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                      <span className="uppercase tracking-wider">Províncias & EPs</span>
+                    </span>
+                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform ${expandedWorkspaceFolders.direcoes_provinciais !== false ? "" : "-rotate-90"}`} />
                   </div>
 
-                  {expandedWorkspaceFolders.republica_angola !== false && (
-                    <div className="pl-3.5 border-l border-slate-850/60 ml-3 flex flex-col gap-0.5 my-0.5">
-                      
-                      {/* SUB-ROOT: Ministério do Interior */}
-                      <div className="flex flex-col">
-                        <div 
-                          onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, minint: !p.minint }))}
-                          className="pr-2 py-1 flex items-center gap-1.5 hover:text-slate-205 cursor-pointer text-slate-300 font-bold"
-                        >
-                          <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.minint ? "" : "-rotate-90"}`} />
-                          <Building className="h-3.5 w-3.5 text-blue-400 shrink-0" />
-                          <span>Ministério do Interior</span>
-                        </div>
-
-                        {expandedWorkspaceFolders.minint !== false && (
-                          <div className="pl-3 border-l border-slate-850/60 ml-2.5 flex flex-col gap-0.5">
-                            
-                            {/* LEVEL 3: Serviço Penitenciário */}
-                            <div className="flex flex-col">
-                              <div 
-                                onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, servico_penitenciario: !p.servico_penitenciario }))}
-                                className="pr-2 py-1 flex items-center gap-1.5 hover:text-slate-200 cursor-pointer text-slate-300 font-extrabold"
-                              >
-                                <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.servico_penitenciario ? "" : "-rotate-90"}`} />
-                                <ShieldCheck className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                                <span>Serviço Penitenciário</span>
-                              </div>
-
-                              {expandedWorkspaceFolders.servico_penitenciario !== false && (
-                                <div className="pl-3.5 border-l border-slate-850/60 ml-2.5 flex flex-col gap-0.5 my-0.5 text-[10px]">
-                                  
-                                  {/* Direção Geral */}
-                                  <div 
-                                    onClick={() => {
-                                      setActiveTab("deus-fundador");
-                                      setSelectedHierNode(null);
-                                      setCurrentMission(null);
-                                    }}
-                                    className={`pr-2 py-1 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                      activeTab === "deus-fundador" && !selectedHierNode && !currentMission
-                                        ? "bg-amber-500/15 text-amber-400 font-bold border-l-2 border-amber-500" 
-                                        : "text-slate-400 hover:text-slate-200 hover:bg-[#0c1018]/55"
-                                    }`}
-                                  >
-                                    <Crown className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                                    <span>Direção Geral (DGP-Consola)</span>
-                                  </div>
-
-                                  {/* Gabinete do Director Geral */}
-                                  <div 
-                                    onClick={() => {
-                                      setActiveTab("settings");
-                                      setSettingsSubTab("delegations");
-                                      setSelectedHierNode(null);
-                                      setCurrentMission(null);
-                                    }}
-                                    className={`pr-2 py-1 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                      activeTab === "settings" && settingsSubTab === "delegations" && !selectedHierNode && !currentMission
-                                        ? "bg-amber-500/15 text-amber-400 font-bold border-l-2 border-amber-500" 
-                                        : "text-slate-400 hover:text-slate-200 hover:bg-[#0c1018]/55"
-                                    }`}
-                                  >
-                                    <File className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                                    <span>Gabinete do Director Geral</span>
-                                  </div>
-
-                                  {/* Órgãos Consultivos */}
-                                  <div 
-                                    onClick={() => {
-                                      setActiveTab("auditing");
-                                      setSelectedHierNode(null);
-                                      setCurrentMission(null);
-                                    }}
-                                    className={`pr-2 py-1 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                      activeTab === "auditing" && !selectedHierNode && !currentMission
-                                        ? "bg-amber-500/15 text-amber-400 font-bold border-l-2 border-amber-500" 
-                                        : "text-slate-400 hover:text-slate-200 hover:bg-[#0c1018]/55"
-                                    }`}
-                                  >
-                                    <File className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                                    <span>Órgãos Consultivos (Auditoria)</span>
-                                  </div>
-
-                                  {/* Direções Nacionais Folder */}
-                                  <div className="flex flex-col">
-                                    <div 
-                                      onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, direcoes_nacionais: !p.direcoes_nacionais }))}
-                                      className="pr-2 py-1 flex items-center gap-1.5 hover:text-slate-200 cursor-pointer text-slate-300 font-semibold"
-                                    >
-                                      <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.direcoes_nacionais ? "" : "-rotate-90"}`} />
-                                      <Folder className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                                      <span>Direções Nacionais</span>
-                                    </div>
-
-                                    {expandedWorkspaceFolders.direcoes_nacionais !== false && (
-                                      <div className="pl-3 border-l border-slate-800 ml-2.5 flex flex-col gap-0.5">
-                                        {/* Segurança */}
-                                        <div 
-                                          onClick={() => {
-                                            setActiveTab("centro-comando");
-                                            setSelectedHierNode(null);
-                                            setCurrentMission(null);
-                                          }}
-                                          className={`pr-2 py-0.5 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                            activeTab === "centro-comando" && !selectedHierNode && !currentMission
-                                              ? "bg-[#161b22] text-amber-400 font-bold border-l border-amber-500" 
-                                              : "text-slate-450 hover:text-slate-200"
-                                          }`}
-                                        >
-                                          <Radio className="h-3 w-3 text-rose-500 shrink-0 animate-pulse" />
-                                          <span>Segurança (VSAT)</span>
-                                        </div>
-
-                                        {/* Controlo Penal */}
-                                        <div 
-                                          onClick={() => {
-                                            setActiveTab("movements");
-                                            setSelectedHierNode(null);
-                                            setCurrentMission(null);
-                                          }}
-                                          className={`pr-2 py-0.5 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                            activeTab === "movements" && !selectedHierNode && !currentMission
-                                              ? "bg-[#161b22] text-amber-400 font-bold border-l border-amber-500" 
-                                              : "text-slate-450 hover:text-slate-200"
-                                          }`}
-                                        >
-                                          <Activity className="h-3 w-3 text-sky-400 shrink-0" />
-                                          <span>Controlo Penal (Movimentações)</span>
-                                        </div>
-
-                                        {/* Saúde */}
-                                        <div 
-                                          onClick={() => {
-                                            setActiveTab("dashboard");
-                                            setSelectedHierNode(null);
-                                            setCurrentMission(null);
-                                          }}
-                                          className={`pr-2 py-0.5 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                            activeTab === "dashboard" && !selectedHierNode && !currentMission
-                                              ? "bg-[#161b22] text-amber-400 font-bold border-l border-amber-500" 
-                                              : "text-slate-450 hover:text-slate-200"
-                                          }`}
-                                        >
-                                          <Stethoscope className="h-3 w-3 text-red-500 shrink-0" />
-                                          <span>Saúde Penitenciária</span>
-                                        </div>
-
-                                        {/* Reinserção */}
-                                        <div 
-                                          onClick={() => {
-                                            setActiveTab("special-services");
-                                            setSelectedHierNode(null);
-                                            setCurrentMission(null);
-                                          }}
-                                          className={`pr-2 py-0.5 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                            activeTab === "special-services" && !selectedHierNode && !currentMission
-                                              ? "bg-[#161b22] text-amber-400 font-bold border-l border-amber-500" 
-                                              : "text-slate-450 hover:text-slate-200"
-                                          }`}
-                                        >
-                                          <UserCheck className="h-3 w-3 text-teal-400 shrink-0" />
-                                          <span>Reinserção Social</span>
-                                        </div>
-
-                                        {/* Produção */}
-                                        <div 
-                                          onClick={() => {
-                                            setActiveTab("services-gateway");
-                                            setSelectedHierNode(null);
-                                            setCurrentMission(null);
-                                          }}
-                                          className={`pr-2 py-0.5 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                            activeTab === "services-gateway" && !selectedHierNode && !currentMission
-                                              ? "bg-[#161b22] text-amber-400 font-bold border-l border-amber-500" 
-                                              : "text-slate-450 hover:text-slate-200"
-                                          }`}
-                                        >
-                                          <Server className="h-3 w-3 text-emerald-400 shrink-0" />
-                                          <span>Produção & Logística</span>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Direções Provinciais Folder */}
-                                  <div className="flex flex-col">
-                                    <div 
-                                      onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, direcoes_provinciais: !p.direcoes_provinciais }))}
-                                      className="pr-2 py-1 flex items-center gap-1.5 hover:text-slate-200 cursor-pointer text-slate-300 font-semibold"
-                                    >
-                                      <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.direcoes_provinciais ? "" : "-rotate-90"}`} />
-                                      <LayoutGrid className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                                      <span>Direções Provinciais</span>
-                                    </div>
-
-                                    {expandedWorkspaceFolders.direcoes_provinciais !== false && (
-                                      <div className="pl-3 border-l border-slate-800 ml-2.5 flex flex-col gap-0.5">
-                                        {PROVINCES_HARDCODED.map(prov => {
-                                          const isExp = !!expandedProv[prov];
-                                          const isSelected = selectedHierNode?.type === "PROVINCE" && selectedHierNode.id === prov;
-                                          return (
-                                            <div key={prov} className="flex flex-col">
-                                              <div 
-                                                onClick={() => {
-                                                  setExpandedProv(p => ({ ...p, [prov]: !p[prov] }));
-                                                  setSelectedHierNode({ type: "PROVINCE", id: prov, name: prov });
-                                                  setActiveTab("" as any);
-                                                  setCurrentMission(null);
-                                                }}
-                                                className={`pr-2 py-1 pl-2 flex items-center justify-between rounded cursor-pointer transition-all ${
-                                                  isSelected ? "bg-slate-800 text-amber-400 font-bold" : "text-slate-450 hover:text-slate-200 hover:bg-slate-900/10"
-                                                }`}
-                                              >
-                                                <span className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wide">
-                                                  <MapPin className="h-3 w-3 text-amber-500 shrink-0" />
-                                                  <span>{prov}</span>
-                                                </span>
-                                                <ChevronDown className={`h-2.5 w-2.5 text-slate-550 transition-transform ${isExp ? "" : "-rotate-90"}`} />
-                                              </div>
-
-                                              {isExp && (
-                                                <div className="pl-3 border-l border-slate-800/80 ml-2.5 flex flex-col gap-0.5">
-                                                  {prisons.filter(p => p.location.toLowerCase().includes(prov.toLowerCase())).map(pris => {
-                                                    const isPrisExp = !!expandedPrisons[pris.id];
-                                                    const isPrisSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
-                                                    return (
-                                                      <div key={pris.id} className="flex flex-col">
-                                                        <div 
-                                                          onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setExpandedPrisons(prev => ({ ...prev, [pris.id]: !prev[pris.id] }));
-                                                            setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name, parentId: prov });
-                                                            setActiveTab("" as any);
-                                                            setCurrentMission(null);
-                                                          }}
-                                                          className={`pr-2 py-0.5 pl-2 flex items-center justify-between rounded cursor-pointer transition-all ${
-                                                            isPrisSel ? "bg-[#1c2230] text-sky-400 font-bold" : "text-slate-450 hover:text-slate-200 hover:bg-slate-900/20"
-                                                          }`}
-                                                        >
-                                                          <span className="flex items-center gap-1.5 text-[10px] font-sans truncate">
-                                                            <Building className="h-3 w-3 text-sky-500 shrink-0" />
-                                                            <span className="truncate">{pris.name.replace("Estabelecimento Penitenciário de ", "EP ")}</span>
-                                                          </span>
-                                                          <ChevronDown className={`h-2.5 w-2.5 text-slate-600 transition-transform ${isPrisExp ? "" : "-rotate-90"}`} />
-                                                        </div>
-
-                                                        {isPrisExp && (
-                                                          <div className="pl-3 border-l border-slate-850 ml-2 flex flex-col gap-0.5">
-                                                            {pris.pavilions?.map(pav => {
-                                                              const isPavExp = !!expandedPavilions[pav.id];
-                                                              const isPavSel = selectedHierNode?.type === "PAVILION" && selectedHierNode.id === pav.id;
-                                                              return (
-                                                                <div key={pav.id} className="flex flex-col">
-                                                                  <div 
-                                                                    onClick={(e) => {
-                                                                      e.stopPropagation();
-                                                                      setExpandedPavilions(prev => ({ ...prev, [pav.id]: !prev[pav.id] }));
-                                                                      setSelectedHierNode({ type: "PAVILION", id: pav.id, name: pav.name, parentId: pris.id, grandparentId: prov });
-                                                                      setActiveTab("" as any);
-                                                                      setCurrentMission(null);
-                                                                    }}
-                                                                    className={`pr-2 py-0.5 pl-2 flex items-center justify-between rounded cursor-pointer transition-all ${
-                                                                      isPavSel ? "bg-slate-850 text-amber-500 font-bold" : "text-slate-450 hover:text-slate-250 hover:bg-slate-900/30"
-                                                                    }`}
-                                                                  >
-                                                                    <span className="flex items-center gap-1 text-[9px] font-mono truncate">
-                                                                      <Layers className="h-2.5 w-2.5 text-amber-500 shrink-0" />
-                                                                      <span className="truncate">{pav.name.replace("Pavilhão ", "Pav. ")}</span>
-                                                                    </span>
-                                                                    <ChevronDown className={`h-2 w-2 text-slate-655 transition-transform ${isPavExp ? "" : "-rotate-90"}`} />
-                                                                  </div>
-
-                                                                  {isPavExp && (
-                                                                    <div className="pl-3 border-l border-slate-900 ml-2 flex flex-col gap-0.5">
-                                                                      {pav.blocks?.map(cell => {
-                                                                        const isCellExp = !!expandedCells[cell.id];
-                                                                        const isCellSel = selectedHierNode?.type === "CELL" && selectedHierNode.id === cell.id;
-                                                                        const cellInmates = inmates.filter(i => i.assignedBlockId === cell.id);
-                                                                        return (
-                                                                          <div key={cell.id} className="flex flex-col">
-                                                                            <div 
-                                                                              onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                setExpandedCells(prev => ({ ...prev, [cell.id]: !prev[cell.id] }));
-                                                                                setSelectedHierNode({ type: "CELL", id: cell.id, name: cell.name, parentId: pav.id, grandparentId: pris.id });
-                                                                                setActiveTab("" as any);
-                                                                                setCurrentMission(null);
-                                                                              }}
-                                                                              className={`pr-2 py-0.5 pl-2 flex items-center justify-between rounded cursor-pointer transition-all ${
-                                                                                isCellSel ? "bg-[#0f1b29] text-emerald-400 font-bold" : "text-slate-500 hover:text-slate-300 hover:bg-slate-950/40"
-                                                                              }`}
-                                                                            >
-                                                                              <span className="flex items-center gap-1 text-[8.5px] font-mono truncate">
-                                                                                <HeartPulse className="h-2.5 w-2.5 text-emerald-500 shrink-0" />
-                                                                                <span className="truncate">{cell.name}</span>
-                                                                                <span className="text-[7.5px] text-slate-600 font-bold">({cellInmates.length})</span>
-                                                                              </span>
-                                                                              <ChevronDown className={`h-2 w-2 text-slate-700 transition-transform ${isCellExp ? "" : "-rotate-90"}`} />
-                                                                            </div>
-
-                                                                            {isCellExp && (
-                                                                              <div className="pl-2.5 border-l border-emerald-950/40 ml-1.5 flex flex-col gap-0.5">
-                                                                                {cellInmates.map(inmate => (
-                                                                                  <div 
-                                                                                    key={inmate.id}
-                                                                                    onClick={(e) => {
-                                                                                      e.stopPropagation();
-                                                                                      setSelectedObjectInmate(inmate);
-                                                                                      triggerToast("DOSSIER COGNITIVO", `${inmate.firstName} selecionado.`, "info");
-                                                                                    }}
-                                                                                    className="pr-2 py-0.5 pl-2 flex items-center gap-1.5 rounded cursor-pointer hover:bg-slate-900/60 transition-all text-slate-550 hover:text-slate-200 text-[8px]"
-                                                                                  >
-                                                                                    <Users className="h-2.5 w-2.5 text-slate-600 shrink-0" />
-                                                                                    <span className="truncate font-sans font-medium">{inmate.firstName} {inmate.lastName}</span>
-                                                                                  </div>
-                                                                                ))}
-                                                                                {cellInmates.length === 0 && (
-                                                                                  <div className="pl-2 py-0.5 text-slate-700 text-[7px] italic">Vazia</div>
-                                                                                )}
-                                                                              </div>
-                                                                            )}
-                                                                          </div>
-                                                                        );
-                                                                      })}
-                                                                    </div>
-                                                                  )}
-                                                                </div>
-                                                              );
-                                                            })}
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    );
-                                                  })}
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Estabelecimentos Shortcuts Folder */}
-                                  <div className="flex flex-col">
-                                    <div 
-                                      onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, estabelecimentos: !p.estabelecimentos }))}
-                                      className="pr-2 py-1 flex items-center gap-1.5 hover:text-slate-200 cursor-pointer text-slate-300 font-semibold"
-                                    >
-                                      <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.estabelecimentos ? "" : "-rotate-90"}`} />
-                                      <Building className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                                      <span>Estabelecimentos (EPs)</span>
-                                    </div>
-
-                                    {expandedWorkspaceFolders.estabelecimentos !== false && (
-                                      <div className="pl-3 border-l border-slate-800 ml-2.5 flex flex-col gap-0.5">
-                                        {prisons.map(pris => (
-                                          <div 
-                                            key={pris.id}
-                                            onClick={() => {
-                                              setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name });
-                                              setActiveTab("" as any);
-                                              setCurrentMission(null);
-                                            }}
-                                            className={`pr-2 py-0.5 pl-2 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                              selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id
-                                                ? "bg-slate-800 text-amber-500 font-bold border-l border-amber-500"
-                                                : "text-slate-400 hover:text-slate-200 hover:bg-[#0c1018]/50"
-                                            }`}
-                                          >
-                                            <Building className="h-3.5 w-3.5 text-sky-500 shrink-0" />
-                                            <span className="truncate">{pris.name.replace("Estabelecimento Penitenciário de ", "EP ")}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  {/* Inteligência (SIEM) */}
-                                  <div 
-                                    onClick={() => {
-                                      setActiveTab("centro-inteligencia");
-                                      setSelectedHierNode(null);
-                                      setCurrentMission(null);
-                                    }}
-                                    className={`pr-2 py-1 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                      activeTab === "centro-inteligencia" && !selectedHierNode && !currentMission
-                                        ? "bg-amber-500/15 text-amber-400 font-bold border-l-2 border-amber-500" 
-                                        : "text-slate-400 hover:text-slate-200 hover:bg-[#0c1018]/55"
-                                    }`}
-                                  >
-                                    <ShieldAlert className="h-3.5 w-3.5 text-rose-500 shrink-0 animate-pulse" />
-                                    <span>Inteligência (SIEM)</span>
-                                  </div>
-
-                                  {/* Engenharia Legislativa */}
-                                  <div 
-                                    onClick={() => {
-                                      setActiveTab("penal-code");
-                                      setSelectedHierNode(null);
-                                      setCurrentMission(null);
-                                    }}
-                                    className={`pr-2 py-1 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                      activeTab === "penal-code" && !selectedHierNode && !currentMission
-                                        ? "bg-amber-500/15 text-amber-400 font-bold border-l-2 border-amber-500" 
-                                        : "text-slate-400 hover:text-slate-200 hover:bg-[#0c1018]/55"
-                                    }`}
-                                  >
-                                    <Scale className="h-3.5 w-3.5 text-sky-450 shrink-0" />
-                                    <span>Engenharia Legislativa</span>
-                                  </div>
-
-                                  {/* Administração */}
-                                  <div 
-                                    onClick={() => {
-                                      setActiveTab("settings");
-                                      setSelectedHierNode(null);
-                                      setCurrentMission(null);
-                                    }}
-                                    className={`pr-2 py-1 pl-2.5 flex items-center gap-1.5 rounded cursor-pointer transition-all ${
-                                      activeTab === "settings" && !selectedHierNode && !currentMission
-                                        ? "bg-amber-500/15 text-amber-400 font-bold border-l-2 border-amber-500" 
-                                        : "text-slate-400 hover:text-slate-200 hover:bg-[#0c1018]/55"
-                                    }`}
-                                  >
-                                    <Settings className="h-3.5 w-3.5 text-slate-500 shrink-0" />
-                                    <span>Administração & Ajustes</span>
-                                  </div>
-
-                                </div>
-                              )}
+                  {expandedWorkspaceFolders.direcoes_provinciais !== false && (
+                    <div className="flex flex-col gap-1 pl-1.5 border-l border-slate-850">
+                      {PROVINCES_HARDCODED.map(prov => {
+                        const isExp = !!expandedProv[prov];
+                        const isSelected = selectedHierNode?.type === "PROVINCE" && selectedHierNode.id === prov;
+                        const provPrisons = prisons.filter(p => p.location.toLowerCase().includes(prov.toLowerCase()));
+                        
+                        return (
+                          <div key={prov} className="flex flex-col">
+                            <div 
+                              onClick={() => {
+                                setExpandedProv(p => ({ ...p, [prov]: !p[prov] }));
+                                setSelectedHierNode({ type: "PROVINCE", id: prov, name: prov });
+                                setActiveTab("" as any);
+                                setCurrentMission(null);
+                              }}
+                              className={`px-2 py-1 flex items-center justify-between rounded cursor-pointer transition-all ${
+                                isSelected ? "bg-slate-800 text-amber-400 font-bold" : "text-slate-300 hover:text-white hover:bg-slate-850/80"
+                              }`}
+                            >
+                              <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase">
+                                <MapPin className="h-3 w-3 text-amber-500 shrink-0" />
+                                <span>{prov}</span>
+                                <span className="text-[8.5px] font-mono text-slate-500 font-normal">({provPrisons.length})</span>
+                              </span>
+                              <ChevronDown className={`h-2.5 w-2.5 text-slate-500 transition-transform ${isExp ? "" : "-rotate-90"}`} />
                             </div>
 
-                          </div>
-                        )}
-                      </div>
+                            {isExp && (
+                              <div className="pl-2 border-l border-slate-800 ml-2 flex flex-col gap-1 my-1">
+                                {provPrisons.map(pris => {
+                                  const isPrisExp = !!expandedPrisons[pris.id];
+                                  const isPrisSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
+                                  const isFemalePris = pris.name.toLowerCase().includes("feminino");
 
+                                  return (
+                                    <div key={pris.id} className="flex flex-col">
+                                      <div 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setExpandedPrisons(prev => ({ ...prev, [pris.id]: !prev[pris.id] }));
+                                          setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name, parentId: prov });
+                                          setActiveTab("" as any);
+                                          setCurrentMission(null);
+                                        }}
+                                        className={`px-2 py-1 flex items-center justify-between rounded border transition-all cursor-pointer ${
+                                          isPrisSel 
+                                            ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold" 
+                                            : isFemalePris
+                                              ? "bg-pink-950/20 border-pink-900/40 text-pink-300 hover:bg-pink-900/40 hover:text-white"
+                                              : "bg-slate-900/70 border-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                                        }`}
+                                      >
+                                        <span className="flex items-center gap-1.5 text-[9.5px] font-mono truncate font-bold">
+                                          <Building className={`h-3 w-3 shrink-0 ${isFemalePris ? "text-pink-400" : "text-sky-400"}`} />
+                                          <span className="truncate">{formatEPName(pris.name)}</span>
+                                        </span>
+                                        <ChevronDown className={`h-2.5 w-2.5 text-slate-500 transition-transform ${isPrisExp ? "" : "-rotate-90"}`} />
+                                      </div>
+
+                                      {isPrisExp && (
+                                        <div className="pl-2 border-l border-slate-850 ml-1.5 flex flex-col gap-0.5 my-1">
+                                          {pris.pavilions?.map(pav => {
+                                            const isPavExp = !!expandedPavilions[pav.id];
+                                            const isPavSel = selectedHierNode?.type === "PAVILION" && selectedHierNode.id === pav.id;
+                                            return (
+                                              <div key={pav.id} className="flex flex-col">
+                                                <div 
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setExpandedPavilions(prev => ({ ...prev, [pav.id]: !prev[pav.id] }));
+                                                    setSelectedHierNode({ type: "PAVILION", id: pav.id, name: pav.name, parentId: pris.id, grandparentId: prov });
+                                                    setActiveTab("" as any);
+                                                    setCurrentMission(null);
+                                                  }}
+                                                  className={`px-2 py-0.5 flex items-center justify-between rounded cursor-pointer transition-all ${
+                                                    isPavSel ? "bg-slate-800 text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200 hover:bg-slate-850/50"
+                                                  }`}
+                                                >
+                                                  <span className="flex items-center gap-1 text-[9px] font-mono truncate">
+                                                    <Layers className="h-2.5 w-2.5 text-amber-500 shrink-0" />
+                                                    <span className="truncate">{pav.name.replace("Pavilhão ", "Pav. ")}</span>
+                                                  </span>
+                                                  <ChevronDown className={`h-2 w-2 text-slate-600 transition-transform ${isPavExp ? "" : "-rotate-90"}`} />
+                                                </div>
+
+                                                {isPavExp && (
+                                                  <div className="pl-2 border-l border-slate-850 ml-1.5 flex flex-col gap-0.5">
+                                                    {pav.blocks?.map(cell => {
+                                                      const isCellExp = !!expandedCells[cell.id];
+                                                      const isCellSel = selectedHierNode?.type === "CELL" && selectedHierNode.id === cell.id;
+                                                      const cellInmates = inmates.filter(i => i.assignedBlockId === cell.id);
+                                                      return (
+                                                        <div key={cell.id} className="flex flex-col">
+                                                          <div 
+                                                            onClick={(e) => {
+                                                              e.stopPropagation();
+                                                              setExpandedCells(prev => ({ ...prev, [cell.id]: !prev[cell.id] }));
+                                                              setSelectedHierNode({ type: "CELL", id: cell.id, name: cell.name, parentId: pav.id, grandparentId: pris.id });
+                                                              setActiveTab("" as any);
+                                                              setCurrentMission(null);
+                                                            }}
+                                                            className={`px-1.5 py-0.5 flex items-center justify-between rounded cursor-pointer transition-all ${
+                                                              isCellSel ? "bg-[#0f1b29] text-emerald-400 font-bold" : "text-slate-500 hover:text-slate-300 hover:bg-slate-900/40"
+                                                            }`}
+                                                          >
+                                                            <span className="flex items-center gap-1 text-[8.5px] font-mono truncate">
+                                                              <HeartPulse className="h-2.5 w-2.5 text-emerald-500 shrink-0" />
+                                                              <span className="truncate">{cell.name}</span>
+                                                              <span className="text-[7.5px] text-slate-600 font-bold">({cellInmates.length})</span>
+                                                            </span>
+                                                            <ChevronDown className={`h-2 w-2 text-slate-700 transition-transform ${isCellExp ? "" : "-rotate-90"}`} />
+                                                          </div>
+
+                                                          {isCellExp && (
+                                                            <div className="pl-2 border-l border-emerald-950/40 ml-1 flex flex-col gap-0.5">
+                                                              {cellInmates.map(inmate => (
+                                                                <div 
+                                                                  key={inmate.id}
+                                                                  onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setSelectedObjectInmate(inmate);
+                                                                    triggerToast("DOSSIER COGNITIVO", `${inmate.firstName} selecionado.`, "info");
+                                                                  }}
+                                                                  className="px-1.5 py-0.5 flex items-center gap-1.5 rounded cursor-pointer hover:bg-slate-900/60 transition-all text-slate-400 hover:text-slate-200 text-[8px]"
+                                                                >
+                                                                  <Users className="h-2.5 w-2.5 text-slate-500 shrink-0" />
+                                                                  <span className="truncate font-sans font-medium">{inmate.firstName} {inmate.lastName}</span>
+                                                                </div>
+                                                              ))}
+                                                              {cellInmates.length === 0 && (
+                                                                <div className="pl-2 py-0.5 text-slate-600 text-[7px] italic">Vazia</div>
+                                                              )}
+                                                            </div>
+                                                          )}
+                                                        </div>
+                                                      );
+                                                    })}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
+                </div>
+
+                {/* HIGH-CONTRAST EP QUICK DIRECT BUTTONS */}
+                <div className="flex flex-col gap-1 border-t border-slate-850 pt-2">
+                  <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider px-1 mb-0.5">Acesso Rápido EPs</span>
+                  <div className="flex flex-wrap gap-1">
+                    {prisons.map(pris => {
+                      const isSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
+                      const isFem = pris.name.toLowerCase().includes("feminino");
+                      return (
+                        <button
+                          key={pris.id}
+                          onClick={() => {
+                            setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name });
+                            setActiveTab("" as any);
+                            setCurrentMission(null);
+                          }}
+                          className={`px-2 py-1 rounded text-[9.5px] font-mono font-extrabold border transition-all cursor-pointer ${
+                            isSel
+                              ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
+                              : isFem
+                                ? "bg-pink-950/40 text-pink-300 border-pink-800/60 hover:bg-pink-900 hover:text-white"
+                                : "bg-slate-900 border-slate-750 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-600"
+                          }`}
+                        >
+                          {formatEPName(pris.name)}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
               </div>
@@ -8801,20 +8775,20 @@ export default function App() {
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                       <span className="truncate">Inspeção Sanitária Geral</span>
                     </button>
+
+                    <button 
+                      onClick={() => {
+                        setShowNEPAuditor(true);
+                      }}
+                      className="w-full text-left p-1.5 rounded border transition-all cursor-pointer flex items-center gap-1.5 bg-amber-500/10 border-amber-500/40 text-amber-400 font-bold hover:bg-amber-500/20"
+                    >
+                      <ShieldCheck className="h-3 w-3 text-amber-400 shrink-0" />
+                      <span className="truncate">Auditoria N.E.P. (Dec. 272/16)</span>
+                    </button>
                   </div>
                 )}
               </div>
 
-            </div>
-
-            {/* Quick Actions Footer Indicator */}
-            <div className="p-2 m-2 bg-[#05070c] border border-slate-900 rounded text-[9px] text-slate-500 leading-normal font-mono select-none flex flex-col gap-1">
-              <div>
-                <span className="text-amber-500 font-bold">MODELO ATIVO:</span> Orgânica Militarizada Central.
-              </div>
-              <div>
-                Use as <span className="text-amber-400 font-extrabold">Missões</span> ou clique nos nós do Explorer para gerir a soberania penal.
-              </div>
             </div>
           </aside>
         )}
@@ -8854,12 +8828,6 @@ export default function App() {
                 );
               })}
             </div>
-            <div className="hidden sm:flex items-center gap-2">
-              <span className="text-[8px] bg-amber-500/10 border border-amber-500/20 text-amber-500/80 px-1.5 py-0.2 rounded font-black tracking-wide">
-                IOS CANÓNICO
-              </span>
-              <span className="text-slate-600 text-[9px]">WAT (UTC+1)</span>
-            </div>
           </div>
 
           {/* Navigation Tabs Bar — Compact VS Code Style Tabs Bar */}
@@ -8877,20 +8845,20 @@ export default function App() {
               </button>
 
               {[
-                { tab: "dashboard", label: "painel_lotação.json", icon: File, color: "text-amber-500" },
-                { tab: "centro-comando", label: "comando_vsat.io", icon: Radio, color: "text-sky-500" },
-                { tab: "centro-inteligencia", label: "inteligencia_siem.ai", icon: ShieldAlert, color: "text-rose-500" },
-                { tab: "admissions", label: "cadastro_admissao.db", icon: Database, color: "text-emerald-500" },
-                { tab: "movements", label: "movimentacoes.sql", icon: Activity, color: "text-blue-500" },
-                { tab: "penal-code", label: "cnel_doctrine.txt", icon: FileText, color: "text-slate-400" },
-                { tab: "erd", label: "schema_erd.sql", icon: FileCode, color: "text-emerald-450" },
-                { tab: "auditing", label: "auditoria_geral.log", icon: Database, color: "text-amber-500" },
-                { tab: "settings", label: "config_simulador.ini", icon: Settings, color: "text-slate-400" },
-                { tab: "services-gateway", label: "gateway_servicos.conf", icon: Server, color: "text-sky-500" },
-                { tab: "deus-fundador", label: "consola_suprema.sh", icon: Crown, color: "text-amber-500" },
-                { tab: "sandbox", label: "dicionario_sandbox.json", icon: FileCode, color: "text-slate-500" },
-                { tab: "documents", label: "guias_transito.doc", icon: FileText, color: "text-amber-600" },
-                { tab: "special-services", label: "reinsercao_social.db", icon: Database, color: "text-teal-500" }
+                { tab: "dashboard", label: "Lotação & Risco", icon: File, color: "text-amber-500" },
+                { tab: "centro-comando", label: "Centro de Comando", icon: Radio, color: "text-sky-500" },
+                { tab: "centro-inteligencia", label: "Inteligência", icon: ShieldAlert, color: "text-rose-500" },
+                { tab: "admissions", label: "Admissão & Cadastro", icon: Database, color: "text-emerald-500" },
+                { tab: "movements", label: "Movimentações", icon: Activity, color: "text-blue-500" },
+                { tab: "penal-code", label: "Doutrina CNEL", icon: FileText, color: "text-slate-400" },
+                { tab: "erd", label: "Esquema ERD", icon: FileCode, color: "text-emerald-450" },
+                { tab: "auditing", label: "Auditoria Central", icon: Database, color: "text-amber-500" },
+                { tab: "settings", label: "Ajustes & Config", icon: Settings, color: "text-slate-400" },
+                { tab: "services-gateway", label: "Gateway de Serviços", icon: Server, color: "text-sky-500" },
+                { tab: "deus-fundador", label: "Direção Geral", icon: Crown, color: "text-amber-500" },
+                { tab: "sandbox", label: "Dicionário Sandbox", icon: FileCode, color: "text-slate-500" },
+                { tab: "documents", label: "Guias de Trânsito", icon: FileText, color: "text-amber-600" },
+                { tab: "special-services", label: "Reinserção Social", icon: Database, color: "text-teal-500" }
               ]
               .filter((item) => openTabs.includes(item.tab))
               .map((item) => {
@@ -8935,45 +8903,6 @@ export default function App() {
 
             {/* Right side: Compact status indicators and Seletor button */}
             <div className="flex items-center gap-2 px-3 h-full border-l border-slate-900 bg-[#090c12]/50 shrink-0">
-              
-              {/* Global Province Filter styled as a subtle VS Code status combo */}
-              <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-0.5 rounded border border-slate-900">
-                <MapPin className="h-3 w-3 text-amber-500 shrink-0" />
-                <select
-                  id="global-province-selector"
-                  value={selectedProvinceFilter}
-                  onChange={(e) => {
-                    setSelectedProvinceFilter(e.target.value);
-                    writeAuditLog(
-                      currentOperator,
-                      "PRINT_REPORT",
-                      "Território",
-                      undefined,
-                      `Alterou filtro territorial de província para: ${e.target.value}`
-                    );
-                  }}
-                  disabled={currentOperator.territorialScope !== TerritorialScope.NATIONAL}
-                  className="bg-transparent border-none text-slate-350 text-[10px] font-mono focus:outline-none cursor-pointer disabled:opacity-75"
-                >
-                  {currentOperator.territorialScope === TerritorialScope.NATIONAL ? (
-                    <>
-                      <option value="ALL">Todas as Províncias</option>
-                      {PROVINCES_HARDCODED.map(prov => (
-                        <option key={prov} value={prov}>{prov}</option>
-                      ))}
-                    </>
-                  ) : currentOperator.territorialScope === TerritorialScope.PROVINCIAL ? (
-                    <option value={currentOperator.province || "Luanda"}>
-                      Prov. {currentOperator.province || "Luanda"}
-                    </option>
-                  ) : (
-                    <option value={activeOpProvince || "Luanda"}>
-                      Prov. {activeOpProvince || "Luanda"}
-                    </option>
-                  )}
-                </select>
-              </div>
-
               {/* Sync status button */}
               {syncQueue.length > 0 && (
                 <button
@@ -9040,6 +8969,14 @@ export default function App() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setShowNEPAuditor(true)}
+                        className="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xxs font-extrabold uppercase font-mono px-3 py-2 rounded-lg cursor-pointer transition flex items-center gap-1.5 shadow-sm"
+                        title="Verificar regras legais do Decreto Executivo 272/16 para esta missão"
+                      >
+                        <ShieldCheck className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+                        Audit N.E.P. (Dec. 272/16)
+                      </button>
                       <button
                         onClick={() => {
                           if (confirm("Deseja realmente abortar a missão atual? Dados não salvos serão descartados.")) {
@@ -9356,7 +9293,7 @@ export default function App() {
                                       className="bg-slate-950 border border-slate-850 focus:border-emerald-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                                     >
                                       {prisons.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                        <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                                       ))}
                                     </select>
                                   </div>
@@ -9406,9 +9343,18 @@ export default function App() {
                                 >
                                   Continuar
                                 </button>
+                              ) : currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.province === "Centro Operacional" ? (
+                                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 text-amber-400 font-mono text-xxs flex items-center gap-1.5">
+                                  <ShieldAlert className="h-4 w-4 shrink-0" />
+                                  <span>Admissão Bloqueada: Centro Operacional Central tem função exclusiva de supervisão da plataforma nacional.</span>
+                                </div>
                               ) : (
                                 <button
                                   onClick={() => {
+                                    if (currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.province === "Centro Operacional") {
+                                      triggerToast("Acesso Restrito", "O Centro Operacional Central não realiza admissões de reclusos.", "error");
+                                      return;
+                                    }
                                     const newId = `NREP-${Math.floor(1000 + Math.random() * 9000)}`;
                                     const newInmateObj: InmateState = {
                                       id: newId,
@@ -9512,7 +9458,7 @@ export default function App() {
                               className="bg-slate-950 border border-slate-850 focus:border-sky-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                             >
                               {prisons.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
+                                <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                               ))}
                             </select>
                           </div>
@@ -9596,7 +9542,7 @@ export default function App() {
                               className="bg-slate-950 border border-slate-850 focus:border-red-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                             >
                               {prisons.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
+                                <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                               ))}
                             </select>
                           </div>
@@ -9715,7 +9661,7 @@ export default function App() {
                               className="bg-slate-950 border border-slate-850 focus:border-amber-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                             >
                               {prisons.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
+                                <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                               ))}
                             </select>
                           </div>
@@ -10728,38 +10674,38 @@ export default function App() {
 
           {activeTab === "dashboard" && currentOperator.role !== "CHEFE_SAUDE" && currentOperator.role !== "DIRECTOR_CADEIA" && (
             <div className="flex flex-col gap-6 w-full text-left">
-              {/* Dashboard Sub-Tabs */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-3 rounded-xl font-sans">
-                <div className="flex items-center gap-2">
+              {/* Dashboard Sub-Tabs — Compact Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#080b11] border border-slate-900 p-2 rounded-lg font-sans">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setDashboardSubTab("capacity")}
-                    className={`px-4 py-2 text-xxs font-mono font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+                    className={`px-3 py-1.5 text-xs font-mono font-bold uppercase rounded transition-all flex items-center gap-1.5 cursor-pointer ${
                       dashboardSubTab === "capacity"
-                        ? "bg-amber-500 text-slate-950 font-extrabold shadow-md shadow-amber-500/10 border border-amber-600/30"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-850/60"
+                        ? "bg-slate-800 text-amber-400 border border-amber-500/30 shadow-sm"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
                     }`}
                   >
                     <Building className="h-3.5 w-3.5" />
-                    Lotação & Ocupação
+                    Ocupação
                   </button>
                   <button
                     type="button"
                     onClick={() => setDashboardSubTab("risk-map")}
-                    className={`px-4 py-2 text-xxs font-mono font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+                    className={`px-3 py-1.5 text-xs font-mono font-bold uppercase rounded transition-all flex items-center gap-1.5 cursor-pointer ${
                       dashboardSubTab === "risk-map"
-                        ? "bg-amber-500 text-slate-950 font-extrabold shadow-md shadow-amber-500/10 border border-amber-600/30"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-850/60"
+                        ? "bg-slate-800 text-amber-400 border border-amber-500/30 shadow-sm"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
                     }`}
                   >
                     <ShieldAlert className="h-3.5 w-3.5" />
-                    Mapa de Risco (Risk Map)
+                    Risco
                   </button>
                 </div>
                 
-                <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 border border-slate-850 rounded-lg text-[9.5px] font-mono text-slate-400">
+                <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
                   <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  SISTEMA DE SEGURANÇA NACIONAL SEGURO (Maker-Checker Ativo)
+                  <span>Consola Operacional</span>
                 </div>
               </div>
 
@@ -10773,26 +10719,20 @@ export default function App() {
                 >
               
               {/* Lotação Real-Time do Estabelecimento */}
-              <div className="lg:col-span-2 flex flex-col gap-6">
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div>
-                      <h2 className="text-sm font-bold uppercase tracking-wider text-amber-500 font-mono">
-                        Controle de Ocupação & Capacidade Prisional
-                      </h2>
-                      <p className="text-xs text-slate-400">
-                        Ocupação dinâmica a nível de blocos e cálculo automático de sobrelotação (Fórmula: Lotação Ativa / Cap. Operacional).
-                      </p>
-                    </div>
-                    <span className="bg-slate-950 text-amber-500/90 px-3 py-1 text-xs border border-slate-800 font-mono rounded font-semibold">
-                      Filtro: {currentOperator.role === "DIRECTOR_GERAL" ? "Nacional Completo" :
-                               currentOperator.role === "DIRECTOR_PROVINCIAL" ? "Regional Provincial Luanda" :
-                               `Unidade Local (${visiblePrisons[0]?.name.replace("Estabelecimento Penitenciário de ", "") || "EP Viana"})`}
+              <div className="lg:col-span-2 flex flex-col gap-4">
+                <div className="bg-[#080b11] border border-slate-900 rounded-lg p-3.5 flex flex-col gap-3">
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-2.5">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono flex items-center gap-2">
+                      <Building className="h-3.5 w-3.5 text-amber-500" />
+                      Capacidade Prisional & Operativa
+                    </h2>
+                    <span className="text-[10px] text-slate-400 font-mono font-bold">
+                      {visiblePrisons.length} Unidades
                     </span>
                   </div>
 
-                  {/* Prisons Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* High-density Tactical Prison List */}
+                  <div className="flex flex-col gap-2">
                     {visiblePrisons.map((cris) => {
                       const occupancyRate = Math.round((cris.currentOccupancy / cris.operationalCapacity) * 100);
                       const isOvercrowded = occupancyRate > 100;
@@ -10800,57 +10740,55 @@ export default function App() {
                       return (
                         <div 
                           key={cris.id} 
-                          className="bg-slate-950/80 border border-slate-800/80 rounded-lg p-4 flex flex-col justify-between hover:border-slate-700 transition"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 bg-[#05070c] border border-slate-900 rounded-lg hover:border-slate-800 transition gap-2 font-mono text-xs"
                         >
-                          <div>
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <h3 className="font-semibold text-sm text-slate-200 leading-tight">
-                                  {cris.name}
-                                </h3>
-                                <p className="text-xxs text-slate-400 flex items-center gap-1 mt-0.5">
-                                  <MapPin className="h-3 w-3 text-slate-500" /> {cris.location}
-                                </p>
-                              </div>
-                              <span className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded ${
-                                isOvercrowded ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                              }`}>
-                                {isOvercrowded ? "Sobrelotada" : "Estável"}
-                              </span>
-                            </div>
+                          {/* 1. Nome + Estado */}
+                          <div className="sm:w-1/3 min-w-[170px]">
+                            <div className="font-bold text-slate-200 truncate text-xs">{formatEPName(cris.name)}</div>
+                            <span className={`inline-block px-1.5 py-0.5 mt-0.5 border text-[9.5px] rounded uppercase font-bold ${
+                              isOvercrowded 
+                                ? "bg-red-950/80 text-red-400 border-red-800/80" 
+                                : occupancyRate > 85 
+                                ? "bg-amber-950/80 text-amber-400 border-amber-800/80" 
+                                : "bg-emerald-950/80 text-emerald-400 border-emerald-800/80"
+                            }`}>
+                              {occupancyRate}% | {isOvercrowded ? "Sobrelotada" : "Estável"}
+                            </span>
+                          </div>
 
-                            {/* Bar Graphic */}
-                            <div className="mt-4 flex flex-col gap-1.5">
-                              <div className="flex justify-between text-xs font-mono">
-                                <span className="text-slate-400 text-xxs">Carga: {cris.currentOccupancy} reclusos</span>
-                                <span className={`${isOvercrowded ? "text-red-400" : "text-slate-300"} font-bold text-xxs`}>
-                                  {occupancyRate}% da operatividade
-                                </span>
-                              </div>
-                              <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all duration-500 ${
-                                    isOvercrowded ? "bg-red-500" : occupancyRate > 85 ? "bg-amber-500" : "bg-emerald-500"
-                                  }`}
-                                  style={{ width: `${Math.min(occupancyRate, 100)}%` }}
-                                />
-                              </div>
-                              <div className="flex justify-between text-[10px] text-slate-500 font-mono mt-0.5">
-                                <span>Cap. Oficial: {cris.officialCapacity}</span>
-                                <span>Limite Operativo: {cris.operationalCapacity}</span>
-                              </div>
+                          {/* 2. Capacidade e Barra de Progresso Fina */}
+                          <div className="sm:w-1/3 px-2 flex flex-col justify-center">
+                            <div className="flex justify-between text-[10px] text-slate-400 mb-1">
+                              <span>Ocupação</span>
+                              <span className="font-bold text-slate-200">{cris.currentOccupancy} / {cris.operationalCapacity}</span>
+                            </div>
+                            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
+                              <div 
+                                className={`h-full ${isOvercrowded ? "bg-red-500" : occupancyRate > 85 ? "bg-amber-500" : "bg-emerald-500"}`} 
+                                style={{ width: `${Math.min(occupancyRate, 100)}%` }} 
+                              />
                             </div>
                           </div>
 
-                          <div className="mt-4 pt-3 border-t border-slate-900 flex justify-between items-center">
-                            <span className="text-[10px] text-slate-400 uppercase tracking-widest font-mono">Pavilhões activos:</span>
-                            <div className="flex gap-1.5">
-                              {cris.pavilions.map(p => (
-                                <span key={p.id} className="text-xxs font-mono bg-slate-900 px-2 py-0.5 rounded text-slate-300 border border-slate-800">
-                                  {p.name.split(" - ")[0].replace("Pavilhão ", "Pav ")}
-                                </span>
-                              ))}
-                            </div>
+                          {/* 3. Botões Operacionais de Ação Rápida */}
+                          <div className="flex items-center gap-1 shrink-0 flex-wrap">
+                            {cris.pavilions.map((p) => (
+                              <button
+                                key={p.id}
+                                onClick={() => {
+                                  setSelectedEstablishmentId(cris.id);
+                                }}
+                                className="px-2 py-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-slate-300 rounded border border-slate-800 transition-colors text-[9.5px] uppercase font-bold cursor-pointer"
+                              >
+                                {p.name.split(" - ")[0].replace("Pavilhão ", "Pav ")}
+                              </button>
+                            ))}
+                            <button
+                              onClick={() => setSelectedEstablishmentId(cris.id)}
+                              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 text-[9.5px] uppercase font-bold cursor-pointer"
+                            >
+                              Gerir
+                            </button>
                           </div>
                         </div>
                       );
@@ -10926,9 +10864,6 @@ export default function App() {
                           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-100 font-sans mt-1">
                             {activePrisonForDetails.name.replace("Estabelecimento Penitenciário de ", "EP ")}
                           </h3>
-                          <p className="text-xxs text-slate-400 mt-0.5">
-                            Gestão física interna e parlatório integrado. Lotação total: {activePrisonForDetails.currentOccupancy}/{activePrisonForDetails.officialCapacity}
-                          </p>
                         </div>
                         
                         {/* Sub-Tabs */}
@@ -11242,32 +11177,7 @@ export default function App() {
                         isAutoAlertEnabled && hasCriticalOvercrowdingAutoAlert ? widgetTheme.text : "text-amber-500"
                       }`}>
                         <Building className="h-4 w-4 shrink-0" /> Unidades: Sobrelotação Geral
-                        <div className="relative group inline-flex items-center">
-                          <HelpCircle id="overcrowding-help-tooltip-icon" className="h-3.5 w-3.5 text-slate-400 hover:text-slate-200 cursor-help transition-colors shrink-0" />
-                          <div className="absolute left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 top-6 w-72 p-3 bg-slate-950 text-slate-300 font-sans text-[10px] font-normal leading-relaxed rounded-lg border border-slate-800 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none normal-case tracking-normal">
-                            <div className="font-bold text-slate-100 mb-1 flex items-center gap-1 font-mono uppercase tracking-wide text-[9px] text-amber-500">
-                              <Building className="h-3 w-3 text-amber-500" /> Cálculo da Lotação:
-                            </div>
-                            <p className="mb-1.5">
-                              A percentagem de ocupação é calculada dividindo a **Ocupação Activa** (total de reclusos no estabelecimento) pela **Capacidade Operacional** do mesmo:
-                            </p>
-                            <div className="bg-slate-900 p-2 rounded border border-slate-800 font-mono text-[9px] text-amber-400/90 mb-1.5 text-center">
-                              Taxa % = (Reclusos / Cap. Operacional) * 100
-                            </div>
-                            <p className="text-[9px] text-slate-400 leading-snug">
-                              Se a taxa for igual ou superior a <span className="text-red-400 font-bold">100%</span>, o estabelecimento é marcado como sobrelotado. Se ultrapassar <span className="text-red-400 font-bold">{criticalOvercrowdingThreshold}%</span>, o sistema activa o alarme crítico de segurança.
-                            </p>
-                          </div>
-                        </div>
                       </h3>
-                      <p className="text-[10px] text-slate-400 mt-0.5 font-sans flex items-center gap-2 flex-wrap">
-                        <span>Monitorização nacional em tempo real por estabelecimento (Capacidades vs Ocupação Activa).</span>
-                        {isEnterpriseMode && (
-                          <span className="text-[7.5px] font-mono font-black text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded leading-none border border-amber-500/20 uppercase tracking-widest animate-pulse">
-                            Enterprise Telemetry Active
-                          </span>
-                        )}
-                      </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 shrink-0">
                       <button
@@ -11346,131 +11256,6 @@ export default function App() {
                         <Layers className="h-3 w-3" />
                         {isOvercrowdingDetailedMode ? "Modo Detalhado: ACTIVO" : "Modo Detalhado"}
                       </button>
-
-                      <button
-                        id="export-overcrowding-report-btn"
-                        onClick={() => {
-                          const filteredPrisonsForExport = visiblePrisons.filter((p) => {
-                            if (!overcrowdingSearchQuery) return true;
-                            const query = overcrowdingSearchQuery.toLowerCase().trim();
-                            const name = p.name.toLowerCase();
-                            const id = p.id.toLowerCase();
-                            const location = (p.location || "").toLowerCase();
-                            return name.includes(query) || id.includes(query) || location.includes(query);
-                          });
-
-                          const reportData = {
-                            documento: "Relatório de Auditoria Técnica - Sobrelotação Prisional",
-                            dataGeracao: new Date().toISOString(),
-                            operador: currentOperator ? { id: currentOperator.id, nome: currentOperator.name, email: currentOperator.email, role: currentOperator.role } : null,
-                            filtrosAplicados: {
-                              buscaRapida: overcrowdingSearchQuery || null,
-                              filtroSeveridadeDisciplinar: widgetSeverityFilter
-                            },
-                            estatisticasGerais: {
-                              totalEstabelecimentosFiltrados: filteredPrisonsForExport.length,
-                              capacidadeOficialTotal: filteredPrisonsForExport.reduce((sum, p) => sum + p.officialCapacity, 0),
-                              capacidadeOperacionalTotal: filteredPrisonsForExport.reduce((sum, p) => sum + p.operationalCapacity, 0),
-                              ocupacaoActualTotal: filteredPrisonsForExport.reduce((sum, p) => sum + p.currentOccupancy, 0),
-                              taxaOcupacaoMedia: filteredPrisonsForExport.length > 0 
-                                ? Math.round((filteredPrisonsForExport.reduce((sum, p) => sum + p.currentOccupancy, 0) / filteredPrisonsForExport.reduce((sum, p) => sum + p.operationalCapacity, 1)) * 100)
-                                : 0
-                            },
-                            estabelecimentos: filteredPrisonsForExport.map(p => {
-                              const occupancyRate = Math.round((p.currentOccupancy / p.operationalCapacity) * 100);
-                              return {
-                                id: p.id,
-                                nome: p.name,
-                                localizacao: p.location,
-                                capacidadeOficial: p.officialCapacity,
-                                capacidadeOperacional: p.operationalCapacity,
-                                ocupacaoActual: p.currentOccupancy,
-                                taxaSobrelotacao: `${occupancyRate}%`,
-                                estadoLotacao: occupancyRate >= 100 ? "CRÍTICO/SOBRELOTADO" : occupancyRate >= 80 ? "ALTO" : "ESTÁVEL",
-                                excedeCapacidadeOficial: p.currentOccupancy > p.officialCapacity,
-                                excedeCapacidadeOperacional: p.currentOccupancy > p.operationalCapacity
-                              };
-                            })
-                          };
-
-                          const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-                          const url = URL.createObjectURL(blob);
-                          const link = document.createElement('a');
-                          link.href = url;
-                          link.download = `relatorio_auditoria_sobrelotacao_${new Date().toISOString().split('T')[0]}.json`;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                          URL.revokeObjectURL(url);
-
-                          writeAuditLog(
-                            currentOperator,
-                            "PRINT_REPORT",
-                            "Dashboard",
-                            undefined,
-                            `Exportou Relatório Técnico de Sobrelotação Prisional em JSON (Filtro: "${overcrowdingSearchQuery || "Nenhum"}", Itens: ${filteredPrisonsForExport.length})`
-                          );
-                        }}
-                        className="bg-emerald-950 text-emerald-200 border border-emerald-500 hover:bg-emerald-900 hover:text-white text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 shadow-lg shadow-emerald-950/20"
-                        title="Exportar a lista filtrada de estabelecimentos com taxas de sobrelotação em formato JSON para auditoria"
-                      >
-                        <Download className="h-3.5 w-3.5 text-emerald-400" />
-                        Exportar Relatório
-                      </button>
-
-                      {isOvercrowdingDetailedMode && (
-                        <button
-                          id="export-all-critical-blocks-btn"
-                          onClick={() => {
-                            const allCritical: Array<{ pavName: string; blkName: string; capacity: number; current: number; percent: number; riskLevel: string }> = [];
-                            visiblePrisons.forEach((prison: any) => {
-                              if (prison.pavilions) {
-                                prison.pavilions.forEach((pav: any) => {
-                                  if (pav.blocks) {
-                                    pav.blocks.forEach((blk: any) => {
-                                      const percent = blk.capacity > 0 ? Math.round((blk.current / blk.capacity) * 100) : 0;
-                                      if (percent >= 100) {
-                                        allCritical.push({
-                                          pavName: `${prison.name.replace("Estabelecimento Penitenciário de ", "")} - ${pav.name.split(" - ")[0]}`,
-                                          blkName: blk.name,
-                                          capacity: blk.capacity,
-                                          current: blk.current,
-                                          percent,
-                                          riskLevel: blk.riskLevel
-                                        });
-                                      }
-                                    });
-                                  }
-                                });
-                              }
-                            });
-
-                            if (allCritical.length === 0) {
-                              alert("Não existem blocos em lotação crítica para os estabelecimentos exibidos.");
-                              return;
-                            }
-
-                            exportCriticalBlocksToPDF(
-                              "Nacional (Múltiplas Unidades)",
-                              allCritical,
-                              currentOperatorId
-                            );
-
-                            writeAuditLog(
-                              currentOperator,
-                              "PRINT_REPORT",
-                              "Dashboard",
-                              undefined,
-                              `Exportou Relatório Técnico Consolidado de todos os Blocos Críticos Nacionais (Total: ${allCritical.length})`
-                            );
-                          }}
-                          className="bg-red-950 text-red-200 border border-red-500 hover:bg-red-900 hover:text-white text-[9px] font-mono font-bold px-2.5 py-1.5 rounded-lg transition-all duration-300 flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 shadow-lg shadow-red-950/20"
-                          title="Exportar dados de todos os blocos críticos de todas as unidades monitoradas em um relatório PDF integrado"
-                        >
-                          <FileText className="h-3 w-3 text-red-400" />
-                          Exportar Blocos Críticos
-                        </button>
-                      )}
                     </div>
                   </div>
 
@@ -11680,10 +11465,6 @@ export default function App() {
                         className="w-12 bg-slate-900 border border-slate-800 p-0.5 text-center font-mono text-[9px] rounded text-slate-300 font-bold focus:border-amber-500 focus:outline-none"
                       />
                     </div>
-                    
-                    <p className="text-[8px] text-slate-400 font-sans leading-normal">
-                      Se a lotação de um pavilhão ultrapassar <strong className="text-amber-500 font-mono">{pavilionApprovalThreshold}%</strong>, toda e qualquer transferência ou libertação desse pavilhão entra em <strong className="text-amber-400 font-sans">Aprovação Pendente (Dual Approval)</strong>, exigindo assinatura digital de Supervisor.
-                    </p>
 
                     {pavilionsOverApprovalThreshold.length > 0 ? (
                       <div className="flex flex-col gap-1 border-t border-slate-900 pt-1.5 mt-0.5">
@@ -13505,7 +13286,33 @@ export default function App() {
               exit={{ opacity: 0, y: -10 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-6"
             >
-              
+              {/* Painel Informativo de Restrição de Admissão do Centro Operacional Central */}
+              {(currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.province === "Centro Operacional") && (
+                <div className="lg:col-span-12 bg-slate-950 border border-amber-500/40 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+                  <div className="flex items-start gap-3.5">
+                    <div className="p-3 bg-amber-500/15 border border-amber-500/30 text-amber-400 rounded-xl shrink-0 mt-0.5">
+                      <ShieldAlert className="h-6 w-6 animate-pulse" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-xs sm:text-sm font-bold font-mono text-amber-400 uppercase tracking-wide">
+                          CENTRO OPERACIONAL CENTRAL NACIONAL — COMPETÊNCIA EXCLUSIVA DE ADMINISTRAÇÃO E SUPERVISÃO
+                        </h3>
+                        <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-mono px-2 py-0.5 rounded uppercase font-bold">
+                          SEM FUNÇÃO DE ADMISSÃO DIRETA
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 font-sans mt-1 leading-relaxed">
+                        O <strong>Centro Operacional Central (Direção Geral)</strong> administra toda a plataforma nacional, audita a soberania de dados, monitoriza a ocupação global e coordena as políticas prisionais. <strong>Não efectua admissões directas de reclusos.</strong>
+                      </p>
+                      <p className="text-xxs text-amber-400/90 font-mono mt-1">
+                        💡 Para efetuar o registo/admissão de um recluso, alterne o operador para um Estabelecimento Penitenciário local (ex: EP Viana) no seletor de perfis no topo da aplicação.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Form de Matrícula Dinâmica de Novo Recluso */}
               <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
                 
@@ -15214,7 +15021,7 @@ export default function App() {
                                         });
                                       });
 
-                                      setFormData(prev => ({
+                                      setNewInmateForm(prev => ({
                                         ...prev,
                                         assignedBlockId: b2BlockId,
                                         assignedCellNumber: b2ProposalRelocations[0]?.proposedCell || "Cela B2-01"
@@ -15404,7 +15211,7 @@ export default function App() {
                                           });
                                         });
 
-                                        setFormData(prev => ({
+                                        setNewInmateForm(prev => ({
                                           ...prev,
                                           assignedBlockId: b2BlockId,
                                           assignedCellNumber: b2ProposalRelocations[0]?.proposedCell || "Cela B2-01"
@@ -15894,7 +15701,7 @@ export default function App() {
                             className="bg-slate-950 border border-slate-800 p-2.5 rounded text-white"
                           >
                             {visiblePrisons.map(p => (
-                              <option key={p.id} value={p.id}>{p.name} ({p.location})</option>
+                              <option key={p.id} value={p.id}>{formatEPName(p.name)} ({p.location})</option>
                             ))}
                           </select>
                         </div>
@@ -23277,6 +23084,17 @@ export default function App() {
                       <div className="flex gap-1.5 p-1 bg-slate-900/60 rounded-xl border border-slate-850">
                         <button
                           type="button"
+                          onClick={() => setSettingsSubTab("hierarchy")}
+                          className={`px-3.5 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                            settingsSubTab === "hierarchy"
+                              ? "bg-amber-500 text-slate-950 font-extrabold shadow-sm"
+                              : "text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          <FolderTree className="h-3.5 w-3.5" /> Hierarquia (Dec. 184/17)
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => setSettingsSubTab("auditing")}
                           className={`px-3.5 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                             settingsSubTab === "auditing"
@@ -23894,8 +23712,8 @@ export default function App() {
                                       disabled={!canManageHR || editingOpLevel === "NATIONAL"}
                                       className="bg-slate-900 border border-slate-850 rounded p-1.5 text-xxs text-slate-300 font-mono w-full focus:outline-none focus:border-amber-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                      {["Cabinda", "Zaire", "Uíge", "Bengo", "Luanda", "Cuanza-Norte", "Cuanza-Sul", "Malanje", "Lunda-Norte", "Lunda-Sul", "Benguela", "Huambo", "Bié", "Moxico", "Huíla", "Namibe", "Cunene", "Cubango"].map(p => (
-                                        <option key={p} value={p}>{p}</option>
+                                      {PROVINCES_21.map(p => (
+                                        <option key={p.code} value={p.name}>{p.name}</option>
                                       ))}
                                     </select>
                                     <p className="text-[8px] text-slate-500 font-sans mt-0.5 leading-normal">
@@ -23917,7 +23735,7 @@ export default function App() {
                                         {prisons
                                           .filter(p => !editingOpProvince || p.location.toLowerCase().includes(editingOpProvince.toLowerCase()))
                                           .map(p => (
-                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                            <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                                           ))}
                                       </select>
                                       <p className="text-[8px] text-slate-500 font-sans mt-0.5">
@@ -24116,8 +23934,8 @@ export default function App() {
                                       onChange={(e) => setNewOp(prev => ({ ...prev, province: e.target.value }))}
                                       className="bg-slate-900 border border-slate-850 rounded p-1.5 text-xxs text-slate-300 font-mono w-full focus:outline-none focus:border-amber-500 cursor-pointer"
                                     >
-                                      {["Cabinda", "Zaire", "Uíge", "Bengo", "Luanda", "Cuanza-Norte", "Cuanza-Sul", "Malanje", "Lunda-Norte", "Lunda-Sul", "Benguela", "Huambo", "Bié", "Moxico", "Huíla", "Namibe", "Cunene", "Cubango"].map(p => (
-                                        <option key={p} value={p}>{p}</option>
+                                      {PROVINCES_21.map(p => (
+                                        <option key={p.code} value={p.name}>{p.name}</option>
                                       ))}
                                     </select>
                                   </div>
@@ -24135,7 +23953,7 @@ export default function App() {
                                         {prisons
                                           .filter(p => !newOp.province || p.location.toLowerCase().includes(newOp.province.toLowerCase()))
                                           .map(p => (
-                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                            <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                                           ))}
                                       </select>
                                     </div>
@@ -25046,6 +24864,17 @@ export default function App() {
                       </div>
                     )}
 
+                    {settingsSubTab === "hierarchy" && (
+                      <OrganizationalHierarchyConfig
+                        organizationalUnits={organizationalUnits}
+                        setOrganizationalUnits={setOrganizationalUnits}
+                        prisons={prisons}
+                        setPrisons={setPrisons}
+                        triggerToast={triggerToast}
+                        currentOperator={currentOperator}
+                      />
+                    )}
+
                     {settingsSubTab === "cluster" && (
                       <ClusterConfigurationPanel />
                     )}
@@ -25066,7 +24895,14 @@ export default function App() {
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col gap-6"
             >
-              <LegislationModule />
+              <LegislationModule 
+                inmates={inmates}
+                pendingMovements={movements}
+                movementLogs={auditLogs}
+                prisons={prisons}
+                triggerToast={triggerToast}
+                currentOperator={currentOperator}
+              />
             </motion.div>
           )}
 
@@ -25637,14 +25473,12 @@ export default function App() {
       </div>
 
       {/* Footer Nacional */}
-      <footer className="bg-slate-900 border-t border-slate-800 px-6 py-4 mt-auto flex flex-col md:flex-row items-center justify-between text-xxs text-slate-500 gap-3 font-mono">
+      <footer className="bg-[#07090e] border-t border-slate-900 px-6 py-2.5 mt-auto flex flex-col md:flex-row items-center justify-between text-[10px] text-slate-500 gap-2 font-mono select-none">
         <div>
-          © 2026 Plataforma Nacional de Administração Penitenciária (PNAP-AO). Todos os direitos reservados.
+          © 2026 Serviço Penitenciário • Sistema Integrado de Controlo Penal
         </div>
         <div className="flex gap-4">
-          <span className="hover:text-slate-300">Gabinete de Tecnologia e Informação do MININT</span>
-          <span>•</span>
-          <span className="hover:text-slate-300 text-amber-500 font-bold">PostgreSQL Enterprise Model (Port: 5432)</span>
+          <span className="text-slate-400 font-semibold">República de Angola</span>
         </div>
       </footer>
 
@@ -26867,6 +26701,31 @@ export default function App() {
                 </div>
                 <span className="text-slate-600 font-mono text-[9px] uppercase tracking-wide">MININT • PNAP-AO • CONSOLA</span>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* NEP Compliance Auditor Modal Overlay */}
+      <AnimatePresence>
+        {showNEPAuditor && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.96, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 15 }}
+              className="w-full max-w-7xl h-[92vh] flex flex-col bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden"
+            >
+              <NEPComplianceAuditor
+                inmates={inmates}
+                pendingMovements={movements}
+                movementLogs={auditLogs}
+                prisons={prisons}
+                triggerToast={triggerToast}
+                currentOperator={currentOperator}
+                isOpen={true}
+                onClose={() => setShowNEPAuditor(false)}
+              />
             </motion.div>
           </div>
         )}

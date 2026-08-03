@@ -83,76 +83,7 @@ export const PENAL_CODE_GROUPS = {
   }
 };
 
-export const PRISONS_DB = [
-  {
-    id: "PRIS-01",
-    name: "Estabelecimento Penitenciário de Viana",
-    location: "Luanda, Angola",
-    officialCapacity: 1200,
-    operationalCapacity: 1400,
-    currentOccupancy: 1540, // Overcrowded
-    riskBreakdown: { "Baixo": 310, "Médio": 620, "Alto": 420, "Máximo": 190 },
-    pavilions: [
-      {
-        id: "PAV-A", name: "Pavilhão A - Admissão e Transição",
-        blocks: [
-          { id: "BLK-A1", name: "Bloco A1", capacity: 150, current: 165, cellCount: 15, riskLevel: "Médio" },
-          { id: "BLK-A2", name: "Bloco A2", capacity: 150, current: 180, cellCount: 15, riskLevel: "Baixo" }
-        ]
-      },
-      {
-        id: "PAV-B", name: "Pavilhão B - Regime Fechado",
-        blocks: [
-          { id: "BLK-B1", name: "Bloco B1", capacity: 200, current: 240, cellCount: 20, riskLevel: "Alto" },
-          { id: "BLK-B2", name: "Bloco B2", capacity: 200, current: 255, cellCount: 20, riskLevel: "Alta Segurança / Máximo" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-02",
-    name: "Estabelecimento Penitenciário de Kakila",
-    location: "Bengo, Angola",
-    officialCapacity: 800,
-    operationalCapacity: 900,
-    currentOccupancy: 780, // Safe
-    riskBreakdown: { "Baixo": 280, "Médio": 320, "Alto": 150, "Máximo": 30 },
-    pavilions: [
-      {
-        id: "PAV-K1", name: "Pavilhão Norte - Regime Aberto",
-        blocks: [
-          { id: "BLK-K1A", name: "Bloco Norte-A", capacity: 200, current: 180, cellCount: 20, riskLevel: "Baixo" },
-          { id: "BLK-K1B", name: "Bloco Norte-B", capacity: 200, current: 170, cellCount: 20, riskLevel: "Baixo" }
-        ]
-      },
-      {
-        id: "PAV-K2", name: "Pavilhão Sul - Médio Risco",
-        blocks: [
-          { id: "BLK-K2A", name: "Bloco Sul-A", capacity: 250, current: 220, cellCount: 25, riskLevel: "Médio" },
-          { id: "BLK-K2B", name: "Bloco Sul-B", capacity: 250, current: 210, cellCount: 25, riskLevel: "Alto" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-03",
-    name: "Estabelecimento Penitenciário de Sanza Pombo",
-    location: "Uíge, Angola",
-    officialCapacity: 500,
-    operationalCapacity: 600,
-    currentOccupancy: 420, // Normal
-    riskBreakdown: { "Baixo": 160, "Médio": 180, "Alto": 60, "Máximo": 20 },
-    pavilions: [
-      {
-        id: "PAV-S1", name: "Pavilhão Único",
-        blocks: [
-          { id: "BLK-S1A", name: "Bloco Central", capacity: 300, current: 250, cellCount: 30, riskLevel: "Médio" },
-          { id: "BLK-S2A", name: "Bloco de Segurança", capacity: 150, current: 170, cellCount: 15, riskLevel: "Alto" }
-        ]
-      }
-    ]
-  }
-];
+export const PRISONS_DB: any[] = [];
 
 export const TABLES_METADATA: Table[] = [
   // GLOBAL & CORE (Módulos 1, 2, 3)

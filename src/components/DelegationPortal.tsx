@@ -594,20 +594,18 @@ export default function DelegationPortal({
     });
   }, [delegations, operators, searchQuery, roleFilter, statusFilter, dateFilter, provinceFilter, prisonFilter, docTypeFilter]);
 
-  // Unique list of provinces for filtering dropdown
+  // Unique list of provinces for filtering dropdown (Divisão Político-Administrativa 2024 - 21 Províncias)
   const uniqueProvincesList = useMemo(() => {
-    const list = new Set<string>();
+    const defaultProvinces = [
+      "Cabinda", "Zaire", "Uíge", "Bengo", "Icolo e Bengo", "Luanda",
+      "Cuanza-Norte", "Cuanza-Sul", "Malanje", "Lunda-Norte", "Lunda-Sul",
+      "Benguela", "Huambo", "Bié", "Moxico", "Moxico Leste", "Huíla",
+      "Namibe", "Cunene", "Cubango", "Quando"
+    ];
+    const list = new Set<string>(defaultProvinces);
     operators.forEach(op => {
       if (op.province) {
         list.add(op.province);
-      }
-      if (op.assignedPrisonId) {
-        const pId = op.assignedPrisonId;
-        if (pId.includes("HUAMBO") || pId.includes("BAI") || pId.includes("CAA")) list.add("Huambo");
-        if (pId === "PRIS-01" || pId === "PRIS-02") list.add("Luanda");
-        if (pId.includes("BEN-01")) list.add("Benguela");
-        if (pId.includes("HUI-01")) list.add("Huíla");
-        if (pId.includes("BENGO")) list.add("Bengo");
       }
     });
     return Array.from(list).sort();
