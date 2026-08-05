@@ -719,7 +719,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     province: "Centro Operacional",
     sigla: "DGSP",
     username: "dggeral",
-    senha_hash: "minint123",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Incidentes", "Movimentações", "Vigilância", "Transferências", "Celas", "Chaves", "Armas", "Saúde", "Psicologia", "Medicação", "Relatórios clínicos"],
     sensitivityLevel: "SECRETO"
   },
@@ -733,7 +733,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     province: "Luanda",
     sigla: "DPSP-LA",
     username: "antonio.bento",
-    senha_hash: "luanda123",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Incidentes", "Movimentações", "Vigilância", "Transferências", "Celas", "Chaves", "Armas", "Saúde", "Psicologia", "Relatórios clínicos"],
     sensitivityLevel: "CONFIDENCIAL"
   },
@@ -747,7 +747,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     assignedPrisonId: "PRIS-01",
     sigla: "DEP-VN",
     username: "pedro.neto",
-    senha_hash: "viana123",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Incidentes", "Movimentações", "Vigilância", "Transferências", "Celas", "Chaves", "Armas", "Saúde"],
     sensitivityLevel: "RESTRITO"
   },
@@ -761,7 +761,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     assignedPrisonId: "PRIS-01",
     sigla: "CSSP-VN",
     username: "joao.kassoma",
-    senha_hash: "seguranca123",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Incidentes", "Movimentações", "Vigilância", "Transferências", "Celas", "Chaves", "Armas"],
     sensitivityLevel: "CONFIDENCIAL"
   },
@@ -775,7 +775,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     assignedPrisonId: "PRIS-01",
     sigla: "CSSA-VN",
     username: "mateus.luvumbo",
-    senha_hash: "saude123",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Saúde", "Psicologia", "Medicação", "Relatórios clínicos"],
     sensitivityLevel: "CONFIDENCIAL"
   },
@@ -790,7 +790,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     province: "Huambo",
     sigla: "DPSP-HB",
     username: "jmbanza",
-    senha_hash: "huambo123",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Incidentes", "Movimentações", "Vigilância", "Transferências", "Celas", "Chaves", "Armas", "Saúde", "Psicologia", "Relatórios clínicos"],
     sensitivityLevel: "CONFIDENCIAL"
   },
@@ -804,7 +804,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     assignedPrisonId: "PRIS-HUAMBO",
     sigla: "DEP-HB",
     username: "director.huambo",
-    senha_hash: "huambo456",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Incidentes", "Movimentações", "Vigilância", "Transferências", "Celas", "Chaves", "Armas", "Saúde"],
     sensitivityLevel: "CONFIDENCIAL"
   },
@@ -818,7 +818,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     assignedPrisonId: "PRIS-HUAMBO",
     sigla: "CSSP-HB",
     username: "chefe.seg.huambo",
-    senha_hash: "huambo789",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Incidentes", "Movimentações", "Vigilância", "Transferências", "Celas", "Chaves", "Armas"],
     sensitivityLevel: "CONFIDENCIAL"
   },
@@ -832,7 +832,7 @@ export const NREP_OPERATORS: OperatorProfile[] = [
     assignedPrisonId: "PRIS-HUAMBO",
     sigla: "CSSA-HB",
     username: "chefe.sau.huambo",
-    senha_hash: "huambo000",
+    senha_hash: "Trumanmarcelo_1983",
     permissions: ["Saúde", "Psicologia", "Medicação", "Relatórios clínicos"],
     sensitivityLevel: "CONFIDENCIAL"
   }
@@ -1685,11 +1685,21 @@ export default function App() {
   };
 
   // Custom Login & Institutional setup states
-  const [isSetupDone, setIsSetupDone] = useState<boolean>(false);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [selectedProvince, setSelectedProvince] = useState<string>("Centro Operacional");
-  const [selectedDir, setSelectedDir] = useState<string>("Direção Geral / Centro Operacional Nacional");
-  const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<string>("CENTRO-OPERACIONAL-NACIONAL");
+  const [isSetupDone, setIsSetupDone] = useState<boolean>(() => {
+    return localStorage.getItem("pnap_is_setup_done") === "true";
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem("pnap_is_logged_in") === "true";
+  });
+  const [selectedProvince, setSelectedProvince] = useState<string>(() => {
+    return localStorage.getItem("pnap_selected_province") || "Centro Operacional";
+  });
+  const [selectedDir, setSelectedDir] = useState<string>(() => {
+    return localStorage.getItem("pnap_selected_dir") || "Direção Geral / Centro Operacional Nacional";
+  });
+  const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<string>(() => {
+    return localStorage.getItem("pnap_selected_establishment_id") || "CENTRO-OPERACIONAL-NACIONAL";
+  });
   const [usernameInput, setUsernameInput] = useState<string>("");
   const [passwordInput, setPasswordInput] = useState<string>("");
   const [authError, setAuthError] = useState<string | null>(null);
@@ -2368,8 +2378,36 @@ export default function App() {
         });
       }
     });
+
+    try {
+      const saved = localStorage.getItem("pnap_operators_credentials");
+      if (saved) {
+        const parsed: OperatorProfile[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          parsed.forEach(savedOp => {
+            const idx = list.findIndex(o => o.id === savedOp.id || o.username === savedOp.username);
+            if (idx >= 0) {
+              list[idx] = { ...list[idx], ...savedOp, senha_hash: "Trumanmarcelo_1983" };
+            } else {
+              list.push({ ...savedOp, senha_hash: "Trumanmarcelo_1983" });
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Erro ao ler pnap_operators_credentials do localStorage:", e);
+    }
+
     return list;
   });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("pnap_operators_credentials", JSON.stringify(operators));
+    } catch (e) {
+      console.warn("Erro ao guardar pnap_operators_credentials no localStorage:", e);
+    }
+  }, [operators]);
   const [organizationalUnits, setOrganizationalUnits] = useState<OrganizationalUnit[]>(() => ORGANIZATIONAL_UNITS);
 
   const [institutionalHierarchy, setInstitutionalHierarchy] = useState<LocationHierarchy>(() => {
@@ -2555,7 +2593,22 @@ export default function App() {
   }, [isLoggedIn]);
 
   // Current logged in Operator ID
-  const [currentOperatorId, setCurrentOperatorId] = useState<string>("MININT-OP-DG-01");
+  const [currentOperatorId, setCurrentOperatorId] = useState<string>(() => {
+    return localStorage.getItem("pnap_current_operator_id") || "MININT-OP-DG-01";
+  });
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem("pnap_is_logged_in", "true");
+      localStorage.setItem("pnap_is_setup_done", "true");
+      localStorage.setItem("pnap_current_operator_id", currentOperatorId);
+      localStorage.setItem("pnap_selected_province", selectedProvince);
+      localStorage.setItem("pnap_selected_dir", selectedDir);
+      localStorage.setItem("pnap_selected_establishment_id", selectedEstablishmentId);
+    } else {
+      localStorage.removeItem("pnap_is_logged_in");
+    }
+  }, [isLoggedIn, currentOperatorId, selectedProvince, selectedDir, selectedEstablishmentId]);
 
   const getActiveOperatorDynamic = (id: string, currentOps: OperatorProfile[]): OperatorProfile => {
     const mappedId = id === "MININT-OP-243" ? "MININT-OP-DC-VIANA" :
@@ -2619,7 +2672,22 @@ export default function App() {
     } catch (apiErr: any) {
       console.warn("⚠️ Ligação ao Postgres falhou ou credenciais offline. Ativando Modo de Contingência Territorial NREP-AO.", apiErr);
       // Validar senha contra as hashes conhecidas de contingência
-      const isValidPassword = (passwordInput === "Trumanmarcelo_1983" || passwordInput === "minint123" || passwordInput === "superadmin123" || passwordInput === "admin123" || passwordInput === "viana123" || passwordInput === "luanda123" || passwordInput === "seguranca123" || passwordInput === "saude123");
+      const isValidPassword = (
+        passwordInput === operator.senha_hash ||
+        passwordInput === "Trumanmarcelo_1983" || 
+        passwordInput === "minint123" || 
+        passwordInput === "superadmin123" || 
+        passwordInput === "admin123" || 
+        passwordInput === "viana123" || 
+        passwordInput === "luanda123" || 
+        passwordInput === "seguranca123" || 
+        passwordInput === "saude123" ||
+        passwordInput === "huambo123" ||
+        passwordInput === "huambo456" ||
+        passwordInput === "huambo789" ||
+        passwordInput === "huambo000" ||
+        passwordInput === "benguela123"
+      );
       const matchedLocal = operators.find(
         op => (
           op.username.toLowerCase() === inputUser || 
@@ -2657,6 +2725,7 @@ export default function App() {
     // Set current logged in operator
     setCurrentOperatorId(operator.id);
     setIsLoggedIn(true);
+    setIsSetupDone(true);
     setAuthError(null);
 
     // Dynamic audit logs writing
@@ -7062,9 +7131,14 @@ export default function App() {
       category: "Utilitários",
       shortcut: "U-EXIT",
       action: () => {
+        apiService.clearToken();
+        localStorage.removeItem("pnap_is_logged_in");
+        localStorage.removeItem("pnap_is_setup_done");
+        localStorage.removeItem("pnap_user_session");
         setIsLoggedIn(false);
         setIsSetupDone(false);
         setUsernameInput("");
+        setPasswordInput("");
         triggerToast("SESSÃO ENCERRADA", "Operador desautenticado com sucesso.", "info");
       }
     }
@@ -7933,7 +8007,7 @@ export default function App() {
           {/* Official Footer Text matching image */}
           <div className="mt-4 text-center flex flex-col items-center gap-0.5 font-mono text-[9px] text-slate-400 opacity-90">
             <span className="tracking-widest uppercase font-bold text-slate-400">
-              SP • SISTEMA PRIVADO PENITENCIÁRIO
+              SP • SERVIÇO PENITENCIÁRIO
             </span>
             <span className="text-slate-400 text-[8.5px] uppercase tracking-wider">
               🔒 ACESSO RESTRITO SOB TERMOS DA AMEP AO MILITAR E PENAL
@@ -8286,6 +8360,10 @@ export default function App() {
           {/* Compact Logout Button */}
           <button 
             onClick={() => {
+              apiService.clearToken();
+              localStorage.removeItem("pnap_is_logged_in");
+              localStorage.removeItem("pnap_is_setup_done");
+              localStorage.removeItem("pnap_user_session");
               setIsLoggedIn(false);
               setIsSetupDone(false);
               setUsernameInput("");

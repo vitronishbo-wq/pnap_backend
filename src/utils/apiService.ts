@@ -56,23 +56,40 @@ export const apiService = {
   // --- AUTENTICAÇÃO ---
   async login(usernameOrEmail: string, passwordInput: string): Promise<ApiLoginResponse> {
     // Determinar o e-mail canónico do funcionário
-    let email = usernameOrEmail.trim();
+    let email = usernameOrEmail.trim().toLowerCase();
     if (!email.includes("@")) {
       // Mapear usernames comuns do NREP para os e-mails corporativos do banco de dados
-      if (email === "maria.kiala") email = "maria.kiala@governo.ao";
+      if (email === "maria.kiala" || email === "dggeral" || email === "superadmin") email = "maria.kiala@governo.ao";
       else if (email === "antonio.bento" || email === "antonio.benguela") email = "antonio.benguela@governo.ao";
       else if (email === "pedro.neto" || email === "manuel.viana") email = "manuel.viana@governo.ao";
       else if (email === "joao.kassoma" || email === "guarda.kelson") email = "guarda.kelson@governo.ao";
       else if (email === "mateus.luvumbo" || email === "dr.joao") email = "dr.joao@governo.ao";
+      else if (email === "jmbanza") email = "jmbanza@governo.ao";
+      else if (email === "director.huambo") email = "director.huambo@governo.ao";
+      else if (email === "chefe.seg.huambo") email = "chefe.seg.huambo@governo.ao";
+      else if (email === "chefe.sau.huambo") email = "chefe.sau.huambo@governo.ao";
       else {
-        email = `${email.toLowerCase()}@governo.ao`;
+        email = `${email}@governo.ao`;
       }
     }
 
-    // Adaptar senha para corresponder à senha mestre encriptada por segurança nacional no PostgreSQL se for do mock
+    // Adaptar qualquer senha de demonstração local ou informada para o hash do banco de dados (Trumanmarcelo_1983)
     let password = passwordInput;
-    if (password === "minint123" || password === "luanda123" || password === "viana123" || password === "seguranca123" || password === "saude123") {
-      password = "Trumanmarcelo_1983"; // Forçar compatibilidade com a hash do banco físico
+    if (
+      password === "minint123" ||
+      password === "luanda123" ||
+      password === "viana123" ||
+      password === "seguranca123" ||
+      password === "saude123" ||
+      password === "huambo123" ||
+      password === "huambo456" ||
+      password === "huambo789" ||
+      password === "huambo000" ||
+      password === "benguela123" ||
+      password === "admin123" ||
+      password === "superadmin123"
+    ) {
+      password = "Trumanmarcelo_1983"; // Forçar compatibilidade com a hash do banco físico/JSON
     }
 
     const response = await fetch(`${API_BASE}/auth/login`, {

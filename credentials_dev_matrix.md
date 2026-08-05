@@ -21,6 +21,9 @@ Todas as contas abaixo utilizam a palavra-passe padrão de desenvolvimento defin
 | `guarda.kelson@governo.ao`| Kelson Neto | **OPERADOR_SEGURANCA**| **Operacional** (Ações de Vigilância) | EP Viana |
 | `dr.joao@governo.ao` | Dr. João Carlos | **OPERADOR_MEDICO** | **Clínico** (Prontuários e Saúde) | EP Viana |
 | `dra.ana@governo.ao` | Dra. Ana Paula | **OPERADOR_SOCIAL** | **Reabilitação** (Reinserção Social) | EP Viana |
+| `jmbanza@governo.ao` | Dr. Júlio Mbanza | **DIRECTOR_PROVINCIAL** | **Provincial** (Apenas Cadeias no Huambo) | Direção Provincial Huambo |
+| `director.huambo@governo.ao` | Bento Caetano | **DIRETOR_PRISAO** | **Local** (Apenas Cadeia Central Huambo) | CC Huambo |
+| `chefe.seg.huambo@governo.ao` | João Bernardo | **OPERADOR_SEGURANCA** | **Risco & Vigilância** (Segurança Huambo) | CC Huambo |
 
 ---
 
