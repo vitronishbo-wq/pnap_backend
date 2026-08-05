@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "PNAP_SECRET_KEY_FOR_SYSTEM_SECURITY_2026";
+const JWT_SECRET = process.env.JWT_SECRET || "altere_para_um_segredo_jwt_unico";
 
 export interface SystemUserPayload {
   id: string;

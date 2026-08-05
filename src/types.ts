@@ -199,6 +199,7 @@ export interface OperatorProfile {
   assignedPrisonId?: string;
   sigla: string;
   username: string;
+  email?: string;
   senha_hash: string;
   permissions: string[];
   sensitivityLevel: "PUBLICO" | "RESTRITO" | "CONFIDENCIAL" | "SECRETO";

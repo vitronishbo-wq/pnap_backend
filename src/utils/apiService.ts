@@ -3,7 +3,18 @@
  * Fornece métodos canónicos e seguros para comunicação com o PostgreSQL via Express.
  */
 
-const API_BASE = "/api";
+import { env } from "./env";
+
+const getApiBase = (): string => {
+  const envUrl = env.API_URL;
+  if (!envUrl) return "/api";
+  if (typeof window !== "undefined" && window.location.origin === envUrl.replace(/\/$/, "")) {
+    return "/api";
+  }
+  return envUrl.endsWith("/api") ? envUrl : `${envUrl.replace(/\/$/, "")}/api`;
+};
+
+const API_BASE = getApiBase();
 
 export interface ApiUser {
   id: string;

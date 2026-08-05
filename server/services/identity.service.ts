@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { dbService } from "../db-service.ts";
 
-const JWT_SECRET = process.env.JWT_SECRET || "pnap-angola-military-secret-key-2026";
+const JWT_SECRET = process.env.JWT_SECRET || "altere_para_um_segredo_jwt_unico";
 
 export class IdentityService {
   /**
