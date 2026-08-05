@@ -1211,7 +1211,8 @@ export function LegislationModule({
   triggerToast,
   currentOperator
 }: LegislationModuleProps = {}) {
-  const [activeSubTab, setActiveSubTab] = useState<"doctrine" | "decreto" | "trace" | "pessoal" | "evolution" | "simulator" | "penal" | "assistant" | "nep_audit">("nep_audit");
+  const [activeSubTab, setActiveSubTab] = useState<"doctrine" | "decreto" | "trace" | "pessoal" | "evolution" | "simulator" | "penal" | "assistant" | "nep_audit">("decreto");
+  const [isNEPAuditorModalOpen, setIsNEPAuditorModalOpen] = useState(false);
   
   // Real-time compliance events evaluated by the Digital Twin
   const [twinEvaluations, setTwinEvaluations] = useState<any[]>([]);
@@ -1470,45 +1471,40 @@ export function LegislationModule({
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col gap-6" id="legislation-module-panel">
       
       {/* Header Area */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between border-b border-slate-850 pb-5 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-indigo-500/10 p-2.5 rounded-lg border border-indigo-500/20 text-indigo-400">
-            <Scale className="h-6 w-6" />
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between border-b border-slate-850 pb-3 gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="bg-indigo-500/10 p-2 rounded-lg border border-indigo-500/20 text-indigo-400">
+            <Scale className="h-5 w-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-extrabold uppercase tracking-widest text-slate-100 font-mono">
-                Centro de Doutrina, Legislação e Governação Penitenciária
-              </h2>
-              <span className="bg-indigo-500/10 border border-indigo-500/35 text-indigo-400 font-mono text-[9px] px-2 py-0.5 rounded font-bold uppercase animate-pulse">
-                GÉMEO DIGITAL INSTITUCIONAL (SPA)
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 font-sans mt-0.5">
-              Camada de Engenharia Normativa e Doutrinária que rege o funcionamento técnico, o RBAC e as regras do PNAP-AO.
-            </p>
+          <div className="flex items-center gap-2 font-mono">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100">
+              Centro de Doutrina, Legislação e Governação Penitenciária
+            </h2>
+            <span className="bg-indigo-500/10 border border-indigo-500/35 text-indigo-400 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">
+              SPA
+            </span>
           </div>
         </div>
 
-        {/* Global Tab selector with premium style */}
-        <div className="flex flex-wrap gap-1 bg-slate-950 p-1 rounded-lg border border-slate-850">
+        {/* Global Tab selector with operational buttons */}
+        <div className="flex flex-wrap gap-1 bg-slate-950 p-1 rounded-lg border border-slate-850 font-mono text-[10px]">
           <button
             type="button"
             onClick={() => setActiveSubTab("doctrine")}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "doctrine" 
-                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" 
+                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
-            <BookOpen className="h-3 w-3" /> Acervo e Doutrina
+            <BookOpen className="h-3 w-3" /> Acervo
           </button>
           <button
             type="button"
             onClick={() => { setActiveSubTab("decreto"); }}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "decreto" 
-                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" 
+                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
@@ -1517,31 +1513,31 @@ export function LegislationModule({
           <button
             type="button"
             onClick={() => { setActiveSubTab("trace"); }}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "trace" 
-                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" 
+                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
-            <GitBranch className="h-3 w-3 text-emerald-400 animate-pulse" /> Gêmeo Digital & Cobertura
+            <GitBranch className="h-3 w-3 text-emerald-400" /> Gêmeo Digital
           </button>
           <button
             type="button"
             onClick={() => { setActiveSubTab("evolution"); }}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "evolution" 
-                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" 
+                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
-            <Cpu className="h-3 w-3 text-amber-400 animate-pulse" /> Engenharia Legislativa (CNEL)
+            <Cpu className="h-3 w-3 text-amber-400" /> Engenharia (CNEL)
           </button>
           <button
             type="button"
             onClick={() => { setActiveSubTab("pessoal"); }}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "pessoal" 
-                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" 
+                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
@@ -1550,35 +1546,35 @@ export function LegislationModule({
           <button
             type="button"
             onClick={() => { setActiveSubTab("penal"); }}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "penal" 
-                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" 
+                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
-            <Scale className="h-3 w-3" /> Código Penal
+            <Scale className="h-3 w-3" /> C. Penal
           </button>
           <button
             type="button"
             onClick={() => { setActiveSubTab("nep_audit"); }}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "nep_audit" 
                 ? "bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold shadow-sm" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
-            <ShieldCheck className="h-3 w-3 text-amber-400 animate-pulse" /> Auditoria N.E.P. (Dec. 272/16)
+            <ShieldCheck className="h-3 w-3 text-amber-400" /> Auditoria N.E.P.
           </button>
           <button
             type="button"
             onClick={() => { setActiveSubTab("assistant"); }}
-            className={`px-2.5 py-1.5 font-mono text-[10px] uppercase rounded transition cursor-pointer flex items-center gap-1 ${
+            className={`px-2 py-1 uppercase rounded transition cursor-pointer flex items-center gap-1 ${
               activeSubTab === "assistant" 
-                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" 
+                ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold" 
                 : "text-slate-400 hover:text-slate-200 border border-transparent"
             }`}
           >
-            <Sparkles className="h-3 w-3 text-indigo-400 animate-pulse" /> Consultor S.P.A.
+            <Sparkles className="h-3 w-3 text-indigo-400" /> Consultor S.P.A.
           </button>
         </div>
       </div>
@@ -3598,17 +3594,69 @@ export function LegislationModule({
 
         {/* SUBTAB 9: AUDITORIA DE CONFORMIDADE LEGAL N.E.P. (DECRETO EXECUTIVO 272/16) */}
         {activeSubTab === "nep_audit" && (
-          <NEPComplianceAuditor
-            inmates={inmates}
-            pendingMovements={pendingMovements}
-            movementLogs={movementLogs}
-            prisons={prisons}
-            triggerToast={triggerToast}
-            currentOperator={currentOperator}
-          />
+          <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 font-mono">
+            <div className="flex items-center justify-between border-b border-slate-900 pb-2.5">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-amber-400" />
+                <h3 className="text-xs font-bold uppercase text-slate-100">
+                  Painel Operacional • Auditoria N.E.P. (Dec. 272/16)
+                </h3>
+              </div>
+              <span className="text-[9px] text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded font-bold uppercase">
+                MODAL ACCESSIBLE
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <div className="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                <span className="text-[10px] text-slate-400 uppercase">Conformidade:</span>
+                <span className="font-bold text-emerald-400">88%</span>
+              </div>
+              <div className="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                <span className="text-[10px] text-slate-400 uppercase">Auditados:</span>
+                <span className="font-bold text-slate-200">15</span>
+              </div>
+              <div className="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                <span className="text-[10px] text-slate-400 uppercase">Violações:</span>
+                <span className="font-bold text-emerald-400">0</span>
+              </div>
+              <div className="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800 flex justify-between items-center">
+                <span className="text-[10px] text-slate-400 uppercase">Norma:</span>
+                <span className="font-bold text-amber-400">Dec. 272/16</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-900">
+              <button
+                type="button"
+                onClick={() => setIsNEPAuditorModalOpen(true)}
+                className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 rounded text-xs font-mono font-bold flex items-center gap-2 transition cursor-pointer"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" /> ⚡ ABRIR CONSOLA DE AUDITORIA (MODAL)
+              </button>
+            </div>
+          </div>
         )}
 
       </div>
+
+      {/* MODAL AUDITORIA N.E.P. */}
+      {isNEPAuditorModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-7xl h-[90vh] flex flex-col">
+            <NEPComplianceAuditor
+              inmates={inmates}
+              pendingMovements={pendingMovements}
+              movementLogs={movementLogs}
+              prisons={prisons}
+              triggerToast={triggerToast}
+              currentOperator={currentOperator}
+              isOpen={true}
+              onClose={() => setIsNEPAuditorModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -49,10 +49,16 @@ export interface OrganizationalUnit {
   parentId?: string;
   province?: string;
   prisonId?: string;
-  divisionType?: "DIRECAO_PROVINCIAL" | "DEPARTAMENTO" | "SECCAO" | "REPARTICAO" | "GABINETE" | "ESTAB_PENITENCIARIO";
+  divisionType?: "DIRECAO_PROVINCIAL" | "DEPARTAMENTO" | "SECCAO" | "REPARTICAO" | "GABINETE" | "ESTAB_PENITENCIARIO" | "CONSELHO";
   code?: string;
   legalBasis?: string;
   headOfficerName?: string;
+  category?: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" | "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" | "III - DEPENDÊNCIAS DE APOIO INSTRUMENTAL" | "IV - UNIDADES EXECUTIVAS DE CUSTÓDIA";
+  functionDescription?: string;
+  administrativeResponsibilities?: string;
+  operationalResponsibilities?: string;
+  chiefOfficerRank?: string;
+  chiefOfficerPhone?: string;
 }
 
 export interface Delegation {
@@ -207,21 +213,27 @@ export interface OperatorProfile {
 
 export interface InmateState {
   id: string;
-  fullName: string;
+  fullName?: string;
   firstName?: string;
   lastName?: string;
-  biNumber: string;
+  biNumber?: string;
   idCard?: string;
   documentCode?: string;
-  prisonId: string;
+  nrep?: string;
+  processNumber?: string;
+  prisonId?: string;
   assignedPrisonId?: string;
-  prisonName: string;
-  status: "PREVENTIVO" | "CONDENADO" | "SOLTO" | "TRANSFERIDO";
-  crimeCategory: string;
-  riskLevel?: "Baixo" | "Médio" | "Alto" | "Máximo";
-  admissionDate: string;
+  prisonName?: string;
+  province?: string;
+  status?: string;
+  regime?: string;
+  crimeCategory?: string;
+  crimeId?: string;
+  riskLevel?: string;
+  admissionDate?: string;
   photoUrl?: string;
   cellNumber?: string;
+  assignedCellNumber?: string;
   pavilionName?: string;
   reintegrationProgress?: number;
 }

@@ -469,39 +469,32 @@ export function NEPComplianceAuditor({
     <div className="flex flex-col h-full bg-[#05070a] text-slate-100 font-sans border border-amber-500/30 rounded-2xl overflow-hidden shadow-2xl">
       
       {/* HEADER BAR */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-[#090b10] border-b border-slate-850 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-700/10 border border-amber-500/40 text-amber-400">
-            <ShieldCheck className="h-6 w-6" />
+      <div className="flex justify-between items-center p-3 bg-[#090b10] border-b border-slate-850 gap-4 font-mono">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400">
+            <ShieldCheck className="h-4 w-4" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-black uppercase tracking-wider font-mono text-slate-100">
-                Audit & Compliance Verifier • Decreto Executivo n.º 272/16 (N.E.P.)
-              </h2>
-              <span className="bg-amber-500/15 text-amber-400 border border-amber-500/30 text-[9px] font-mono font-bold px-2 py-0.5 rounded uppercase">
-                Normas de Execução Permanente
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 font-sans mt-0.5">
-              Cruzamento legal em tempo real das operações de <strong className="text-slate-200">Admissão (Ingresso)</strong> e <strong className="text-slate-200">Transferência (Escolta)</strong> com o articulado do Sistema Penitenciário Nacional.
-            </p>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100">
+              Audit & Compliance Verifier • Decreto Executivo 272/16 (N.E.P.)
+            </h2>
           </div>
         </div>
 
         {/* Action Controls & Close */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={handlePrintReport}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white rounded-lg text-xs font-mono font-semibold transition cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white rounded text-[10px] font-mono font-bold transition cursor-pointer"
           >
-            <Printer className="h-3.5 w-3.5 text-amber-400" /> Auto de Auditoria
+            <Printer className="h-3 w-3 text-amber-400" /> Auto de Auditoria
           </button>
           
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg border border-slate-800 transition cursor-pointer"
+              className="p-1 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded border border-slate-800 transition cursor-pointer"
+              title="Fechar Modal"
             >
               <X className="h-4 w-4" />
             </button>
@@ -510,84 +503,50 @@ export function NEPComplianceAuditor({
       </div>
 
       {/* COMPLIANCE OVERVIEW METRICS STRIP */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 p-4 bg-[#07090e] border-b border-slate-850">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 p-2.5 bg-[#07090e] border-b border-slate-850 font-mono">
         
         {/* Metric 1: Global Index */}
-        <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-850 flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold">Índice Geral N.E.P.</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className={`text-xl font-black font-mono ${stats.overallScore >= 90 ? "text-emerald-400" : stats.overallScore >= 75 ? "text-amber-400" : "text-red-400"}`}>
-              {stats.overallScore}%
-            </span>
-            <span className="text-[10px] text-slate-500 font-mono">Conformidade</span>
-          </div>
-          <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mt-2">
-            <div 
-              className={`h-full transition-all duration-500 ${stats.overallScore >= 90 ? "bg-emerald-500" : stats.overallScore >= 75 ? "bg-amber-500" : "bg-red-500"}`}
-              style={{ width: `${stats.overallScore}%` }}
-            />
-          </div>
+        <div className="bg-slate-950 p-2 rounded-lg border border-slate-850 flex items-center justify-between">
+          <span className="text-[10px] uppercase text-slate-400 font-semibold">Índice N.E.P.</span>
+          <span className={`text-base font-bold ${stats.overallScore >= 90 ? "text-emerald-400" : stats.overallScore >= 75 ? "text-amber-400" : "text-red-400"}`}>
+            {stats.overallScore}%
+          </span>
         </div>
 
         {/* Metric 2: Audited Operations */}
-        <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-850 flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold">Total Auditado</span>
-          <div className="flex items-baseline gap-1.5 mt-1">
-            <span className="text-xl font-black font-mono text-slate-100">{stats.total}</span>
-            <span className="text-[10px] text-slate-500 font-mono">Operações</span>
-          </div>
-          <div className="text-[9.5px] text-slate-400 font-mono mt-2">
-            {stats.admissionsTotal} Admissões • {stats.transfersTotal} Escoltas
-          </div>
+        <div className="bg-slate-950 p-2 rounded-lg border border-slate-850 flex items-center justify-between">
+          <span className="text-[10px] uppercase text-slate-400 font-semibold">Total Auditado</span>
+          <span className="text-base font-bold text-slate-100">{stats.total}</span>
         </div>
 
         {/* Metric 3: Fully Compliant */}
-        <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-850 flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-semibold flex items-center gap-1">
-            <CheckCircle2 className="h-3 w-3" /> 100% Conformes
+        <div className="bg-slate-950 p-2 rounded-lg border border-slate-850 flex items-center justify-between">
+          <span className="text-[10px] uppercase text-emerald-400 font-semibold flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3" /> Conformes
           </span>
-          <div className="flex items-baseline gap-1.5 mt-1">
-            <span className="text-xl font-black font-mono text-emerald-400">{stats.compliant}</span>
-            <span className="text-[10px] text-slate-500 font-mono">operatividades</span>
-          </div>
-          <span className="text-[9.5px] text-emerald-500/80 font-mono mt-2">Artigos totalmente cumpridos</span>
+          <span className="text-base font-bold text-emerald-400">{stats.compliant}</span>
         </div>
 
         {/* Metric 4: Warnings / Pending */}
-        <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-850 flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold flex items-center gap-1">
-            <AlertTriangle className="h-3 w-3" /> Avisos / Pendentes
+        <div className="bg-slate-950 p-2 rounded-lg border border-slate-850 flex items-center justify-between">
+          <span className="text-[10px] uppercase text-amber-400 font-semibold flex items-center gap-1">
+            <AlertTriangle className="h-3 w-3" /> Avisos
           </span>
-          <div className="flex items-baseline gap-1.5 mt-1">
-            <span className="text-xl font-black font-mono text-amber-400">{stats.warning}</span>
-            <span className="text-[10px] text-slate-500 font-mono">requerem atenção</span>
-          </div>
-          <span className="text-[9.5px] text-amber-500/80 font-mono mt-2">Prazos de 72h / 48h a expirar</span>
+          <span className="text-base font-bold text-amber-400">{stats.warning}</span>
         </div>
 
         {/* Metric 5: Non Compliant (Critical Fail) */}
-        <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-850 flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-red-400 font-semibold flex items-center gap-1">
-            <XCircle className="h-3 w-3" /> Violações Críticas
+        <div className="bg-slate-950 p-2 rounded-lg border border-slate-850 flex items-center justify-between">
+          <span className="text-[10px] uppercase text-red-400 font-semibold flex items-center gap-1">
+            <XCircle className="h-3 w-3" /> Violações
           </span>
-          <div className="flex items-baseline gap-1.5 mt-1">
-            <span className="text-xl font-black font-mono text-red-400">{stats.nonCompliant}</span>
-            <span className="text-[10px] text-slate-500 font-mono">não-conformidades</span>
-          </div>
-          <span className="text-[9.5px] text-red-500/80 font-mono mt-2">Bloqueio administrativo legal</span>
+          <span className="text-base font-bold text-red-400">{stats.nonCompliant}</span>
         </div>
 
         {/* Metric 6: Primary Legal Source */}
-        <div className="bg-gradient-to-br from-amber-950/30 to-slate-950 p-3 rounded-xl border border-amber-500/30 flex flex-col justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold flex items-center gap-1">
-            <Scale className="h-3 w-3" /> Fundamento Legal
-          </span>
-          <div className="text-xs font-bold text-slate-200 mt-1 font-mono">
-            Dec. Executivo 272/16
-          </div>
-          <span className="text-[9.5px] text-slate-400 font-sans mt-2">
-            316 Artigos • MININT Angola
-          </span>
+        <div className="bg-slate-950 p-2 rounded-lg border border-amber-500/30 flex items-center justify-between">
+          <span className="text-[10px] uppercase text-amber-400 font-semibold">Fundamento</span>
+          <span className="text-xs font-bold text-slate-200">Dec. 272/16</span>
         </div>
       </div>
 

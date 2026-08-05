@@ -79,7 +79,9 @@ import {
   File,
   GraduationCap,
   Compass,
-  ArrowUpRight
+  ArrowUpRight,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import { SpecialServicesModule } from "./components/SpecialServicesModule";
 
@@ -309,32 +311,91 @@ export const SYSTEM_ROLES: SystemRole[] = [
   }
 ];
 
-export const ORGANIZATIONAL_UNITS: OrganizationalUnit[] = [
-  // Nível Central
-  { id: "OU-MININT-DG", name: "Direção Geral", level: TerritorialScope.NATIONAL },
-  { id: "OU-MININT-DNCP", name: "Direcção Nacional de Controlo Penal", level: TerritorialScope.NATIONAL, parentId: "OU-MININT-DG" },
-  { id: "OU-MININT-DEPT", name: "Departamentos da Direcção Nacional", level: TerritorialScope.NATIONAL, parentId: "OU-MININT-DNCP" },
+const PROVINCIAL_18_DEPENDENCIES_TEMPLATE = [
+  // I – DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)
+  { num: 1, name: "Gabinete do Director Provincial", code: "GDP", type: "GABINETE" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Apoio direto ao Director Provincial" },
+  { num: 2, name: "Gabinete Jurídico Provincial", code: "GJP", type: "GABINETE" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Assessoria legal e processos disciplinares locais" },
+  { num: 3, name: "Departamento de Informação e Análise Provincial", code: "DIAP", type: "DEPARTAMENTO" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Estatísticas, estudos e planeamento local" },
+  { num: 4, name: "Departamento de Recursos Humanos Provincial", code: "DRHP", type: "DEPARTAMENTO" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Gestão do pessoal afeto à província" },
+  { num: 5, name: "Departamento de Finanças e Planeamento Provincial", code: "DFPP", type: "DEPARTAMENTO" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Orçamento, contabilidade e património local" },
+  { num: 6, name: "Departamento de Logística Provincial", code: "DLP", type: "DEPARTAMENTO" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Abastecimento, víveres, fardamento e transporte" },
+  { num: 7, name: "Gabinete de Infra-Estruturas Provincial", code: "GIP", type: "GABINETE" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Manutenção e conservação das instalações" },
+  { num: 8, name: "Gabinete de Tecnologias de Informação Provincial", code: "GTIP", type: "GABINETE" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Suporte informático e telecomunicações" },
+  { num: 9, name: "Gabinete de Comunicação e Imprensa Provincial", code: "GCIP", type: "GABINETE" as const, category: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" as const, func: "Relações públicas e imagem institucional" },
 
-  // Nível Provincial (SP/<Província> sem cadeias fixas - criadas dinamicamente)
-  { id: "OU-DP-LUANDA", name: "SP/Luanda", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Luanda" },
-  { id: "OU-DP-HUAMBO", name: "SP/Huambo", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Huambo" },
-  { id: "OU-DP-BENGUELA", name: "SP/Benguela", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Benguela" },
-  { id: "OU-DP-HUILA", name: "SP/Huíla", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Huíla" },
-  { id: "OU-DP-CABINDA", name: "SP/Cabinda", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cabinda" },
-  { id: "OU-DP-UIGE", name: "SP/Uíge", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Uíge" },
-  { id: "OU-DP-ZAIRE", name: "SP/Zaire", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Zaire" },
-  { id: "OU-DP-MALANJE", name: "SP/Malanje", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Malanje" },
-  { id: "OU-DP-BIE", name: "SP/Bié", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Bié" },
-  { id: "OU-DP-NAMIBE", name: "SP/Namibe", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Namibe" },
-  { id: "OU-DP-CUNENE", name: "SP/Cunene", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cunene" },
-  { id: "OU-DP-MOXICO", name: "SP/Moxico", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Moxico" },
-  { id: "OU-DP-LUNDA-NORTE", name: "SP/Lunda Norte", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Lunda Norte" },
-  { id: "OU-DP-LUNDA-SUL", name: "SP/Lunda Sul", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Lunda Sul" },
-  { id: "OU-DP-CUANZA-NORTE", name: "SP/Cuanza Norte", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cuanza Norte" },
-  { id: "OU-DP-CUANZA-SUL", name: "SP/Cuanza Sul", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cuanza Sul" },
-  { id: "OU-DP-BENGO", name: "SP/Bengo", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Bengo" },
-  { id: "OU-DP-CUANDO-CUBANGO", name: "SP/Cuando Cubango", level: TerritorialScope.PROVINCIAL, parentId: "OU-MININT-DG", province: "Cuando Cubango" }
+  // II – DEPENDÊNCIAS OPERACIONAIS (Executivas)
+  { num: 10, name: "Departamento de Segurança Penitenciária Provincial", code: "DSPP", type: "DEPARTAMENTO" as const, category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" as const, func: "Ordem e segurança nos EPs da província" },
+  { num: 11, name: "Departamento de Controlo Penal Provincial", code: "DCPP", type: "DEPARTAMENTO" as const, category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" as const, func: "Gestão processual, registos e BI de reclusos" },
+  { num: 12, name: "Departamento de Assistência e Reabilitação Penitenciária Provincial", code: "DARPP", type: "DEPARTAMENTO" as const, category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" as const, func: "Programas reabilitativos e direitos humanos" },
+  { num: 13, name: "Departamento de Produção e Actividades Económicas Provincial", code: "DPAEP", type: "DEPARTAMENTO" as const, category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" as const, func: "Atividades produtivas com reclusos" },
+  { num: 14, name: "Departamento de Penas Alternativas e Reinserção Social Provincial", code: "DPARSP", type: "DEPARTAMENTO" as const, category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" as const, func: "Penas alternativas e reinserção pós-institucional" },
+  { num: 15, name: "Serviço de Inteligência Penitenciária Provincial", code: "SIPP", type: "DEPARTAMENTO" as const, category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" as const, func: "Informações e prevenção de ameaças" },
+  { num: 16, name: "Departamento de Saúde Provincial", code: "DSP", type: "DEPARTAMENTO" as const, category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" as const, func: "Assistência médica a reclusos e efetivo" },
+
+  // III – DEPENDÊNCIAS DE APOIO INSTRUMENTAL
+  { num: 17, name: "Conselho Consultivo Provincial", code: "CCP", type: "CONSELHO" as const, category: "III - DEPENDÊNCIAS DE APOIO INSTRUMENTAL" as const, func: "Órgão consultivo do Director Provincial" },
+  { num: 18, name: "Corpo de Conselheiros Provincial", code: "CCORP", type: "CONSELHO" as const, category: "III - DEPENDÊNCIAS DE APOIO INSTRUMENTAL" as const, func: "Aconselhamento estratégico" }
 ];
+
+const generateProvincialSubUnits = (): OrganizationalUnit[] => {
+  const provinces = [
+    { id: "OU-DP-LUANDA", name: "SP/Luanda", province: "Luanda" },
+    { id: "OU-DP-HUAMBO", name: "SP/Huambo", province: "Huambo" },
+    { id: "OU-DP-BENGUELA", name: "SP/Benguela", province: "Benguela" },
+    { id: "OU-DP-HUILA", name: "SP/Huíla", province: "Huíla" },
+    { id: "OU-DP-CABINDA", name: "SP/Cabinda", province: "Cabinda" },
+    { id: "OU-DP-UIGE", name: "SP/Uíge", province: "Uíge" },
+    { id: "OU-DP-ZAIRE", name: "SP/Zaire", province: "Zaire" },
+    { id: "OU-DP-MALANJE", name: "SP/Malanje", province: "Malanje" },
+    { id: "OU-DP-BIE", name: "SP/Bié", province: "Bié" },
+    { id: "OU-DP-NAMIBE", name: "SP/Namibe", province: "Namibe" },
+    { id: "OU-DP-CUNENE", name: "SP/Cunene", province: "Cunene" },
+    { id: "OU-DP-MOXICO", name: "SP/Moxico", province: "Moxico" },
+    { id: "OU-DP-LUNDA-NORTE", name: "SP/Lunda Norte", province: "Lunda Norte" },
+    { id: "OU-DP-LUNDA-SUL", name: "SP/Lunda Sul", province: "Lunda Sul" },
+    { id: "OU-DP-CUANZA-NORTE", name: "SP/Cuanza Norte", province: "Cuanza Norte" },
+    { id: "OU-DP-CUANZA-SUL", name: "SP/Cuanza Sul", province: "Cuanza Sul" },
+    { id: "OU-DP-BENGO", name: "SP/Bengo", province: "Bengo" },
+    { id: "OU-DP-CUANDO-CUBANGO", name: "SP/Quando Cubango", province: "Quando Cubango" }
+  ];
+
+  const result: OrganizationalUnit[] = [
+    { id: "OU-MININT-DG", name: "Direção Geral", level: TerritorialScope.NATIONAL },
+    { id: "OU-MININT-DNCP", name: "Direcção Nacional de Controlo Penal", level: TerritorialScope.NATIONAL, parentId: "OU-MININT-DG" },
+    { id: "OU-MININT-DEPT", name: "Departamentos da Direcção Nacional", level: TerritorialScope.NATIONAL, parentId: "OU-MININT-DNCP" },
+  ];
+
+  provinces.forEach(p => {
+    result.push({
+      id: p.id,
+      name: p.name,
+      level: TerritorialScope.PROVINCIAL,
+      parentId: "OU-MININT-DG",
+      province: p.province,
+      divisionType: "DIRECAO_PROVINCIAL",
+      legalBasis: "Decreto Presidencial n.º 184/17 de 11 de agosto"
+    });
+
+    PROVINCIAL_18_DEPENDENCIES_TEMPLATE.forEach(dep => {
+      result.push({
+        id: `OU-DEP-${p.province.replace(/\s+/g, '-').toUpperCase()}-${dep.code}`,
+        name: `${dep.num}. ${dep.name}`,
+        level: TerritorialScope.PROVINCIAL,
+        parentId: p.id,
+        province: p.province,
+        divisionType: dep.type,
+        code: `${dep.code}-${p.province.substring(0, 3).toUpperCase()}`,
+        legalBasis: "Decreto Presidencial n.º 184/17, de 11 de Agosto",
+        category: dep.category,
+        functionDescription: dep.func
+      });
+    });
+  });
+
+  return result;
+};
+
+export const ORGANIZATIONAL_UNITS: OrganizationalUnit[] = generateProvincialSubUnits();
 
 // Helper function to Highlight query matches
 const highlightMatch = (text: string, query: string) => {
@@ -354,6 +415,88 @@ const highlightMatch = (text: string, query: string) => {
       )}
     </>
   );
+};
+
+const GET_DEPARTMENT_SUBSECTIONS = (codePrefix: string) => {
+  const map: Record<string, { id: string; name: string; type: string }[]> = {
+    GDP: [
+      { id: "sec-gdp-1", name: "Secção de Expediente e Secretariado", type: "SECÇÃO" },
+      { id: "sec-gdp-2", name: "Secção de Apoio Directo ao Director", type: "SECÇÃO" }
+    ],
+    GJP: [
+      { id: "sec-gjp-1", name: "Secção de Pareceres e Apoio Legal", type: "SECÇÃO" },
+      { id: "sec-gjp-2", name: "Secção de Processos Disciplinares", type: "SECÇÃO" }
+    ],
+    DIAP: [
+      { id: "sec-diap-1", name: "Secção de Estatística e Dados Prisionais", type: "SECÇÃO" },
+      { id: "sec-diap-2", name: "Secção de Estudos e Planeamento Operativo", type: "SECÇÃO" }
+    ],
+    DRHP: [
+      { id: "sec-drhp-1", name: "Secção de Gestão de Quadros e Efetivo", type: "SECÇÃO" },
+      { id: "sec-drhp-2", name: "Secção de Formação e Avaliação de Desempenho", type: "SECÇÃO" }
+    ],
+    DFPP: [
+      { id: "sec-dfpp-1", name: "Secção de Execução Orçamental e Contabilidade", type: "SECÇÃO" },
+      { id: "sec-dfpp-2", name: "Secção de Gestão Patrimonial e Prestação de Contas", type: "SECÇÃO" }
+    ],
+    DLP: [
+      { id: "sec-dlp-1", name: "Secção de Logística, Víveres e Alimentação", type: "SECÇÃO" },
+      { id: "sec-dlp-2", name: "Secção de Fardamento, Armamento e Transportes", type: "SECÇÃO" }
+    ],
+    GIP: [
+      { id: "sec-gip-1", name: "Secção de Manutenção e Obras Prisionais", type: "SECÇÃO" },
+      { id: "sec-gip-2", name: "Secção de Vistorias Técnicas de Engenharia", type: "SECÇÃO" }
+    ],
+    GTIP: [
+      { id: "sec-gtip-1", name: "Secção de Sistemas, Redes e Comunicações", type: "SECÇÃO" },
+      { id: "sec-gtip-2", name: "Secção de Suporte Técnico e Biometria", type: "SECÇÃO" }
+    ],
+    GCIP: [
+      { id: "sec-gcip-1", name: "Secção de Relações Públicas e Imprensa", type: "SECÇÃO" },
+      { id: "sec-gcip-2", name: "Secção de Protocolo e Comunicação Institucional", type: "SECÇÃO" }
+    ],
+    DSPP: [
+      { id: "sec-dspp-1", name: "Secção de Guarda, Vigilância e Perímetro", type: "SECÇÃO" },
+      { id: "sec-dspp-2", name: "Pelotão de Intervenção Rápida e Reação Tática", type: "PELOTÃO" },
+      { id: "sec-dspp-3", name: "Secção de Inspecção de Segurança e Revistas", type: "SECÇÃO" }
+    ],
+    DCPP: [
+      { id: "sec-dcpp-1", name: "Secção de Registo Biométrico e Processos", type: "SECÇÃO" },
+      { id: "sec-dcpp-2", name: "Secção de Controlo de Mandados e Libertações", type: "SECÇÃO" },
+      { id: "sec-dcpp-3", name: "Secção de Cadastro e Estatística Penal", type: "SECÇÃO" }
+    ],
+    DARPP: [
+      { id: "sec-darpp-1", name: "Secção de Assistência Social e Acompanhamento", type: "SECÇÃO" },
+      { id: "sec-darpp-2", name: "Secção de Programas de Alfabetização e Ensino", type: "SECÇÃO" }
+    ],
+    DPAEP: [
+      { id: "sec-dpaep-1", name: "Secção de Oficinas, Agronomia e Trabalho Reclusório", type: "SECÇÃO" },
+      { id: "sec-dpaep-2", name: "Secção de Produção Agrícola e Pecuária Prisional", type: "SECÇÃO" }
+    ],
+    DPARSP: [
+      { id: "sec-dparsp-1", name: "Secção de Acompanhamento de Penas Alternativas", type: "SECÇÃO" },
+      { id: "sec-dparsp-2", name: "Secção de Apoio à Reinserção Pós-Institucional", type: "SECÇÃO" }
+    ],
+    SIPP: [
+      { id: "sec-sipp-1", name: "Secção de Informações e Pesquisa Operativa", type: "SECÇÃO" },
+      { id: "sec-sipp-2", name: "Secção de Análise de Risco e Prevenção de Fugas", type: "SECÇÃO" }
+    ],
+    DSP: [
+      { id: "sec-dsp-1", name: "Secção de Medicina Geral e Enfermagem Prisional", type: "SECÇÃO" },
+      { id: "sec-dsp-2", name: "Secção de Higiene, Sanidade e Controlo Sanitário", type: "SECÇÃO" }
+    ],
+    CCP: [
+      { id: "sec-ccp-1", name: "Secretariado do Conselho Consultivo Provincial", type: "SECÇÃO" }
+    ],
+    CCORP: [
+      { id: "sec-ccorp-1", name: "Gabinete Técnico dos Conselheiros Provincial", type: "SECÇÃO" }
+    ]
+  };
+  const key = (codePrefix || "").split('-')[0].trim().toUpperCase();
+  return map[key] || [
+    { id: `sec-gen-1`, name: "Secção de Apoio Operativo e Expediente", type: "SECÇÃO" },
+    { id: `sec-gen-2`, name: "Secção de Inspeção e Controlo Interno", type: "SECÇÃO" }
+  ];
 };
 
 export interface HealthRecord {
@@ -1525,15 +1668,29 @@ export default function App() {
   const [dashboardSubTab, setDashboardSubTab] = useState<"capacity" | "risk-map">("capacity");
   const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(true); // Starts expanded for the workspace feel
   const [globalWorkspaceSearch, setGlobalWorkspaceSearch] = useState<string>("");
+  const [selectedSearchInmateModal, setSelectedSearchInmateModal] = useState<any | null>(null);
+  const [selectedSearchInmateIsOutOfScope, setSelectedSearchInmateIsOutOfScope] = useState<boolean>(false);
+  const [urlAccessDeniedModal, setUrlAccessDeniedModal] = useState<{
+    isOpen: boolean;
+    attemptedUrl: string;
+    inmateId: string;
+    inmateName: string;
+    inmateProvince: string;
+    operatorProvince: string;
+    operatorRole: string;
+    reason: string;
+  } | null>(null);
   const [expandedWorkspaceFolders, setExpandedWorkspaceFolders] = useState<Record<string, boolean>>({
+    "departamentos_comando": true,
+    "direcoes_provinciais": true,
+    "acesso_rapido_eps": true,
+    "missões": true,
     "republica_angola": true,
     "minint": true,
     "servico_penitenciario": true,
     "direcoes_nacionais": true,
-    "direcoes_provinciais": true,
     "estabelecimentos": true,
     "unidades_especiais": true,
-    "missões": true,
     "centro-nacional": true,
     "estrutura-organica": true,
     "operacoes": true,
@@ -1547,6 +1704,9 @@ export default function App() {
   });
   const [isExplorerWorkspaceExpanded, setIsExplorerWorkspaceExpanded] = useState<boolean>(true);
   const [isTerritorialWorkspaceExpanded, setIsTerritorialWorkspaceExpanded] = useState<boolean>(true);
+  const [expandedProvDeps, setExpandedProvDeps] = useState<Record<string, boolean>>({});
+  const [expandedProvPrisons, setExpandedProvPrisons] = useState<Record<string, boolean>>({});
+  const [expandedDepSections, setExpandedDepSections] = useState<Record<string, boolean>>({});
   const [isModuleSelectorOpen, setIsModuleSelectorOpen] = useState<boolean>(false);
   const [selectedProvinceFilter, setSelectedProvinceFilter] = useState<string>("ALL");
   const [isOvercrowdingDetailedMode, setIsOvercrowdingDetailedMode] = useState<boolean>(false);
@@ -3461,23 +3621,57 @@ export default function App() {
   // Territorial filtering using hierarchical scopes and organic delegator inheritances
   const visiblePrisons = useMemo(() => {
     return prisons.filter((p) => {
+      const opLevel = currentOperator.level || (currentOperator.role === "DIRECTOR_GERAL" ? "NATIONAL" : currentOperator.role === "DIRECTOR_PROVINCIAL" ? "PROVINCIAL" : "ESTABLISHMENT");
+      const isProvincial = currentOperator.territorialScope === TerritorialScope.PROVINCIAL || opLevel === "PROVINCIAL" || currentOperator.role === "DIRECTOR_PROVINCIAL";
+      const isEstablishment = currentOperator.territorialScope === TerritorialScope.ESTABLISHMENT || opLevel === "ESTABLISHMENT" || opLevel === "LOCAL" || currentOperator.role === "DIRECTOR_CADEIA" || currentOperator.role === "CHEFE_SEGURANCA" || currentOperator.role === "CHEFE_SAUDE" || currentOperator.role === "OPERADOR_SEGURANCA" || currentOperator.role === "OPERADOR_MEDICO" || currentOperator.role === "OPERADOR_SOCIAL";
+
       // 1. Initial territorial scope restriction
       let matchesScope = true;
-      if (currentOperator.territorialScope === TerritorialScope.PROVINCIAL) {
-        matchesScope = p.location.toLowerCase().includes(currentOperator.province?.toLowerCase() || "");
-      } else if (currentOperator.territorialScope === TerritorialScope.ESTABLISHMENT) {
-        matchesScope = p.id === currentOperator.assignedPrisonId;
+      if (isProvincial) {
+        if (currentOperator.province) {
+          const provClean = currentOperator.province.toLowerCase().trim();
+          matchesScope = p.location.toLowerCase().includes(provClean);
+        }
+      } else if (isEstablishment) {
+        if (currentOperator.assignedPrisonId) {
+          matchesScope = p.id === currentOperator.assignedPrisonId;
+        } else if (currentOperator.province) {
+          matchesScope = p.location.toLowerCase().includes(currentOperator.province.toLowerCase().trim());
+        }
       }
 
       if (!matchesScope) return false;
 
       // 2. Extra global province filter restriction
-      if (selectedProvinceFilter !== "ALL") {
-        return p.location.toLowerCase().includes(selectedProvinceFilter.toLowerCase());
+      if (selectedProvinceFilter !== "ALL" && (currentOperator.territorialScope === TerritorialScope.NATIONAL || opLevel === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL")) {
+        return p.location.toLowerCase().includes(selectedProvinceFilter.toLowerCase().trim());
       }
       return true;
     });
   }, [currentOperator, prisons, selectedProvinceFilter]);
+
+  const visibleProvinces = useMemo(() => {
+    const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
+    if (isNational) {
+      return PROVINCES_HARDCODED;
+    }
+    if (currentOperator.province) {
+      return [currentOperator.province];
+    }
+    if (currentOperator.assignedPrisonId) {
+      const pr = prisons.find(p => p.id === currentOperator.assignedPrisonId);
+      if (pr) return [pr.location.split(',')[0].trim()];
+    }
+    return [currentOperator.province || "Huambo"];
+  }, [currentOperator, prisons]);
+
+  // Lock selectedProvinceFilter to operator's province if non-national
+  useEffect(() => {
+    const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
+    if (!isNational && currentOperator.province) {
+      setSelectedProvinceFilter(currentOperator.province);
+    }
+  }, [currentOperator]);
 
   const hasCriticalOvercrowdingAutoAlert = useMemo(() => {
     return visiblePrisons.some((p) => {
@@ -3627,9 +3821,36 @@ export default function App() {
 
   const visibleInmates = useMemo(() => {
     return inmates.filter((inm) => {
-      return visiblePrisons.some(p => p.id === inm.assignedPrisonId);
+      if (visiblePrisons.some(p => p.id === inm.assignedPrisonId)) return true;
+      const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
+      if (!isNational && currentOperator.province) {
+        const provClean = currentOperator.province.toLowerCase().trim();
+        if (inm.province && inm.province.toLowerCase().trim() === provClean) return true;
+      }
+      return false;
     });
-  }, [inmates, visiblePrisons]);
+  }, [inmates, visiblePrisons, currentOperator]);
+
+  const visibleOperators = useMemo(() => {
+    const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
+    if (isNational) return operators;
+    const isProvincial = currentOperator.territorialScope === TerritorialScope.PROVINCIAL || currentOperator.level === "PROVINCIAL" || currentOperator.role === "DIRECTOR_PROVINCIAL";
+    if (isProvincial && currentOperator.province) {
+      const provClean = currentOperator.province.toLowerCase().trim();
+      return operators.filter(op => 
+        op.level === "NATIONAL" || op.role === "DIRECTOR_GERAL" || 
+        (op.province && op.province.toLowerCase().trim() === provClean)
+      );
+    }
+    if (currentOperator.assignedPrisonId) {
+      return operators.filter(op =>
+        op.level === "NATIONAL" || op.role === "DIRECTOR_GERAL" ||
+        op.assignedPrisonId === currentOperator.assignedPrisonId ||
+        (currentOperator.province && op.province && op.province.toLowerCase().trim() === currentOperator.province.toLowerCase().trim())
+      );
+    }
+    return operators;
+  }, [currentOperator, operators]);
 
   // Form states for scheduling a movement
   const [movSelectedInmateId, setMovSelectedInmateId] = useState("");
@@ -3664,25 +3885,27 @@ export default function App() {
 
   // Synchronize risk and province filters default value for restricted roles & scope
   useEffect(() => {
-    if (currentOperator.role !== "DIRECTOR_GERAL" && currentOperator.role !== "DIRECTOR_PROVINCIAL") {
+    const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
+    const isProvincial = currentOperator.territorialScope === TerritorialScope.PROVINCIAL || currentOperator.level === "PROVINCIAL" || currentOperator.role === "DIRECTOR_PROVINCIAL";
+
+    if (!isNational && !isProvincial) {
       setSelectedRiskPrisonFilter(currentOperator.assignedPrisonId || "ALL");
     } else {
       setSelectedRiskPrisonFilter("ALL");
     }
 
     // Synchronize global province selection based on active operator scope
-    if (currentOperator.territorialScope === TerritorialScope.NATIONAL) {
-      setSelectedProvinceFilter("ALL");
-    } else if (currentOperator.territorialScope === TerritorialScope.PROVINCIAL) {
-      setSelectedProvinceFilter(currentOperator.province || "Luanda");
-    } else if (currentOperator.territorialScope === TerritorialScope.ESTABLISHMENT) {
+    if (isNational) {
+      // Keep ALL or selected filter
+    } else if (isProvincial) {
+      const targetProv = currentOperator.province || "Huambo";
+      setSelectedProvinceFilter(targetProv);
+      setSelectedProvince(targetProv);
+    } else {
       const pr = prisons.find(p => p.id === currentOperator.assignedPrisonId);
-      if (pr) {
-        const provPart = pr.location.split(",")[0].trim();
-        setSelectedProvinceFilter(provPart);
-      } else {
-        setSelectedProvinceFilter("Luanda");
-      }
+      const targetProv = pr ? pr.location.split(",")[0].trim() : (currentOperator.province || "Huambo");
+      setSelectedProvinceFilter(targetProv);
+      setSelectedProvince(targetProv);
     }
   }, [currentOperator, prisons]);
 
@@ -3751,6 +3974,17 @@ export default function App() {
       classification: InformationClassification.RESTRICTED
     }
   ]);
+
+  const visibleMovements = useMemo(() => {
+    const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
+    if (isNational) return movements;
+    return movements.filter((m) => {
+      const matchSource = visiblePrisons.some(p => p.id === m.sourceUnitId || p.name.includes(m.sourceUnitId));
+      const matchDest = visiblePrisons.some(p => p.id === m.destinationUnitId || p.name.includes(m.destinationUnitId));
+      const matchInmate = visibleInmates.some(i => i.id === m.inmateId);
+      return matchSource || matchDest || matchInmate;
+    });
+  }, [currentOperator, movements, visiblePrisons, visibleInmates]);
 
   // Master Forensic Audit Records (Point 8)
   const [auditRecords, setAuditRecords] = useState<AuditRecord[]>([
@@ -3939,6 +4173,114 @@ export default function App() {
       console.warn("⚠️ Gravação de log offline. Falha ao comunicar com o Postgres:", err);
     });
   };
+
+  // Router verification guard layer to block direct URL navigation (e.g. /prisoners/:id) for out-of-scope inmates
+  useEffect(() => {
+    const handleUrlRouteVerification = () => {
+      const pathname = window.location.pathname;
+      const hash = window.location.hash;
+      const search = window.location.search;
+
+      let targetInmateId: string | null = null;
+      let rawMatchedUrl = "";
+
+      // 1. Pathname check: /prisoners/:id, /reclusos/:id, /inmates/:id
+      const pathMatch = pathname.match(/^\/(?:prisoners|reclusos|inmates)\/([A-Za-z0-9_-]+)/i);
+      if (pathMatch) {
+        targetInmateId = pathMatch[1];
+        rawMatchedUrl = pathname;
+      }
+
+      // 2. Hash check: #/prisoners/:id, #prisoners/:id, #/reclusos/:id
+      if (!targetInmateId && hash) {
+        const hashMatch = hash.match(/^#\/?(?:prisoners|reclusos|inmates)\/([A-Za-z0-9_-]+)/i);
+        if (hashMatch) {
+          targetInmateId = hashMatch[1];
+          rawMatchedUrl = hash;
+        }
+      }
+
+      // 3. Search query params: ?prisonerId=:id or ?inmateId=:id or ?reclusoId=:id
+      if (!targetInmateId && search) {
+        const params = new URLSearchParams(search);
+        const paramId = params.get("prisonerId") || params.get("inmateId") || params.get("reclusoId") || params.get("prisoner") || params.get("recluso");
+        if (paramId) {
+          targetInmateId = paramId;
+          rawMatchedUrl = search;
+        }
+      }
+
+      if (!targetInmateId) return;
+
+      // Search in master inmates list
+      const foundInmate = inmates.find(i => 
+        i.id.toLowerCase() === targetInmateId!.toLowerCase() || 
+        (i.documentCode && i.documentCode.toLowerCase() === targetInmateId!.toLowerCase()) ||
+        (i.nrep && i.nrep.toLowerCase() === targetInmateId!.toLowerCase())
+      );
+
+      if (!foundInmate) {
+        triggerToast("Navegação de URL", `O recluso com ID/NREP '${targetInmateId}' não foi localizado na base ativa.`, "warning");
+        window.history.replaceState({}, '', '/');
+        return;
+      }
+
+      // Check scope of currently logged-in operator
+      const isInScope = visibleInmates.some(vi => vi.id === foundInmate.id);
+
+      if (!isInScope) {
+        // BLOCK DIRECT URL ACCESS & REDIRECT TO 'ACESSO NEGADO'
+        window.history.replaceState({}, '', '/');
+        setSelectedSearchInmateModal(null);
+
+        const inmName = foundInmate.fullName || `${foundInmate.firstName || ''} ${foundInmate.lastName || ''}`.trim() || foundInmate.id;
+        const inmProv = foundInmate.province || (prisons.find(p => p.id === (foundInmate.assignedPrisonId || foundInmate.prisonId))?.location.split(',')[0].trim()) || "Província Externa";
+        const opProv = currentOperator.province || "Jurisdição Restrita";
+
+        setUrlAccessDeniedModal({
+          isOpen: true,
+          attemptedUrl: rawMatchedUrl || `/prisoners/${targetInmateId}`,
+          inmateId: foundInmate.documentCode || foundInmate.id,
+          inmateName: inmName,
+          inmateProvince: inmProv,
+          operatorProvince: opProv,
+          operatorRole: currentOperator.role,
+          reason: `Bloqueio de Segurança no Router: Tentativa de navegação direta via URL (${rawMatchedUrl}) para o recluso ${inmName}. O recluso custodiado na Província de ${inmProv} encontra-se fora do escopo do operador logado (${currentOperator.name} - ${opProv}).`
+        });
+
+        triggerToast(
+          "Acesso Negado (Redirecionamento)",
+          `Navegação direta bloqueada para o recluso ${inmName} (Fora da Província de ${opProv}).`,
+          "error"
+        );
+
+        writeAuditLog(
+          currentOperator,
+          "UNAUTHORIZED_HIERARCHY_MUTATION_ATTEMPT" as any,
+          "URL_ROUTER_SECURITY_GUARD",
+          foundInmate.id,
+          `[ACESSO NEGADO NO ROUTER] Bloqueada tentativa de acesso direto via URL '${rawMatchedUrl}' ao recluso ${inmName} (${foundInmate.id}) da Província de ${inmProv} por operador de ${opProv}. Redirecionado para aviso de Acesso Negado.`,
+          foundInmate.id,
+          inmName
+        );
+      } else {
+        // IN SCOPE: Open canonical inmate modal
+        setSelectedSearchInmateModal(foundInmate);
+        setSelectedSearchInmateIsOutOfScope(false);
+        triggerToast("Acesso Autorizado", `Navegação direta autorizada para o recluso ${foundInmate.fullName || foundInmate.firstName}.`, "success");
+      }
+    };
+
+    handleUrlRouteVerification();
+
+    window.addEventListener("popstate", handleUrlRouteVerification);
+    window.addEventListener("hashchange", handleUrlRouteVerification);
+
+    return () => {
+      window.removeEventListener("popstate", handleUrlRouteVerification);
+      window.removeEventListener("hashchange", handleUrlRouteVerification);
+    };
+  }, [inmates, visibleInmates, currentOperator]);
 
   const handleExecuteMovement = (e: React.FormEvent) => {
     e.preventDefault();
@@ -8221,7 +8563,7 @@ export default function App() {
             `Selecionou província '${prov}' via Mapa Holográfico Terrestre de Angola.`
           );
         }}
-        prisons={prisons}
+        prisons={visiblePrisons}
       />
       
       {/* 1. STATE BANNERS (OFFLINE CONTINGENCY) */}
@@ -8304,7 +8646,7 @@ export default function App() {
           <Search className="absolute left-2.5 top-1.5 h-3 w-3 text-slate-500" />
           <input
             type="text"
-            placeholder="PNAP-AO OS: Procurar reclusos, processos ou EPs... (Ctrl + P)"
+            placeholder="PNAP-AO OS: Pesquisa Nacional de Reclusos, NREP, BI ou EPs... (Ctrl + P)"
             value={globalWorkspaceSearch}
             onChange={(e) => setGlobalWorkspaceSearch(e.target.value)}
             className="w-full bg-[#040609] border border-slate-800/80 hover:border-slate-750 focus:border-amber-500/50 rounded-md py-1 pl-8 pr-8 text-[10px] font-mono text-slate-300 placeholder-slate-550 focus:outline-none transition-all shadow-inner h-7"
@@ -8318,6 +8660,99 @@ export default function App() {
             </button>
           ) : (
             <span className="absolute right-2.5 top-1.5 text-[8px] font-mono text-slate-600 bg-slate-900 border border-slate-800 px-1 rounded">Ctrl+P</span>
+          )}
+
+          {/* Interactive Global Search Popover Overlay */}
+          {globalWorkspaceSearch.trim() !== "" && (
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg shadow-2xl z-50 p-2 max-h-[420px] overflow-y-auto font-sans">
+              <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-slate-800 text-[10px] font-mono text-slate-400">
+                <span className="flex items-center gap-1"><Search className="w-3 h-3 text-amber-500" /> PESQUISA NACIONAL UNIFICADA</span>
+                <span className="text-amber-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">LEITURA REBAC</span>
+              </div>
+              {(() => {
+                const query = globalWorkspaceSearch.toLowerCase().trim();
+                const results = inmates.filter(i => {
+                  const nameStr = (i.fullName || `${i.firstName || ''} ${i.lastName || ''}`).toLowerCase();
+                  const prisonName = (prisons.find(p => p.id === (i.assignedPrisonId || i.prisonId))?.name || "").toLowerCase();
+                  const prov = (i.province || "").toLowerCase();
+                  const nrep = (i.documentCode || i.id || "").toLowerCase();
+                  const bi = (i.idCard || i.biNumber || "").toLowerCase();
+                  return nameStr.includes(query) || prisonName.includes(query) || prov.includes(query) || nrep.includes(query) || bi.includes(query);
+                });
+
+                if (results.length === 0) {
+                  return (
+                    <div className="p-4 text-center text-xs text-slate-500 font-mono">
+                      Nenhum recluso ou processo encontrado com o termo "{globalWorkspaceSearch}" no cadastro nacional.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="flex flex-col gap-1">
+                    {results.slice(0, 15).map((inm) => {
+                      const isInScope = visibleInmates.some(vi => vi.id === inm.id);
+                      const prisonObj = prisons.find(p => p.id === (inm.assignedPrisonId || inm.prisonId));
+                      const prisonLabel = prisonObj ? prisonObj.name.replace("Estabelecimento Penitenciário de ", "EP ") : (inm.assignedPrisonId || inm.prisonId || "N/A");
+                      const provLabel = inm.province || (prisonObj ? prisonObj.location.split(',')[0].trim() : "N/A");
+                      const inmName = inm.fullName || `${inm.firstName || ''} ${inm.lastName || ''}`.trim();
+                      const inmNrep = inm.documentCode || inm.id;
+
+                      return (
+                        <div
+                          key={inm.id}
+                          onClick={() => {
+                            setSelectedSearchInmateModal(inm);
+                            setSelectedSearchInmateIsOutOfScope(!isInScope);
+                            setGlobalWorkspaceSearch("");
+                            writeAuditLog(
+                              currentOperator,
+                              "VIEW_INMATE",
+                              "PesquisaGlobal",
+                              inm.id,
+                              `Pesquisa global efetuada para recluso ${inmName} (${inmNrep}) - Escopo: ${isInScope ? 'JURISDIÇÃO_LOCAL' : 'CONSULTA_NACIONAL_FORA_ESCOPO'}`
+                            );
+                          }}
+                          className={`p-2 rounded border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                            isInScope
+                              ? "bg-slate-900/80 border-slate-800 hover:border-amber-500/50 hover:bg-slate-900"
+                              : "bg-slate-950 border-slate-850 hover:border-slate-700 hover:bg-slate-900/50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 font-mono text-[10px] text-amber-500 font-bold">
+                              {inmName[0]}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-bold text-slate-200 truncate">{inmName}</span>
+                                <span className="text-[9px] font-mono text-slate-400 bg-slate-800 px-1 rounded shrink-0">NREP: {inmNrep}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-400 font-mono truncate flex items-center gap-2">
+                                <span>📍 {prisonLabel} ({provLabel})</span>
+                                <span>• BI: {inm.idCard || inm.biNumber || "N/A"}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 flex items-center gap-1.5">
+                            {isInScope ? (
+                              <span className="text-[9px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                <CheckCircle2 className="w-2.5 h-2.5" /> Escopo Direto
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-mono font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 px-1.5 py-0.5 rounded flex items-center gap-1" title="Leitura Apenas - Fora da Jurisdição Provincial">
+                                <Eye className="w-2.5 h-2.5" /> Pesquisa Nacional (Leitura)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
           )}
         </div>
 
@@ -8557,205 +8992,78 @@ export default function App() {
             {/* Sidebar Explorer Title Header Bar */}
             <div className="h-9 px-3 border-b border-slate-900 flex items-center justify-between bg-[#06080c] shrink-0">
               <span className="text-[10px] font-mono font-bold text-slate-400 tracking-wider uppercase">Estrutura Institucional</span>
-              <button 
-                onClick={() => {
-                  setExpandedWorkspaceFolders(prev => ({
-                    ...prev,
-                    republica_angola: false,
-                    minint: false,
-                    servico_penitenciario: false,
-                    direcoes_nacionais: false,
-                    direcoes_provinciais: false,
-                    estabelecimentos: false,
-                    unidades_especiais: false,
-                    missões: false
-                  }));
-                }} 
-                className="p-1 hover:bg-slate-800/80 rounded text-slate-500 hover:text-slate-350 cursor-pointer transition-colors"
-                title="Colapsar todos os domínios"
-              >
-                <ChevronUp className="h-3.5 w-3.5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => {
+                    const isAnyExpanded = 
+                      expandedWorkspaceFolders.departamentos_comando !== false ||
+                      expandedWorkspaceFolders.direcoes_provinciais !== false ||
+                      expandedWorkspaceFolders.acesso_rapido_eps !== false ||
+                      expandedWorkspaceFolders.missões !== false;
+                    
+                    setExpandedWorkspaceFolders(prev => ({
+                      ...prev,
+                      departamentos_comando: !isAnyExpanded,
+                      direcoes_provinciais: !isAnyExpanded,
+                      acesso_rapido_eps: !isAnyExpanded,
+                      missões: !isAnyExpanded,
+                      republica_angola: !isAnyExpanded,
+                      minint: !isAnyExpanded,
+                      servico_penitenciario: !isAnyExpanded,
+                      direcoes_nacionais: !isAnyExpanded,
+                      estabelecimentos: !isAnyExpanded,
+                      unidades_especiais: !isAnyExpanded
+                    }));
+                    if (isAnyExpanded) {
+                      setExpandedProv({});
+                      setExpandedPrisons({});
+                      setExpandedPavilions({});
+                      setExpandedCells({});
+                    }
+                  }} 
+                  className="p-1 hover:bg-slate-800/80 rounded text-slate-500 hover:text-slate-350 cursor-pointer transition-colors"
+                  title="Colapsar / Expandir Todos os Blocos"
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setIsSidebarExpanded(false)}
+                  className="p-1 hover:bg-slate-800/80 rounded text-slate-500 hover:text-amber-400 cursor-pointer transition-colors"
+                  title="Ocultar Painel da Estrutura Institucional"
+                >
+                  <PanelLeftClose className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto scrollbar-thin select-none">
               
-              {/* SECTION 1: CLEAN ICON-FIRST INSTITUTIONAL NAVIGATION */}
+              {/* SECTION 1: PROVINCIAL TERRITORIAL HIERARCHY (PAI + FILHO + NETO) */}
               <div className="flex flex-col text-[11px] font-mono p-2 gap-3">
                 
-                {/* DEPARTMENTS & CENTRAL COMMAND (HIGH-CONTRAST ICON-FIRST BUTTONS) */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider px-1 mb-0.5">Departamentos & Comando</span>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {/* DGP */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("deus-fundador");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "deus-fundador" && !selectedHierNode && !currentMission
-                          ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Direção Geral (DGP-Consola)"
-                    >
-                      <Crown className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">DGP Consola</span>
-                    </button>
-
-                    {/* Gabinete DG */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("settings");
-                        setSettingsSubTab("delegations");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "settings" && settingsSubTab === "delegations" && !selectedHierNode && !currentMission
-                          ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Gabinete do Director Geral"
-                    >
-                      <File className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">Gabinete DG</span>
-                    </button>
-
-                    {/* Auditoria */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("auditing");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "auditing" && !selectedHierNode && !currentMission
-                          ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Órgãos Consultivos / Auditoria"
-                    >
-                      <Shield className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">Auditoria</span>
-                    </button>
-
-                    {/* VSAT Segurança */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("centro-comando");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "centro-comando" && !selectedHierNode && !currentMission
-                          ? "bg-rose-500/20 border-rose-500/60 text-rose-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Segurança / VSAT"
-                    >
-                      <Radio className="h-3.5 w-3.5 text-rose-500 shrink-0 animate-pulse" />
-                      <span className="text-[10px] font-mono font-bold truncate">VSAT Seg.</span>
-                    </button>
-
-                    {/* Controlo Penal */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("movements");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "movements" && !selectedHierNode && !currentMission
-                          ? "bg-sky-500/20 border-sky-500/60 text-sky-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Controlo Penal / Movimentações"
-                    >
-                      <Activity className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">Controlo Penal</span>
-                    </button>
-
-                    {/* Reinserção */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("special-services");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "special-services" && !selectedHierNode && !currentMission
-                          ? "bg-teal-500/20 border-teal-500/60 text-teal-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Reinserção Social"
-                    >
-                      <UserCheck className="h-3.5 w-3.5 text-teal-400 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">Reinserção</span>
-                    </button>
-
-                    {/* SIEM */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("centro-inteligencia");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "centro-inteligencia" && !selectedHierNode && !currentMission
-                          ? "bg-rose-500/20 border-rose-500/60 text-rose-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Inteligência (SIEM)"
-                    >
-                      <ShieldAlert className="h-3.5 w-3.5 text-rose-500 shrink-0 animate-pulse" />
-                      <span className="text-[10px] font-mono font-bold truncate">SIEM Intel</span>
-                    </button>
-
-                    {/* Legislação */}
-                    <button
-                      onClick={() => {
-                        setActiveTab("penal-code");
-                        setSelectedHierNode(null);
-                        setCurrentMission(null);
-                      }}
-                      className={`px-2 py-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all cursor-pointer ${
-                        activeTab === "penal-code" && !selectedHierNode && !currentMission
-                          ? "bg-sky-500/20 border-sky-500/60 text-sky-300 font-bold shadow-sm"
-                          : "bg-slate-900/60 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                      }`}
-                      title="Engenharia Legislativa"
-                    >
-                      <Scale className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                      <span className="text-[10px] font-mono font-bold truncate">Legislação</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* PROVINCIAL TERRITORIAL HIERARCHY & EPS */}
-                <div className="flex flex-col gap-1 border-t border-slate-850 pt-2 mt-1">
                   <div 
                     onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, direcoes_provinciais: !p.direcoes_provinciais }))}
-                    className="flex items-center justify-between px-1 py-1 hover:bg-slate-850/50 rounded cursor-pointer text-slate-300 font-bold text-[10px]"
+                    className="flex items-center justify-between px-1.5 py-1 hover:bg-slate-850/50 rounded cursor-pointer text-slate-200 font-bold text-[10.5px] select-none"
                   >
                     <span className="flex items-center gap-1.5">
                       <LayoutGrid className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                      <span className="uppercase tracking-wider">Províncias & EPs</span>
+                      <span className="uppercase tracking-wider">Estrutura Províncias & EPs</span>
                     </span>
                     <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform ${expandedWorkspaceFolders.direcoes_provinciais !== false ? "" : "-rotate-90"}`} />
                   </div>
 
                   {expandedWorkspaceFolders.direcoes_provinciais !== false && (
-                    <div className="flex flex-col gap-1 pl-1.5 border-l border-slate-850">
-                      {PROVINCES_HARDCODED.map(prov => {
+                    <div className="flex flex-col gap-1 pl-1 border-l border-slate-850">
+                      {visibleProvinces.map(prov => {
                         const isExp = !!expandedProv[prov];
                         const isSelected = selectedHierNode?.type === "PROVINCE" && selectedHierNode.id === prov;
-                        const provPrisons = prisons.filter(p => p.location.toLowerCase().includes(prov.toLowerCase()));
+                        const provPrisons = visiblePrisons.filter(p => p.location.toLowerCase().includes(prov.toLowerCase()));
+                        const provDeps = organizationalUnits.filter(u => u.province?.toLowerCase().trim() === prov.toLowerCase().trim() && u.parentId !== "OU-MININT-DG");
                         
                         return (
                           <div key={prov} className="flex flex-col">
+                            {/* PAI: PROVÍNCIA (ex: Huambo) */}
                             <div 
                               onClick={() => {
                                 setExpandedProv(p => ({ ...p, [prov]: !p[prov] }));
@@ -8763,52 +9071,159 @@ export default function App() {
                                 setActiveTab("" as any);
                                 setCurrentMission(null);
                               }}
-                              className={`px-2 py-1 flex items-center justify-between rounded cursor-pointer transition-all ${
-                                isSelected ? "bg-slate-800 text-amber-400 font-bold" : "text-slate-300 hover:text-white hover:bg-slate-850/80"
+                              className={`px-2 py-1.5 flex items-center justify-between rounded cursor-pointer transition-all border ${
+                                isSelected 
+                                  ? "bg-amber-500/15 border-amber-500/50 text-amber-300 font-bold shadow-sm" 
+                                  : "bg-slate-900/40 border-slate-800/60 text-slate-200 hover:text-white hover:bg-slate-850/80 hover:border-slate-700"
                               }`}
                             >
                               <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase">
-                                <MapPin className="h-3 w-3 text-amber-500 shrink-0" />
+                                <MapPin className="h-3.5 w-3.5 text-amber-500 shrink-0" />
                                 <span>{prov}</span>
-                                <span className="text-[8.5px] font-mono text-slate-500 font-normal">({provPrisons.length})</span>
+                                <span className="text-[8px] font-mono text-amber-400/90 font-medium">({provDeps.length} Dep | {provPrisons.length} EPs)</span>
                               </span>
-                              <ChevronDown className={`h-2.5 w-2.5 text-slate-500 transition-transform ${isExp ? "" : "-rotate-90"}`} />
+                              <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform ${isExp ? "" : "-rotate-90"}`} />
                             </div>
 
+                            {/* FILHOS & NETOS */}
                             {isExp && (
-                              <div className="pl-2 border-l border-slate-800 ml-2 flex flex-col gap-1 my-1">
-                                {provPrisons.map(pris => {
-                                  const isPrisExp = !!expandedPrisons[pris.id];
-                                  const isPrisSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
-                                  const isFemalePris = pris.name.toLowerCase().includes("feminino");
+                              <div className="pl-2 border-l border-amber-900/30 ml-2 flex flex-col gap-1.5 my-1">
+                                
+                                {/* FILHO 1: DEPENDÊNCIAS ORGÂNICAS ESTATUTÁRIAS (DEC. 184/17) */}
+                                <div className="flex flex-col">
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedProvDeps(prev => ({ ...prev, [prov]: !prev[prov] }));
+                                    }}
+                                    className="px-2 py-1 flex items-center justify-between rounded bg-purple-950/30 border border-purple-900/50 hover:border-purple-700 text-purple-300 cursor-pointer text-[9.5px] font-mono font-bold"
+                                  >
+                                    <span className="flex items-center gap-1.5 truncate">
+                                      <FolderTree className="h-3 w-3 text-purple-400 shrink-0" />
+                                      <span className="truncate">Dependências Orgânicas</span>
+                                      <span className="text-[8px] text-purple-300 font-mono font-bold">
+                                        ({provDeps.length})
+                                      </span>
+                                    </span>
+                                    <ChevronDown className={`h-2.5 w-2.5 text-purple-400 transition-transform ${expandedProvDeps[prov] ? "" : "-rotate-90"}`} />
+                                  </div>
 
-                                  return (
-                                    <div key={pris.id} className="flex flex-col">
-                                      <div 
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setExpandedPrisons(prev => ({ ...prev, [pris.id]: !prev[pris.id] }));
-                                          setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name, parentId: prov });
-                                          setActiveTab("" as any);
-                                          setCurrentMission(null);
-                                        }}
-                                        className={`px-2 py-1 flex items-center justify-between rounded border transition-all cursor-pointer ${
-                                          isPrisSel 
-                                            ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold" 
-                                            : isFemalePris
-                                              ? "bg-pink-950/20 border-pink-900/40 text-pink-300 hover:bg-pink-900/40 hover:text-white"
-                                              : "bg-slate-900/70 border-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                                        }`}
-                                      >
-                                        <span className="flex items-center gap-1.5 text-[9.5px] font-mono truncate font-bold">
-                                          <Building className={`h-3 w-3 shrink-0 ${isFemalePris ? "text-pink-400" : "text-sky-400"}`} />
-                                          <span className="truncate">{formatEPName(pris.name)}</span>
-                                        </span>
-                                        <ChevronDown className={`h-2.5 w-2.5 text-slate-500 transition-transform ${isPrisExp ? "" : "-rotate-90"}`} />
-                                      </div>
+                                  {/* NETOS DAS DEPENDÊNCIAS: DEPARTAMENTOS -> SECÇÕES/PELOTÕES */}
+                                  {expandedProvDeps[prov] && (
+                                    <div className="pl-2 border-l border-purple-900/40 ml-1.5 flex flex-col gap-1 my-1">
+                                      {provDeps.map(dep => {
+                                        const depSections = GET_DEPARTMENT_SUBSECTIONS(dep.code || dep.name);
+                                        const isDepExp = !!expandedDepSections[dep.id];
 
-                                      {isPrisExp && (
-                                        <div className="pl-2 border-l border-slate-850 ml-1.5 flex flex-col gap-0.5 my-1">
+                                        return (
+                                          <div key={dep.id} className="flex flex-col">
+                                            {/* FILHO: DEPARTAMENTO / GABINETE */}
+                                            <div
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setExpandedDepSections(prev => ({ ...prev, [dep.id]: !prev[dep.id] }));
+                                                setSelectedHierNode({ type: "PROVINCE", id: prov, name: `${prov} > ${dep.name}` });
+                                                setSelectedProvinceFilter(prov);
+                                              }}
+                                              className="px-1.5 py-1 rounded bg-slate-900/70 hover:bg-purple-950/50 text-slate-300 hover:text-amber-300 text-[9px] font-mono flex items-center justify-between cursor-pointer border border-slate-800/80 hover:border-purple-800/60 transition-all font-medium"
+                                              title={`${dep.name} - ${dep.functionDescription || 'Clique para ver secções e atribuições'}`}
+                                            >
+                                              <span className="truncate flex items-center gap-1.5">
+                                                <ShieldCheck className="h-2.5 w-2.5 text-purple-400 shrink-0" />
+                                                <span className="truncate">{dep.name}</span>
+                                              </span>
+                                              <div className="flex items-center gap-1 shrink-0">
+                                                {dep.code && (
+                                                  <span className="text-[7.5px] text-amber-400 font-bold">{dep.code.split('-')[0]}</span>
+                                                )}
+                                                <ChevronDown className={`h-2 w-2 text-purple-400 transition-transform ${isDepExp ? "" : "-rotate-90"}`} />
+                                              </div>
+                                            </div>
+
+                                            {/* NETO: SECÇÕES & ATRIBUIÇÕES FUNCIONAIS */}
+                                            {isDepExp && (
+                                              <div className="pl-2 border-l border-purple-800/40 ml-2 flex flex-col gap-0.5 my-1">
+                                                {depSections.map(sec => (
+                                                  <div
+                                                    key={sec.id}
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setSelectedHierNode({ type: "PROVINCE", id: prov, name: `${dep.name} > ${sec.name}` });
+                                                      setSelectedProvinceFilter(prov);
+                                                      setActiveTab("settings" as any);
+                                                      setSettingsSubTab("hierarchy");
+                                                      setCurrentMission(null);
+                                                    }}
+                                                    className="px-1.5 py-0.5 rounded hover:bg-purple-900/30 text-slate-400 hover:text-purple-200 text-[8.5px] font-mono flex items-center justify-between cursor-pointer transition-all border border-transparent hover:border-purple-800/40"
+                                                    title={`Atribuição Operacional: ${sec.name}`}
+                                                  >
+                                                    <span className="truncate flex items-center gap-1">
+                                                      <span className="text-purple-400 font-bold text-[7.5px]">└</span>
+                                                      <span className="truncate">{sec.name}</span>
+                                                    </span>
+                                                    <span className="text-[7px] text-purple-400/80 uppercase font-mono">{sec.type}</span>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* SUB-FOLDER 2: ESTABELECIMENTOS PENITENCIÁRIOS */}
+                                <div className="flex flex-col">
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedProvPrisons(prev => ({ ...prev, [prov]: prev[prov] === false ? true : false }));
+                                    }}
+                                    className="px-2 py-0.5 flex items-center justify-between rounded bg-slate-900/80 border border-sky-950/60 hover:border-sky-800 text-sky-300 cursor-pointer text-[9.5px] font-mono font-bold"
+                                  >
+                                    <span className="flex items-center gap-1.5 truncate">
+                                      <Building className="h-3 w-3 text-sky-400 shrink-0" />
+                                      <span className="truncate">Cadeias / EPs</span>
+                                      <span className="text-[8px] text-sky-300 font-bold">({provPrisons.length})</span>
+                                    </span>
+                                    <ChevronDown className={`h-2.5 w-2.5 text-sky-400 transition-transform ${expandedProvPrisons[prov] !== false ? "" : "-rotate-90"}`} />
+                                  </div>
+
+                                  {expandedProvPrisons[prov] !== false && (
+                                    <div className="pl-2 border-l border-slate-800 ml-1.5 flex flex-col gap-1 my-1">
+                                      {provPrisons.map(pris => {
+                                        const isPrisExp = !!expandedPrisons[pris.id];
+                                        const isPrisSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
+                                        const isFemalePris = pris.name.toLowerCase().includes("feminino");
+
+                                        return (
+                                          <div key={pris.id} className="flex flex-col">
+                                            <div 
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setExpandedPrisons(prev => ({ ...prev, [pris.id]: !prev[pris.id] }));
+                                                setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name, parentId: prov });
+                                                setActiveTab("" as any);
+                                                setCurrentMission(null);
+                                              }}
+                                              className={`px-2 py-1 flex items-center justify-between rounded border transition-all cursor-pointer ${
+                                                isPrisSel 
+                                                  ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold" 
+                                                  : isFemalePris
+                                                    ? "bg-pink-950/20 border-pink-900/40 text-pink-300 hover:bg-pink-900/40 hover:text-white"
+                                                    : "bg-slate-900/70 border-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-700"
+                                              }`}
+                                            >
+                                              <span className="flex items-center gap-1.5 text-[9.5px] font-mono truncate font-bold">
+                                                <Building className={`h-3 w-3 shrink-0 ${isFemalePris ? "text-pink-400" : "text-sky-400"}`} />
+                                                <span className="truncate">{formatEPName(pris.name)}</span>
+                                              </span>
+                                              <ChevronDown className={`h-2.5 w-2.5 text-slate-500 transition-transform ${isPrisExp ? "" : "-rotate-90"}`} />
+                                            </div>
+
+                                            {isPrisExp && (
+                                              <div className="pl-2 border-l border-slate-850 ml-1.5 flex flex-col gap-0.5 my-1">
                                           {pris.pavilions?.map(pav => {
                                             const isPavExp = !!expandedPavilions[pav.id];
                                             const isPavSel = selectedHierNode?.type === "PAVILION" && selectedHierNode.id === pav.id;
@@ -8898,40 +9313,55 @@ export default function App() {
                               </div>
                             )}
                           </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+                {/* HIGH-CONTRAST EP QUICK DIRECT BUTTONS */}
+                <div className="flex flex-col gap-1 border-t border-slate-850 pt-2 mt-1">
+                  <div 
+                    onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, acesso_rapido_eps: !p.acesso_rapido_eps }))}
+                    className="flex items-center justify-between px-1 py-1 hover:bg-slate-850/50 rounded cursor-pointer text-slate-300 font-bold text-[10px] select-none"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Zap className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                      <span className="uppercase tracking-wider">Acesso Rápido EPs</span>
+                    </span>
+                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform ${expandedWorkspaceFolders.acesso_rapido_eps !== false ? "" : "-rotate-90"}`} />
+                  </div>
+
+                  {expandedWorkspaceFolders.acesso_rapido_eps !== false && (
+                    <div className="flex flex-wrap gap-1 pt-0.5">
+                      {prisons.map(pris => {
+                        const isSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
+                        const isFem = pris.name.toLowerCase().includes("feminino");
+                        return (
+                          <button
+                            key={pris.id}
+                            onClick={() => {
+                              setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name });
+                              setActiveTab("" as any);
+                              setCurrentMission(null);
+                            }}
+                            className={`px-2 py-1 rounded text-[9.5px] font-mono font-extrabold border transition-all cursor-pointer ${
+                              isSel
+                                ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
+                                : isFem
+                                  ? "bg-pink-950/40 text-pink-300 border-pink-800/60 hover:bg-pink-900 hover:text-white"
+                                  : "bg-slate-900 border-slate-750 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-600"
+                            }`}
+                          >
+                            {formatEPName(pris.name)}
+                          </button>
                         );
                       })}
                     </div>
                   )}
-                </div>
-
-                {/* HIGH-CONTRAST EP QUICK DIRECT BUTTONS */}
-                <div className="flex flex-col gap-1 border-t border-slate-850 pt-2">
-                  <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider px-1 mb-0.5">Acesso Rápido EPs</span>
-                  <div className="flex flex-wrap gap-1">
-                    {prisons.map(pris => {
-                      const isSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
-                      const isFem = pris.name.toLowerCase().includes("feminino");
-                      return (
-                        <button
-                          key={pris.id}
-                          onClick={() => {
-                            setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name });
-                            setActiveTab("" as any);
-                            setCurrentMission(null);
-                          }}
-                          className={`px-2 py-1 rounded text-[9.5px] font-mono font-extrabold border transition-all cursor-pointer ${
-                            isSel
-                              ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
-                              : isFem
-                                ? "bg-pink-950/40 text-pink-300 border-pink-800/60 hover:bg-pink-900 hover:text-white"
-                                : "bg-slate-900 border-slate-750 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-600"
-                          }`}
-                        >
-                          {formatEPName(pris.name)}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
 
               </div>
@@ -8940,10 +9370,13 @@ export default function App() {
               <div className="flex flex-col border-t border-slate-900 mt-2">
                 <div 
                   onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, missões: !p.missões }))}
-                  className="flex items-center gap-1 px-2.5 py-1.5 bg-[#0d0f14] hover:bg-[#12151c] cursor-pointer border-b border-slate-900 text-slate-300 font-mono text-[9px] uppercase font-bold tracking-wider select-none shrink-0 transition-colors"
+                  className="flex items-center justify-between px-2.5 py-1.5 bg-[#0d0f14] hover:bg-[#12151c] cursor-pointer border-b border-slate-900 text-slate-300 font-mono text-[9px] uppercase font-bold tracking-wider select-none shrink-0 transition-colors"
                 >
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                    <span>MISSÕES OPERACIONAIS</span>
+                  </span>
                   <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.missões !== false ? "" : "-rotate-90"}`} />
-                  <span>MISSÕES OPERACIONAIS</span>
                 </div>
 
                 {expandedWorkspaceFolders.missões !== false && (
@@ -11321,7 +11754,7 @@ export default function App() {
                   exit={{ opacity: 0, y: -10 }}
                   className="w-full"
                 >
-                  <RiskMapDashboard visiblePrisons={visiblePrisons} inmates={inmates} />
+                  <RiskMapDashboard visiblePrisons={visiblePrisons} inmates={visibleInmates} />
                 </motion.div>
               )}
             </div>
@@ -11337,9 +11770,9 @@ export default function App() {
               className="w-full"
             >
               <NationalCommandCenter
-                prisons={prisons}
-                inmates={inmates}
-                operators={operators}
+                prisons={visiblePrisons}
+                inmates={visibleInmates}
+                operators={visibleOperators}
                 currentOperator={currentOperator}
                 writeAuditLog={writeAuditLog}
                 isOnline={isOnline}
@@ -11357,9 +11790,9 @@ export default function App() {
               className="w-full"
             >
               <IntelligenceCenter
-                prisons={prisons}
-                inmates={inmates}
-                operators={operators}
+                prisons={visiblePrisons}
+                inmates={visibleInmates}
+                operators={visibleOperators}
                 currentOperator={currentOperator}
                 writeAuditLog={writeAuditLog}
               />
@@ -19452,7 +19885,7 @@ export default function App() {
                       <DelegationPortal
                         delegations={delegations}
                         setDelegations={setDelegations}
-                        operators={operators}
+                        operators={visibleOperators}
                         currentOperator={currentOperator}
                         writeAuditLog={writeAuditLog}
                       />
@@ -20948,9 +21381,9 @@ export default function App() {
 
                         {settingsSubTab === "rh" && rhActiveSubTab === "indicadores" && (
                           <RHIndicatorsPanel
-                            operators={operators}
-                            prisons={prisons}
-                            inmates={inmates}
+                            operators={visibleOperators}
+                            prisons={visiblePrisons}
+                            inmates={visibleInmates}
                             organicUnits={organizationalUnits}
                           />
                         )}
@@ -20961,7 +21394,7 @@ export default function App() {
                       <OrganizationalHierarchyConfig
                         organizationalUnits={organizationalUnits}
                         setOrganizationalUnits={setOrganizationalUnits}
-                        prisons={prisons}
+                        prisons={visiblePrisons}
                         setPrisons={setPrisons}
                         triggerToast={triggerToast}
                         currentOperator={currentOperator}
@@ -20989,10 +21422,10 @@ export default function App() {
               className="flex flex-col gap-6"
             >
               <LegislationModule 
-                inmates={inmates}
-                pendingMovements={movements}
+                inmates={visibleInmates}
+                pendingMovements={visibleMovements}
                 movementLogs={auditLogs}
-                prisons={prisons}
+                prisons={visiblePrisons}
                 triggerToast={triggerToast}
                 currentOperator={currentOperator}
               />
@@ -21022,9 +21455,9 @@ export default function App() {
         currentOperator={currentOperator}
         isOnline={isOnline}
         triggerToast={triggerToast}
-        prisons={prisons}
+        prisons={visiblePrisons}
         municipalities={municipalities}
-        inmates={inmates}
+        inmates={visibleInmates}
         reintegrationRecords={reintegrationRecords}
         healthRecords={healthRecords}
         incidentAlerts={intelligenceRecords}
@@ -23003,10 +23436,10 @@ export default function App() {
               className="w-full max-w-7xl h-[92vh] flex flex-col bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden"
             >
               <NEPComplianceAuditor
-                inmates={inmates}
-                pendingMovements={movements}
+                inmates={visibleInmates}
+                pendingMovements={visibleMovements}
                 movementLogs={auditLogs}
-                prisons={prisons}
+                prisons={visiblePrisons}
                 triggerToast={triggerToast}
                 currentOperator={currentOperator}
                 isOpen={true}
@@ -23016,6 +23449,226 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Global Search Inmate Canonical Modal (REBAC Read-Only vs Full Jurisdiction Access) */}
+      {selectedSearchInmateModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans">
+            {/* Modal Header */}
+            <div className={`p-4 border-b flex items-center justify-between ${
+              selectedSearchInmateIsOutOfScope 
+                ? "bg-amber-950/30 border-amber-500/30 text-amber-300" 
+                : "bg-slate-900 border-slate-800 text-slate-100"
+            }`}>
+              <div className="flex items-center gap-2.5">
+                {selectedSearchInmateIsOutOfScope ? (
+                  <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                    <Eye className="w-5 h-5 animate-pulse" />
+                  </div>
+                ) : (
+                  <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-sm font-bold font-mono tracking-tight flex items-center gap-2">
+                    {selectedSearchInmateIsOutOfScope 
+                      ? "CONSULTA CANÓNICA NACIONAL (LEITURA APENAS - FORA DE JURISDIÇÃO)" 
+                      : "FICHA CANÓNICA DE RECLUSO (DENTRO DA JURISDIÇÃO)"}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    NREP: <strong className="text-slate-200">{selectedSearchInmateModal.documentCode || selectedSearchInmateModal.id}</strong> | Proc: <strong className="text-slate-200">{selectedSearchInmateModal.documentCode || selectedSearchInmateModal.id}</strong>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedSearchInmateModal(null)}
+                className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors text-xs font-mono"
+              >
+                ✕ Fechar
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-5 flex flex-col gap-4 max-h-[75vh] overflow-y-auto font-sans">
+              {selectedSearchInmateIsOutOfScope && (
+                <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3">
+                  <Lock className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-amber-200/90 leading-relaxed font-sans">
+                    <p className="font-bold text-amber-400 font-mono uppercase text-[11px]">
+                      Restrição Operacional REBAC - Decreto Presidencial & Sigilo Institucional
+                    </p>
+                    <p className="mt-1">
+                      O operador logado (<strong>{currentOperator.name}</strong> - <strong>{currentOperator.province || 'Província'}</strong>) está a consultar um recluso custodiado na <strong>Província de {selectedSearchInmateModal.province || 'outra circunscrição'}</strong>.
+                    </p>
+                    <p className="mt-1 text-[11px] text-amber-300/80 font-mono">
+                      • <strong>Disponível:</strong> Localização física, NREP, N.º Processo, BI, Regime e Situação Prisional.<br />
+                      • <strong>Bloqueado:</strong> Prontuário Clínico, Registos Disciplinares, Familiares e Ações de Alteração/Transferência.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Basic Inmate Details */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800 font-mono text-xs">
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Nome Completo</span>
+                  <span className="font-bold text-slate-100 font-sans">{selectedSearchInmateModal.fullName || `${selectedSearchInmateModal.firstName || ''} ${selectedSearchInmateModal.lastName || ''}`}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">BI / Passaporte</span>
+                  <span className="font-bold text-slate-200">{selectedSearchInmateModal.idCard || selectedSearchInmateModal.biNumber || "N/A"}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">NREP / Registo</span>
+                  <span className="font-bold text-amber-400">{selectedSearchInmateModal.documentCode || selectedSearchInmateModal.id}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Estabelecimento</span>
+                  <span className="font-bold text-slate-200">
+                    {prisons.find(p => p.id === (selectedSearchInmateModal.assignedPrisonId || selectedSearchInmateModal.prisonId))?.name.replace("Estabelecimento Penitenciário de ", "EP ") || selectedSearchInmateModal.assignedPrisonId || selectedSearchInmateModal.prisonId}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Província</span>
+                  <span className="font-bold text-emerald-400">{selectedSearchInmateModal.province || "Luanda"}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Grau de Risco</span>
+                  <span className="font-bold text-rose-400">{selectedSearchInmateModal.riskLevel || "Médio"}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Regime Prisional</span>
+                  <span className="font-bold text-slate-300">{selectedSearchInmateModal.regime || "Geral"}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Situação Legal</span>
+                  <span className="font-bold text-slate-300">{selectedSearchInmateModal.status || "Ativo"}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Cela Alocada</span>
+                  <span className="font-bold text-slate-300">{selectedSearchInmateModal.assignedCellNumber || "N/A"}</span>
+                </div>
+              </div>
+
+              {/* Action Controls */}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                <div className="text-[11px] font-mono text-slate-500">
+                  {selectedSearchInmateIsOutOfScope ? (
+                    <span className="text-amber-400 flex items-center gap-1">
+                      🔒 Ações de edição e eliminação bloqueadas fora da jurisdição
+                    </span>
+                  ) : (
+                    <span className="text-emerald-400 flex items-center gap-1">
+                      ✓ Possui plenos direitos de gestão territorial neste registo
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {!selectedSearchInmateIsOutOfScope && (
+                    <button
+                      onClick={() => {
+                        setSelectedInmateHistoryId(selectedSearchInmateModal.id);
+                        setSelectedSearchInmateModal(null);
+                        setActiveTab("admissions");
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs font-mono transition-all"
+                    >
+                      Abrir Ficha Completa
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setSelectedSearchInmateModal(null)}
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono transition-all"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Acesso Negado (Bloqueio de URL Router fora do Escopo Territorial) */}
+      {urlAccessDeniedModal && urlAccessDeniedModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-xl bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl shadow-red-950/50 overflow-hidden flex flex-col font-sans">
+            
+            {/* Header com Alerta Tático */}
+            <div className="bg-red-950/60 border-b border-red-500/40 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse">
+                  <ShieldAlert className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-extrabold font-mono text-red-100 tracking-wider uppercase flex items-center gap-2">
+                    <span>Acesso Negado</span>
+                    <span className="bg-red-500/20 text-red-300 border border-red-500/40 text-[9px] px-1.5 py-0.5 rounded font-bold">
+                      BLOQUEIO DE ROUTER
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-red-300/80 font-mono">
+                    Restrição Territorial de Segurança • Decreto Executivo N.º 272/16
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setUrlAccessDeniedModal(null)}
+                className="p-1.5 rounded-lg bg-red-900/40 hover:bg-red-800/60 text-red-300 hover:text-white transition-colors text-xs font-mono border border-red-500/30 cursor-pointer"
+              >
+                ✕ Fechar
+              </button>
+            </div>
+
+            {/* Corpo do Alerta */}
+            <div className="p-5 flex flex-col gap-4 font-mono text-xs">
+              <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4 flex flex-col gap-2.5">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-red-950/80 pb-2">
+                  <span>URL Solicitada:</span>
+                  <span className="font-bold text-red-400 bg-red-950/80 px-2 py-0.5 rounded border border-red-800/50">{urlAccessDeniedModal.attemptedUrl}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                  <div>
+                    <span className="text-slate-400 uppercase text-[9px] block">Recluso Solicitado:</span>
+                    <span className="font-bold text-slate-200">{urlAccessDeniedModal.inmateName}</span>
+                    <span className="text-[10px] text-amber-400 block font-mono">NREP: {urlAccessDeniedModal.inmateId}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 uppercase text-[9px] block">Província de Custódia:</span>
+                    <span className="font-bold text-rose-400">{urlAccessDeniedModal.inmateProvince}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-red-950/80 pt-2.5 mt-1">
+                  <span className="text-slate-400 uppercase text-[9px] block">Operador Logado:</span>
+                  <span className="font-bold text-slate-300">{currentOperator.name} ({urlAccessDeniedModal.operatorProvince})</span>
+                  <span className="text-[10px] text-slate-400 block">{urlAccessDeniedModal.operatorRole}</span>
+                </div>
+              </div>
+
+              <p className="text-slate-300 text-xs leading-relaxed font-sans bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                {urlAccessDeniedModal.reason}
+              </p>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-850">
+                <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
+                  🛡️ Incidente de acesso registado no diário central de auditoria.
+                </span>
+                <button
+                  onClick={() => setUrlAccessDeniedModal(null)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg text-xs font-mono transition cursor-pointer shadow-lg shadow-red-950/40"
+                >
+                  Compreendido (Retornar)
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

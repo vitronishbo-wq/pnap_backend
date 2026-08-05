@@ -119,15 +119,24 @@ export default function DelegationPortal({
   currentOperator,
   writeAuditLog
 }: DelegationPortalProps) {
+  const isNationalOp = (currentOperator as any)?.territorialScope === "NATIONAL" || (currentOperator as any)?.level === "NATIONAL" || currentOperator?.role === "DIRECTOR_GERAL";
+  const opProv = currentOperator?.province || "Huambo";
+
   // --- States ---
   const [activePortalTab, setActivePortalTab] = useState<"operations" | "executive">("operations");
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("");
-  const [provinceFilter, setProvinceFilter] = useState("ALL");
+  const [provinceFilter, setProvinceFilter] = useState(isNationalOp ? "ALL" : opProv);
   const [prisonFilter, setPrisonFilter] = useState("ALL");
   const [docTypeFilter, setDocTypeFilter] = useState("ALL");
+
+  useEffect(() => {
+    if (!isNationalOp && opProv) {
+      setProvinceFilter(opProv);
+    }
+  }, [isNationalOp, opProv]);
 
   // UI Modals / Panels
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -596,6 +605,7 @@ export default function DelegationPortal({
 
   // Unique list of provinces for filtering dropdown (Divisão Político-Administrativa 2024 - 21 Províncias)
   const uniqueProvincesList = useMemo(() => {
+    if (!isNationalOp) return [opProv];
     const defaultProvinces = [
       "Cabinda", "Zaire", "Uíge", "Bengo", "Icolo e Bengo", "Luanda",
       "Cuanza-Norte", "Cuanza-Sul", "Malanje", "Lunda-Norte", "Lunda-Sul",
@@ -609,7 +619,7 @@ export default function DelegationPortal({
       }
     });
     return Array.from(list).sort();
-  }, [operators]);
+  }, [operators, isNationalOp, opProv]);
 
   // Unique list of prisons for filtering dropdown
   const uniquePrisonsList = useMemo(() => {

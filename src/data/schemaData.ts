@@ -561,9 +561,11 @@ export interface InmateState {
   id: string;
   firstName: string;
   lastName: string;
+  fullName?: string;
   birthDate: string;
   gender: string;
   idCard: string;
+  biNumber?: string;
   fatherName: string;
   motherName: string;
   nationality: string;
@@ -571,11 +573,14 @@ export interface InmateState {
   riskLevel: string;
   suggestedCellType: string;
   assignedPrisonId: string;
+  prisonId?: string;
   assignedPavilionId: string;
   assignedBlockId: string;
   assignedCellNumber: string;
-  status: "ACTIVE" | "PENDING_SYNC" | "TRANSFERRED" | "RELEASED";
+  status: "ACTIVE" | "PENDING_SYNC" | "TRANSFERRED" | "RELEASED" | string;
   documentCode: string;
+  nrep?: string;
+  regime?: string;
   photo?: string;
 
   // Extended registration fields

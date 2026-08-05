@@ -117,8 +117,11 @@ export default function NationalCommandCenter({
   writeAuditLog,
   isOnline
 }: NationalCommandCenterProps) {
+  const isNational = currentOperator?.territorialScope === "NATIONAL" || currentOperator?.level === "NATIONAL" || currentOperator?.role === "DIRECTOR_GERAL";
+  const opProvince = currentOperator?.province || "Huambo";
+
   // Command States
-  const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [selectedProvince, setSelectedProvince] = useState<string | null>(isNational ? null : opProvince);
   const [selectedPrisonId, setSelectedPrisonId] = useState<string | null>(null);
   const [mapMode, setMapMode] = useState<"STATUS" | "HEATMAP" | "MOVEMENTS">("STATUS");
   const [filterSeverity, setFilterSeverity] = useState<string>("ALL");
@@ -823,7 +826,9 @@ export default function NationalCommandCenter({
               })}
 
               {/* DRAW PROVINCES AS LABELED NODE POINTS */}
-              {Object.entries(PROVINCES_COORDS).map(([name, p]) => {
+              {Object.entries(PROVINCES_COORDS)
+                .filter(([name]) => isNational || name.toLowerCase().trim() === opProvince.toLowerCase().trim())
+                .map(([name, p]) => {
                 const isSelected = selectedProvince === name;
                 return (
                   <g 
