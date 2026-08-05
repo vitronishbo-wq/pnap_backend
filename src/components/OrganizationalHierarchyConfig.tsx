@@ -296,19 +296,115 @@ export function OrganizationalHierarchyConfig({
   const [activeCategoryTab, setActiveCategoryTab] = useState<"ALL" | "CAT_1" | "CAT_2" | "CAT_3" | "CAT_4" | "TREE">("ALL");
 
   // Left Sidebar Collapsibility State (1% recolhível / mini-sidebar)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const [expandedSidebarProvinces, setExpandedSidebarProvinces] = useState<Record<string, boolean>>({});
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem("nrep_org_hierarchy_sidebar_collapsed");
+      return saved !== null ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
+  const [expandedSidebarProvinces, setExpandedSidebarProvinces] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("nrep_org_hierarchy_expanded_sidebar_provinces");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
 
   const toggleSidebarProvinceItem = (prov: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedSidebarProvinces(prev => ({ ...prev, [prov]: !prev[prov] }));
   };
 
-  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({
-    "OU-MININT-DG": true,
-    "OU-DP-LUANDA": true,
-    "OU-DP-HUAMBO": true
+  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("nrep_org_hierarchy_expanded_nodes");
+      return saved ? JSON.parse(saved) : {
+        "OU-MININT-DG": true,
+        "OU-DP-LUANDA": true,
+        "OU-DP-HUAMBO": true
+      };
+    } catch {
+      return {
+        "OU-MININT-DG": true,
+        "OU-DP-LUANDA": true,
+        "OU-DP-HUAMBO": true
+      };
+    }
   });
+
+  // Collapsible category blocks state with localStorage persistence
+  const [expandedCategoryBlocks, setExpandedCategoryBlocks] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("nrep_org_hierarchy_expanded_category_blocks");
+      return saved ? JSON.parse(saved) : {
+        CAT_1: true,
+        CAT_2: true,
+        CAT_3: true,
+        CAT_4: true
+      };
+    } catch {
+      return {
+        CAT_1: true,
+        CAT_2: true,
+        CAT_3: true,
+        CAT_4: true
+      };
+    }
+  });
+
+  // Collapsible unit cards state (internal sections expansion) with localStorage persistence
+  const [expandedUnitCards, setExpandedUnitCards] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem("nrep_org_hierarchy_expanded_unit_cards");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Persist all expansion states in localStorage for consistent reloads
+  useEffect(() => {
+    try {
+      localStorage.setItem("nrep_org_hierarchy_sidebar_collapsed", JSON.stringify(isSidebarCollapsed));
+    } catch (e) {
+      console.error("LS Error:", e);
+    }
+  }, [isSidebarCollapsed]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("nrep_org_hierarchy_expanded_sidebar_provinces", JSON.stringify(expandedSidebarProvinces));
+    } catch (e) {
+      console.error("LS Error:", e);
+    }
+  }, [expandedSidebarProvinces]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("nrep_org_hierarchy_expanded_nodes", JSON.stringify(expandedNodes));
+    } catch (e) {
+      console.error("LS Error:", e);
+    }
+  }, [expandedNodes]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("nrep_org_hierarchy_expanded_category_blocks", JSON.stringify(expandedCategoryBlocks));
+    } catch (e) {
+      console.error("LS Error:", e);
+    }
+  }, [expandedCategoryBlocks]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("nrep_org_hierarchy_expanded_unit_cards", JSON.stringify(expandedUnitCards));
+    } catch (e) {
+      console.error("LS Error:", e);
+    }
+  }, [expandedUnitCards]);
 
   useEffect(() => {
     if (!isNational && operatorProvince) {
@@ -366,9 +462,67 @@ export function OrganizationalHierarchyConfig({
     });
   };
 
-  // Toggle node expansion
+  // Toggle node expansion with persistence
   const toggleNode = (id: string) => {
     setExpandedNodes(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleAllTreeNodes = (expand: boolean) => {
+    const newStates: Record<string, boolean> = {};
+    organizationalUnits.forEach(u => {
+      newStates[u.id] = expand;
+    });
+    setExpandedNodes(newStates);
+  };
+
+  const handleGenerateDefaultPrisonSections = (prisonUnit: OrganizationalUnit) => {
+    const defaultSections = [
+      {
+        name: `Secção de Controlo Penal e Registo da ${prisonUnit.name}`,
+        code: `SCP-${prisonUnit.code || 'PRIS'}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Gestão do prontuário dos reclusos, prazos de prisão preventiva, cálculo de penas e boletins de libertação.",
+        operResp: "Recepção e triagem biométrica dos reclusos, registo de visitas e emissão de cartões de identificação."
+      },
+      {
+        name: `Secção de Segurança e Guarda Prisional da ${prisonUnit.name}`,
+        code: `SSP-${prisonUnit.code || 'PRIS'}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Organização das escalas de serviço dos guardas, mapa de postos de vigilância e armamento.",
+        operResp: "Rondas perimetrais, contagem física de reclusos, revistas às celas e vigilância das muralhas."
+      },
+      {
+        name: `Secção de Saúde e Assistência Médica da ${prisonUnit.name}`,
+        code: `SSAM-${prisonUnit.code || 'PRIS'}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Requisição de medicamentos, gestão de fichas clínicas e agendamento de consultas externas.",
+        operResp: "Triagem sanitária, prestação de primeiros socorros e gestão da enfermaria da cadeia."
+      },
+      {
+        name: `Secção de Logística e Alimentação da ${prisonUnit.name}`,
+        code: `SLA-${prisonUnit.code || 'PRIS'}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Controlo de stock de géneros alimentícios, fardamento e materiais de limpeza.",
+        operResp: "Supervisão da confecção das refeições na cozinha central e distribuição pelos blocos carcerários."
+      }
+    ];
+
+    const newUnits: OrganizationalUnit[] = defaultSections.map((sec, idx) => ({
+      id: `OU-SEC-PRIS-${prisonUnit.id}-${idx + 1}-${Date.now()}`,
+      name: sec.name,
+      level: TerritorialScope.ESTABLISHMENT,
+      parentId: prisonUnit.id,
+      province: prisonUnit.province,
+      divisionType: sec.divisionType,
+      code: sec.code,
+      legalBasis: "Decreto Presidencial n.º 184/17, Estrutura Carcerária",
+      administrativeResponsibilities: sec.adminResp,
+      operationalResponsibilities: sec.operResp
+    }));
+
+    setOrganizationalUnits(prev => [...prev, ...newUnits]);
+    setExpandedUnitCards(prev => ({ ...prev, [prisonUnit.id]: true }));
+    triggerToast("SECÇÕES DA CADEIA GERADAS", `Estrutura de Secções Operativas e Administrativas criada para ${prisonUnit.name}.`, "success");
   };
 
   // Group units by parent
@@ -739,7 +893,7 @@ export function OrganizationalHierarchyConfig({
   }, [activeDirectorateChildren]);
 
   return (
-    <div className="flex flex-col gap-6 text-slate-100 font-sans">
+    <div className="OrganizationalHierarchyConfig flex flex-col gap-6 text-slate-100 font-sans">
       
       {/* HEADER BAR & JURISDICTION GUARD */}
       <div className="bg-slate-950 border border-slate-850 rounded-2xl p-5 shadow-xl flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -1524,8 +1678,26 @@ export function OrganizationalHierarchyConfig({
                 /* TREE DISPLAY VIEW */
                 <div className="border border-slate-900 rounded-xl bg-slate-900/40 p-4 flex flex-col gap-3">
                   <div className="flex justify-between items-center text-xs font-mono font-bold text-slate-400 uppercase tracking-wider border-b border-slate-850 pb-2">
-                    <span>Árvore Orgânica & Divisões Hierárquicas</span>
-                    <span className="text-[10px] text-slate-500 font-normal">Clique para expandir/recolher</span>
+                    <span className="flex items-center gap-1.5">
+                      <Network className="h-4 w-4 text-amber-400" /> Árvore Orgânica & Divisões Hierárquicas (100% Recolhível)
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleAllTreeNodes(true)}
+                        className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer"
+                      >
+                        Expandir Árvore
+                      </button>
+                      <span className="text-slate-700">|</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleAllTreeNodes(false)}
+                        className="text-[10px] font-mono text-slate-400 hover:text-slate-200 hover:underline cursor-pointer"
+                      >
+                        Recolher Árvore
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -2053,18 +2225,27 @@ function TreeNodeItem({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className={`border rounded-xl p-3 flex items-center justify-between transition-colors ${
-        isPrisonNode 
-          ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-200" 
-          : "bg-slate-900/80 border-slate-800 text-slate-200 hover:border-slate-750"
-      }`}>
+      <div 
+        onClick={() => children.length > 0 && toggleNode(unit.id)}
+        className={`border rounded-xl p-3 flex items-center justify-between transition-colors ${
+          children.length > 0 ? "cursor-pointer" : ""
+        } ${
+          isPrisonNode 
+            ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-200 hover:border-emerald-700" 
+            : "bg-slate-900/80 border-slate-800 text-slate-200 hover:border-slate-750"
+        }`}
+      >
         <div className="flex items-center gap-2.5">
           {children.length > 0 ? (
             <button 
-              onClick={() => toggleNode(unit.id)}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleNode(unit.id);
+              }}
               className="p-1 hover:bg-slate-800 rounded text-slate-400 transition cursor-pointer"
             >
-              {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+              {isExpanded ? <ChevronDown className="h-3.5 w-3.5 text-amber-400" /> : <ChevronRight className="h-3.5 w-3.5 text-slate-400" />}
             </button>
           ) : (
             <span className="w-5" />
@@ -2086,6 +2267,11 @@ function TreeNodeItem({
                   {unit.code}
                 </span>
               )}
+              {children.length > 0 && (
+                <span className="bg-slate-950 border border-slate-800 text-slate-400 text-[9px] font-mono px-1.5 rounded">
+                  {children.length} sub-divisão(ões)
+                </span>
+              )}
               {unit.category && (
                 <span className="bg-amber-950/40 border border-amber-800/40 text-amber-300 text-[9px] font-mono px-1.5 rounded">
                   {unit.category.split(" ")[0]} {unit.category.split(" ")[1]}
@@ -2104,8 +2290,9 @@ function TreeNodeItem({
         </div>
 
         {/* Action icons */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
+            type="button"
             onClick={() => onOpenRespInspector(unit)}
             className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-amber-400 rounded transition cursor-pointer"
             title="Definir responsabilidades funcionais e atribuições"
@@ -2115,6 +2302,7 @@ function TreeNodeItem({
 
           {!isPrisonNode && (
             <button
+              type="button"
               onClick={() => onAddChild(unit.id)}
               className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-amber-400 rounded transition cursor-pointer"
               title="Adicionar sub-secção dependente"
@@ -2124,6 +2312,7 @@ function TreeNodeItem({
           )}
 
           <button
+            type="button"
             onClick={() => onEdit(unit)}
             className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-blue-400 rounded transition cursor-pointer"
             title="Editar parâmetros desta divisão"
@@ -2132,6 +2321,7 @@ function TreeNodeItem({
           </button>
 
           <button
+            type="button"
             onClick={() => onDelete(unit.id, unit.name)}
             className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-red-400 rounded transition cursor-pointer"
             title="Remover divisão"
