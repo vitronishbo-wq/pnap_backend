@@ -441,14 +441,6 @@ export function OrganizationalHierarchyConfig({
   const [isFromCache, setIsFromCache] = useState<boolean>(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
-  // Collapsible category blocks state
-  const [expandedCategoryBlocks, setExpandedCategoryBlocks] = useState<Record<string, boolean>>({
-    CAT_1: true,
-    CAT_2: true,
-    CAT_3: true,
-    CAT_4: true
-  });
-
   const toggleCategoryBlock = (catKey: string) => {
     setExpandedCategoryBlocks(prev => ({ ...prev, [catKey]: !prev[catKey] }));
   };
