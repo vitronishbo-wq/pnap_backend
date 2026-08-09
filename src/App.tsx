@@ -3,12 +3,14 @@ import { AngolaHolographicMapBackground } from "./components/AngolaHolographicMa
 import { ExcelVirtualizedDataGrid, ColumnDef } from "./components/ExcelVirtualizedDataGrid";
 import { PrisonerExcelDataGrid } from "./components/PrisonerExcelDataGrid";
 import { MobileBottomNav } from "./components/MobileBottomNav";
+import { MobileHeader } from "./components/MobileHeader";
 import { MobileMultiStepInmateModal } from "./components/MobileMultiStepInmateModal";
 import { MobileTouchSignatureModal } from "./components/MobileTouchSignatureModal";
 import { MobileQRScannerModal } from "./components/MobileQRScannerModal";
 import { MobileOccupancyGauge } from "./components/MobileOccupancyGauge";
 import { MobileQuickDossierDrawer } from "./components/MobileQuickDossierDrawer";
 import { MobileFilterDrawer } from "./components/MobileFilterDrawer";
+import { InmateAuthDatabaseDiagnostic } from "./components/InmateAuthDatabaseDiagnostic";
 import { apiService } from "./utils/apiService";
 import { eventBus } from "./utils/eventBus";
 import { MNCPEngine, PENAL_CODE_GRAPH } from "./utils/mncpEngine";
@@ -4885,7 +4887,7 @@ export default function App() {
   }, []);
 
   // Sync state & Network Contingency (Important for Angola offline mandate)
-  const [isOnline, setIsOnline] = useState<boolean>(true);
+  const [isOnline, setIsOnline] = useState<boolean>(() => typeof navigator !== "undefined" ? navigator.onLine : true);
   const [syncQueue, setSyncQueue] = useState<any[]>(INITIAL_SYNC_QUEUE);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
@@ -7050,6 +7052,40 @@ export default function App() {
     };
   }, [isOnline, backgroundSyncEnabled, syncQueue.length, isSyncing]);
 
+  // Detecção do estado da rede (online/offline) via navigator.onLine
+  // Dispara automaticamente a função triggerSync() quando a conexão é restaurada
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      setBgSyncLogs(prev => [
+        `[${new Date().toLocaleTimeString()}] 🌐 Conexão de rede restaurada (online). Acionando sincronização imediata da fila de pendentes (IndexedDB)...`,
+        ...prev
+      ]);
+      triggerSync();
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      setBgSyncLogs(prev => [
+        `[${new Date().toLocaleTimeString()}] ⚠️ Conexão de rede perdida (offline). Operações guardadas localmente na fila contingente (IndexedDB).`,
+        ...prev
+      ]);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // Verificação inicial na montagem se o estado do navegador difere do estado interno
+    if (typeof navigator !== "undefined" && navigator.onLine !== isOnline) {
+      setIsOnline(navigator.onLine);
+    }
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [syncQueue, isSyncing]);
+
   // Módulo de Documentos (Geração Automática)
   const [selectedTemplate, setSelectedTemplate] = useState<"internamento" | "soltura" | "transferencia" | "disciplina">("internamento");
   const [selectedDocumentCode, setSelectedDocumentCode] = useState<string>("AO-PNAP-2026-000492");
@@ -8583,9 +8619,25 @@ export default function App() {
         prisons={visiblePrisons}
       />
       
-      {/* 1. STATE BANNERS (OFFLINE CONTINGENCY) */}
+      {/* MOBILE OPERATIONAL HEADER (FOR SMARTPHONES) */}
+      <MobileHeader
+        isOnline={isOnline}
+        setIsOnline={setIsOnline}
+        syncQueueCount={syncQueue.length}
+        isSyncing={isSyncing}
+        onTriggerSync={triggerSync}
+        currentOperator={currentOperator}
+        activeTab={activeTab}
+        setActiveTab={(t) => setActiveTab(t as any)}
+        onOpenSearchModal={() => {
+          setIsMobileFilterOpen(true);
+        }}
+        onOpenAddInmate={() => setIsMobileMultiStepAddOpen(true)}
+      />
+
+      {/* 1. DESKTOP STATE BANNERS (OFFLINE CONTINGENCY) */}
       {!isOnline && (
-        <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between text-xs text-amber-200 shrink-0 select-none">
+        <div className="hidden md:flex bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 items-center justify-between text-xs text-amber-200 shrink-0 select-none">
           <div className="flex items-center gap-2">
             <WifiOff className="h-4 w-4 text-amber-400 animate-pulse" />
             <span>
@@ -8607,10 +8659,10 @@ export default function App() {
       )}
 
       {isOnline && (
-        <div className="bg-[#07090e] border-b border-slate-900 px-4 py-1 flex items-center justify-between text-xs text-slate-400 shrink-0 select-none">
+        <div className="hidden md:flex bg-[#07090e] border-b border-slate-900 px-4 py-1 items-center justify-between text-xs text-slate-400 shrink-0 select-none">
           <div className="flex items-center gap-2 font-mono text-[10.5px]">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-slate-300 font-medium">Sincronização Ativa</span>
+            <span className="text-slate-300 font-medium">Sinc Activa</span>
           </div>
           <div className="flex items-center gap-3 font-mono text-[10px]">
             <button 
@@ -8623,8 +8675,8 @@ export default function App() {
         </div>
       )}
 
-      {/* 2. BARRA SUPERIOR (CONTEXT BAR / TITLE BAR) */}
-      <header className="h-11 bg-[#090c10] border-b border-slate-900 flex items-center justify-between px-4 shrink-0 select-none">
+      {/* 2. BARRA SUPERIOR DESKTOP (CONTEXT BAR / TITLE BAR) */}
+      <header className="hidden md:flex h-11 bg-[#090c10] border-b border-slate-900 items-center justify-between px-4 shrink-0 select-none">
         
         {/* Left Side: System Context / Breadcrumbs */}
         <div className="flex items-center gap-2.5">
@@ -8632,7 +8684,7 @@ export default function App() {
             <Shield className="h-4 w-4 text-amber-500" />
           </div>
           <div className="flex items-center gap-2 text-[10.5px] font-mono text-slate-400">
-            <span className="font-bold text-slate-200 tracking-wider">SICP • ANGOLA</span>
+            <span className="font-bold text-slate-200 tracking-wider">PNAP.AO • ANGOLA</span>
             <span className="text-slate-600 font-bold">/</span>
             {selectedHierNode !== null ? (
               <>
@@ -8861,8 +8913,8 @@ export default function App() {
       {/* 3. WORKSPACE CONTAINER (ACTIVITY BAR + SIDEBAR EXPLORER + WORKSPACE BODY) */}
       <div className="flex-1 flex overflow-hidden w-full relative">
         
-        {/* A. ACTIVITY BAR (VS CODE LAYOUT FAR LEFT) */}
-        <aside className="w-12 bg-[#090b0f] border-r border-slate-900 flex flex-col items-center justify-between py-4 select-none shrink-0">
+        {/* A. ACTIVITY BAR (VS CODE LAYOUT FAR LEFT - DESKTOP ONLY) */}
+        <aside className="hidden md:flex w-12 bg-[#090b0f] border-r border-slate-900 flex-col items-center justify-between py-4 select-none shrink-0">
           <div className="flex flex-col gap-4 items-center w-full">
             {/* Commmando & Intelligence Center */}
             <button
@@ -9002,9 +9054,9 @@ export default function App() {
           </div>
         </aside>
 
-        {/* B. EXPLORER INSTITUCIONAL (LEFT SIDEBAR PANEL) */}
+        {/* B. EXPLORER INSTITUCIONAL (LEFT SIDEBAR PANEL - DESKTOP ONLY) */}
         {isSidebarExpanded && (
-          <aside className="w-72 bg-[#090b0f] border-r border-slate-900 flex flex-col select-none shrink-0 h-full animate-fadeIn overflow-hidden pb-4">
+          <aside className="hidden lg:flex w-72 bg-[#090b0f] border-r border-slate-900 flex-col select-none shrink-0 h-full animate-fadeIn overflow-hidden pb-4">
             
             {/* Sidebar Explorer Title Header Bar */}
             <div className="h-9 px-3 border-b border-slate-900 flex items-center justify-between bg-[#06080c] shrink-0">
@@ -9476,10 +9528,10 @@ export default function App() {
         )}
 
         {/* C. CENTRAL WORKSPACE BODY (THE OPERATIONAL AREA) */}
-        <section className="flex-1 flex flex-col h-full overflow-hidden min-w-0 bg-[#06080d] text-slate-100">
+        <section className="flex-1 flex flex-col h-full overflow-hidden min-w-0 bg-[#06080d] text-slate-100 pb-20 md:pb-0">
         
           {/* Dynamic Institutional Breadcrumbs */}
-          <div className="bg-[#080b11] border-b border-slate-900/60 px-6 py-2.5 flex items-center justify-between text-[10px] font-mono shrink-0 select-none">
+          <div className="hidden sm:flex bg-[#080b11] border-b border-slate-900/60 px-4 sm:px-6 py-2 items-center justify-between text-[10px] font-mono shrink-0 select-none">
             <div className="flex items-center gap-1.5 text-slate-500 overflow-x-auto scrollbar-none whitespace-nowrap">
               {getBreadcrumbPath().map((step, idx) => {
                 const isLast = idx === getBreadcrumbPath().length - 1;
@@ -9512,8 +9564,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* Navigation Tabs Bar — Compact VS Code Style Tabs Bar */}
-          <div className="h-9 bg-[#0b0e14] border-b border-slate-900 flex items-center justify-between shrink-0 select-none overflow-x-auto scrollbar-none">
+          {/* Navigation Tabs Bar — Compact VS Code Style Tabs Bar (DESKTOP ONLY) */}
+          <div className="hidden md:flex h-9 bg-[#0b0e14] border-b border-slate-900 items-center justify-between shrink-0 select-none overflow-x-auto scrollbar-none">
             {/* Left side: Horizontal Tab List */}
             <div className="flex items-center h-full overflow-x-auto scrollbar-none">
               {/* Toggle Sidebar Button */}
@@ -18960,6 +19012,12 @@ export default function App() {
                   </span>
                 </div>
               </div>
+
+              {/* Diagnostic Utility: Firebase Admin SDK (Auth) ↔ PostgreSQL Source of Truth ('Inmate' Entity) */}
+              <InmateAuthDatabaseDiagnostic
+                currentInmates={inmates}
+                onTriggerToast={triggerToast}
+              />
 
               {/* Operator Swappable Simulator Pane (Isolate here to satisfy Point 2) */}
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">

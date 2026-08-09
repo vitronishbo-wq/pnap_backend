@@ -3,7 +3,6 @@ import {
   LayoutDashboard, 
   Users, 
   QrCode, 
-  ShieldAlert, 
   Building2, 
   ArrowLeftRight,
   Filter,
@@ -30,14 +29,14 @@ export function MobileBottomNav({
   alertCount = 0
 }: MobileBottomNavProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 border-t border-slate-800 backdrop-blur-lg px-2 py-1.5 md:hidden font-sans">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 border-t border-slate-800 backdrop-blur-lg px-2 py-1.5 md:hidden font-sans select-none">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {/* Dashboard / Painel */}
         <button
           type="button"
-          onClick={() => setActiveTab("command")}
+          onClick={() => setActiveTab("centro-comando")}
           className={`flex-1 min-h-[48px] flex flex-col items-center justify-center p-1 rounded-xl transition cursor-pointer touch-manipulation ${
-            activeTab === "command"
+            activeTab === "centro-comando"
               ? "text-amber-400 bg-amber-500/10 font-bold"
               : "text-slate-400 hover:text-slate-200"
           }`}
@@ -46,7 +45,7 @@ export function MobileBottomNav({
           <span className="text-[10px] font-medium mt-0.5">Painel</span>
         </button>
 
-        {/* Reclusos / Data Grid */}
+        {/* Reclusos / Cadastro */}
         <button
           type="button"
           onClick={() => setActiveTab("admissions")}
@@ -65,12 +64,12 @@ export function MobileBottomNav({
           )}
         </button>
 
-        {/* Quick Action FAB: QR Scan / Add */}
-        <div className="relative -top-3 px-1">
+        {/* Central FAB: Add / QR Scan */}
+        <div className="relative -top-3 px-1 flex items-center gap-1">
           <button
             type="button"
             onClick={onOpenQRScanner}
-            className="w-13 h-13 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/30 flex items-center justify-center font-bold active:scale-95 transition cursor-pointer touch-manipulation border-2 border-slate-950"
+            className="w-12 h-12 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/30 flex items-center justify-center font-bold active:scale-95 transition cursor-pointer touch-manipulation border-2 border-slate-950"
             title="Validar Selo QR"
           >
             <QrCode className="h-6 w-6 stroke-[2.5]" />
@@ -80,9 +79,9 @@ export function MobileBottomNav({
         {/* Transferências */}
         <button
           type="button"
-          onClick={() => setActiveTab("admissions")}
+          onClick={() => setActiveTab("movements")}
           className={`flex-1 min-h-[48px] flex flex-col items-center justify-center p-1 rounded-xl transition cursor-pointer touch-manipulation ${
-            activeTab === "transfers"
+            activeTab === "movements"
               ? "text-amber-400 bg-amber-500/10 font-bold"
               : "text-slate-400 hover:text-slate-200"
           }`}
@@ -91,7 +90,7 @@ export function MobileBottomNav({
           <span className="text-[10px] font-medium mt-0.5">Transferir</span>
         </button>
 
-        {/* Alertas / Ocupação */}
+        {/* Lotação / EPs */}
         <button
           type="button"
           onClick={() => setActiveTab("governance")}

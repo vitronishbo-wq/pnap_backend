@@ -8,8 +8,8 @@ import {
   ArrowLeftRight, 
   User, 
   FileText,
-  AlertTriangle,
-  Building2
+  Building2,
+  ChevronRight
 } from "lucide-react";
 
 export interface Inmate {
@@ -38,6 +38,7 @@ interface MobileInmateCardProps {
   index: number;
   prisons: Prison[];
   isSelected: boolean;
+  viewMode?: "card" | "compact";
   onToggleSelect: (id: string) => void;
   onTransfer: (id: string, prisonId: string) => void;
   onUploadPhoto: (id: string, photoDataUrl: string) => void;
@@ -53,6 +54,7 @@ export function MobileInmateCard({
   index,
   prisons,
   isSelected,
+  viewMode = "card",
   onToggleSelect,
   onTransfer,
   onUploadPhoto,
@@ -78,6 +80,105 @@ export function MobileInmateCard({
     }
   };
 
+  // 1. COMPACT MOBILE LIST ITEM MODE (Ideal for scrolling through hundreds of inmates on small screens)
+  if (viewMode === "compact") {
+    return (
+      <div
+        className={`rounded-xl border transition-all p-2.5 flex items-center justify-between gap-2.5 font-sans relative ${
+          isSelected
+            ? "bg-amber-950/30 border-amber-500/60 shadow-md"
+            : index % 2 === 0
+            ? "bg-slate-900/90 border-slate-800"
+            : "bg-slate-950 border-slate-850"
+        }`}
+      >
+        {/* Left: Checkbox + Avatar + Basic Details */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <label className="flex items-center justify-center p-2 -m-2 cursor-pointer touch-manipulation shrink-0">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onToggleSelect(inmate.id)}
+              className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-amber-500 cursor-pointer accent-amber-500"
+            />
+          </label>
+
+          {/* Avatar Thumbnail */}
+          <div
+            onClick={() => onOpenQuickDossier?.(inmate)}
+            className="w-10 h-10 rounded-lg border border-slate-750 overflow-hidden shrink-0 bg-slate-950 flex items-center justify-center cursor-pointer shadow-inner relative"
+          >
+            {inmate.photo ? (
+              <img
+                src={inmate.photo}
+                alt={`${inmate.firstName}`}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <User className="h-5 w-5 text-slate-500" />
+            )}
+          </div>
+
+          {/* Name & Identifiers */}
+          <div 
+            onClick={() => onOpenQuickDossier?.(inmate)}
+            className="flex flex-col min-w-0 cursor-pointer flex-1"
+          >
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-mono text-[10px] font-bold text-amber-400">
+                #{inmate.id}
+              </span>
+              <span className={`text-[8px] font-bold uppercase px-1.5 py-0.2 rounded border ${getRiskStyle(inmate.riskLevel)}`}>
+                {inmate.riskLevel}
+              </span>
+            </div>
+            <h4 className="text-xs font-bold text-slate-100 truncate">
+              {inmate.firstName} {inmate.lastName}
+            </h4>
+            <div className="text-[10px] text-slate-400 font-mono truncate flex items-center gap-1">
+              <span>{prName}</span>
+              <span>• Cela {inmate.assignedCellNumber || "N/A"}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Actions: Ficha + Edit/Sign + Chevron */}
+        <div className="flex items-center gap-1 shrink-0">
+          {onOpenQuickDossier && (
+            <button
+              type="button"
+              onClick={() => onOpenQuickDossier(inmate)}
+              className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center bg-slate-900 border border-slate-750 text-sky-400 rounded-lg active:scale-95 transition cursor-pointer touch-manipulation"
+              title="Abrir Ficha"
+            >
+              <FileText className="h-4 w-4" />
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onEditAndSign(inmate)}
+            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg active:scale-95 transition cursor-pointer touch-manipulation"
+            title="Assinar"
+          >
+            <ShieldCheck className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onExportPDF(inmate)}
+            className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center bg-slate-900 border border-slate-750 text-emerald-400 rounded-lg active:scale-95 transition cursor-pointer touch-manipulation"
+            title="Exportar PDF"
+          >
+            <Printer className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. STANDARD RICH CARD MODE
   return (
     <div
       className={`rounded-xl border transition-all p-3.5 flex flex-col gap-3 font-sans relative overflow-hidden ${
@@ -92,7 +193,7 @@ export function MobileInmateCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           {/* Touch-friendly Checkbox (minimum 44px hit area) */}
-          <label className="flex items-center justify-center p-2.5 -m-2 cursor-pointer touch-manipulation">
+          <label className="flex items-center justify-center p-2.5 -m-2 cursor-pointer touch-manipulation shrink-0">
             <input
               type="checkbox"
               checked={isSelected}
@@ -102,7 +203,7 @@ export function MobileInmateCard({
           </label>
 
           {/* Photo / Mugshot */}
-          <div className="relative group">
+          <div className="relative group shrink-0">
             <label
               htmlFor={`mobile-photo-${inmate.id}`}
               className="w-12 h-14 border border-slate-750 rounded-lg overflow-hidden shrink-0 bg-slate-950 flex items-center justify-center cursor-pointer shadow-inner relative block"
