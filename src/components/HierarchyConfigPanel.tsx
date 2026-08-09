@@ -385,9 +385,6 @@ export default function HierarchyConfigPanel({
               <h1 className="text-xl md:text-2xl font-black text-white tracking-tight">
                 Painel de Configuração da Hierarquia Organizacional
               </h1>
-              <p className="text-xs text-slate-400 mt-0.5 max-w-2xl">
-                Definição e mapeamento dos sub-níveis funcionais, órgãos de direção, departamentos provinciais e estabelecimentos penitenciários para a desmaterialização do S.P.A.
-              </p>
             </div>
           </div>
 

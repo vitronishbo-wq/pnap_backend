@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { AngolaHolographicMapBackground } from "./components/AngolaHolographicMapBackground";
+import { ExcelVirtualizedDataGrid, ColumnDef } from "./components/ExcelVirtualizedDataGrid";
+import { PrisonerExcelDataGrid } from "./components/PrisonerExcelDataGrid";
 import { apiService } from "./utils/apiService";
 import { eventBus } from "./utils/eventBus";
 import { MNCPEngine, PENAL_CODE_GRAPH } from "./utils/mncpEngine";
@@ -17389,250 +17391,41 @@ export default function App() {
                     );
                   })()}
 
-                  <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">
-                    {(() => {
-                      const filteredInmatesForAdmissions = visibleInmates.filter((inm) => {
-                        if (!admissionsSearchQuery) return true;
-                        const query = admissionsSearchQuery.toLowerCase().trim();
-                        const fullName = `${inm.firstName} ${inm.lastName}`.toLowerCase();
-                        const biNum = (inm.idCard || "").toLowerCase();
-                        const idNum = (inm.id || "").toLowerCase();
-                        const prName = (prisons.find(p => p.id === inm.assignedPrisonId)?.name || "").toLowerCase();
-                        
-                        return fullName.includes(query) || biNum.includes(query) || idNum.includes(query) || prName.includes(query);
-                      });
-
-                      if (filteredInmatesForAdmissions.length === 0) {
-                        return (
-                          <div className="text-center py-8 text-xxs text-slate-550 font-mono">
-                            Nenhum recluso corresponde à pesquisa.
-                          </div>
-                        );
+                  <PrisonerExcelDataGrid
+                    inmates={visibleInmates}
+                    prisons={prisons}
+                    searchQuery={admissionsSearchQuery}
+                    onSearchChange={setAdmissionsSearchQuery}
+                    selectedInmateIds={selectedInmateIds}
+                    onToggleSelectInmate={(id) => {
+                      setSelectedInmateIds(prev => 
+                        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+                      );
+                    }}
+                    onSelectAllInmates={(filteredInms) => {
+                      const allSelected = filteredInms.length > 0 && filteredInms.every(i => selectedInmateIds.includes(i.id));
+                      if (allSelected) {
+                        setSelectedInmateIds(prev => prev.filter(id => !filteredInms.some(fi => fi.id === id)));
+                      } else {
+                        setSelectedInmateIds(prev => {
+                          const otherIds = prev.filter(id => !filteredInms.some(fi => fi.id === id));
+                          return [...otherIds, ...filteredInms.map(fi => fi.id)];
+                        });
                       }
-
-                      return filteredInmatesForAdmissions.map((inm) => {
-                        const prName = prisons.find(p => p.id === inm.assignedPrisonId)?.name.replace("Estabelecimento Penitenciário de ", "") || "Viana";
-                        const isSelected = selectedInmateIds.includes(inm.id);
-                        return (
-                          <div 
-                            key={inm.id}
-                            className={`p-3 border rounded-lg flex flex-col justify-between gap-2.5 transition ${
-                              isSelected ? "border-amber-500 bg-amber-500/5 shadow-inner" : "bg-slate-950 border-slate-800 hover:border-slate-700"
-                            }`}
-                          >
-                            <div className="flex gap-3 items-start">
-                              {/* Selection checkbox */}
-                              <div className="pt-1 select-none shrink-0">
-                                <input 
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedInmateIds(prev => [...prev, inm.id]);
-                                    } else {
-                                      setSelectedInmateIds(prev => prev.filter(id => id !== inm.id));
-                                    }
-                                  }}
-                                  className="h-3.5 w-3.5 rounded border-slate-800 bg-slate-900 text-amber-500 focus:ring-amber-500/20 cursor-pointer accent-amber-500"
-                                />
-                              </div>
-
-                              {/* Inmate Photo Thumbnail / Mugshot with direct upload capability */}
-                              <div className="shrink-0 relative">
-                                <label 
-                                  htmlFor={`card-photo-upload-${inm.id}`}
-                                  className="block w-14 h-16 border border-slate-800 rounded overflow-hidden cursor-pointer relative group bg-slate-900 shadow hover:border-amber-500/55 transition duration-200"
-                                  title="Clique para carregar/substituir a fotografia do recluso"
-                                >
-                                  {inm.photo ? (
-                                    <img 
-                                      src={inm.photo} 
-                                      alt={`${inm.firstName} Mugshot`} 
-                                      className="w-full h-full object-cover"
-                                      referrerPolicy="no-referrer"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex flex-col items-center justify-center font-mono text-[7px] text-slate-600 bg-slate-950">
-                                      <Camera className="h-4.5 w-4.5 text-slate-700 group-hover:text-amber-500 transition-colors mb-0.5" />
-                                      <span>MUGSHOT</span>
-                                    </div>
-                                  )}
-                                  
-                                  {/* Soft camera icon overlay on hover */}
-                                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition duration-150 flex flex-col items-center justify-center text-[7px] font-mono text-amber-400 font-bold">
-                                    <Camera className="h-4 w-4 mb-0.5" />
-                                    <span>ALTERAR</span>
-                                  </div>
-                                </label>
-                                <input 
-                                  id={`card-photo-upload-${inm.id}`}
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      const reader = new FileReader();
-                                      reader.onloadend = () => {
-                                        handleUploadInmatePhoto(inm.id, reader.result as string);
-                                      };
-                                      reader.readAsDataURL(file);
-                                    }
-                                  }}
-                                  className="hidden"
-                                />
-                              </div>
-
-                              {/* Details text on the right */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-1">
-                                  <p className="text-xs font-bold text-slate-100 font-sans truncate pr-1">
-                                    {highlightMatch(`${inm.firstName} ${inm.lastName}`, admissionsSearchQuery)}
-                                  </p>
-                                  <span className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border shrink-0 ${
-                                    inm.status === "PENDING_SYNC" 
-                                      ? "bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse" 
-                                      : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                  }`}>
-                                    {inm.status === "PENDING_SYNC" ? "Offline" : "Activo"}
-                                  </span>
-                                </div>
-                                <p className="text-xxs text-slate-400 font-mono mt-1">
-                                  BI: <span className="text-slate-300">{highlightMatch(inm.idCard, admissionsSearchQuery)}</span>
-                                </p>
-                                <p className="text-xxs text-slate-500 font-mono">
-                                  RNR: <span className="text-slate-400">{highlightMatch(inm.id, admissionsSearchQuery)}</span>
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="flex gap-4 text-xxs font-mono text-slate-400 border-t border-slate-900 pt-2 flex-wrap">
-                              <div>
-                                Risco: <span className="text-amber-500 font-semibold">{inm.riskLevel}</span>
-                              </div>
-                              <div>
-                                Prisão: <span className="text-slate-300 font-semibold">{highlightMatch(prName, admissionsSearchQuery)}</span>
-                              </div>
-                              <div>
-                                Cela: <span className="text-slate-300 font-semibold">{inm.assignedCellNumber}</span>
-                              </div>
-                            </div>
-
-                            <div className="flex justify-between items-center bg-slate-900/60 p-2 rounded text-[10px] font-mono border border-slate-850">
-                              <span className="text-slate-400 text-[9px]">Selo Digital:</span>
-                              <button
-                                onClick={() => {
-                                  setSelectedDocumentCode(inm.documentCode);
-                                  setActiveTab("documents");
-                                }}
-                                className="text-amber-500 hover:underline flex items-center gap-1 cursor-pointer"
-                              >
-                                {inm.documentCode} <ExternalLink className="h-3 w-3" />
-                              </button>
-                            </div>
-
-                            {/* Quick Interactive Modifications Actions */}
-                            <div className="border-t border-dashed border-slate-800 pt-2 flex flex-col gap-2">
-                              <div className="flex items-center justify-between gap-2.5 text-[10px]">
-                                <span className="text-slate-500 font-mono">Transferir para:</span>
-                                <select
-                                  value={inm.assignedPrisonId}
-                                  onChange={(e) => handleTransferInmate(inm.id, e.target.value)}
-                                  className="bg-slate-900 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-slate-350 font-mono focus:outline-none focus:border-amber-500 cursor-pointer w-[150px]"
-                                >
-                                  {visiblePrisons.map((pr) => (
-                                    <option key={pr.id} value={pr.id}>
-                                      {pr.name.replace("Estabelecimento Penitenciário de ", "EP ")}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                              <div className="flex items-center justify-between gap-2.5 text-[10px]">
-                                <span className="text-slate-500 font-mono">Alterar Grau de Risco:</span>
-                                <select
-                                  value={inm.riskLevel}
-                                  onChange={(e) => handleEditRiskInmate(inm.id, e.target.value)}
-                                  className="bg-slate-900 border border-slate-800 rounded px-1.5 py-0.5 text-[10px] text-slate-350 font-mono focus:outline-none focus:border-amber-500 cursor-pointer w-[150px]"
-                                >
-                                  <option value="Baixo">Baixo</option>
-                                  <option value="Médio">Médio</option>
-                                  <option value="Alto">Alto</option>
-                                  <option value="Máximo">Máximo</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => exportInmateFichaToPDF(inm, prisons, currentOperatorId)}
-                              className="w-full mt-1 py-1.5 bg-slate-900 border border-slate-800 hover:border-amber-500/40 text-slate-350 hover:text-amber-400 rounded text-xxs font-mono flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
-                              title="Descarregar Ficha de Custódia Individual em PDF"
-                            >
-                              <Printer className="h-3.5 w-3.5 text-amber-500" />
-                              Descarregar Ficha (PDF)
-                            </button>
-
-                            {/* Unified Official File Editor Button */}
-                            <button
-                              type="button"
-                              onClick={() => handleOpenInmateEditModal(inm)}
-                              className="w-full mt-1.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded text-xxs font-mono flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer font-bold"
-                            >
-                              <ShieldCheck className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
-                              Editar Ficha & Assinar (Não-Repúdio)
-                            </button>
-
-                            {/* Inmate Edit Timeline Audit Trail Toggle Button */}
-                            <button
-                              type="button"
-                              onClick={() => setSelectedInmateHistoryId(selectedInmateHistoryId === inm.id ? null : inm.id)}
-                              className="w-full mt-1 py-1 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 rounded text-xxs font-mono flex items-center justify-center gap-1.5 cursor-pointer transition"
-                            >
-                              <History className="h-3.5 w-3.5 text-slate-500" />
-                              {selectedInmateHistoryId === inm.id ? "Ocultar Histórico" : `Histórico de Alterações (${inmateEditLogs.filter(l => l.inmateId === inm.id).length})`}
-                            </button>
-
-                            {/* Timeline Display */}
-                            {selectedInmateHistoryId === inm.id && (
-                              <div className="mt-2.5 bg-slate-950 p-2.5 rounded-lg border border-slate-850 flex flex-col gap-3 max-h-56 overflow-y-auto font-mono text-[9.5px]">
-                                <div className="border-b border-slate-900 pb-1.5 flex justify-between items-center">
-                                  <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Rastreabilidade Forense</span>
-                                  <span className="text-[8px] text-emerald-400 font-bold bg-emerald-500/10 px-1 rounded border border-emerald-500/20">✓ NÃO REPÚDIO</span>
-                                </div>
-                                {inmateEditLogs.filter(l => l.inmateId === inm.id).length === 0 ? (
-                                  <span className="text-slate-550 italic text-[9px] text-center py-2">Sem histórico de alterações registado para este recluso.</span>
-                                ) : (
-                                  <div className="flex flex-col gap-3 relative before:absolute before:top-2 before:bottom-2 before:left-2 before:w-[1px] before:bg-slate-800">
-                                    {inmateEditLogs.filter(l => l.inmateId === inm.id).map((log) => (
-                                      <div key={log.id} className="relative pl-5 flex flex-col gap-1">
-                                        {/* Dot */}
-                                        <div className="absolute top-1 left-1 w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-slate-950 -translate-x-1/2"></div>
-                                        
-                                        <div className="flex justify-between items-start text-[8px] text-slate-450">
-                                          <span className="font-bold text-slate-300">{log.operatorName}</span>
-                                          <span className="text-[7.5px] font-sans">{new Date(log.timestamp).toLocaleString("pt-PT")}</span>
-                                        </div>
-                                        
-                                        <div className="text-slate-500 leading-none text-[8px]">{log.operatorRole}</div>
-                                        
-                                        <div className="text-[10px] text-slate-200 mt-0.5 leading-tight">
-                                          Alterou <span className="text-amber-500 font-bold">{log.fieldName}</span> de <span className="text-rose-400 italic font-medium">"{log.oldValue}"</span> para <span className="text-emerald-400 font-bold">"{log.newValue}"</span>
-                                        </div>
-
-                                        <div className="mt-0.5 p-1 bg-slate-900 rounded border border-slate-850 flex flex-col gap-0.5 text-[7px] text-slate-500 font-mono select-all truncate leading-none">
-                                          <span>Selo Cripto: {log.signatureHash}</span>
-                                          <span>Canal IP: {log.ipAddress} (Assinatura Autenticada PIN)</span>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
+                    }}
+                    onTransferInmate={handleTransferInmate}
+                    onEditRiskInmate={handleEditRiskInmate}
+                    onUploadPhoto={handleUploadInmatePhoto}
+                    onExportPDF={(inm) => exportInmateFichaToPDF(inm as any, prisons, currentOperatorId)}
+                    onEditAndSign={handleOpenInmateEditModal}
+                    onToggleHistory={(id) => setSelectedInmateHistoryId(selectedInmateHistoryId === id ? null : id)}
+                    selectedHistoryId={selectedInmateHistoryId}
+                    historyLogs={inmateEditLogs}
+                    onSelectDocumentCode={(code) => {
+                      setSelectedDocumentCode(code);
+                      setActiveTab("documents");
+                    }}
+                  />
                   </>
                   )}
                 </div>
@@ -19991,163 +19784,144 @@ export default function App() {
                           
                           {/* Left Column: Staff Roster Table */}
                           <div className="xl:col-span-7 flex flex-col gap-3">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-mono uppercase font-bold text-slate-300">Quadro de Pessoal Ativo</span>
-                              <input
-                                type="text"
-                                placeholder="Filtrar por nome, ID ou cargo..."
-                                value={rhSearchQuery}
-                                onChange={(e) => setRhSearchQuery(e.target.value)}
-                                className="bg-slate-900 border border-slate-850 rounded px-2 py-1 text-[10px] text-slate-300 font-mono w-48 focus:outline-none focus:border-amber-500"
-                              />
-                            </div>
-
-                            <div className="overflow-x-auto rounded-lg border border-slate-850 bg-slate-950/20">
-                              <table className="w-full text-left border-collapse font-mono text-[9px]">
-                                <thead>
-                                  <tr className="bg-slate-950/80 border-b border-slate-850 text-slate-400 font-bold uppercase text-[8px] tracking-wider">
-                                    <th className="px-3 py-2.5">ID / Nome</th>
-                                    <th className="px-3 py-2.5">Cargo / Escopo</th>
-                                    <th className="px-3 py-2.5">Localização / Unidade</th>
-                                    <th className="px-3 py-2.5">Segurança</th>
-                                    <th className="px-3 py-2.5 text-center">Ações</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-850/60 text-slate-300">
-                                  {operators
-                                    .filter(op => {
-                                      if (!rhSearchQuery) return true;
-                                      const query = rhSearchQuery.toLowerCase();
-                                      return (
-                                        op.name.toLowerCase().includes(query) ||
-                                        op.id.toLowerCase().includes(query) ||
-                                        op.roleName.toLowerCase().includes(query) ||
-                                        (op.province && op.province.toLowerCase().includes(query))
-                                      );
-                                    })
-                                    .map(op => {
-                                      const isCurrent = op.id === currentOperatorId;
-                                      
-                                      let sensColor = "text-slate-400";
-                                      if (op.sensitivityLevel === "SECRETO") sensColor = "text-red-400 font-bold";
-                                      else if (op.sensitivityLevel === "CONFIDENCIAL") sensColor = "text-amber-400 font-bold";
-
-                                      return (
-                                        <tr key={op.id} className={`hover:bg-slate-900/30 transition-all ${isCurrent ? "bg-amber-500/5 border-l-2 border-l-amber-500" : ""}`}>
-                                          <td className="px-3 py-2">
-                                            <div className="flex flex-col">
-                                              <span className="font-bold text-slate-100 flex items-center gap-1">
-                                                {op.name}
-                                                {isCurrent && <span className="text-[7.5px] font-sans bg-amber-500/10 text-amber-500 px-1 rounded">Sessão</span>}
-                                              </span>
-                                              <span className="text-[8px] text-slate-500">{op.id} ({op.username})</span>
-                                            </div>
-                                          </td>
-                                          <td className="px-3 py-2">
-                                            <div className="flex flex-col">
-                                              <span className="font-semibold text-sky-400">{op.roleName}</span>
-                                              <span className="text-[8px] text-slate-500">Regime {op.level}</span>
-                                            </div>
-                                          </td>
-                                          <td className="px-3 py-2">
-                                            <span className="text-slate-400">
-                                              {op.level === "NATIONAL" ? "Generalizada (MININT)" :
-                                               op.level === "PROVINCIAL" ? `Direcção Provincial de ${op.province}` :
-                                               `${prisons.find(p => p.id === op.assignedPrisonId)?.name || op.assignedPrisonId || "EP Desconhecido"}`}
-                                            </span>
-                                          </td>
-                                          <td className="px-3 py-2">
-                                            <span className={`text-[8.5px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-850 ${sensColor}`}>
-                                              {op.sensitivityLevel}
-                                            </span>
-                                          </td>
-                                          <td className="px-3 py-2 text-center">
-                                            <div className="flex items-center justify-center gap-1.5">
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  setEditingOperator(op);
-                                                  setEditingOpSensitivity(op.sensitivityLevel);
-                                                  setEditingOpLevel(op.level);
-                                                  setEditingOpProvince(op.province || "Luanda");
-                                                  setEditingOpAssignedPrisonId(op.assignedPrisonId || "");
-                                                  setEditingOpPermissions(op.permissions || []);
-                                                  setSuggestionAlert({
-                                                    type: "success",
-                                                    text: `🔑 OPERADOR SELECIONADO: Carregadas as permissões de ${op.name} para edição detalhada.`
-                                                  });
-                                                }}
-                                                className={`px-1.5 py-0.5 rounded text-[8px] font-bold font-mono transition uppercase cursor-pointer ${
-                                                  editingOperator?.id === op.id
-                                                    ? "bg-amber-500 text-slate-950 border border-amber-400 font-extrabold"
-                                                    : "bg-slate-900 hover:bg-slate-850 text-amber-500 border border-slate-800"
-                                                }`}
-                                              >
-                                                 Editar
-                                               </button>
-
-                                               <button
-                                                 type="button"
-                                                 onClick={() => {
-                                                   if (isCurrent) {
-                                                     setSuggestionAlert({ type: "error", text: "Erro: Não é permitido revogar o próprio utilizador ativo em sessão." });
-                                                     return;
-                                                   }
-                                                   if (!canManageHR) {
-                                                     setSuggestionAlert({ 
-                                                       type: "error", 
-                                                       text: "Acesso Negado: Apenas a Direção Geral (Nível Nacional) tem competência legal para revogar e gerir o quadro de RH no NREP-AO." 
-                                                     });
-                                                     return;
-                                                   }
-                                                   setOperators(prev => prev.filter(o => o.id !== op.id));
-                                                   if (editingOperator?.id === op.id) {
-                                                     setEditingOperator(null);
-                                                   }
-                                                   setSuggestionAlert({ type: "success", text: `🔒 OPERADOR REMOVIDO: Credenciais e acesso do operador militar ${op.name} foram cancelados no NREP.` });
-                                                   writeAuditLog(
-                                                     currentOperator,
-                                                     "REMOVE_OPERATOR" as any,
-                                                     "Admission",
-                                                     undefined,
-                                                     `Revogou o acesso do operador ${op.name} (${op.id}) do quadro de RH.`
-                                                   );
-                                                 }}
-                                                 disabled={isCurrent || !canManageHR}
-                                                 className={`px-1.5 py-0.5 rounded text-[8px] font-bold font-mono transition uppercase ${
-                                                   isCurrent 
-                                                     ? "bg-slate-900 text-slate-600 cursor-not-allowed border border-slate-850" 
-                                                     : !canManageHR
-                                                       ? "bg-slate-900/40 text-slate-500 border border-slate-850 cursor-not-allowed opacity-45"
-                                                       : "bg-red-950/40 hover:bg-red-900/20 text-red-400 border border-red-900/35 cursor-pointer"
-                                                 }`}
-                                                 title={!canManageHR ? "Competência de Gestão Restrita à Direção Geral" : undefined}
-                                               >
-                                                 Revogar
-                                               </button>
-                                               
-                                               <button
-                                                 type="button"
-                                                 onClick={() => {
-                                                   // Simulate credentials printing
-                                                   setSuggestionAlert({ 
-                                                     type: "success", 
-                                                     text: `📋 GUIA DE AUTENTICAÇÃO GERADA: Emitido registro oficial de login NREP para o oficial ${op.name}.` 
-                                                   });
-                                                 }}
-                                                 className="px-1.5 py-0.5 rounded text-[8px] font-bold font-sans bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-slate-200 border border-slate-800 cursor-pointer transition"
-                                               >
-                                                 Guia
-                                               </button>
-                                             </div>
-                                           </td>
-                                         </tr>
-                                       );
-                                     })}
-                                 </tbody>
-                               </table>
-                             </div>
-                           </div>
+                            <ExcelVirtualizedDataGrid
+                              data={operators}
+                              getRowId={(op) => op.id}
+                              title="Quadro de Pessoal Ativo"
+                              subtitle="Folha de cálculo de oficiais e operadores do sistema"
+                              searchPlaceholder="Filtrar por nome, ID ou cargo..."
+                              maxContainerHeight={380}
+                              columns={[
+                                {
+                                  id: "name",
+                                  header: "ID / Nome",
+                                  accessor: (op) => `${op.name} ${op.id} ${op.username}`,
+                                  cell: (op) => {
+                                    const isCurrent = op.id === currentOperatorId;
+                                    return (
+                                      <div className="flex flex-col">
+                                        <span className="font-bold text-slate-100 flex items-center gap-1">
+                                          {op.name}
+                                          {isCurrent && <span className="text-[7.5px] font-sans bg-amber-500/10 text-amber-500 px-1 rounded">Sessão</span>}
+                                        </span>
+                                        <span className="text-[8px] text-slate-500">{op.id} ({op.username})</span>
+                                      </div>
+                                    );
+                                  }
+                                },
+                                {
+                                  id: "roleName",
+                                  header: "Cargo / Escopo",
+                                  accessor: (op) => `${op.roleName} ${op.level}`,
+                                  cell: (op) => (
+                                    <div className="flex flex-col">
+                                      <span className="font-semibold text-sky-400">{op.roleName}</span>
+                                      <span className="text-[8px] text-slate-500">Regime {op.level}</span>
+                                    </div>
+                                  )
+                                },
+                                {
+                                  id: "location",
+                                  header: "Localização / Unidade",
+                                  accessor: (op) => op.level === "NATIONAL" ? "Generalizada (MININT)" : op.level === "PROVINCIAL" ? `Direcção Provincial de ${op.province}` : `${prisons.find(p => p.id === op.assignedPrisonId)?.name || op.assignedPrisonId || "EP Desconhecido"}`,
+                                  cell: (op) => (
+                                    <span className="text-slate-400">
+                                      {op.level === "NATIONAL" ? "Generalizada (MININT)" :
+                                       op.level === "PROVINCIAL" ? `Direcção Provincial de ${op.province}` :
+                                       `${prisons.find(p => p.id === op.assignedPrisonId)?.name || op.assignedPrisonId || "EP Desconhecido"}`}
+                                    </span>
+                                  )
+                                },
+                                {
+                                  id: "sensitivityLevel",
+                                  header: "Segurança",
+                                  accessor: (op) => op.sensitivityLevel,
+                                  cell: (op) => {
+                                    let sensColor = "text-slate-400";
+                                    if (op.sensitivityLevel === "SECRETO") sensColor = "text-red-400 font-bold";
+                                    else if (op.sensitivityLevel === "CONFIDENCIAL") sensColor = "text-amber-400 font-bold";
+                                    return (
+                                      <span className={`text-[8.5px] px-1.5 py-0.2 rounded bg-slate-900 border border-slate-850 ${sensColor}`}>
+                                        {op.sensitivityLevel}
+                                      </span>
+                                    );
+                                  }
+                                },
+                                {
+                                  id: "actions",
+                                  header: "Ações Operacionais",
+                                  align: "center",
+                                  cell: (op) => {
+                                    const isCurrent = op.id === currentOperatorId;
+                                    return (
+                                      <div className="flex items-center justify-center gap-1.5">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setEditingOperator(op);
+                                            setEditingOpSensitivity(op.sensitivityLevel);
+                                            setEditingOpLevel(op.level);
+                                            setEditingOpProvince(op.province || "Luanda");
+                                            setEditingOpAssignedPrisonId(op.assignedPrisonId || "");
+                                            setEditingOpPermissions(op.permissions || []);
+                                            setSuggestionAlert({
+                                              type: "success",
+                                              text: `🔑 OPERADOR SELECIONADO: Carregadas as permissões de ${op.name} para edição detalhada.`
+                                            });
+                                          }}
+                                          className={`px-1.5 py-0.5 rounded text-[8px] font-bold font-mono transition uppercase cursor-pointer ${
+                                            editingOperator?.id === op.id
+                                              ? "bg-amber-500 text-slate-950 border border-amber-400 font-extrabold"
+                                              : "bg-slate-900 hover:bg-slate-850 text-amber-500 border border-slate-800"
+                                          }`}
+                                        >
+                                          Editar
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            if (isCurrent) {
+                                              setSuggestionAlert({ type: "error", text: "Erro: Não é permitido revogar o próprio utilizador ativo em sessão." });
+                                              return;
+                                            }
+                                            if (!canManageHR) {
+                                              setSuggestionAlert({ 
+                                                type: "error", 
+                                                text: "Acesso Negado: Apenas a Direção Geral (Nível Nacional) tem competência legal para revogar e gerir o quadro de RH no NREP-AO." 
+                                              });
+                                              return;
+                                            }
+                                            setOperators(prev => prev.filter(o => o.id !== op.id));
+                                            if (editingOperator?.id === op.id) {
+                                              setEditingOperator(null);
+                                            }
+                                            setSuggestionAlert({ type: "success", text: `🔒 OPERADOR REMOVIDO: Credenciais e acesso do operador militar ${op.name} foram cancelados no NREP.` });
+                                            writeAuditLog(
+                                              currentOperator,
+                                              "REMOVE_OPERATOR" as any,
+                                              "Admission",
+                                              undefined,
+                                              `Revogou o acesso do operador ${op.name} (${op.id}) do quadro de RH.`
+                                            );
+                                          }}
+                                          disabled={isCurrent || !canManageHR}
+                                          className={`px-1.5 py-0.5 rounded text-[8px] font-bold font-mono transition uppercase ${
+                                            isCurrent 
+                                              ? "bg-slate-900 text-slate-600 cursor-not-allowed border border-slate-850" 
+                                              : !canManageHR
+                                                ? "bg-slate-900/40 text-slate-500 border border-slate-850 cursor-not-allowed opacity-45"
+                                                : "bg-red-950/40 hover:bg-red-900/20 text-red-400 border border-red-900/35 cursor-pointer"
+                                          }`}
+                                        >
+                                          Revogar
+                                        </button>
+                                      </div>
+                                    );
+                                  }
+                                }
+                              ]}
+                            />
+                          </div>
 
                            {/* Right Column: Add Roster Form OR Detailed Permission Edit Form */}
                           <div className="xl:col-span-5 bg-slate-950/60 border border-slate-850 rounded-xl p-4 flex flex-col gap-4">
@@ -21045,83 +20819,86 @@ export default function App() {
                                 </div>
                               </div>
 
-                              <div className="overflow-x-auto rounded-lg border border-slate-850 bg-slate-950/20 text-left">
-                                <table className="w-full text-left border-collapse font-mono text-[9px]">
-                                  <thead>
-                                    <tr className="bg-slate-950/80 border-b border-slate-850 text-slate-400 font-bold uppercase text-[8px] tracking-wider">
-                                      <th className="px-3 py-2.5">Nome / Patente</th>
-                                      <th className="px-3 py-2.5">Cargo Atual</th>
-                                      <th className="px-3 py-2.5">Regime</th>
-                                      <th className="px-3 py-2.5">Permissões</th>
-                                      <th className="px-3 py-2.5 text-right">Ação</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-slate-850/60 text-slate-300">
-                                    {operators
-                                      .filter(op => {
-                                        if (!rhSearchQuery) return true;
-                                        const query = rhSearchQuery.toLowerCase();
-                                        return (
-                                          op.name.toLowerCase().includes(query) ||
-                                          op.id.toLowerCase().includes(query) ||
-                                          op.roleName.toLowerCase().includes(query) ||
-                                          (op.province && op.province.toLowerCase().includes(query))
-                                        );
-                                      })
-                                      .map(op => {
-                                        const isSelected = op.id === selectedTeamOpId;
-                                        const isCurrent = op.id === currentOperatorId;
-                                        return (
-                                          <tr key={op.id} className={`hover:bg-slate-900/30 transition-all ${isSelected ? "bg-amber-500/10 border-l-2 border-l-amber-500" : ""}`}>
-                                            <td className="px-3 py-2">
-                                              <div className="flex flex-col">
-                                                <span className="font-bold text-slate-100 flex items-center gap-1">
-                                                  {op.name}
-                                                  {isCurrent && <span className="text-[7.5px] font-sans bg-amber-500/10 text-amber-500 px-1 rounded">Sessão</span>}
-                                                </span>
-                                                <span className="text-[8px] text-slate-500">{op.id}</span>
-                                              </div>
-                                            </td>
-                                            <td className="px-3 py-2">
-                                              <span className="font-semibold text-sky-400">{op.roleName}</span>
-                                            </td>
-                                            <td className="px-3 py-2">
-                                              <span className="text-slate-400 font-bold text-[8px]">{op.level}</span>
-                                            </td>
-                                            <td className="px-3 py-2">
-                                              <div className="flex flex-wrap gap-1 max-w-[150px]">
-                                                {op.permissions.map(p => (
-                                                  <span key={p} className="text-[7px] bg-slate-900 px-1 rounded text-slate-400 font-mono">
-                                                    {p}
-                                                  </span>
-                                                ))}
-                                              </div>
-                                            </td>
-                                            <td className="px-3 py-2 text-right">
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  setSelectedTeamOpId(op.id);
-                                                  setSuggestionAlert({
-                                                    type: "success",
-                                                    text: `👤 Utilizador ${op.name} selecionado para alteração de cargo e permissões!`
-                                                  });
-                                                }}
-                                                className={`text-[8.5px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-all cursor-pointer ${
-                                                  isSelected
-                                                    ? "bg-amber-500 text-slate-950 border border-amber-400"
-                                                    : "bg-slate-950 text-slate-350 border border-slate-800 hover:bg-slate-900 hover:text-slate-100"
-                                                }`}
-                                              >
-                                                Gerir
-                                              </button>
-                                            </td>
-                                          </tr>
-                                        );
-                                      })}
-                                  </tbody>
-                                </table>
-                              </div>
+                              <ExcelVirtualizedDataGrid
+                                data={operators}
+                                getRowId={(op) => op.id}
+                                title="Operadores do Sistema"
+                                subtitle="Atribuição de patentes, regimes e privilégios granulares"
+                                searchPlaceholder="Filtrar operador..."
+                                maxContainerHeight={380}
+                                columns={[
+                                  {
+                                    id: "name",
+                                    header: "Nome / Patente",
+                                    accessor: (op) => `${op.name} ${op.id}`,
+                                    cell: (op) => {
+                                      const isCurrent = op.id === currentOperatorId;
+                                      return (
+                                        <div className="flex flex-col">
+                                          <span className="font-bold text-slate-100 flex items-center gap-1">
+                                            {op.name}
+                                            {isCurrent && <span className="text-[7.5px] font-sans bg-amber-500/10 text-amber-500 px-1 rounded">Sessão</span>}
+                                          </span>
+                                          <span className="text-[8px] text-slate-500">{op.id}</span>
+                                        </div>
+                                      );
+                                    }
+                                  },
+                                  {
+                                    id: "roleName",
+                                    header: "Cargo Atual",
+                                    accessor: (op) => op.roleName,
+                                    cell: (op) => <span className="font-semibold text-sky-400">{op.roleName}</span>
+                                  },
+                                  {
+                                    id: "level",
+                                    header: "Regime",
+                                    accessor: (op) => op.level,
+                                    cell: (op) => <span className="text-slate-400 font-bold text-[8px]">{op.level}</span>
+                                  },
+                                  {
+                                    id: "permissions",
+                                    header: "Permissões",
+                                    accessor: (op) => (op.permissions || []).join(" "),
+                                    cell: (op) => (
+                                      <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                        {(op.permissions || []).map((p: string) => (
+                                          <span key={p} className="text-[7px] bg-slate-900 px-1 rounded text-slate-400 font-mono">
+                                            {p}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )
+                                  },
+                                  {
+                                    id: "actions",
+                                    header: "Ação",
+                                    align: "right",
+                                    cell: (op) => {
+                                      const isSelected = op.id === selectedTeamOpId;
+                                      return (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedTeamOpId(op.id);
+                                            setSuggestionAlert({
+                                              type: "success",
+                                              text: `👤 Utilizador ${op.name} selecionado para alteração de cargo e permissões!`
+                                            });
+                                          }}
+                                          className={`text-[8.5px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-all cursor-pointer ${
+                                            isSelected
+                                              ? "bg-amber-500 text-slate-950 border border-amber-400"
+                                              : "bg-slate-950 text-slate-350 border border-slate-800 hover:bg-slate-900 hover:text-slate-100"
+                                          }`}
+                                        >
+                                          Gerir
+                                        </button>
+                                      );
+                                    }
+                                  }
+                                ]}
+                              />
                             </div>
 
                             {/* Right Column: Edit Role and Permissions Panel */}

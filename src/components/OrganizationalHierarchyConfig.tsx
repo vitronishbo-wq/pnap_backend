@@ -908,11 +908,6 @@ export function OrganizationalHierarchyConfig({
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400 font-sans mt-0.5">
-              {isNational 
-                ? "Gestão central e auditoria orgânica das 18 Direções Provinciais do DGPNAP."
-                : `Acesso restrito à Direção Provincial de ${operatorProvince} e sub-divisões sob sua tutela legal.`}
-            </p>
           </div>
         </div>
 
@@ -1177,9 +1172,6 @@ export function OrganizationalHierarchyConfig({
                       Província de {activeDirectorate.province}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-sans mt-0.5">
-                    Legislação regulamentar: <strong className="text-slate-300 font-mono text-[11px]">Decreto Presidencial n.º 184/17 de 11 de Agosto (Artigos 17.º a 24.º)</strong>
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap shrink-0">
@@ -1208,26 +1200,16 @@ export function OrganizationalHierarchyConfig({
                 const comp = evaluateDirectorateCompliance(activeDirectorate.id);
                 if (comp.isCompliant) {
                   return (
-                    <div className="bg-emerald-950/20 border border-emerald-900/40 rounded-xl p-3.5 flex items-start gap-3 text-xs text-emerald-300">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-mono font-bold uppercase block text-emerald-400 text-xxs tracking-wider">ESTRUTURA INTEGRALMENTE CONFORME (18/18 DEPENDÊNCIAS REGULAMENTARES)</span>
-                        <p className="text-slate-300 text-xxs font-sans mt-0.5">
-                          A Direção Provincial de {activeDirectorate.province} possui todas as 18 dependências orgânicas ativas e classificadas por categorias de apoio técnico, executivas operacionais e apoio instrumental.
-                        </p>
-                      </div>
+                    <div className="bg-emerald-950/20 border border-emerald-900/40 rounded-lg p-2 flex items-center gap-2 text-xs text-emerald-300">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                      <span className="font-mono font-bold uppercase text-emerald-400 text-xxs tracking-wider">ESTRUTURA CONFORME (18/18)</span>
                     </div>
                   );
                 }
                 return (
-                  <div className="bg-amber-950/20 border border-amber-900/40 rounded-xl p-3.5 flex items-start gap-3 text-xs text-amber-300">
-                    <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-mono font-bold uppercase block text-amber-400 text-xxs tracking-wider">PENDÊNCIAS ESTATUTÁRIAS DE DEPARTAMENTO ({comp.score}/18)</span>
-                      <p className="text-slate-300 text-xxs font-sans mt-0.5">
-                        Faltam <strong className="text-amber-300 font-mono">{comp.missing.length}</strong> dependências regulamentares nesta Direção Provincial ({comp.missing.slice(0, 3).join(", ")}{comp.missing.length > 3 ? "..." : ""}). Clique em "Auto-Conformar" para estruturar a jurisdição.
-                      </p>
-                    </div>
+                  <div className="bg-amber-950/20 border border-amber-900/40 rounded-lg p-2 flex items-center gap-2 text-xs text-amber-300">
+                    <AlertCircle className="h-4 w-4 text-amber-400 shrink-0" />
+                    <span className="font-mono font-bold uppercase text-amber-400 text-xxs tracking-wider">PENDÊNCIAS ESTATUTÁRIAS ({comp.score}/18)</span>
                   </div>
                 );
               })()}
@@ -1502,7 +1484,7 @@ export function OrganizationalHierarchyConfig({
                                               </span>
                                             </div>
                                             {isCat4 && (
-                                              <div className="mt-1 pt-1.5 border-t border-emerald-900/40 text-[9.5px] font-mono text-emerald-400 flex items-center gap-1">
+                                              <div className="hidden">
                                                 <FolderTree className="h-3 w-3 text-emerald-400 shrink-0" />
                                                 <span>Estruturas Administrativas e Operativas replicadas em Secções Internas (Controlo Penal, Segurança, Saúde, Logística).</span>
                                               </div>

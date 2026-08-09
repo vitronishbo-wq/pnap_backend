@@ -221,40 +221,40 @@ export default function IntelligenceCenter({
   const [correlationRules, setCorrelationRules] = useState<CorrelationRule[]>([
     {
       id: "RULE-01",
-      name: "Detecção de Viagem Impossível (SIEM-AO)",
-      description: "Acessos ao mesmo utilizador de províncias fisicamente distantes num delta de tempo impraticável.",
+      name: "Viagem Impossível",
+      description: "Acessos de locais distantes.",
       category: "AUTH",
       enabled: true,
       triggersCount: 14
     },
     {
       id: "RULE-02",
-      name: "Brute Force de Código PIN de Segurança",
-      description: "Mais de 5 falhas sucessivas de validação PIN seguidas de uma tentativa bem-sucedida.",
+      name: "Brute Force PIN",
+      description: "Múltiplas falhas PIN.",
       category: "AUTH",
       enabled: true,
       triggersCount: 42
     },
     {
       id: "RULE-03",
-      name: "Modificação de Chave Descentralizada Fora de Turno",
-      description: "Qualquer alteração tática na topologia das chaves prisionais após o fecho de turno às 18:00.",
+      name: "Altera Chave Fora Turno",
+      description: "Alteração de chave fora de turno.",
       category: "PRIVILEGE",
       enabled: true,
       triggersCount: 8
     },
     {
       id: "RULE-04",
-      name: "Tampering de Hash de Não-Repúdio",
-      description: "Inconsistência matemática nos blocos de auditoria gerados por agentes ou comandos locais.",
+      name: "Inconsistência Hash",
+      description: "Audit hash mismatch.",
       category: "TAMPER",
       enabled: true,
       triggersCount: 2
     },
     {
       id: "RULE-05",
-      name: "Injeção de Script / Payload Suspeito",
-      description: "Caracteres de escape SQL (', --, OR 1=1) ou scripts injetados em buscas de reclusos.",
+      name: "Injeção Script",
+      description: "Submissão de caracteres maliciosos.",
       category: "ANOMALY",
       enabled: true,
       triggersCount: 31
@@ -413,7 +413,7 @@ export default function IntelligenceCenter({
           title: "🛡️ TENTATIVA DE ABUSO DE PRIVILÉGIO",
           description: "Utilizador com perfil restrito (Médico) tentou invocar funções administrativas críticas fora do seu escopo funcional.",
           severity: "ALTO",
-          rule: "RULE-03 (Modificação de Chave Fora de Turno)",
+          rule: "RULE-03 (Altera Chave Fora Turno)",
           payload: "EXEC_COMMAND: ForceCellAdmitInmateId(102) BY USER(MININT-OP-HEALTH) -> PERMISSION_DENIED."
         };
 
@@ -586,287 +586,182 @@ export default function IntelligenceCenter({
       </AnimatePresence>
 
       {/* 🛡️ CENTRAL SIEM HEADER */}
-      <div className="bg-slate-900 border border-slate-850 rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 right-0 w-80 h-32 bg-[radial-gradient(circle_at_top_right,rgba(225,29,72,0.06),transparent_60%)] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-32 bg-[radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.04),transparent_60%)] pointer-events-none" />
-
-        <div className="flex items-start gap-4 text-left">
-          <div className="bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 text-rose-400 shrink-0">
-            <Shield className="h-6 w-6 animate-[pulse_3s_infinite]" />
+      <div className="bg-slate-900 border border-slate-850 rounded-xl p-3 flex flex-col md:flex-row items-center justify-between gap-3 shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="bg-rose-500/10 p-2 rounded-lg border border-rose-500/20 text-rose-400 shrink-0">
+            <Shield className="h-5 w-5" />
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="text-[9.5px] uppercase font-bold tracking-widest text-rose-400 font-mono bg-rose-550/10 px-2 py-0.5 border border-rose-500/20 rounded">
-                SIEM CENTRAL SICP-AO
-              </span>
-              <span className="text-[9.5px] uppercase font-bold tracking-widest text-slate-500 font-mono">
-                • Inteligência Prisional Forense
-              </span>
-            </div>
-            <h2 className="text-base font-black text-slate-100 font-mono uppercase tracking-wide mt-1.5 flex items-center gap-2">
-              Centro de Inteligência de Segurança e Mitigação de Fraudes
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-black text-slate-100 font-mono uppercase">
+              SIEM Central
             </h2>
-            <p className="text-[11px] text-slate-400 font-sans mt-0.5 max-w-2xl leading-relaxed">
-              Consola unificada de correlação de logs de segurança, prevenção de abuso de privilégios de custódia e mitigação automatizada de ataques externos. Módulo nativo de não-repúdio e auditoria de assinaturas descentralizadas.
-            </p>
+            <span className={`h-2 w-2 rounded-full ${
+              activeThreatLevel === "ATTACK" ? "bg-rose-500 animate-ping" : activeThreatLevel === "WARNING" ? "bg-amber-500" : "bg-emerald-500"
+            }`} />
+            <span className="text-[10px] font-bold font-mono text-slate-400 uppercase">
+              {activeThreatLevel}
+            </span>
           </div>
         </div>
 
         {/* Global SIEM Status */}
-        <div className="flex flex-col items-end gap-2 shrink-0 bg-slate-950/60 p-3.5 rounded-xl border border-slate-850 w-full md:w-auto">
-          <div className="flex items-center justify-between md:justify-end gap-3 self-stretch">
-            <span className="text-[9.5px] font-mono text-slate-500 uppercase">Estado da Cúpula:</span>
-            <div className="flex items-center gap-1.5">
-              <span className={`h-2 w-2 rounded-full ${
-                activeThreatLevel === "ATTACK"
-                  ? "bg-rose-500 animate-ping"
-                  : activeThreatLevel === "WARNING"
-                    ? "bg-amber-500"
-                    : "bg-emerald-500"
-              }`} />
-              <span className={`text-[10px] font-black uppercase font-mono ${
-                activeThreatLevel === "ATTACK" ? "text-rose-500 animate-pulse" : activeThreatLevel === "WARNING" ? "text-amber-400" : "text-emerald-400"
-              }`}>
-                {activeThreatLevel === "ATTACK" ? "SOB ATAQUE ATIVO" : activeThreatLevel === "WARNING" ? "RISCO MODERADO" : "OPERANDO LIMPO"}
-              </span>
-            </div>
-          </div>
-
-          {/* Toggle mitigation */}
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setAutoMitigationEnabled(!autoMitigationEnabled)}
-            className={`w-full py-1 px-2.5 rounded text-[8.5px] font-bold font-mono uppercase border transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            className={`py-1 px-3 rounded text-[9px] font-bold font-mono uppercase border transition flex items-center gap-1.5 cursor-pointer ${
               autoMitigationEnabled
                 ? "bg-emerald-950/40 border-emerald-500/30 text-emerald-400 hover:bg-emerald-900/20"
                 : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-850"
             }`}
           >
-            {autoMitigationEnabled ? (
-              <>
-                <Lock className="h-3 w-3 text-emerald-400" /> Mitigação Automática Ativa
-              </>
-            ) : (
-              <>
-                <Unlock className="h-3 w-3 text-amber-500" /> Mitigação Manual
-              </>
-            )}
+            {autoMitigationEnabled ? <Lock className="h-3 w-3 text-emerald-400" /> : <Unlock className="h-3 w-3 text-amber-500" />}
+            {autoMitigationEnabled ? "Mitigação Ativa" : "Mitigação Manual"}
           </button>
         </div>
       </div>
 
-      {/* 💥 SIEM VIRTUAL ATTACK INJECTOR (DEMONSTRADOR DE DEFESAS) */}
-      <div className="bg-slate-900 border border-slate-850 rounded-xl p-4.5 text-left">
-        <div className="border-b border-slate-850 pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex flex-col">
-            <span className="text-[9.5px] font-bold font-mono text-amber-500 flex items-center gap-1 uppercase">
-              <Zap className="h-3.5 w-3.5" /> Simulador de Contingência e Testes de Resiliência (SIEM Sandbox)
-            </span>
-            <p className="text-[10px] text-slate-400 font-sans mt-0.5">
-              Injete incidentes de segurança cibernética e operacional para homologar a eficiência dos algoritmos de correlação e contra-medidas automáticas.
-            </p>
-          </div>
-          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest font-bold bg-slate-950 px-2 py-1 rounded border border-slate-850 shrink-0">
-            Ambiente Controlado
+      {/* 💥 SIEM VIRTUAL ATTACK INJECTOR (COMPACT OPERATIONAL BUTTONS ONLY) */}
+      <div className="bg-slate-900 border border-slate-850 rounded-xl p-3 text-left">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-bold font-mono text-amber-500 flex items-center gap-1 uppercase">
+            <Zap className="h-3.5 w-3.5" /> Testes de Resiliência
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          
-          {/* Brute Force */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           <button
             type="button"
             disabled={!!isInjecting}
+            title="Simula 8 tentativas sucessivas de PIN falhadas num utilizador militar de alta patente."
             onClick={() => handleSimulateAttack("BRUTE_FORCE")}
-            className="bg-slate-950/60 hover:bg-slate-950 border border-slate-850 hover:border-rose-500/45 p-3 rounded-xl text-left transition flex flex-col justify-between gap-2.5 group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-rose-500/40 p-2.5 rounded-lg transition flex items-center gap-2 cursor-pointer disabled:opacity-40"
           >
-            <div className="flex justify-between items-start">
-              <span className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 group-hover:bg-rose-500/20">
-                <Lock className="h-4 w-4" />
-              </span>
-              <span className="text-[8px] font-mono text-slate-550 group-hover:text-rose-400 font-bold uppercase">Auth Layer</span>
-            </div>
-            <div>
-              <h4 className="text-[11px] font-extrabold text-slate-200 tracking-tight group-hover:text-rose-400">
-                Brute Force PIN Código
-              </h4>
-              <p className="text-[9.5px] text-slate-500 leading-normal mt-0.5 font-sans">
-                Simula 8 tentativas sucessivas de PIN falhadas num utilizador militar de alta patente.
-              </p>
-            </div>
-            <div className="flex items-center gap-1 text-[8.5px] font-mono text-indigo-400 group-hover:text-amber-400">
-              <Play className="h-3 w-3" /> Disparar Vetor de Teste
-            </div>
+            <Lock className="h-4 w-4 text-rose-400 shrink-0" />
+            <span className="text-[10px] font-bold font-mono text-slate-200">Brute Force</span>
           </button>
 
-          {/* SQL Injection */}
           <button
             type="button"
             disabled={!!isInjecting}
+            title="Submete queries maliciosas com escape SQL em inputs de busca para simular invasão lógica."
             onClick={() => handleSimulateAttack("SQL_INJECTION")}
-            className="bg-slate-950/60 hover:bg-slate-950 border border-slate-850 hover:border-rose-500/45 p-3 rounded-xl text-left transition flex flex-col justify-between gap-2.5 group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-indigo-500/40 p-2.5 rounded-lg transition flex items-center gap-2 cursor-pointer disabled:opacity-40"
           >
-            <div className="flex justify-between items-start">
-              <span className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/20">
-                <FileCode className="h-4 w-4" />
-              </span>
-              <span className="text-[8px] font-mono text-slate-550 group-hover:text-indigo-400 font-bold uppercase">Web WAF</span>
-            </div>
-            <div>
-              <h4 className="text-[11px] font-extrabold text-slate-200 tracking-tight group-hover:text-indigo-400">
-                Injeção SQL Maliciosa
-              </h4>
-              <p className="text-[9.5px] text-slate-500 leading-normal mt-0.5 font-sans">
-                Submete queries maliciosas com escape SQL em inputs de busca para simular invasão lógica.
-              </p>
-            </div>
-            <div className="flex items-center gap-1 text-[8.5px] font-mono text-indigo-400 group-hover:text-amber-400">
-              <Play className="h-3 w-3" /> Disparar Vetor de Teste
-            </div>
+            <FileCode className="h-4 w-4 text-indigo-400 shrink-0" />
+            <span className="text-[10px] font-bold font-mono text-slate-200">Injeção SQL</span>
           </button>
 
-          {/* Privilege Escalation */}
           <button
             type="button"
             disabled={!!isInjecting}
+            title="Simula utilizador auxiliar de saúde a tentar adulterar chaves de confinamento disciplinar."
             onClick={() => handleSimulateAttack("PRIV_ESCALATION")}
-            className="bg-slate-950/60 hover:bg-slate-950 border border-slate-850 hover:border-rose-500/45 p-3 rounded-xl text-left transition flex flex-col justify-between gap-2.5 group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/40 p-2.5 rounded-lg transition flex items-center gap-2 cursor-pointer disabled:opacity-40"
           >
-            <div className="flex justify-between items-start">
-              <span className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 group-hover:bg-amber-500/20">
-                <Fingerprint className="h-4 w-4" />
-              </span>
-              <span className="text-[8px] font-mono text-slate-550 group-hover:text-amber-400 font-bold uppercase">IAM / Role</span>
-            </div>
-            <div>
-              <h4 className="text-[11px] font-extrabold text-slate-200 tracking-tight group-hover:text-amber-400">
-                Escalada de Privilégio
-              </h4>
-              <p className="text-[9.5px] text-slate-500 leading-normal mt-0.5 font-sans">
-                Simula utilizador auxiliar de saúde a tentar adulterar chaves de confinamento disciplinar.
-              </p>
-            </div>
-            <div className="flex items-center gap-1 text-[8.5px] font-mono text-indigo-400 group-hover:text-amber-400">
-              <Play className="h-3 w-3" /> Disparar Vetor de Teste
-            </div>
+            <Fingerprint className="h-4 w-4 text-amber-400 shrink-0" />
+            <span className="text-[10px] font-bold font-mono text-slate-200">Privilégios</span>
           </button>
 
-          {/* Impossible Travel */}
           <button
             type="button"
             disabled={!!isInjecting}
+            title="Simula login com as mesmas credenciais em Luanda e Cabinda com delta de 10 segundos."
             onClick={() => handleSimulateAttack("IMPOSSIBLE_TRAVEL")}
-            className="bg-slate-950/60 hover:bg-slate-950 border border-slate-850 hover:border-rose-500/45 p-3 rounded-xl text-left transition flex flex-col justify-between gap-2.5 group cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-sky-500/40 p-2.5 rounded-lg transition flex items-center gap-2 cursor-pointer disabled:opacity-40"
           >
-            <div className="flex justify-between items-start">
-              <span className="p-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 group-hover:bg-sky-500/20">
-                <Globe className="h-4 w-4" />
-              </span>
-              <span className="text-[8px] font-mono text-slate-550 group-hover:text-sky-450 font-bold uppercase">Geolocalização</span>
-            </div>
-            <div>
-              <h4 className="text-[11px] font-extrabold text-slate-200 tracking-tight group-hover:text-sky-400">
-                Viagem Física Impossível
-              </h4>
-              <p className="text-[9.5px] text-slate-500 leading-normal mt-0.5 font-sans">
-                Simula login com as mesmas credenciais em Luanda e Cabinda com delta de 10 segundos.
-              </p>
-            </div>
-            <div className="flex items-center gap-1 text-[8.5px] font-mono text-indigo-400 group-hover:text-amber-400">
-              <Play className="h-3 w-3" /> Disparar Vetor de Teste
-            </div>
+            <Globe className="h-4 w-4 text-sky-400 shrink-0" />
+            <span className="text-[10px] font-bold font-mono text-slate-200">Geolocalização</span>
           </button>
-
         </div>
       </div>
 
-      {/* 🛡️ CORRELATION RULES & SUSPICIOUS BEHAVIORAL PROFILES */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* 🛡️ CORRELATION RULES & SUSPICIOUS BEHAVIORAL PROFILES (FULL-WIDTH EXCEL DATA TABLES) */}
+      <div className="flex flex-col gap-5">
         
-        {/* Left Side: Active Correlation Rules (SIEM Logic Engine) */}
-        <div className="lg:col-span-5 bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 text-left">
-          <div className="border-b border-slate-850 pb-3 flex justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase font-bold font-mono text-indigo-400">Engine de Correlação</span>
-              <h3 className="text-sm font-bold text-slate-200 mt-0.5">Regras Ativas de Deteção</h3>
+        {/* Full Width Table: Active Correlation Rules */}
+        <div className="bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-3 text-left">
+          <div className="border-b border-slate-850 pb-2.5 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] uppercase font-bold font-mono text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">Engine de Correlação</span>
+              <h3 className="text-xs font-bold text-slate-200 font-mono uppercase">Regras de Deteção SIEM</h3>
             </div>
-            <span className="text-[8px] font-mono bg-slate-950 border border-slate-850 rounded px-2 py-0.5 text-slate-400">
+            <span className="text-[9px] font-mono bg-slate-950 border border-slate-850 rounded px-2.5 py-0.5 text-slate-400 font-bold">
               Total: {correlationRules.length} Regras
             </span>
           </div>
 
-          <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[380px] scrollbar-thin">
-            {correlationRules.map(rule => (
-              <div
-                key={rule.id}
-                className={`p-3 rounded-lg border transition ${
-                  rule.enabled 
-                    ? "bg-slate-950/45 border-slate-850" 
-                    : "bg-slate-950/20 border-slate-900 opacity-60"
-                }`}
-              >
-                <div className="flex justify-between items-start gap-3">
-                  <div className="flex flex-col text-left">
-                    <span className="text-[8px] font-mono text-slate-500 font-extrabold uppercase">
-                      {rule.id} • {rule.category}
-                    </span>
-                    <h4 className="text-[10.5px] font-black text-slate-200 mt-0.5">
-                      {rule.name}
-                    </h4>
-                  </div>
-
-                  {/* Switch button */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleRule(rule.id)}
-                    className={`px-1.5 py-0.5 rounded text-[8px] font-mono uppercase tracking-wider font-bold border transition shrink-0 cursor-pointer ${
-                      rule.enabled
-                        ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                        : "bg-slate-900 border-slate-850 text-slate-500"
-                    }`}
-                  >
-                    {rule.enabled ? "Ativo" : "Inativo"}
-                  </button>
-                </div>
-
-                <p className="text-[9.5px] text-slate-500 leading-normal mt-1.5 font-sans">
-                  {rule.description}
-                </p>
-
-                <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-900/40 text-[8.5px] font-mono text-slate-500">
-                  <span>Modo de Defesa: <strong className="text-slate-400">Automatizado</strong></span>
-                  <span>Disparos Recentes: <strong className="text-amber-500">{rule.triggersCount}x</strong></span>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto rounded-lg border border-slate-850">
+            <table className="w-full text-left border-collapse font-mono text-[10px]">
+              <thead>
+                <tr className="bg-slate-950 border-b border-slate-850 text-slate-400 uppercase tracking-wider text-[8.5px]">
+                  <th className="py-2 px-3">ID Regra</th>
+                  <th className="py-2 px-3">Categoria</th>
+                  <th className="py-2 px-3">Nome da Regra</th>
+                  <th className="py-2 px-3 text-center">Disparos</th>
+                  <th className="py-2 px-3 text-center">Estado</th>
+                  <th className="py-2 px-3 text-right">Ação Operacional</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-850/60 bg-slate-950/30">
+                {correlationRules.map(rule => (
+                  <tr key={rule.id} className="hover:bg-slate-850/40 transition">
+                    <td className="py-2 px-3 font-bold text-amber-400">{rule.id}</td>
+                    <td className="py-2 px-3 text-slate-400">{rule.category}</td>
+                    <td className="py-2 px-3 font-semibold text-slate-200">{rule.name}</td>
+                    <td className="py-2 px-3 text-center font-bold text-slate-300">{rule.triggersCount}x</td>
+                    <td className="py-2 px-3 text-center">
+                      <span className={`inline-block px-2 py-0.5 rounded text-[8.5px] font-bold uppercase border ${
+                        rule.enabled ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "bg-slate-900 border-slate-800 text-slate-500"
+                      }`}>
+                        {rule.enabled ? "ATIVO" : "INATIVO"}
+                      </span>
+                    </td>
+                    <td className="py-2 px-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleRule(rule.id)}
+                        className={`px-2.5 py-1 rounded text-[8.5px] font-mono uppercase tracking-wider font-bold border transition cursor-pointer ${
+                          rule.enabled
+                            ? "bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500/20"
+                            : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20"
+                        }`}
+                      >
+                        {rule.enabled ? "DESATIVAR" : "ATIVAR"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Right Side: Suspicious Behavioral Profiles Ledger */}
-        <div className="lg:col-span-7 bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-4 text-left">
-          <div className="border-b border-slate-850 pb-3 flex justify-between items-center">
-            <div className="flex flex-col">
-              <span className="text-[9px] uppercase font-bold font-mono text-rose-450">Análise de Perfis Suspeitos</span>
-              <h3 className="text-sm font-bold text-slate-200 mt-0.5">Utilizadores Prisionais sob Vigilância</h3>
+        {/* Full Width Table: Suspicious Behavioral Profiles Ledger */}
+        <div className="bg-slate-900 border border-slate-850 rounded-xl p-4 flex flex-col gap-3 text-left">
+          <div className="border-b border-slate-850 pb-2.5 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] uppercase font-bold font-mono text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">Análise de Perfis</span>
+              <h3 className="text-xs font-bold text-slate-200 font-mono uppercase">Utilizadores Prisionais sob Vigilância</h3>
             </div>
-            <span className="text-[8px] font-mono bg-slate-950 border border-slate-850 rounded px-2 py-0.5 text-slate-400">
+            <span className="text-[9px] font-mono bg-slate-950 border border-slate-850 rounded px-2.5 py-0.5 text-slate-400 font-bold">
               Em Alerta: {suspiciousProfiles.filter(p => p.status !== "LIBERADO").length} Perfis
             </span>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border border-slate-900">
+          <div className="overflow-x-auto rounded-lg border border-slate-850">
             <table className="w-full text-left border-collapse font-mono text-[10px]">
               <thead>
-                <tr className="bg-slate-950 border-b border-slate-900 text-slate-500 uppercase tracking-wider text-[8px]">
-                  <th className="py-2.5 px-3">Operador / Entidade</th>
-                  <th className="py-2.5 px-3">Unidade</th>
-                  <th className="py-2.5 px-3">Infracções</th>
-                  <th className="py-2.5 px-3">Factor Principal</th>
-                  <th className="py-2.5 px-3 text-right">Reputação SIEM</th>
-                  <th className="py-2.5 px-3 text-right">Acção de Mitigação</th>
+                <tr className="bg-slate-950 border-b border-slate-850 text-slate-400 uppercase tracking-wider text-[8.5px]">
+                  <th className="py-2 px-3">Operador / Entidade</th>
+                  <th className="py-2 px-3">Unidade Penitenciária</th>
+                  <th className="py-2 px-3 text-center">Infracções</th>
+                  <th className="py-2 px-3">Factor Principal</th>
+                  <th className="py-2 px-3 text-center">Reputação SIEM</th>
+                  <th className="py-2 px-3 text-right">Acção de Mitigação</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-900 bg-slate-950/20">
+              <tbody className="divide-y divide-slate-850/60 bg-slate-950/30">
                 {suspiciousProfiles.map(profile => {
                   const score = profile.reputationalScore;
                   let scoreColor = "text-emerald-400";
@@ -880,72 +775,62 @@ export default function IntelligenceCenter({
                   }
 
                   return (
-                    <tr key={profile.id} className="hover:bg-slate-900/35 transition">
-                      
-                      {/* Name & Role */}
-                      <td className="py-2.5 px-3">
-                        <div className="flex flex-col">
+                    <tr key={profile.id} className="hover:bg-slate-850/40 transition">
+                      <td className="py-2 px-3">
+                        <div className="flex items-center gap-2">
                           <span className="font-bold text-slate-200 text-[10.5px]">{profile.name}</span>
-                          <span className="text-[8.5px] text-slate-500">{profile.role} (ID: {profile.id})</span>
+                          <span className="text-[8.5px] text-slate-500 font-mono">({profile.id})</span>
                         </div>
                       </td>
-
-                      {/* Prison */}
-                      <td className="py-2.5 px-3 text-slate-400 text-[9.5px]">
+                      <td className="py-2 px-3 text-slate-300 text-[9.5px]">
                         {profile.prisonName}
                       </td>
-
-                      {/* Infractions count */}
-                      <td className="py-2.5 px-3 text-slate-400 text-center font-bold">
+                      <td className="py-2 px-3 text-slate-300 text-center font-bold">
                         {profile.infractionsCount}
                       </td>
-
-                      {/* Factor */}
-                      <td className="py-2.5 px-3 text-[9px] font-semibold text-slate-400">
+                      <td className="py-2 px-3 text-[9px] font-semibold text-slate-400">
                         {profile.riskFactor}
                       </td>
-
-                      {/* Score index */}
-                      <td className="py-2.5 px-3 text-right">
-                        <span className={`inline-block px-1.5 py-0.5 rounded border text-[10px] font-black ${bgScore} ${scoreColor}`}>
+                      <td className="py-2 px-3 text-center">
+                        <span className={`inline-block px-2 py-0.5 rounded border text-[9.5px] font-black ${bgScore} ${scoreColor}`}>
                           {score}%
                         </span>
                       </td>
-
-                      {/* Manual Action buttons */}
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex justify-end gap-1">
+                      <td className="py-2 px-3 text-right">
+                        <div className="flex justify-end gap-1.5">
                           {profile.status === "QUARENTENA" ? (
                             <button
                               type="button"
+                              title="Restaurar privilégios e remover restrições de acesso"
                               onClick={() => handleProfileStatus(profile.id, "LIBERADO")}
-                              className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/25 transition cursor-pointer"
+                              className="px-2.5 py-1 rounded text-[8.5px] font-mono bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/25 transition cursor-pointer font-bold"
                             >
-                              Liberar
+                              LIBERAR
                             </button>
                           ) : (
                             <>
                               <button
                                 type="button"
+                                title="Suspender credenciais de forma imediata e colocar utilizador em quarentena de segurança"
                                 onClick={() => handleProfileStatus(profile.id, "QUARENTENA")}
-                                className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 border border-rose-500/25 transition cursor-pointer"
+                                className="px-2.5 py-1 rounded text-[8.5px] font-mono bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 border border-rose-500/25 transition cursor-pointer font-bold"
                               >
-                                Bloquear
+                                BLOQUEAR
                               </button>
                               {profile.status !== "VIGILANCIA" && (
                                 <button
                                   type="button"
+                                  title="Ativar auditoria em tempo real e monitorização reforçada das ações do utilizador"
                                   onClick={() => handleProfileStatus(profile.id, "VIGILANCIA")}
-                                  className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 border border-amber-500/25 transition cursor-pointer"
+                                  className="px-2.5 py-1 rounded text-[8.5px] font-mono bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 border border-amber-500/25 transition cursor-pointer font-bold"
                                 >
-                                  Monitorar
+                                  MONITORAR
                                 </button>
                               )}
                             </>
                           )}
                         </div>
                       </td>
-
                     </tr>
                   );
                 })}

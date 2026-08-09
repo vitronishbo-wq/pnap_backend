@@ -195,9 +195,6 @@ export function NEPVerificationInterceptor({
                     INTERCEPTADOR SICP
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 font-sans mt-0.5">
-                  Validação procedimental obrigatória antes da persistência no Banco de Dados Central do Ministério do Interior.
-                </p>
               </div>
             </div>
 

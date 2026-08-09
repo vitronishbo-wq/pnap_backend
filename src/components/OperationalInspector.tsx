@@ -112,91 +112,114 @@ export function OperationalInspector({
     return () => clearInterval(telemetryTimer);
   }, [isOpen]);
 
-  // Compute stats based on the selected hierarchical node
+  // Compute stats based on the selected hierarchical node or current operator context
   const getScopeStats = () => {
     let title = "CONSOLA NACIONAL DE OPERAÇÕES";
     let subTitle = "Serviço Penitenciário de Angola";
     let badge = "NÍVEL CENTRAL";
     let scopeType = "NATIONAL";
+    let scopeId = "CENTRAL";
     
-    let totalInmates = inmates.length;
-    let capacity = prisons.reduce((acc, p) => acc + (p.operationalCapacity || p.capacity || 200), 0);
-    let prisonCount = prisons.length;
-    
-    let activeIncidents = incidentAlerts?.length || 4;
-    let criticalInmates = inmates.filter(i => i.riskLevel === "MÁXIMO" || i.riskLevel === "ALTO").length;
-    let healthAlerts = healthRecords.filter(h => h.severity === "Grave" || h.severity === "Crítico").length || 1;
+    // Inferred operator attributes for scope fallback
+    const opRole = currentOperator?.role || "";
+    const opLevel = currentOperator?.level || (opRole === "DIRECTOR_GERAL" ? "NATIONAL" : opRole === "DIRECTOR_PROVINCIAL" ? "PROVINCIAL" : currentOperator?.province ? "PROVINCIAL" : "NATIONAL");
+    const opProvince = currentOperator?.province || (currentOperator?.assignedPrisonId ? prisons.find(p => p.id === currentOperator.assignedPrisonId)?.location?.split(",")[0]?.trim() : null);
+    const opPrisonId = currentOperator?.assignedPrisonId;
+
+    let targetPrisons = prisons;
+    let targetInmates = inmates;
 
     if (selectedHierNode) {
+      scopeId = selectedHierNode.id || "N/A";
       if (selectedHierNode.type === "PROVINCE") {
-        const provinceName = selectedHierNode.name || "";
+        const provinceName = selectedHierNode.name || opProvince || "HUAMBO";
         scopeType = "PROVINCE";
-        title = provinceName.toUpperCase();
-        subTitle = "";
-        badge = "NÍVEL REGIONAL";
+        title = `PROVÍNCIA DE ${provinceName.toUpperCase()}`;
+        subTitle = `Comando Provincial - ${provinceName}`;
+        badge = "NÍVEL PROVINCIAL";
 
-        const provPrisons = prisons.filter(p => p.location.toLowerCase() === provinceName.toLowerCase());
-        prisonCount = provPrisons.length;
-        capacity = provPrisons.reduce((acc, p) => acc + (p.operationalCapacity || p.capacity || 200), 0) || 1;
-        
-        const provPrisonIds = provPrisons.map(p => p.id);
-        const provInmates = inmates.filter(i => provPrisonIds.includes(i.assignedPrisonId));
-        totalInmates = provInmates.length;
-        
-        criticalInmates = provInmates.filter(i => i.riskLevel === "MÁXIMO" || i.riskLevel === "ALTO").length;
-        activeIncidents = Math.max(0, Math.floor(prisonCount * 0.5));
-        healthAlerts = Math.max(0, Math.floor(totalInmates * 0.02));
+        targetPrisons = prisons.filter(p => 
+          p.location?.toLowerCase().includes(provinceName.toLowerCase()) || 
+          p.province?.toLowerCase() === provinceName.toLowerCase()
+        );
+        const provPrisonIds = targetPrisons.map(p => p.id);
+        targetInmates = inmates.filter(i => provPrisonIds.includes(i.assignedPrisonId));
 
       } else if (selectedHierNode.type === "ESTABLISHMENT" || selectedHierNode.type === "PRISON") {
         const prisonId = selectedHierNode.id;
         const prisonObj = prisons.find(p => p.id === prisonId);
         scopeType = "ESTABLISHMENT";
-        title = prisonObj?.name || selectedHierNode.name || "ESTABELECIMENTO";
-        subTitle = "";
+        title = (prisonObj?.name || selectedHierNode.name || "ESTABELECIMENTO PENITENCIÁRIO").toUpperCase();
+        subTitle = `Unidade Operacional - ${prisonObj?.location || opProvince || "Angola"}`;
         badge = "NÍVEL UNIDADE";
 
-        capacity = prisonObj?.operationalCapacity || prisonObj?.capacity || 250;
-        const localInmates = inmates.filter(i => i.assignedPrisonId === prisonId);
-        totalInmates = localInmates.length;
-
-        criticalInmates = localInmates.filter(i => i.riskLevel === "MÁXIMO" || i.riskLevel === "ALTO").length;
-        activeIncidents = prisonId === "PRIS-01" ? 3 : 1; 
-        healthAlerts = Math.max(0, Math.floor(totalInmates * 0.04));
+        targetPrisons = prisonObj ? [prisonObj] : [];
+        targetInmates = inmates.filter(i => i.assignedPrisonId === prisonId);
 
       } else if (selectedHierNode.type === "PAVILION") {
         scopeType = "PAVILION";
         title = `PAVILHÃO ${selectedHierNode.name?.toUpperCase()}`;
-        subTitle = "";
+        subTitle = selectedHierNode.parentId ? `Estabelecimento: ${prisons.find(p => p.id === selectedHierNode.parentId)?.name || selectedHierNode.parentId}` : "Pavilhão Carcerário";
         badge = "NÍVEL PAVILHÃO";
 
-        capacity = 80; // Hardcoded default for single pavilion size
-        const pInmates = inmates.filter(i => i.riskLevel === "MÁXIMO" || i.gender === "M"); // Mock subset
-        totalInmates = Math.min(68, pInmates.length); // Realistic visual scale
-        criticalInmates = Math.floor(totalInmates * 0.35);
-        activeIncidents = 1;
-        healthAlerts = 2;
+        const parentPrison = prisons.find(p => p.id === selectedHierNode.parentId);
+        targetPrisons = parentPrison ? [parentPrison] : [];
+        targetInmates = inmates.filter(i => i.riskLevel === "MÁXIMO" || i.gender === "M");
 
       } else if (selectedHierNode.type === "CELL") {
         scopeType = "CELL";
         title = `CELA N.º ${selectedHierNode.name}`;
-        subTitle = "";
+        subTitle = `Bloco de Custódia - ${selectedHierNode.parentId || "Sector A"}`;
         badge = "NÍVEL COMPARTIMENTO";
 
-        capacity = 12; // cell capacity
-        totalInmates = 8; // standard cell occupants
-        criticalInmates = 2;
-        activeIncidents = 0;
-        healthAlerts = 1;
+        targetPrisons = [];
+        targetInmates = inmates.slice(0, 8);
+      }
+    } else {
+      // Fallback: Infer scope from active operator context when no node is selected in tree
+      if (opPrisonId || opRole === "DIRECTOR_CADEIA" || opRole === "CHEFE_SEGURANCA" || opRole === "CHEFE_SAUDE") {
+        const prisonObj = prisons.find(p => p.id === opPrisonId) || prisons.find(p => p.name?.toLowerCase().includes((opProvince || "huambo").toLowerCase())) || prisons[0];
+        scopeType = "ESTABLISHMENT";
+        badge = "NÍVEL UNIDADE";
+        scopeId = prisonObj?.id || opPrisonId || "EP-LOCAL";
+        title = (prisonObj?.name || "CADEIA CENTRAL DO HUAMBO").toUpperCase();
+        subTitle = `Direcção do Estabelecimento Penitenciário - ${opProvince || "Huambo"}`;
+
+        targetPrisons = prisonObj ? [prisonObj] : prisons;
+        targetInmates = prisonObj ? inmates.filter(i => i.assignedPrisonId === prisonObj.id) : inmates;
+
+      } else if (opLevel === "PROVINCIAL" || opRole === "DIRECTOR_PROVINCIAL" || (opProvince && opProvince !== "Centro Operacional" && opProvince !== "Nacional")) {
+        const provName = opProvince || "Huambo";
+        scopeType = "PROVINCE";
+        badge = "NÍVEL PROVINCIAL";
+        scopeId = `DP-${provName.toUpperCase()}`;
+        title = `DIRECÇÃO PROVINCIAL DO ${provName.toUpperCase()}`;
+        subTitle = `Comando Provincial do Serviço Penitenciário (${provName})`;
+
+        targetPrisons = prisons.filter(p => 
+          p.location?.toLowerCase().includes(provName.toLowerCase()) || 
+          p.province?.toLowerCase() === provName.toLowerCase()
+        );
+        const provPrisonIds = targetPrisons.map(p => p.id);
+        targetInmates = provPrisonIds.length > 0 ? inmates.filter(i => provPrisonIds.includes(i.assignedPrisonId)) : inmates;
       }
     }
 
+    // Calculations based on scoped targetPrisons and targetInmates
+    let totalInmates = targetInmates.length;
+    let capacity = targetPrisons.reduce((acc, p) => acc + (p.operationalCapacity || p.capacity || 200), 0) || (scopeType === "CELL" ? 12 : scopeType === "PAVILION" ? 80 : 250);
+    let prisonCount = targetPrisons.length;
+    let activeIncidents = incidentAlerts?.length ? Math.min(incidentAlerts.length, Math.max(1, prisonCount)) : 2;
+    let criticalInmates = targetInmates.filter(i => i.riskLevel === "MÁXIMO" || i.riskLevel === "ALTO").length;
+    let healthAlerts = healthRecords?.filter(h => h.severity === "Grave" || h.severity === "Crítico").length || Math.max(0, Math.floor(totalInmates * 0.03));
     const occupancyRate = capacity > 0 ? Math.round((totalInmates / capacity) * 100) : 0;
-    
+
     return {
       title,
       subTitle,
       badge,
       scopeType,
+      scopeId,
       totalInmates,
       capacity,
       prisonCount,
@@ -295,15 +318,18 @@ export function OperationalInspector({
             {/* Scope Badge & Main Info Block */}
             <div className="p-3.5 bg-gradient-to-b from-[#090e16]/80 to-[#070a10] border-b border-slate-900/40 shrink-0">
               <div className="flex items-center justify-between">
-                <span className="bg-slate-900 border border-slate-800 text-slate-350 px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-widest">
+                <span className="bg-slate-900 border border-slate-800 text-amber-400 px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-widest">
                   {stats.badge}
                 </span>
                 <span className="text-[8px] font-mono text-slate-400">
-                  ID: <strong className="text-amber-400 uppercase font-bold">{selectedHierNode?.id || "NULO"}</strong>
+                  ID: <strong className="text-amber-400 uppercase font-bold">{stats.scopeId}</strong>
                 </span>
               </div>
+              <div className="text-[11px] font-sans font-bold text-slate-100 mt-1.5 leading-tight">
+                {stats.title}
+              </div>
               {stats.subTitle ? (
-                <p className="text-[9px] font-mono text-slate-500 mt-1">
+                <p className="text-[9px] font-mono text-slate-400 mt-0.5">
                   {stats.subTitle}
                 </p>
               ) : null}

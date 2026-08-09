@@ -3508,7 +3508,6 @@ export function LegislationModule({
             <div className="border-b border-slate-900 pb-3 flex justify-between items-center">
               <div>
                 <span className="text-xs font-mono font-bold text-indigo-400 uppercase block">Consultor Governamental e Normativo do S.P.A.</span>
-                <p className="text-xxs text-slate-400 font-sans mt-0.5">Análise em tempo real de conformidade e referências cruzadas de legislação penitenciária nacional e internacional.</p>
               </div>
               <span className="bg-slate-900 border border-slate-800 text-[10px] text-indigo-400 px-2 py-0.5 font-mono rounded">
                 AI Legal Counsel
