@@ -12,12 +12,12 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Instalar dependências
@@ -38,7 +38,7 @@ jobs:
 
       # (Opcional) Upload do artefato gerado (pasta dist/) para análise
       - name: Upload dos artefatos (opcional)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pnap-frontend-dist
           path: dist/

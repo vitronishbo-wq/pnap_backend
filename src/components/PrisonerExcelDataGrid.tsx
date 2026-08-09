@@ -1,4 +1,5 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
+import { List } from "react-window";
 import { 
   Search, 
   Download, 
@@ -11,11 +12,7 @@ import {
   Camera, 
   ExternalLink,
   ArrowUpDown,
-  Sparkles,
-  ChevronDown,
-  Layers,
-  UserCheck,
-  Check
+  Sparkles
 } from "lucide-react";
 
 interface Inmate {
@@ -57,6 +54,236 @@ interface PrisonerExcelDataGridProps {
   bulkActionsNode?: React.ReactNode;
 }
 
+interface PrisonerRowProps {
+  sortedInmates: Inmate[];
+  prisons: Prison[];
+  selectedInmateIds: string[];
+  onToggleSelectInmate: (id: string) => void;
+  onUploadPhoto: (id: string, photoDataUrl: string) => void;
+  onSelectDocumentCode: (code: string) => void;
+  onTransferInmate: (id: string, prisonId: string) => void;
+  onExportPDF: (inm: Inmate) => void;
+  onEditAndSign: (inm: Inmate) => void;
+  onToggleHistory: (id: string) => void;
+  setSelectedCell: (cell: { rowIdx: number; colIdx: number }) => void;
+}
+
+function PrisonerRow({
+  index,
+  style,
+  sortedInmates,
+  prisons,
+  selectedInmateIds,
+  onToggleSelectInmate,
+  onUploadPhoto,
+  onSelectDocumentCode,
+  onTransferInmate,
+  onExportPDF,
+  onEditAndSign,
+  onToggleHistory,
+  setSelectedCell
+}: { index: number; style: React.CSSProperties } & PrisonerRowProps) {
+  const inm = sortedInmates[index];
+  if (!inm) return null;
+  const isSelected = selectedInmateIds.includes(inm.id);
+  const prName =
+    prisons.find((p) => p.id === inm.assignedPrisonId)?.name.replace("Estabelecimento Penitenciário de ", "EP ") ||
+    "EP Viana";
+
+  return (
+    <div
+      style={style}
+      className={`flex items-center border-b border-slate-850/60 font-mono text-[9.5px] transition-colors ${
+        isSelected
+          ? "bg-amber-500/15 border-l-2 border-l-amber-500"
+          : index % 2 === 0
+          ? "bg-slate-950/40"
+          : "bg-slate-900/20"
+      } hover:bg-amber-500/10 cursor-pointer`}
+    >
+      {/* Row Index */}
+      <div className="w-8 shrink-0 text-center border-r border-slate-800 font-mono text-[8px] text-slate-500 bg-slate-900/40 select-none flex items-center justify-center h-full">
+        {index + 1}
+      </div>
+
+      {/* Checkbox */}
+      <div
+        className="w-8 shrink-0 text-center border-r border-slate-800 px-1 flex items-center justify-center h-full"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggleSelectInmate(inm.id)}
+          className="h-3 w-3 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
+        />
+      </div>
+
+      {/* Mugshot & RNR */}
+      <div
+        onClick={() => setSelectedCell({ rowIdx: index, colIdx: 0 })}
+        className="w-28 shrink-0 px-2 py-1 border-r border-slate-800/80 flex items-center gap-2 overflow-hidden h-full"
+      >
+        <label
+          htmlFor={`grid-photo-${inm.id}`}
+          className="w-6 h-7 border border-slate-800 rounded overflow-hidden shrink-0 bg-slate-900 relative group cursor-pointer"
+          title="Substituir foto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {inm.photo ? (
+            <img src={inm.photo} alt="Thumbnail" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-slate-950 text-slate-600">
+              <Camera className="h-3 w-3" />
+            </div>
+          )}
+        </label>
+        <input
+          id={`grid-photo-${inm.id}`}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onloadend = () => onUploadPhoto(inm.id, reader.result as string);
+              reader.readAsDataURL(file);
+            }
+          }}
+        />
+        <span className="font-bold text-slate-300 font-mono text-[9px] truncate">{inm.id}</span>
+      </div>
+
+      {/* Full Name */}
+      <div
+        onClick={() => setSelectedCell({ rowIdx: index, colIdx: 1 })}
+        className="min-w-[160px] flex-1 px-2.5 py-1 border-r border-slate-800/80 font-bold text-slate-100 truncate flex items-center h-full"
+      >
+        {inm.firstName} {inm.lastName}
+      </div>
+
+      {/* BI */}
+      <div
+        onClick={() => setSelectedCell({ rowIdx: index, colIdx: 2 })}
+        className="w-28 shrink-0 px-2.5 py-1 border-r border-slate-800/80 text-slate-350 truncate flex items-center h-full"
+      >
+        {inm.idCard}
+      </div>
+
+      {/* Risk Level */}
+      <div
+        onClick={() => setSelectedCell({ rowIdx: index, colIdx: 3 })}
+        className="w-20 shrink-0 px-2 py-1 border-r border-slate-800/80 text-center flex items-center justify-center h-full"
+      >
+        <span
+          className={`px-1.5 py-0.2 rounded text-[8px] font-bold uppercase border ${
+            inm.riskLevel === "Máximo" || inm.riskLevel === "Alto"
+              ? "bg-red-500/10 text-red-400 border-red-500/30"
+              : inm.riskLevel === "Médio"
+              ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+              : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+          }`}
+        >
+          {inm.riskLevel}
+        </span>
+      </div>
+
+      {/* Prison Unit & Cell */}
+      <div
+        onClick={() => setSelectedCell({ rowIdx: index, colIdx: 4 })}
+        className="w-36 shrink-0 px-2.5 py-1 border-r border-slate-800/80 truncate text-slate-300 flex items-center h-full"
+      >
+        <span className="font-medium text-sky-400 truncate">{prName}</span>
+        <span className="text-slate-500 text-[8px] ml-1 shrink-0">({inm.assignedCellNumber || "N/A"})</span>
+      </div>
+
+      {/* Crypto Seal */}
+      <div
+        onClick={() => setSelectedCell({ rowIdx: index, colIdx: 5 })}
+        className="w-28 shrink-0 px-2 py-1 border-r border-slate-800/80 text-center flex items-center justify-center h-full"
+      >
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelectDocumentCode(inm.documentCode);
+          }}
+          className="text-amber-500 hover:underline text-[8.5px] font-mono flex items-center justify-center gap-1 mx-auto cursor-pointer truncate"
+        >
+          {inm.documentCode} <ExternalLink className="h-2.5 w-2.5 shrink-0" />
+        </button>
+      </div>
+
+      {/* Status */}
+      <div
+        onClick={() => setSelectedCell({ rowIdx: index, colIdx: 6 })}
+        className="w-20 shrink-0 px-2 py-1 border-r border-slate-800/80 text-center flex items-center justify-center h-full"
+      >
+        <span
+          className={`px-1.5 py-0.2 rounded text-[8px] font-bold uppercase ${
+            inm.status === "PENDING_SYNC"
+              ? "bg-amber-500/10 text-amber-400 animate-pulse"
+              : "bg-emerald-500/10 text-emerald-400"
+          }`}
+        >
+          {inm.status === "PENDING_SYNC" ? "Offline" : "Ativo"}
+        </span>
+      </div>
+
+      {/* Quick Custody Actions */}
+      <div
+        className="min-w-[210px] shrink-0 px-2 py-1 border-r border-slate-800/80 flex items-center gap-1.5 h-full"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Quick Transfer Select */}
+        <select
+          value={inm.assignedPrisonId}
+          onChange={(e) => onTransferInmate(inm.id, e.target.value)}
+          className="bg-slate-950 border border-slate-800 rounded px-1 py-0.5 text-[8.5px] text-slate-300 font-mono focus:outline-none focus:border-amber-500 cursor-pointer w-24"
+          title="Transferir unidade"
+        >
+          {prisons.map((pr) => (
+            <option key={pr.id} value={pr.id}>
+              {pr.name.replace("Estabelecimento Penitenciário de ", "EP ")}
+            </option>
+          ))}
+        </select>
+
+        {/* PDF Download */}
+        <button
+          type="button"
+          onClick={() => onExportPDF(inm)}
+          className="p-1 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-amber-500 rounded cursor-pointer"
+          title="Descarregar Ficha PDF"
+        >
+          <Printer className="h-3 w-3" />
+        </button>
+
+        {/* Edit & Sign */}
+        <button
+          type="button"
+          onClick={() => onEditAndSign(inm)}
+          className="px-1.5 py-0.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded text-[8px] font-bold flex items-center gap-1 cursor-pointer"
+          title="Editar e Assinar"
+        >
+          <ShieldCheck className="h-3 w-3" /> Editar
+        </button>
+
+        {/* History Log Toggle */}
+        <button
+          type="button"
+          onClick={() => onToggleHistory(inm.id)}
+          className="p-1 bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 rounded cursor-pointer"
+          title="Histórico de Alterações"
+        >
+          <History className="h-3 w-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function PrisonerExcelDataGrid({
   inmates,
   prisons,
@@ -66,31 +293,22 @@ export function PrisonerExcelDataGrid({
   onToggleSelectInmate,
   onSelectAllInmates,
   onTransferInmate,
-  onEditRiskInmate,
   onUploadPhoto,
   onExportPDF,
   onEditAndSign,
   onToggleHistory,
-  selectedHistoryId,
-  historyLogs,
   onSelectDocumentCode,
   bulkActionsNode
 }: PrisonerExcelDataGridProps) {
   const [sortField, setSortField] = useState<keyof Inmate | "fullName">("fullName");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [selectedCell, setSelectedCell] = useState<{ rowIdx: number; colIdx: number } | null>({ rowIdx: 0, colIdx: 0 });
-  const [density, setDensity] = useState<"compact" | "normal" | "micro">("compact");
+  const [density, setDensity] = useState<"compact" | "micro">("compact");
   const [isFullScreen, setIsFullScreen] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
-
-  const rowHeight = density === "micro" ? 36 : density === "compact" ? 44 : 56;
+  const rowHeight = density === "micro" ? 38 : 46;
   const maxContainerHeight = 440;
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setScrollTop(e.currentTarget.scrollTop);
-  };
+  const listHeight = isFullScreen ? 600 : maxContainerHeight;
 
   // Filtered inmates
   const filteredInmates = useMemo(() => {
@@ -124,16 +342,6 @@ export function PrisonerExcelDataGrid({
       return 0;
     });
   }, [filteredInmates, sortField, sortDir]);
-
-  // Virtualized row slice calculation
-  const totalCount = sortedInmates.length;
-  const totalContentHeight = totalCount * rowHeight;
-  const buffer = 4;
-  const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - buffer);
-  const endIndex = Math.min(totalCount, Math.ceil((scrollTop + maxContainerHeight) / rowHeight) + buffer);
-
-  const visibleRows = sortedInmates.slice(startIndex, endIndex);
-  const offsetY = startIndex * rowHeight;
 
   const handleSort = (field: keyof Inmate | "fullName") => {
     if (sortField === field) {
@@ -193,7 +401,7 @@ export function PrisonerExcelDataGrid({
   return (
     <div
       className={`overflow-x-auto rounded-lg border border-slate-850 bg-slate-950/20 text-left font-mono text-[9.5px] text-slate-300 transition-all ${
-        isFullScreen ? "fixed inset-2 z-50 bg-slate-950" : ""
+        isFullScreen ? "fixed inset-2 z-50 bg-slate-950 shadow-2xl" : ""
       }`}
     >
       {/* Excel Toolbar */}
@@ -205,20 +413,20 @@ export function PrisonerExcelDataGrid({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-slate-100 text-xs tracking-tight">
-                Matriz de Reclusos • Grelha Virtualizada Excel
+                Matriz de Reclusos • Grelha Virtualizada react-window
               </span>
-              <span className="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 rounded font-bold uppercase">
-                Zero Overflow Slicing
+              <span className="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 rounded font-bold uppercase flex items-center gap-1">
+                <Sparkles className="h-2.5 w-2.5" /> High Performance
               </span>
             </div>
             <p className="text-[9px] text-slate-400 font-sans">
-              Gestão de grande volume de reclusos em grelha compacta de alto rendimento.
+              Gestão de grande volume de reclusos com renderização virtualizada react-window.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Real-time search filter inside grid */}
+          {/* Real-time Search */}
           <div className="relative flex items-center">
             <Search className="absolute left-2.5 h-3 w-3 text-slate-500" />
             <input
@@ -246,14 +454,14 @@ export function PrisonerExcelDataGrid({
               onClick={() => setDensity("micro")}
               className={`px-1.5 py-0.5 text-[8px] rounded ${density === "micro" ? "bg-amber-500 text-slate-950 font-bold" : "text-slate-400"}`}
             >
-              Micro (36px)
+              Micro (38px)
             </button>
             <button
               type="button"
               onClick={() => setDensity("compact")}
               className={`px-1.5 py-0.5 text-[8px] rounded ${density === "compact" ? "bg-amber-500 text-slate-950 font-bold" : "text-slate-400"}`}
             >
-              Compacto (44px)
+              Compacto (46px)
             </button>
           </div>
 
@@ -294,336 +502,141 @@ export function PrisonerExcelDataGrid({
       {/* Optional Bulk Actions Node */}
       {bulkActionsNode && <div className="bg-slate-900/60 border-b border-slate-850 p-2">{bulkActionsNode}</div>}
 
-      {/* Main Virtualized Grid Container */}
-      <div
-        ref={containerRef}
-        onScroll={handleScroll}
-        style={{ height: isFullScreen ? "calc(100vh - 140px)" : `${maxContainerHeight}px` }}
-        className="overflow-x-auto overflow-y-auto relative scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-950 bg-slate-950/40"
-      >
-        <table className="w-full text-left border-collapse font-mono text-[9.5px]">
-          {/* Sticky Header */}
-          <thead className="sticky top-0 z-20 bg-slate-950 shadow-md">
-            {/* Excel letters */}
-            <tr className="bg-slate-900/90 text-slate-500 border-b border-slate-800 text-[8px] font-bold text-center select-none">
-              <th className="w-8 border-r border-slate-800 py-0.5 bg-slate-950">#</th>
-              <th className="w-8 border-r border-slate-800 py-0.5 bg-slate-950">
-                <input
-                  type="checkbox"
-                  checked={isAllSelected}
-                  onChange={() => onSelectAllInmates(sortedInmates)}
-                  className="h-3 w-3 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
-                />
-              </th>
-              {["A", "B", "C", "D", "E", "F", "G", "H"].map((lettr) => (
-                <th key={lettr} className="border-r border-slate-800 py-0.5 text-slate-500">
-                  {lettr}
-                </th>
-              ))}
-            </tr>
+      {/* Scrollable Virtualized Table Container */}
+      <div className="overflow-x-auto w-full">
+        {/* Sticky Header Row */}
+        <div className="sticky top-0 z-20 bg-slate-950 border-b border-slate-800 shadow-md min-w-max">
+          {/* Excel Letters Header */}
+          <div className="flex items-center bg-slate-900/90 text-slate-500 border-b border-slate-800 text-[8px] font-bold select-none">
+            <div className="w-8 shrink-0 text-center border-r border-slate-800 py-0.5 bg-slate-950 text-slate-600">
+              #
+            </div>
+            <div className="w-8 shrink-0 text-center border-r border-slate-800 py-0.5 bg-slate-950">
+              <input
+                type="checkbox"
+                checked={isAllSelected}
+                onChange={() => onSelectAllInmates(sortedInmates)}
+                className="h-3 w-3 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
+              />
+            </div>
+            {["A", "B", "C", "D", "E", "F", "G", "H"].map((lettr) => (
+              <div
+                key={lettr}
+                className={`border-r border-slate-800 py-0.5 text-center text-slate-500 ${
+                  lettr === "A" ? "w-28 shrink-0" :
+                  lettr === "B" ? "min-w-[160px] flex-1" :
+                  lettr === "C" ? "w-28 shrink-0" :
+                  lettr === "D" ? "w-20 shrink-0" :
+                  lettr === "E" ? "w-36 shrink-0" :
+                  lettr === "F" ? "w-28 shrink-0" :
+                  lettr === "G" ? "w-20 shrink-0" :
+                  "min-w-[210px] shrink-0"
+                }`}
+              >
+                {lettr}
+              </div>
+            ))}
+          </div>
 
-            {/* Column Headers */}
-            <tr className="bg-slate-950 text-slate-400 uppercase tracking-wider text-[8px] font-bold border-b border-slate-800">
-              <th className="w-8 text-center border-r border-slate-800 py-2 bg-slate-900/90 text-slate-500">
-                Linha
-              </th>
-              <th className="w-8 text-center border-r border-slate-800 py-2 bg-slate-900/90">
-                SEL
-              </th>
+          {/* Column Names Header */}
+          <div className="flex items-center bg-slate-950 text-slate-400 uppercase tracking-wider text-[8px] font-bold">
+            <div className="w-8 shrink-0 text-center border-r border-slate-800 py-2 bg-slate-900/90 text-slate-500">
+              Linha
+            </div>
+            <div className="w-8 shrink-0 text-center border-r border-slate-800 py-2 bg-slate-900/90">
+              SEL
+            </div>
 
-              <th onClick={() => handleSort("id")} className="px-2 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer w-24">
-                <div className="flex items-center justify-between">
-                  <span>Mugshot / RNR</span>
-                  <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
-                </div>
-              </th>
+            <div
+              onClick={() => handleSort("id")}
+              className="w-28 shrink-0 px-2 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer flex items-center justify-between"
+            >
+              <span>Mugshot / RNR</span>
+              <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
+            </div>
 
-              <th onClick={() => handleSort("fullName")} className="px-2.5 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer min-w-[150px]">
-                <div className="flex items-center justify-between">
-                  <span>Nome do Recluso</span>
-                  <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
-                </div>
-              </th>
+            <div
+              onClick={() => handleSort("fullName")}
+              className="min-w-[160px] flex-1 px-2.5 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer flex items-center justify-between"
+            >
+              <span>Nome do Recluso</span>
+              <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
+            </div>
 
-              <th onClick={() => handleSort("idCard")} className="px-2.5 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer w-28">
-                <div className="flex items-center justify-between">
-                  <span>Nº B.I.</span>
-                  <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
-                </div>
-              </th>
+            <div
+              onClick={() => handleSort("idCard")}
+              className="w-28 shrink-0 px-2.5 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer flex items-center justify-between"
+            >
+              <span>Nº B.I.</span>
+              <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
+            </div>
 
-              <th onClick={() => handleSort("riskLevel")} className="px-2 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer w-24 text-center">
-                <div className="flex items-center justify-between">
-                  <span>Risco</span>
-                  <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
-                </div>
-              </th>
+            <div
+              onClick={() => handleSort("riskLevel")}
+              className="w-20 shrink-0 px-2 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer flex items-center justify-between justify-center"
+            >
+              <span>Risco</span>
+              <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
+            </div>
 
-              <th onClick={() => handleSort("assignedPrisonId")} className="px-2.5 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer min-w-[130px]">
-                <div className="flex items-center justify-between">
-                  <span>Unidade & Cela</span>
-                  <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
-                </div>
-              </th>
+            <div
+              onClick={() => handleSort("assignedPrisonId")}
+              className="w-36 shrink-0 px-2.5 py-2 border-r border-slate-800 hover:bg-slate-900 cursor-pointer flex items-center justify-between"
+            >
+              <span>Unidade & Cela</span>
+              <ArrowUpDown className="h-2.5 w-2.5 text-slate-600" />
+            </div>
 
-              <th className="px-2 py-2 border-r border-slate-800 w-28 text-center">
-                Selo Cripto
-              </th>
+            <div className="w-28 shrink-0 px-2 py-2 border-r border-slate-800 text-center">
+              Selo Cripto
+            </div>
 
-              <th className="px-2 py-2 border-r border-slate-800 w-20 text-center">
-                Estado
-              </th>
+            <div className="w-20 shrink-0 px-2 py-2 border-r border-slate-800 text-center">
+              Estado
+            </div>
 
-              <th className="px-2.5 py-2 border-r border-slate-800 min-w-[200px] text-center">
-                Ações Rápidas de Custódia
-              </th>
-            </tr>
-          </thead>
+            <div className="min-w-[210px] shrink-0 px-2.5 py-2 border-r border-slate-800 text-center">
+              Ações Rápidas de Custódia
+            </div>
+          </div>
+        </div>
 
-          {/* Virtualized Body */}
-          <tbody>
-            {offsetY > 0 && (
-              <tr>
-                <td colSpan={10} style={{ height: `${offsetY}px` }} />
-              </tr>
-            )}
-
-            {visibleRows.length === 0 ? (
-              <tr>
-                <td colSpan={10} className="py-12 text-center text-slate-500 font-sans italic">
-                  Nenhum recluso corresponde à pesquisa ativa.
-                </td>
-              </tr>
-            ) : (
-              visibleRows.map((inm, visibleIdx) => {
-                const actualRowIdx = startIndex + visibleIdx;
-                const isSelected = selectedInmateIds.includes(inm.id);
-                const prName = prisons.find((p) => p.id === inm.assignedPrisonId)?.name.replace("Estabelecimento Penitenciário de ", "EP ") || "EP Viana";
-
-                return (
-                  <tr
-                    key={inm.id}
-                    style={{ height: `${rowHeight}px` }}
-                    className={`transition-colors border-b border-slate-850/60 ${
-                      isSelected
-                        ? "bg-amber-500/15 border-l-2 border-l-amber-500"
-                        : actualRowIdx % 2 === 0
-                        ? "bg-slate-950/40"
-                        : "bg-slate-900/20"
-                    } hover:bg-amber-500/10 cursor-pointer`}
-                  >
-                    {/* Row Index */}
-                    <td className="w-8 text-center border-r border-slate-800 font-mono text-[8px] text-slate-500 bg-slate-900/40 select-none">
-                      {actualRowIdx + 1}
-                    </td>
-
-                    {/* Checkbox */}
-                    <td className="w-8 text-center border-r border-slate-800 px-1" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => onToggleSelectInmate(inm.id)}
-                        className="h-3 w-3 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
-                      />
-                    </td>
-
-                    {/* Mugshot & RNR */}
-                    <td
-                      onClick={() => setSelectedCell({ rowIdx: actualRowIdx, colIdx: 0 })}
-                      className="px-2 py-1 border-r border-slate-800/80"
-                    >
-                      <div className="flex items-center gap-2">
-                        <label
-                          htmlFor={`grid-photo-${inm.id}`}
-                          className="w-7 h-8 border border-slate-800 rounded overflow-hidden shrink-0 bg-slate-900 relative group cursor-pointer"
-                          title="Substituir foto"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {inm.photo ? (
-                            <img src={inm.photo} alt="Thumbnail" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-slate-950 text-slate-600">
-                              <Camera className="h-3 w-3" />
-                            </div>
-                          )}
-                        </label>
-                        <input
-                          id={`grid-photo-${inm.id}`}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => onUploadPhoto(inm.id, reader.result as string);
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                        />
-                        <span className="font-bold text-slate-300 font-mono text-[9px]">{inm.id}</span>
-                      </div>
-                    </td>
-
-                    {/* Full Name */}
-                    <td
-                      onClick={() => setSelectedCell({ rowIdx: actualRowIdx, colIdx: 1 })}
-                      className="px-2.5 py-1 border-r border-slate-800/80 font-bold text-slate-100 truncate"
-                    >
-                      {inm.firstName} {inm.lastName}
-                    </td>
-
-                    {/* BI */}
-                    <td
-                      onClick={() => setSelectedCell({ rowIdx: actualRowIdx, colIdx: 2 })}
-                      className="px-2.5 py-1 border-r border-slate-800/80 text-slate-350"
-                    >
-                      {inm.idCard}
-                    </td>
-
-                    {/* Risk Level */}
-                    <td
-                      onClick={() => setSelectedCell({ rowIdx: actualRowIdx, colIdx: 3 })}
-                      className="px-2 py-1 border-r border-slate-800/80 text-center"
-                    >
-                      <span
-                        className={`px-1.5 py-0.2 rounded text-[8px] font-bold uppercase border ${
-                          inm.riskLevel === "Máximo" || inm.riskLevel === "Alto"
-                            ? "bg-red-500/10 text-red-400 border-red-500/30"
-                            : inm.riskLevel === "Médio"
-                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                        }`}
-                      >
-                        {inm.riskLevel}
-                      </span>
-                    </td>
-
-                    {/* Prison Unit & Cell */}
-                    <td
-                      onClick={() => setSelectedCell({ rowIdx: actualRowIdx, colIdx: 4 })}
-                      className="px-2.5 py-1 border-r border-slate-800/80 truncate text-slate-300"
-                    >
-                      <span className="font-medium text-sky-400">{prName}</span>
-                      <span className="text-slate-500 text-[8px] ml-1.5">({inm.assignedCellNumber || "N/A"})</span>
-                    </td>
-
-                    {/* Crypto Seal */}
-                    <td
-                      onClick={() => setSelectedCell({ rowIdx: actualRowIdx, colIdx: 5 })}
-                      className="px-2 py-1 border-r border-slate-800/80 text-center"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectDocumentCode(inm.documentCode);
-                        }}
-                        className="text-amber-500 hover:underline text-[8.5px] font-mono flex items-center justify-center gap-1 mx-auto cursor-pointer"
-                      >
-                        {inm.documentCode} <ExternalLink className="h-2.5 w-2.5" />
-                      </button>
-                    </td>
-
-                    {/* Status */}
-                    <td
-                      onClick={() => setSelectedCell({ rowIdx: actualRowIdx, colIdx: 6 })}
-                      className="px-2 py-1 border-r border-slate-800/80 text-center"
-                    >
-                      <span
-                        className={`px-1.5 py-0.2 rounded text-[8px] font-bold uppercase ${
-                          inm.status === "PENDING_SYNC"
-                            ? "bg-amber-500/10 text-amber-400 animate-pulse"
-                            : "bg-emerald-500/10 text-emerald-400"
-                        }`}
-                      >
-                        {inm.status === "PENDING_SYNC" ? "Offline" : "Ativo"}
-                      </span>
-                    </td>
-
-                    {/* Quick Custody Actions */}
-                    <td className="px-2 py-1 border-r border-slate-800/80" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {/* Quick Transfer Select */}
-                        <select
-                          value={inm.assignedPrisonId}
-                          onChange={(e) => onTransferInmate(inm.id, e.target.value)}
-                          className="bg-slate-950 border border-slate-800 rounded px-1 py-0.5 text-[8.5px] text-slate-300 font-mono focus:outline-none focus:border-amber-500 cursor-pointer w-24"
-                          title="Transferir unidade"
-                        >
-                          {prisons.map((pr) => (
-                            <option key={pr.id} value={pr.id}>
-                              {pr.name.replace("Estabelecimento Penitenciário de ", "EP ")}
-                            </option>
-                          ))}
-                        </select>
-
-                        {/* PDF Download */}
-                        <button
-                          type="button"
-                          onClick={() => onExportPDF(inm)}
-                          className="p-1 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-amber-500 rounded cursor-pointer"
-                          title="Descarregar Ficha PDF"
-                        >
-                          <Printer className="h-3 w-3" />
-                        </button>
-
-                        {/* Edit & Sign */}
-                        <button
-                          type="button"
-                          onClick={() => onEditAndSign(inm)}
-                          className="px-1.5 py-0.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded text-[8px] font-bold flex items-center gap-1 cursor-pointer"
-                          title="Editar e Assinar"
-                        >
-                          <ShieldCheck className="h-3 w-3" /> Editar
-                        </button>
-
-                        {/* History Log Toggle */}
-                        <button
-                          type="button"
-                          onClick={() => onToggleHistory(inm.id)}
-                          className="p-1 bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 rounded cursor-pointer"
-                          title="Histórico de Alterações"
-                        >
-                          <History className="h-3 w-3" />
-                        </button>
-                      </div>
-
-                      {/* Inline History Trail overlay if expanded */}
-                      {selectedHistoryId === inm.id && (
-                        <div className="mt-1 p-2 bg-slate-950 border border-slate-800 rounded text-[8px] font-mono flex flex-col gap-1 max-h-32 overflow-y-auto">
-                          <span className="text-amber-500 font-bold">Rastreabilidade Forense ({historyLogs.filter((l) => l.inmateId === inm.id).length}):</span>
-                          {historyLogs.filter((l) => l.inmateId === inm.id).length === 0 ? (
-                            <span className="text-slate-500 italic">Sem histórico de alterações.</span>
-                          ) : (
-                            historyLogs.filter((l) => l.inmateId === inm.id).map((l) => (
-                              <div key={l.id} className="border-b border-slate-900 pb-1">
-                                <span className="text-slate-400">{l.operatorName}:</span> Alterou <span className="text-amber-400">{l.fieldName}</span> de "{l.oldValue}" para "{l.newValue}"
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-
-            {totalContentHeight - offsetY - visibleRows.length * rowHeight > 0 && (
-              <tr>
-                <td colSpan={10} style={{ height: `${Math.max(0, totalContentHeight - offsetY - visibleRows.length * rowHeight)}px` }} />
-              </tr>
-            )}
-          </tbody>
-        </table>
+        {/* Virtualized Body using react-window List */}
+        {sortedInmates.length === 0 ? (
+          <div className="py-12 text-center text-slate-500 font-sans italic min-w-max">
+            Nenhum recluso corresponde à pesquisa ativa.
+          </div>
+        ) : (
+          <div className="min-w-max">
+            <List
+              rowCount={sortedInmates.length}
+              rowHeight={rowHeight}
+              rowComponent={PrisonerRow as any}
+              rowProps={{
+                sortedInmates,
+                prisons,
+                selectedInmateIds,
+                onToggleSelectInmate,
+                onUploadPhoto,
+                onSelectDocumentCode,
+                onTransferInmate,
+                onExportPDF,
+                onEditAndSign,
+                onToggleHistory,
+                setSelectedCell
+              }}
+              style={{ height: listHeight, width: "100%" }}
+              className="scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-slate-950"
+            />
+          </div>
+        )}
       </div>
 
       {/* Footer Status Bar */}
       <div className="bg-slate-950 border-t border-slate-850 px-3 py-1 flex items-center justify-between text-[8.5px] font-mono text-slate-400 select-none">
         <div className="flex items-center gap-2">
           <span className="text-emerald-400 font-bold uppercase flex items-center gap-1">
-            <Sparkles className="h-2.5 w-2.5" /> GRELHA VIRTUALIZADA ACTIVA
+            <Sparkles className="h-2.5 w-2.5" /> GRELHA VIRTUALIZADA REACT-WINDOW
           </span>
           <span>• Selecionados: {selectedInmateIds.length} reclusos</span>
         </div>

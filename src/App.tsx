@@ -8119,8 +8119,8 @@ export default function App() {
 
                 {/* HUD Telemetry Labels */}
                 <g fontFamily="monospace" fontSize="9" fill="#94a3b8">
-                  <text x="30" y="30" fill="#38bdf8" fontWeight="bold">MININT SISP • LIGAÇÃO SEGURA DE REDE</text>
-                  <text x="30" y="45" fill="#f59e0b">● SISP-MININT 256-BIT Criptografia Activa</text>
+                  <text x="30" y="30" fill="#38bdf8" fontWeight="bold">MININT PNAP.AO • LIGAÇÃO SEGURA DE REDE</text>
+                  <text x="30" y="45" fill="#f59e0b">● PNAP.AO-MININT 256-BIT Criptografia Activa</text>
                   <text x="420" y="450" fill="#94a3b8" textAnchor="end">LAT. 8° 50' S | LONG. 13° 14' E</text>
                 </g>
               </svg>
