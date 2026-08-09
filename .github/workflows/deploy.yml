@@ -21,12 +21,15 @@ jobs:
     name: Publicar no Firebase Hosting (Frontend)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-          
+
       - name: Instalar dependências
         run: npm ci
 
