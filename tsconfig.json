@@ -23,7 +23,5 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": [
-    "prisma/seed.ts"
-  ]
+  "exclude": []
 }

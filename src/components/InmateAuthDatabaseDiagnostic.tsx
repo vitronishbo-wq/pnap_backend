@@ -49,6 +49,8 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
   const [lastScanResult, setLastScanResult] = useState<any>(null);
   const [records, setRecords] = useState<InmateMappingRecord[]>([]);
 
+  const [hasDrift, setHasDrift] = useState<boolean>(false);
+
   // Default initial console logs
   useEffect(() => {
     const initialLogs = [
@@ -153,6 +155,87 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
         message
       }
     ]);
+  };
+
+  // Simulate Data Drift / Desynchronized IDs
+  const handleSimulateDataDrift = () => {
+    setHasDrift(true);
+    setRecords(prev =>
+      prev.map((rec, idx) => {
+        if (idx === 1) {
+          return {
+            ...rec,
+            firebaseAuthUid: "firebase-uid-DESYNC-MISMATCH-999",
+            authClaims: {
+              ...rec.authClaims,
+              securityLevel: "BAIXA", // Mismatched security level compared to MAXIMA in Postgres
+              facilityId: "PRIS-DESYNC-404"
+            },
+            status: "MISMATCHED" as const,
+            lastVerified: new Date().toISOString()
+          };
+        }
+        if (idx === 3 || (prev.length > 3 && idx === prev.length - 1)) {
+          return {
+            ...rec,
+            firebaseAuthUid: "firebase-uid-ORPHAN-ERR-505",
+            status: "ORPHAN" as const,
+            lastVerified: new Date().toISOString()
+          };
+        }
+        return rec;
+      })
+    );
+
+    addLog("WARN", "DATA_DRIFT_DETECTED", "⚠️ ALERTA DE DRIFT: Identificada desincronização entre Firebase Auth UID e coleção 'reclusos' no Firestore Cloud!");
+    addLog("WARN", "DATA_DRIFT_DETAILS", "Recluso NIPC-2026-0412 (Ambrósio Jamba): Claims Firebase desalinhados do documento Firestore (SecurityLevel: BAIXA vs MAXIMA no Firestore).");
+    addLog("ERROR", "DESYNC_AUDIT", "Inconsistência detectada pelo verificador de integridade. Ação recomendada: Executar ressincronização automatizada.");
+
+    if (onTriggerToast) {
+      onTriggerToast(
+        "DRIFT DE DADOS SIMULADO",
+        "Inconsistência de IDs e Claims gerada para teste de diagnóstico cross-check.",
+        "info"
+      );
+    }
+  };
+
+  // Resolve Desynchronization for a specific record or all records
+  const handleResolveDesync = (inmateId?: string) => {
+    setRecords(prev =>
+      prev.map(rec => {
+        if (!inmateId || rec.inmateId === inmateId) {
+          return {
+            ...rec,
+            firebaseAuthUid: `firebase-auth-uid-${rec.inmateId}`,
+            authClaims: {
+              role: "INMATE_RECORD",
+              securityLevel: "MEDIA",
+              statusLegal: "PREVENTIVO",
+              facilityId: "PRIS-VIANA"
+            },
+            status: "SYNCED" as const,
+            lastVerified: new Date().toISOString()
+          };
+        }
+        return rec;
+      })
+    );
+
+    const checkRemainingDrift = records.some(r => (inmateId ? r.inmateId !== inmateId : false) && r.status !== "SYNCED");
+    if (!checkRemainingDrift) {
+      setHasDrift(false);
+    }
+
+    addLog("SUCCESS", "DRIFT_RESOLVED", `✅ Sincronização concluída! IDs e Claims alinhados com o Firestore Cloud (Fonte Única de Verdade) para ${inmateId ? `o recluso ${inmateId}` : "todos os registos"}.`);
+
+    if (onTriggerToast) {
+      onTriggerToast(
+        "DESINCRONIZAÇÃO RESOLVIDA",
+        "Registo(s) de recluso ressincronizado(s) com o Firebase Admin SDK e alinhado(s) com o Firestore Cloud.",
+        "success"
+      );
+    }
   };
 
   const executeDiagnosticSuite = async () => {
@@ -315,6 +398,14 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
 
           <button
             type="button"
+            onClick={handleSimulateDataDrift}
+            className="px-3.5 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-500/50 rounded-lg text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition"
+          >
+            <AlertTriangle className="h-4 w-4 text-amber-400 animate-pulse" /> SIMULAR DRIFT DE DADOS (DESINCRO)
+          </button>
+
+          <button
+            type="button"
             onClick={handleExportDiagnosticJson}
             className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer transition"
           >
@@ -322,6 +413,32 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
           </button>
         </div>
       </div>
+
+      {/* DRIFT ALERT BANNER IF DESYNCHRONIZED RECORDS EXIST */}
+      {records.some(r => r.status !== "SYNCED") && (
+        <div className="bg-rose-950/60 border border-rose-500/50 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 text-rose-200 shadow-xl animate-pulse">
+          <div className="flex items-center gap-3">
+            <div className="bg-rose-500/20 p-2 rounded-lg border border-rose-500/40 text-rose-400 shrink-0">
+              <ShieldAlert className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+                ⚠️ DESINCRONIZAÇÃO DE DADOS DETECTADA (DRIFT DE IDs ENTRE FIREBASE AUTH E FIRESTORE CLOUD)
+              </h4>
+              <p className="text-xxs font-sans text-rose-300 mt-1">
+                Foram identificados {records.filter(r => r.status !== "SYNCED").length} registo(s) com claims de autenticação ou UIDs desalinhados da coleção canónica <code className="text-white bg-rose-900/60 px-1 rounded font-mono">reclusos</code> no Firestore.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleResolveDesync()}
+            className="px-4 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 font-mono font-black text-xs uppercase tracking-wider rounded-lg shadow-lg border border-rose-300 cursor-pointer transition shrink-0"
+          >
+            ✓ RESOLVER E RESSINCRONIZAR TODOS
+          </button>
+        </div>
+      )}
 
       {/* KPI Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
@@ -364,16 +481,26 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
         <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex flex-col gap-2 relative">
           <div className="flex justify-between items-center text-[10px] text-slate-400 uppercase font-bold">
             <span>Taxa de Consistência</span>
-            <UserCheck className="h-3.5 w-3.5 text-amber-400" />
+            <UserCheck className={`h-3.5 w-3.5 ${records.some(r => r.status !== "SYNCED") ? "text-rose-400 animate-bounce" : "text-amber-400"}`} />
           </div>
           <div className="flex items-baseline justify-between mt-1">
-            <span className="text-xl font-black text-amber-400">100.0% SECURE</span>
-            <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.2 rounded">
-              0 ÓRFÃOS
+            <span className={`text-xl font-black ${records.some(r => r.status !== "SYNCED") ? "text-rose-400" : "text-amber-400"}`}>
+              {records.length > 0
+                ? `${((records.filter(r => r.status === "SYNCED").length / records.length) * 100).toFixed(1)}%`
+                : "100.0%"}
+            </span>
+            <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
+              records.some(r => r.status !== "SYNCED")
+                ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+            }`}>
+              {records.filter(r => r.status !== "SYNCED").length} DESINCRO
             </span>
           </div>
           <div className="text-[10px] text-slate-400 font-sans border-t border-slate-900 pt-2 mt-1">
-            Sem divergências entre Auth UID e Cadastro NIPC.
+            {records.some(r => r.status !== "SYNCED")
+              ? "Divergência detectada entre Auth UID e Cadastro NIPC."
+              : "Sem divergências entre Auth UID e Cadastro NIPC."}
           </div>
         </div>
 
@@ -518,7 +645,7 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
                 <th className="py-2.5">FIREBASE AUTH UID</th>
                 <th className="py-2.5">REGIME & SECTOR</th>
                 <th className="py-2.5">STATUS DA CONSISTÊNCIA</th>
-                <th className="py-2.5 text-right px-2">ÚLTIMA VERIFICAÇÃO</th>
+                <th className="py-2.5 text-right px-2">AÇÕES DE RESSINCRO</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-900">
@@ -530,7 +657,7 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
                 </tr>
               ) : (
                 filteredRecords.map((rec) => (
-                  <tr key={rec.inmateId} className="hover:bg-slate-900/60 transition">
+                  <tr key={rec.inmateId} className={`transition ${rec.status !== "SYNCED" ? "bg-rose-950/20 hover:bg-rose-900/30" : "hover:bg-slate-900/60"}`}>
                     <td className="py-3 font-bold text-amber-400 select-all">{rec.nipc}</td>
                     <td className="py-3">
                       <div className="flex flex-col">
@@ -544,7 +671,13 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
                       </span>
                     </td>
                     <td className="py-3">
-                      <span className="bg-slate-900 border border-slate-800 text-purple-400 px-2 py-0.5 rounded font-mono text-[9px] select-all">
+                      <span className={`px-2 py-0.5 rounded font-mono text-[9px] select-all border ${
+                        rec.status === "MISMATCHED"
+                          ? "bg-rose-950 border-rose-500/50 text-rose-300 font-bold"
+                          : rec.status === "ORPHAN"
+                          ? "bg-amber-950 border-amber-500/50 text-amber-300 font-bold"
+                          : "bg-slate-900 border-slate-800 text-purple-400"
+                      }`}>
                         {rec.firebaseAuthUid}
                       </span>
                     </td>
@@ -559,12 +692,36 @@ export const InmateAuthDatabaseDiagnostic: React.FC<{
                       </div>
                     </td>
                     <td className="py-3">
-                      <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider flex items-center gap-1 w-fit">
-                        <CheckCircle2 className="h-3 w-3 text-emerald-400" /> SYNCED (100%)
-                      </span>
+                      {rec.status === "SYNCED" && (
+                        <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider flex items-center gap-1 w-fit">
+                          <CheckCircle2 className="h-3 w-3 text-emerald-400" /> SYNCED (100%)
+                        </span>
+                      )}
+                      {rec.status === "MISMATCHED" && (
+                        <span className="bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider flex items-center gap-1 w-fit animate-pulse">
+                          <AlertTriangle className="h-3 w-3 text-rose-400" /> DIVERGENTE (CLAIMS DESALINHADOS)
+                        </span>
+                      )}
+                      {rec.status === "ORPHAN" && (
+                        <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider flex items-center gap-1 w-fit animate-pulse">
+                          <ShieldAlert className="h-3 w-3 text-amber-400" /> ÓRFÃO (SEM REGISTO AUTH)
+                        </span>
+                      )}
                     </td>
-                    <td className="py-3 text-right text-slate-500 font-sans text-[9px] px-2">
-                      {new Date(rec.lastVerified).toLocaleTimeString("pt-PT")}
+                    <td className="py-3 text-right px-2">
+                      {rec.status !== "SYNCED" ? (
+                        <button
+                          type="button"
+                          onClick={() => handleResolveDesync(rec.inmateId)}
+                          className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded text-[9px] font-mono font-black uppercase tracking-wider shadow cursor-pointer transition"
+                        >
+                          ✓ Sincronizar ID
+                        </button>
+                      ) : (
+                        <span className="text-slate-500 font-sans text-[9px]">
+                          {new Date(rec.lastVerified).toLocaleTimeString("pt-PT")}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))

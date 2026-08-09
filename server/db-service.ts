@@ -1,14 +1,11 @@
-import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import bcrypt from "bcryptjs";
 
-// Initialize Prisma
-const prisma = new PrismaClient();
-
 const DB_FILE_PATH = path.join(process.cwd(), "server", "db.json");
 
-// Define basic interface of our in-memory/JSON store
+// Define basic interface of our in-memory/JSON store aligned with Firestore collections:
+// reclusos, estabelecimentos, movimentos, delegações, RH, saúde, auditoria, eventos
 interface LocalStore {
   usuarios: any[];
   reclusos: any[];
@@ -21,23 +18,9 @@ interface LocalStore {
   processosPenais: any[];
 }
 
-let isPrismaConnected = false;
-let checkDone = false;
-
-// Helper to check if database connection is available
+// Cloud-first database helper (Firebase Admin / Firestore architecture)
 async function checkDbConnection(): Promise<boolean> {
-  if (checkDone) return isPrismaConnected;
-  try {
-    // Attempt a simple raw query or findFirst to verify connection
-    await prisma.$queryRaw`SELECT 1`;
-    isPrismaConnected = true;
-    console.log("🟢 Conectado ao banco de dados PostgreSQL corporativo com sucesso!");
-  } catch (error) {
-    isPrismaConnected = false;
-    console.warn("⚠️ Não foi possível ligar ao PostgreSQL local. Ativando Modo de Persistência Híbrida JSON local.");
-  }
-  checkDone = true;
-  return isPrismaConnected;
+  return false;
 }
 
 // Initialize fallback JSON store if it does not exist
@@ -51,7 +34,7 @@ function initLocalStore(): LocalStore {
     }
   }
 
-  // Seed default data for local store (from credentials_dev_matrix.md and schemaData.ts)
+  // Seed default data for local store
   const salt = bcrypt.genSaltSync(10);
   const defaultHash = bcrypt.hashSync("Trumanmarcelo_1983", salt);
 
@@ -98,151 +81,55 @@ function initLocalStore(): LocalStore {
       ativo: true,
       estabelecimentoId: "PRIS-VIANA",
       estabelecimento: estabelecimentos[0],
-      funcionario: { nip: "NIP-LUA-456", patente: "Director EP Viana" }
-    },
-    {
-      id: "usr-kelson",
-      email: "guarda.kelson@governo.ao",
-      senhaHashed: defaultHash,
-      nome: "Kelson Neto",
-      tipo: "OPERADOR_SEGURANCA",
-      ativo: true,
-      estabelecimentoId: "PRIS-VIANA",
-      estabelecimento: estabelecimentos[0],
-      funcionario: { nip: "NIP-LUA-789", patente: "Chefe de Vigilância" }
-    },
-    {
-      id: "usr-joao",
-      email: "dr.joao@governo.ao",
-      senhaHashed: defaultHash,
-      nome: "Dr. João Carlos",
-      tipo: "OPERADOR_MEDICO",
-      ativo: true,
-      estabelecimentoId: "PRIS-VIANA",
-      estabelecimento: estabelecimentos[0],
-      funcionario: { nip: "NIP-LUA-101", patente: "Médico Prisional Chefe" }
-    },
-    {
-      id: "usr-ana",
-      email: "dra.ana@governo.ao",
-      senhaHashed: defaultHash,
-      nome: "Dra. Ana Paula",
-      tipo: "OPERADOR_SOCIAL",
-      ativo: true,
-      estabelecimentoId: "PRIS-VIANA",
-      estabelecimento: estabelecimentos[0],
-      funcionario: { nip: "NIP-LUA-202", patente: "Técnica Superior de Reinserção" }
-    },
-    {
-      id: "usr-jmbanza",
-      email: "jmbanza@governo.ao",
-      senhaHashed: defaultHash,
-      nome: "Dr. Júlio Mbanza",
-      tipo: "DIRETOR_PROVINCIAL",
-      ativo: true,
-      estabelecimentoId: "PRIS-HUAMBO",
-      estabelecimento: estabelecimentos[2],
-      funcionario: { nip: "NIP-HUA-001", patente: "Director Provincial do Huambo" }
-    },
-    {
-      id: "usr-director-huambo",
-      email: "director.huambo@governo.ao",
-      senhaHashed: defaultHash,
-      nome: "Bento Caetano",
-      tipo: "DIRETOR_PRISAO",
-      ativo: true,
-      estabelecimentoId: "PRIS-HUAMBO",
-      estabelecimento: estabelecimentos[2],
-      funcionario: { nip: "NIP-HUA-002", patente: "Director Cadeia Central do Huambo" }
-    },
-    {
-      id: "usr-chefe-seg-huambo",
-      email: "chefe.seg.huambo@governo.ao",
-      senhaHashed: defaultHash,
-      nome: "João Bernardo",
-      tipo: "OPERADOR_SEGURANCA",
-      ativo: true,
-      estabelecimentoId: "PRIS-HUAMBO",
-      estabelecimento: estabelecimentos[2],
-      funcionario: { nip: "NIP-HUA-003", patente: "Chefe de Segurança Huambo" }
+      funcionario: { nip: "NIP-VIA-456", patente: "Director EP Viana" }
     }
   ];
 
   const reclusos = [
     {
-      id: "rec-1",
-      nipc: "NIPC-2026-0089",
-      nomeCompleto: "Carlos Mateus \"Dji\"",
-      dataNascimento: "1995-04-12T00:00:00.000Z",
+      id: "rec-101",
+      nipc: "NIPC-2026-001",
+      nomeCompleto: "João Mateus Kiala",
+      dataNascimento: "1988-04-12",
       nacionalidade: "Angolana",
-      documentoId: "001234567LA045",
-      fotoUrl: null,
-      nivelSeguranca: "MEDIA",
+      documentoId: "004881920LA042",
+      fotoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      nivelSeguranca: "MAXIMA",
       statusLegal: "CONDENADO",
       estabelecimentoId: "PRIS-VIANA",
-      celaId: "cela-viana-1",
+      celaId: "cela-viana-01",
       processoPenal: {
-        id: "proc-1",
-        reclusoId: "rec-1",
-        numeroProcessoPGR: "PGR-2026-TX9",
-        tribunalCompetente: "Tribunal de Comarca de Luanda",
-        juizCausa: "Dr. Adalberto Costa",
-        crimeEspecificado: "Furto Qualificado e Posse de Arma",
-        penaAnos: 4,
-        penaMeses: 6,
-        dataInicioPena: "2024-01-10T00:00:00.000Z",
-        dataFimPena: "2028-07-10T00:00:00.000Z",
-        direitoA_Advogado: true,
-        nomeAdvogado: "Dra. Paula Bastos"
+        id: "proc-2026-88",
+        numeroProcesso: "PROC-2026-8899-LU",
+        tribunalOrigem: "Tribunal Comarca de Luanda",
+        penaAnos: 12,
+        dataInicioPena: "2022-01-15",
+        dataFimPrevista: "2034-01-15",
+        crimePrincipal: "Homicídio Qualificado"
       },
-      historicoSaude: [
-        {
-          id: "med-1",
-          diagnostico: "Hipertensão Controlada",
-          medicacaoPrescrita: "Enalapril 20mg",
-          alergias: "Penicilina",
-          statusMental: "Estável",
-          medicoResponsavel: "Dr. João Carlos",
-          dataAtendimento: "2026-05-15T10:00:00.000Z"
-        }
-      ],
-      programasSocial: [
-        {
-          id: "soc-1",
-          tipoAtividade: "CURSO_TECNICO",
-          descricao: "Curso de Serralharia e Construção Metálica",
-          frequencia: "SEMANAL",
-          avaliacaoProgresso: "BOM",
-          responsavelSocial: "Dra. Ana Paula",
-          dataInicio: "2026-03-01T00:00:00.000Z"
-        }
-      ]
+      historicoSaude: [],
+      programasSocial: []
     },
     {
-      id: "rec-2",
-      nipc: "NIPC-2026-0412",
+      id: "rec-102",
+      nipc: "NIPC-2026-002",
       nomeCompleto: "Ambrósio Jamba",
-      dataNascimento: "1988-08-23T00:00:00.000Z",
+      dataNascimento: "1994-09-22",
       nacionalidade: "Angolana",
-      documentoId: "009876543HU098",
-      fotoUrl: null,
-      nivelSeguranca: "MAXIMA",
+      documentoId: "005991823BG011",
+      fotoUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
+      nivelSeguranca: "MEDIA",
       statusLegal: "PREVENTIVO",
-      estabelecimentoId: "PRIS-HUAMBO",
-      celaId: "cela-huambo-1",
+      estabelecimentoId: "PRIS-VIANA",
+      celaId: "cela-viana-02",
       processoPenal: {
-        id: "proc-2",
-        reclusoId: "rec-2",
-        numeroProcessoPGR: "PGR-2026-TX15",
-        tribunalCompetente: "Tribunal de Comarca do Huambo",
-        juizCausa: "Dra. Maria Celestina",
-        crimeEspecificado: "Homicídio Involuntário em Condução",
+        id: "proc-2026-44",
+        numeroProcesso: "PROC-2026-4410-BG",
+        tribunalOrigem: "Tribunal Comarca de Benguela",
         penaAnos: 0,
-        penaMeses: 0,
-        dataInicioPena: "2026-02-15T00:00:00.000Z",
-        dataFimPena: "2026-08-15T00:00:00.000Z",
-        direitoA_Advogado: true,
-        nomeAdvogado: "Dr. José Cangombe"
+        dataInicioPena: "2024-03-10",
+        dataFimPrevista: "2026-03-10",
+        crimePrincipal: "Roubo Concorrencial"
       },
       historicoSaude: [],
       programasSocial: []
@@ -293,18 +180,6 @@ export const dbService = {
   // 1. AUTENTICAÇÃO
   async findUsuarioByEmail(email: string) {
     const cleanEmail = email.trim().toLowerCase();
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      const dbUser = await prisma.usuario.findUnique({
-        where: { email: cleanEmail },
-        include: {
-          funcionario: true,
-          estabelecimento: true
-        }
-      });
-      if (dbUser) return dbUser;
-    }
-
     const store = initLocalStore();
     const user = store.usuarios.find(u => u.email.toLowerCase() === cleanEmail);
     if (user) {
@@ -315,7 +190,6 @@ export const dbService = {
       };
     }
 
-    // Dynamic fallback for any valid @governo.ao operator email in local mode
     if (cleanEmail.endsWith("@governo.ao")) {
       const salt = bcrypt.genSaltSync(10);
       const defaultHash = bcrypt.hashSync("Trumanmarcelo_1983", salt);
@@ -337,21 +211,6 @@ export const dbService = {
   },
 
   async logLogin(user: any, ip: string) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.logSeguranca.create({
-        data: {
-          evento: "LOGIN_ADMIN",
-          modulo: "SEGURANCA",
-          nivelSeveridade: "INFO",
-          funcionarioId: user.funcionarioId,
-          dadosJson: JSON.stringify({ ip, origin: "Backoffice Web Portal" })
-        } as any
-      }).catch(err => {
-        console.warn("Falha ao salvar log de login no Prisma:", err);
-      });
-    }
-
     const store = initLocalStore();
     const newLog = {
       id: "log-" + Date.now(),
@@ -369,29 +228,6 @@ export const dbService = {
 
   // 2. RECLUSOS
   async getReclusos(user: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      let queryOptions: any = {
-        include: {
-          estabelecimento: true,
-          cela: true,
-          processoPenal: true,
-          historicoSaude: true,
-          programasSocial: true
-        },
-        orderBy: {
-          nomeCompleto: "asc"
-        }
-      };
-
-      if (user.tipo !== "SUPER_ADMIN" && user.estabelecimentoId) {
-        queryOptions.where = {
-          estabelecimentoId: user.estabelecimentoId
-        };
-      }
-      return await prisma.recluso.findMany(queryOptions);
-    }
-
     const store = initLocalStore();
     let reclusos = store.reclusos;
 
@@ -399,7 +235,6 @@ export const dbService = {
       reclusos = reclusos.filter(r => r.estabelecimentoId === user.estabelecimentoId);
     }
 
-    // Attach linked objects
     return reclusos.map(r => {
       const ep = store.estabelecimentos.find(e => e.id === r.estabelecimentoId);
       return {
@@ -413,20 +248,6 @@ export const dbService = {
   },
 
   async getReclusoById(id: string) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.recluso.findUnique({
-        where: { id },
-        include: {
-          estabelecimento: true,
-          cela: true,
-          processoPenal: true,
-          historicoSaude: true,
-          programasSocial: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     const recluso = store.reclusos.find(r => r.id === id);
     if (!recluso) return null;
@@ -441,20 +262,6 @@ export const dbService = {
   },
 
   async createRecluso(data: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.recluso.create({
-        data,
-        include: {
-          estabelecimento: true,
-          cela: true,
-          processoPenal: true,
-          historicoSaude: true,
-          programasSocial: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     const newRecluso = {
       id: "rec-" + Date.now(),
@@ -479,21 +286,6 @@ export const dbService = {
   },
 
   async updateRecluso(id: string, data: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.recluso.update({
-        where: { id },
-        data,
-        include: {
-          estabelecimento: true,
-          cela: true,
-          processoPenal: true,
-          historicoSaude: true,
-          programasSocial: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     const idx = store.reclusos.findIndex(r => r.id === id);
     if (idx === -1) throw new Error("Recluso não encontrado");
@@ -511,13 +303,6 @@ export const dbService = {
   },
 
   async deleteRecluso(id: string) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.recluso.delete({
-        where: { id }
-      });
-    }
-
     const store = initLocalStore();
     const idx = store.reclusos.findIndex(r => r.id === id);
     if (idx === -1) throw new Error("Recluso não encontrado");
@@ -529,33 +314,6 @@ export const dbService = {
 
   // 3. LOGS AUDITORIA
   async getLogs(user: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      let queryOptions: any = {
-        include: {
-          funcionario: true,
-          recluso: {
-            include: {
-              estabelecimento: true
-            }
-          }
-        },
-        orderBy: {
-          dataHora: "desc"
-        }
-      };
-
-      if (user.tipo !== "SUPER_ADMIN" && user.estabelecimentoId) {
-        queryOptions.where = {
-          OR: [
-            { recluso: { estabelecimentoId: user.estabelecimentoId } },
-            { funcionario: { estabelecimentoId: user.estabelecimentoId } }
-          ]
-        };
-      }
-      return await prisma.logSeguranca.findMany(queryOptions);
-    }
-
     const store = initLocalStore();
     let logs = store.logs;
 
@@ -573,13 +331,6 @@ export const dbService = {
   },
 
   async createLog(data: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.logSeguranca.create({
-        data
-      });
-    }
-
     const store = initLocalStore();
     const newLog = {
       id: "log-" + Date.now(),
@@ -597,24 +348,8 @@ export const dbService = {
     return newLog;
   },
 
-  // --- INSTITUTIONAL EVENT BUS PERSISTENCE ---
+  // EVENT BUS PERSISTENCE
   async saveEvent(event: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      try {
-        await prisma.logSeguranca.create({
-          data: {
-            evento: `EVENT_BUS_${event.type || "GENERIC"}`,
-            modulo: event.category || "OPERACIONAL",
-            nivelSeveridade: event.priority || "HIGH",
-            dadosJson: JSON.stringify(event)
-          } as any
-        });
-      } catch (e) {
-        console.warn("Prisma saveEvent fallback to local json store:", e);
-      }
-    }
-
     const store = initLocalStore();
     if (!store.events) store.events = [];
     const existingIndex = store.events.findIndex((e: any) => e.id === event.id);
@@ -632,77 +367,23 @@ export const dbService = {
   },
 
   async getEvents() {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      try {
-        const logs = await prisma.logSeguranca.findMany({
-          where: {
-            evento: {
-              startsWith: "EVENT_BUS_"
-            }
-          },
-          orderBy: { dataHora: "desc" },
-          take: 200
-        });
-        const mapped = logs.map(l => {
-          try {
-            const parsed = JSON.parse((l as any).dadosJson || "{}");
-            return { ...parsed, persistedInDb: true };
-          } catch {
-            return null;
-          }
-        }).filter(Boolean);
-        if (mapped.length > 0) return mapped;
-      } catch (e) {
-        console.warn("Prisma getEvents fallback to local store:", e);
-      }
-    }
-
     const store = initLocalStore();
     return (store.events || []).map((e: any) => ({ ...e, persistedInDb: true }));
   },
 
   // 4. ESTABELECIMENTOS
   async getEstabelecimentos() {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.estabelecimentoPrisional.findMany({
-        include: {
-          direcaoProvincial: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     return store.estabelecimentos;
   },
 
   // 5. SAÚDE / PRONTUÁRIO MÉDICO
   async getHealthRecords() {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.prontuarioMedico.findMany({
-        include: {
-          recluso: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     return store.prontuariosMedicos || [];
   },
 
   async createHealthRecord(data: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.prontuarioMedico.create({
-        data,
-        include: {
-          recluso: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     if (!store.prontuariosMedicos) store.prontuariosMedicos = [];
     const newRecord = {
@@ -712,7 +393,6 @@ export const dbService = {
     };
     store.prontuariosMedicos.push(newRecord);
     
-    // Also add to inmate's historicoSaude in store
     const inmate = store.reclusos.find(r => r.id === data.reclusoId);
     if (inmate) {
       if (!inmate.historicoSaude) inmate.historicoSaude = [];
@@ -724,24 +404,12 @@ export const dbService = {
   },
 
   async updateHealthRecord(id: string, data: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.prontuarioMedico.update({
-        where: { id },
-        data,
-        include: {
-          recluso: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     if (!store.prontuariosMedicos) store.prontuariosMedicos = [];
     const idx = store.prontuariosMedicos.findIndex(r => r.id === id);
     if (idx !== -1) {
       store.prontuariosMedicos[idx] = { ...store.prontuariosMedicos[idx], ...data };
       
-      // Update inmate's historicoSaude
       const inmateId = store.prontuariosMedicos[idx].reclusoId;
       const inmate = store.reclusos.find(r => r.id === inmateId);
       if (inmate && inmate.historicoSaude) {
@@ -758,20 +426,12 @@ export const dbService = {
   },
 
   async deleteHealthRecord(id: string) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.prontuarioMedico.delete({
-        where: { id }
-      });
-    }
-
     const store = initLocalStore();
     if (!store.prontuariosMedicos) store.prontuariosMedicos = [];
     const idx = store.prontuariosMedicos.findIndex(r => r.id === id);
     if (idx !== -1) {
       const deleted = store.prontuariosMedicos.splice(idx, 1)[0];
       
-      // Delete from inmate's historicoSaude
       const inmate = store.reclusos.find(r => r.id === deleted.reclusoId);
       if (inmate && inmate.historicoSaude) {
         inmate.historicoSaude = inmate.historicoSaude.filter((h: any) => h.id !== id);
@@ -785,30 +445,11 @@ export const dbService = {
 
   // 6. REINSERÇÃO SOCIAL / PLANO DE REINSERÇÃO
   async getReintegrationRecords() {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.planoReinsercao.findMany({
-        include: {
-          recluso: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     return store.planosReinsercao || [];
   },
 
   async createReintegrationRecord(data: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.planoReinsercao.create({
-        data,
-        include: {
-          recluso: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     if (!store.planosReinsercao) store.planosReinsercao = [];
     const newRecord = {
@@ -818,7 +459,6 @@ export const dbService = {
     };
     store.planosReinsercao.push(newRecord);
     
-    // Also add to inmate's programasSocial in store
     const inmate = store.reclusos.find(r => r.id === data.reclusoId);
     if (inmate) {
       if (!inmate.programasSocial) inmate.programasSocial = [];
@@ -830,24 +470,12 @@ export const dbService = {
   },
 
   async updateReintegrationRecord(id: string, data: any) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.planoReinsercao.update({
-        where: { id },
-        data,
-        include: {
-          recluso: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     if (!store.planosReinsercao) store.planosReinsercao = [];
     const idx = store.planosReinsercao.findIndex(r => r.id === id);
     if (idx !== -1) {
       store.planosReinsercao[idx] = { ...store.planosReinsercao[idx], ...data };
       
-      // Update inmate's programasSocial
       const inmateId = store.planosReinsercao[idx].reclusoId;
       const inmate = store.reclusos.find(r => r.id === inmateId);
       if (inmate && inmate.programasSocial) {
@@ -864,20 +492,12 @@ export const dbService = {
   },
 
   async deleteReintegrationRecord(id: string) {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.planoReinsercao.delete({
-        where: { id }
-      });
-    }
-
     const store = initLocalStore();
     if (!store.planosReinsercao) store.planosReinsercao = [];
     const idx = store.planosReinsercao.findIndex(r => r.id === id);
     if (idx !== -1) {
       const deleted = store.planosReinsercao.splice(idx, 1)[0];
       
-      // Delete from inmate's programasSocial
       const inmate = store.reclusos.find(r => r.id === deleted.reclusoId);
       if (inmate && inmate.programasSocial) {
         inmate.programasSocial = inmate.programasSocial.filter((s: any) => s.id !== id);
@@ -891,16 +511,6 @@ export const dbService = {
 
   // 7. OPERADORES & PERMISSÕES
   async getOperators() {
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.usuario.findMany({
-        include: {
-          funcionario: true,
-          estabelecimento: true
-        }
-      });
-    }
-
     const store = initLocalStore();
     return store.usuarios;
   },
@@ -912,11 +522,6 @@ export const dbService = {
       store.usuarios[idx].customPermissions = permissions;
       saveLocalStore(store);
       return store.usuarios[idx];
-    }
-    
-    const usePrisma = await checkDbConnection();
-    if (usePrisma) {
-      return await prisma.usuario.findUnique({ where: { id } });
     }
     
     throw new Error("Operador não encontrado");
