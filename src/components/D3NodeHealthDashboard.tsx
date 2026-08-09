@@ -59,6 +59,8 @@ interface D3NodeHealthDashboardProps {
   trafficDistribution?: Array<{ id: string; qps: number; percentage: number; conns: number }>;
   onTriggerSpike?: (nodeId: string) => void;
   onToggleFailure?: () => void;
+  onManualFailover?: (targetNodeId: string) => void;
+  onResetFailover?: () => void;
 }
 
 export default function D3NodeHealthDashboard({
@@ -67,7 +69,9 @@ export default function D3NodeHealthDashboard({
   promotedMasterId = null,
   trafficDistribution,
   onTriggerSpike,
-  onToggleFailure
+  onToggleFailure,
+  onManualFailover,
+  onResetFailover
 }: D3NodeHealthDashboardProps) {
   // 1. Live State & Stream Control
   const [isStreaming, setIsStreaming] = useState<boolean>(true);
@@ -650,19 +654,79 @@ export default function D3NodeHealthDashboard({
     // Outer status pulse circle
     nodeGroup
       .append("circle")
-      .attr("r", 22)
+      .attr("r", d => {
+        const activeMaster = isLuandaFailed ? promotedMasterId : "cloud-primary";
+        return d.id === activeMaster ? 26 : 22;
+      })
       .attr("fill", d => {
         if (d.status === "offline") return "#450a0a";
         if (d.status === "degraded") return "#451a03";
-        return "#022c22";
+        const activeMaster = isLuandaFailed ? promotedMasterId : "cloud-primary";
+        return d.id === activeMaster ? "#422006" : "#022c22";
       })
       .attr("stroke", d => {
         if (d.status === "offline") return "#ef4444";
         if (d.status === "degraded") return "#f59e0b";
-        return "#10b981";
+        const activeMaster = isLuandaFailed ? promotedMasterId : "cloud-primary";
+        return d.id === activeMaster ? "#f59e0b" : "#10b981";
       })
-      .attr("stroke-width", d => (selectedNodeId === d.id ? 3 : 1.5))
+      .attr("stroke-width", d => {
+        const activeMaster = isLuandaFailed ? promotedMasterId : "cloud-primary";
+        if (d.id === activeMaster) return 3.5;
+        return selectedNodeId === d.id ? 3 : 1.5;
+      })
       .attr("stroke-dasharray", d => (selectedNodeId === d.id ? "3,3" : "none"));
+
+    // Master / Failover Badge Above Node
+    nodeGroup.each(function(d) {
+      const gNode = d3.select(this);
+      const activeMaster = isLuandaFailed ? promotedMasterId : "cloud-primary";
+      const isMaster = d.id === activeMaster;
+
+      if (isMaster) {
+        const badgeG = gNode.append("g").attr("transform", "translate(0, -30)");
+        badgeG.append("rect")
+          .attr("x", -32)
+          .attr("y", -8)
+          .attr("width", 64)
+          .attr("height", 14)
+          .attr("rx", 3)
+          .attr("fill", isLuandaFailed ? "#f59e0b" : "#10b981")
+          .attr("stroke", "#030712")
+          .attr("stroke-width", 1);
+
+        badgeG.append("text")
+          .attr("x", 0)
+          .attr("y", 2)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#030712")
+          .attr("font-size", "7.5px")
+          .attr("font-weight", "900")
+          .attr("font-family", "monospace")
+          .text(isLuandaFailed ? "VIP PROMOVIDO" : "WRITE MASTER");
+      } else if (d.status === "offline") {
+        const badgeG = gNode.append("g").attr("transform", "translate(0, -30)");
+        badgeG.append("rect")
+          .attr("x", -28)
+          .attr("y", -8)
+          .attr("width", 56)
+          .attr("height", 14)
+          .attr("rx", 3)
+          .attr("fill", "#ef4444")
+          .attr("stroke", "#030712")
+          .attr("stroke-width", 1);
+
+        badgeG.append("text")
+          .attr("x", 0)
+          .attr("y", 2)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#ffffff")
+          .attr("font-size", "7.5px")
+          .attr("font-weight", "900")
+          .attr("font-family", "monospace")
+          .text("OFFLINE");
+      }
+    });
 
     // Inner core circle
     nodeGroup
@@ -867,6 +931,88 @@ export default function D3NodeHealthDashboard({
             className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white text-xxs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
           >
             <Download className="h-3.5 w-3.5" /> Exportar Relatório D3
+          </button>
+        </div>
+      </div>
+
+      {/* FAILOVER SIMULATION CONTROL BAR FOR ADMIN TESTING */}
+      <div className="bg-slate-950 border border-amber-500/30 p-3.5 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-md">
+        <div className="flex items-center gap-2.5">
+          <div className="bg-amber-500/20 p-2 rounded-lg border border-amber-500/40 text-amber-400">
+            <Sliders className="h-4 w-4 animate-pulse" />
+          </div>
+          <div>
+            <span className="text-[9px] font-mono font-bold text-amber-500 uppercase tracking-widest block">
+              PAINEL DE SIMULAÇÃO DE FAILOVER & REDIRECIONAMENTO DE NÓ (VIP 10.224.0.100)
+            </span>
+            <div className="text-xs font-mono font-bold text-slate-200 flex items-center gap-2 mt-0.5">
+              <span>Nó Ativo de Escrita:</span>
+              <strong className={`px-2 py-0.5 rounded text-[10px] uppercase ${
+                isLuandaFailed
+                  ? "bg-amber-500 text-slate-950 font-black"
+                  : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-extrabold"
+              }`}>
+                {isLuandaFailed
+                  ? promotedMasterId === "cloud-secondary"
+                    ? "Benguela-DR (10.224.2.15) [PROMOVIDO]"
+                    : promotedMasterId === "local-onpremise"
+                    ? "Huambo-EP (192.168.42.10) [PROMOVIDO]"
+                    : promotedMasterId === "local-hybrid"
+                    ? "Viana-Móvel (192.168.50.8) [PROMOVIDO]"
+                    : "Benguela-DR Auto-Failover"
+                  : "Luanda Central (10.224.0.10) [PRIMARY]"}
+              </strong>
+            </div>
+          </div>
+        </div>
+
+        {/* SIMULATION ACTION BUTTONS */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <span className="text-[9px] font-mono text-slate-400 uppercase mr-1 hidden lg:inline">Testar Redirecionamento:</span>
+          
+          <button
+            type="button"
+            onClick={() => onManualFailover && onManualFailover("cloud-secondary")}
+            className={`px-2.5 py-1.5 rounded text-[9.5px] font-mono font-black transition-all cursor-pointer border ${
+              isLuandaFailed && (promotedMasterId === "cloud-secondary" || !promotedMasterId)
+                ? "bg-sky-500 text-slate-950 border-sky-400 shadow"
+                : "bg-slate-900 border-slate-800 text-sky-400 hover:bg-sky-950/40"
+            }`}
+          >
+            → Benguela-DR
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onManualFailover && onManualFailover("local-onpremise")}
+            className={`px-2.5 py-1.5 rounded text-[9.5px] font-mono font-black transition-all cursor-pointer border ${
+              isLuandaFailed && promotedMasterId === "local-onpremise"
+                ? "bg-amber-500 text-slate-950 border-amber-400 shadow"
+                : "bg-slate-900 border-slate-800 text-amber-400 hover:bg-amber-950/40"
+            }`}
+          >
+            → Huambo-EP
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onManualFailover && onManualFailover("local-hybrid")}
+            className={`px-2.5 py-1.5 rounded text-[9.5px] font-mono font-black transition-all cursor-pointer border ${
+              isLuandaFailed && promotedMasterId === "local-hybrid"
+                ? "bg-purple-500 text-slate-950 border-purple-400 shadow"
+                : "bg-slate-900 border-slate-800 text-purple-400 hover:bg-purple-950/40"
+            }`}
+          >
+            → Viana Edge
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onResetFailover ? onResetFailover() : onToggleFailure && isLuandaFailed && onToggleFailure()}
+            className="px-2.5 py-1.5 rounded text-[9.5px] font-mono font-black bg-emerald-950/40 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/60 transition-all cursor-pointer flex items-center gap-1"
+          >
+            <CheckCircle className="h-3 w-3" />
+            Restaurar Luanda
           </button>
         </div>
       </div>

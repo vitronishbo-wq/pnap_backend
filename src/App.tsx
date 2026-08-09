@@ -9755,7 +9755,7 @@ export default function App() {
                         ))}
 
                         <div className="mt-8 p-3 bg-slate-950/80 border border-slate-900 rounded-xl leading-normal text-[10px] text-slate-500">
-                          <span className="text-amber-500 font-bold">INFO:</span> Toda nova admissão gera uma chave criptográfica baseada em SHA-256 para assegurar o histórico do recluso no Ministério do Interior.
+                          <span className="text-amber-500 font-bold">INFO:</span> Criptográfica SHA-256.
                         </div>
                       </div>
 
