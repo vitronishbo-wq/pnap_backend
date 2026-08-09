@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { apiService } from "../utils/apiService";
 import { motion, AnimatePresence } from "motion/react";
+import D3NodeHealthDashboard from "./D3NodeHealthDashboard";
 import {
   Database,
   Server,
@@ -85,7 +86,7 @@ export default function ClusterConfigurationPanel() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Top-Level Active Tab Selector
-  const [activePanelTab, setActivePanelTab] = useState<"connections" | "latency" | "failover" | "load-balancing">("connections");
+  const [activePanelTab, setActivePanelTab] = useState<"connections" | "health-d3" | "latency" | "failover" | "load-balancing">("connections");
 
   // POSTGRESQL CLUSTER CONNECTIONS MANAGEMENT STATE
   const [dbConnections, setDbConnections] = useState<Record<string, {
@@ -1312,6 +1313,18 @@ export default function ClusterConfigurationPanel() {
         </button>
 
         <button
+          onClick={() => setActivePanelTab("health-d3")}
+          className={`px-4 py-2.5 rounded-t-lg font-mono text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border-t border-x shrink-0 ${
+            activePanelTab === "health-d3"
+              ? "bg-[#030508] border-slate-900 text-amber-500 border-b-[#030508]"
+              : "bg-transparent border-transparent text-slate-500 hover:text-slate-350"
+          }`}
+        >
+          <Activity className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
+          Painel D3 Saúde dos Nós (Real-Time)
+        </button>
+
+        <button
           onClick={() => setActivePanelTab("latency")}
           className={`px-4 py-2.5 rounded-t-lg font-mono text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border-t border-x shrink-0 ${
             activePanelTab === "latency"
@@ -1350,6 +1363,21 @@ export default function ClusterConfigurationPanel() {
 
       {/* TAB SUB-PAGES */}
       <div className="min-h-[400px]">
+
+        {/* TAB: D3 REAL-TIME NODE HEALTH DASHBOARD */}
+        {activePanelTab === "health-d3" && (
+          <D3NodeHealthDashboard
+            heartbeats={heartbeats}
+            isLuandaFailed={isLuandaFailed}
+            promotedMasterId={promotedMasterId}
+            trafficDistribution={trafficDistribution}
+            onTriggerSpike={(nodeId) => {
+              setLatencySpikeNode(nodeId);
+              setTimeout(() => setLatencySpikeNode(null), 5000);
+            }}
+            onToggleFailure={toggleLuandaFailure}
+          />
+        )}
 
         {/* TAB 0: POSTGRESQL CLUSTER CONNECTIONS MANAGEMENT */}
         {activePanelTab === "connections" && (

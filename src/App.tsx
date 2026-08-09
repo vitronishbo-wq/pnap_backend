@@ -2,6 +2,13 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { AngolaHolographicMapBackground } from "./components/AngolaHolographicMapBackground";
 import { ExcelVirtualizedDataGrid, ColumnDef } from "./components/ExcelVirtualizedDataGrid";
 import { PrisonerExcelDataGrid } from "./components/PrisonerExcelDataGrid";
+import { MobileBottomNav } from "./components/MobileBottomNav";
+import { MobileMultiStepInmateModal } from "./components/MobileMultiStepInmateModal";
+import { MobileTouchSignatureModal } from "./components/MobileTouchSignatureModal";
+import { MobileQRScannerModal } from "./components/MobileQRScannerModal";
+import { MobileOccupancyGauge } from "./components/MobileOccupancyGauge";
+import { MobileQuickDossierDrawer } from "./components/MobileQuickDossierDrawer";
+import { MobileFilterDrawer } from "./components/MobileFilterDrawer";
 import { apiService } from "./utils/apiService";
 import { eventBus } from "./utils/eventBus";
 import { MNCPEngine, PENAL_CODE_GRAPH } from "./utils/mncpEngine";
@@ -1606,6 +1613,14 @@ export default function App() {
   // Navigation
   const [activeTab, setActiveTab] = useState<"dashboard" | "centro-comando" | "centro-inteligencia" | "erd" | "admissions" | "documents" | "penal-code" | "mncp-engine" | "settings" | "movements" | "auditing" | "sandbox" | "deus-fundador" | "special-services">("centro-comando");
   const [openTabs, setOpenTabs] = useState<string[]>(["centro-comando"]);
+
+  // --- SMARTPHONE & MOBILE STATES ---
+  const [isMobileQROpen, setIsMobileQROpen] = useState(false);
+  const [isMobileMultiStepAddOpen, setIsMobileMultiStepAddOpen] = useState(false);
+  const [isMobileTouchSignatureOpen, setIsMobileTouchSignatureOpen] = useState(false);
+  const [isMobileOccupancyOpen, setIsMobileOccupancyOpen] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [selectedQuickDossierInmate, setSelectedQuickDossierInmate] = useState<any | null>(null);
 
   // --- CORE INSTITUTIONAL OS STATES ---
   const [showNEPAuditor, setShowNEPAuditor] = useState(false);
@@ -7955,7 +7970,7 @@ export default function App() {
                 VSAT INTEGRADO
               </span>
               <span className="text-slate-500">|</span>
-              <span className="text-slate-300">Ligação central ativa com Luanda Cen1 HQ</span>
+              <span className="text-slate-300">Ligação central</span>
               <span className="text-slate-500 hidden sm:inline">|</span>
               <span className="text-amber-400/90 text-[10px] hidden sm:inline">Criptografia AES-256 Activa</span>
             </div>
@@ -7963,7 +7978,7 @@ export default function App() {
               onClick={() => setIsOnline(false)}
               className="text-slate-400 hover:text-amber-400 text-[10px] underline cursor-pointer font-mono transition-all"
             >
-              Simular Sem Sinal
+              SSS
             </button>
           </div>
         )}
@@ -17425,6 +17440,8 @@ export default function App() {
                       setSelectedDocumentCode(code);
                       setActiveTab("documents");
                     }}
+                    onOpenQuickDossier={(inm) => setSelectedQuickDossierInmate(inm)}
+                    onOpenFilterDrawer={() => setIsMobileFilterOpen(true)}
                   />
                   </>
                   )}
@@ -23446,6 +23463,86 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* SMARTPHONE MOBILE BOTTOM NAVIGATION & MODALS */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={(tab) => setActiveTab(tab as any)}
+        onOpenQRScanner={() => setIsMobileQROpen(true)}
+        onOpenFilters={() => setIsMobileFilterOpen(true)}
+        onOpenAddInmate={() => setIsMobileMultiStepAddOpen(true)}
+        activeInmateCount={visibleInmates.length}
+        alertCount={inmateEditLogs?.length || 0}
+      />
+
+      <MobileQRScannerModal
+        isOpen={isMobileQROpen}
+        onClose={() => setIsMobileQROpen(false)}
+        inmates={visibleInmates}
+        onScanResult={(inm) => {
+          setSelectedQuickDossierInmate(inm);
+        }}
+      />
+
+      <MobileMultiStepInmateModal
+        isOpen={isMobileMultiStepAddOpen}
+        onClose={() => setIsMobileMultiStepAddOpen(false)}
+        prisons={prisons}
+        onSaveInmate={(newInm) => {
+          setInmates((prev) => [newInm as any, ...prev]);
+        }}
+      />
+
+      <MobileTouchSignatureModal
+        isOpen={isMobileTouchSignatureOpen}
+        onClose={() => setIsMobileTouchSignatureOpen(false)}
+        inmateName={selectedQuickDossierInmate ? `${selectedQuickDossierInmate.firstName} ${selectedQuickDossierInmate.lastName}` : "Recluso"}
+        inmateId={selectedQuickDossierInmate?.id || "RNR-000"}
+        onSignComplete={(sigData, hash) => {
+          if (selectedQuickDossierInmate) {
+            handleOpenInmateEditModal(selectedQuickDossierInmate as any);
+          }
+        }}
+      />
+
+      <MobileOccupancyGauge
+        isOpen={isMobileOccupancyOpen}
+        onClose={() => setIsMobileOccupancyOpen(false)}
+        prisons={prisons}
+        inmatesCountByPrison={inmates.reduce((acc, i) => {
+          acc[i.assignedPrisonId] = (acc[i.assignedPrisonId] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)}
+      />
+
+      <MobileQuickDossierDrawer
+        isOpen={Boolean(selectedQuickDossierInmate)}
+        onClose={() => setSelectedQuickDossierInmate(null)}
+        inmate={selectedQuickDossierInmate}
+        prisons={prisons}
+        onExportPDF={(inm) => exportInmateFichaToPDF(inm as any, prisons, currentOperatorId)}
+        onEditAndSign={(inm) => {
+          handleOpenInmateEditModal(inm as any);
+          setSelectedQuickDossierInmate(null);
+        }}
+        onToggleHistory={(id) => {
+          setSelectedInmateHistoryId(selectedInmateHistoryId === id ? null : id);
+        }}
+      />
+
+      <MobileFilterDrawer
+        isOpen={isMobileFilterOpen}
+        onClose={() => setIsMobileFilterOpen(false)}
+        prisons={prisons}
+        selectedPrisonFilter={selectedProvinceFilter || "ALL"}
+        setSelectedPrisonFilter={(pId) => setSelectedProvinceFilter(pId)}
+        selectedRiskFilter={selectedRiskPrisonFilter || "ALL"}
+        setSelectedRiskFilter={(rLevel) => setSelectedRiskPrisonFilter(rLevel)}
+        onResetFilters={() => {
+          setSelectedProvinceFilter("ALL");
+          setSelectedRiskPrisonFilter("ALL");
+        }}
+      />
 
     </div>
   );

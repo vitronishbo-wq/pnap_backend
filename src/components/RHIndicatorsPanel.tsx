@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { formatEPName } from "../utils/formatUtils";
+import RHStaffRatioTreemap from "./RHStaffRatioTreemap";
 import { 
   Users, 
   Shield, 
@@ -56,7 +57,7 @@ export default function RHIndicatorsPanel({
   organicUnits
 }: RHIndicatorsPanelProps) {
   const [selectedPrisonFilter, setSelectedPrisonFilter] = useState<string>("ALL");
-  const [activeTab, setActiveTab] = useState<"patentes" | "permissoes" | "carga">("carga");
+  const [activeTab, setActiveTab] = useState<"patentes" | "permissoes" | "carga" | "racio-treemap">("racio-treemap");
 
   // Helper function to extract patent / rank from operator's name or roleName
   const getPatentOfOperator = (op: OperatorProfile): string => {
@@ -340,6 +341,17 @@ export default function RHIndicatorsPanel({
           <div className="flex gap-1 p-1 bg-slate-950 rounded-xl border border-slate-850">
             <button
               type="button"
+              onClick={() => setActiveTab("racio-treemap")}
+              className={`px-3 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "racio-treemap"
+                  ? "bg-slate-800 text-amber-500 font-extrabold border border-amber-500/10 shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Users className="h-3 w-3 text-sky-400" /> Rácio Guarda/Recluso (D3 Treemap)
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveTab("carga")}
               className={`px-3 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "carga"
@@ -347,7 +359,7 @@ export default function RHIndicatorsPanel({
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              <Activity className="h-3 w-3" /> Heatmap de Carga de Trabalho
+              <Activity className="h-3 w-3" /> Heatmap de Carga
             </button>
             <button
               type="button"
@@ -390,6 +402,16 @@ export default function RHIndicatorsPanel({
             </div>
           )}
         </div>
+
+        {/* Tab 0: D3 Treemap Security Staff to Inmate Ratio */}
+        {activeTab === "racio-treemap" && (
+          <RHStaffRatioTreemap
+            operators={operators}
+            prisons={prisons}
+            inmates={inmates}
+            organicUnits={organicUnits}
+          />
+        )}
 
         {/* Tab 1: Heatmap of Workload */}
         {activeTab === "carga" && (

@@ -12,27 +12,12 @@ import {
   Camera, 
   ExternalLink,
   ArrowUpDown,
-  Sparkles
+  Sparkles,
+  LayoutGrid,
+  Rows3,
+  Filter
 } from "lucide-react";
-
-interface Inmate {
-  id: string;
-  firstName: string;
-  lastName: string;
-  idCard: string;
-  assignedPrisonId: string;
-  assignedCellNumber?: string;
-  riskLevel: string;
-  photo?: string;
-  status?: string;
-  documentCode: string;
-  [key: string]: any;
-}
-
-interface Prison {
-  id: string;
-  name: string;
-}
+import { MobileInmateCard, Inmate, Prison } from "./MobileInmateCard";
 
 interface PrisonerExcelDataGridProps {
   inmates: Inmate[];
@@ -52,6 +37,8 @@ interface PrisonerExcelDataGridProps {
   historyLogs: any[];
   onSelectDocumentCode: (code: string) => void;
   bulkActionsNode?: React.ReactNode;
+  onOpenQuickDossier?: (inm: Inmate) => void;
+  onOpenFilterDrawer?: () => void;
 }
 
 interface PrisonerRowProps {
@@ -115,7 +102,7 @@ function PrisonerRow({
           type="checkbox"
           checked={isSelected}
           onChange={() => onToggleSelectInmate(inm.id)}
-          className="h-3 w-3 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
+          className="h-3.5 w-3.5 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
         />
       </div>
 
@@ -236,7 +223,6 @@ function PrisonerRow({
         className="min-w-[210px] shrink-0 px-2 py-1 border-r border-slate-800/80 flex items-center gap-1.5 h-full"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Quick Transfer Select */}
         <select
           value={inm.assignedPrisonId}
           onChange={(e) => onTransferInmate(inm.id, e.target.value)}
@@ -250,7 +236,6 @@ function PrisonerRow({
           ))}
         </select>
 
-        {/* PDF Download */}
         <button
           type="button"
           onClick={() => onExportPDF(inm)}
@@ -260,7 +245,6 @@ function PrisonerRow({
           <Printer className="h-3 w-3" />
         </button>
 
-        {/* Edit & Sign */}
         <button
           type="button"
           onClick={() => onEditAndSign(inm)}
@@ -270,7 +254,6 @@ function PrisonerRow({
           <ShieldCheck className="h-3 w-3" /> Editar
         </button>
 
-        {/* History Log Toggle */}
         <button
           type="button"
           onClick={() => onToggleHistory(inm.id)}
@@ -298,17 +281,19 @@ export function PrisonerExcelDataGrid({
   onEditAndSign,
   onToggleHistory,
   onSelectDocumentCode,
-  bulkActionsNode
+  bulkActionsNode,
+  onOpenQuickDossier,
+  onOpenFilterDrawer
 }: PrisonerExcelDataGridProps) {
   const [sortField, setSortField] = useState<keyof Inmate | "fullName">("fullName");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [selectedCell, setSelectedCell] = useState<{ rowIdx: number; colIdx: number } | null>({ rowIdx: 0, colIdx: 0 });
   const [density, setDensity] = useState<"compact" | "micro">("compact");
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<"auto" | "cards" | "grid">("auto");
 
   const rowHeight = density === "micro" ? 38 : 46;
-  const maxContainerHeight = 440;
-  const listHeight = isFullScreen ? 600 : maxContainerHeight;
+  const listHeight = isFullScreen ? 600 : 440;
 
   // Filtered inmates
   const filteredInmates = useMemo(() => {
@@ -392,7 +377,7 @@ export function PrisonerExcelDataGrid({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `reclusos_minint_excel_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `reclusos_minint_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -400,68 +385,96 @@ export function PrisonerExcelDataGrid({
 
   return (
     <div
-      className={`overflow-x-auto rounded-lg border border-slate-850 bg-slate-950/20 text-left font-mono text-[9.5px] text-slate-300 transition-all ${
-        isFullScreen ? "fixed inset-2 z-50 bg-slate-950 shadow-2xl" : ""
+      className={`rounded-2xl border border-slate-850 bg-slate-950/40 text-left font-sans text-slate-300 transition-all overflow-hidden ${
+        isFullScreen ? "fixed inset-2 z-50 bg-slate-950 shadow-2xl overflow-y-auto" : ""
       }`}
     >
-      {/* Excel Toolbar */}
-      <div className="bg-slate-900/90 border-b border-slate-850 p-2.5 flex flex-wrap items-center justify-between gap-3 select-none">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-            <FileSpreadsheet className="h-4 w-4" />
+      {/* Excel & Smartphone Navigation Bar */}
+      <div className="bg-slate-900/95 border-b border-slate-850 p-3 flex flex-wrap items-center justify-between gap-3 select-none">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+            <FileSpreadsheet className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-100 text-xs tracking-tight">
-                Matriz de Reclusos • Grelha Virtualizada react-window
+              <span className="font-bold text-slate-100 text-xs sm:text-sm tracking-tight">
+                Matriz Canónica de Custódia • MININT
               </span>
-              <span className="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 rounded font-bold uppercase flex items-center gap-1">
-                <Sparkles className="h-2.5 w-2.5" /> High Performance
+              <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold uppercase hidden sm:flex items-center gap-1">
+                <Sparkles className="h-3 w-3" /> Virtualizada react-window
               </span>
             </div>
-            <p className="text-[9px] text-slate-400 font-sans">
-              Gestão de grande volume de reclusos com renderização virtualizada react-window.
+            <p className="text-[11px] text-slate-400 font-sans hidden sm:block">
+              Gestão otimizada para milhares de registos com suporte completo a smartphones.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Real-time Search */}
-          <div className="relative flex items-center">
-            <Search className="absolute left-2.5 h-3 w-3 text-slate-500" />
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          {/* Global Search input */}
+          <div className="relative flex items-center min-w-[140px] max-w-[220px]">
+            <Search className="absolute left-2.5 h-3.5 w-3.5 text-slate-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Pesquisar por Nome, BI, RNR..."
-              className="bg-slate-950 border border-slate-800 focus:border-amber-500 focus:outline-none text-[9.5px] text-slate-200 pl-7 pr-3 py-1 rounded w-48 font-mono"
+              placeholder="Pesquisar Recluso, BI, RNR..."
+              className="bg-slate-950 border border-slate-800 focus:border-amber-500 focus:outline-none text-xs text-slate-200 pl-8 pr-6 py-2 rounded-xl w-full font-sans min-h-[40px]"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
-                className="absolute right-2 text-slate-500 hover:text-slate-300 text-[8px] font-bold"
+                className="absolute right-2 text-slate-500 hover:text-slate-300 text-xs font-bold p-1"
               >
                 ✕
               </button>
             )}
           </div>
 
-          {/* Density toggle */}
-          <div className="flex items-center bg-slate-950 border border-slate-800 rounded p-0.5">
+          {/* Filter Drawer Trigger for Mobile */}
+          {onOpenFilterDrawer && (
             <button
               type="button"
-              onClick={() => setDensity("micro")}
-              className={`px-1.5 py-0.5 text-[8px] rounded ${density === "micro" ? "bg-amber-500 text-slate-950 font-bold" : "text-slate-400"}`}
+              onClick={onOpenFilterDrawer}
+              className="p-2 bg-slate-950 border border-slate-800 hover:border-amber-500/40 text-amber-400 rounded-xl min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer touch-manipulation"
+              title="Filtros em Bottom Sheet"
             >
-              Micro (38px)
+              <Filter className="h-4 w-4" />
+            </button>
+          )}
+
+          {/* Layout Mode Switcher */}
+          <div className="flex items-center bg-slate-950 border border-slate-800 rounded-xl p-0.5">
+            <button
+              type="button"
+              onClick={() => setLayoutMode("auto")}
+              className={`px-2 py-1 text-[10px] font-bold rounded-lg transition ${
+                layoutMode === "auto" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+              }`}
+              title="Ajuste automático para ecrã"
+            >
+              Auto
             </button>
             <button
               type="button"
-              onClick={() => setDensity("compact")}
-              className={`px-1.5 py-0.5 text-[8px] rounded ${density === "compact" ? "bg-amber-500 text-slate-950 font-bold" : "text-slate-400"}`}
+              onClick={() => setLayoutMode("cards")}
+              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                layoutMode === "cards" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+              }`}
+              title="Cartões Empilhados (Smartphone)"
             >
-              Compacto (46px)
+              <Rows3 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setLayoutMode("grid")}
+              className={`p-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                layoutMode === "grid" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+              }`}
+              title="Grelha Excel Virtualizada"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -469,41 +482,68 @@ export function PrisonerExcelDataGrid({
           <button
             type="button"
             onClick={handleExportCSV}
-            className="px-2 py-1 bg-slate-900 border border-slate-800 hover:border-amber-500/40 text-amber-400 rounded text-[9px] font-bold flex items-center gap-1 transition cursor-pointer"
+            className="px-2.5 py-1.5 bg-slate-950 border border-slate-800 hover:border-amber-500/40 text-amber-400 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer touch-manipulation min-h-[40px]"
           >
-            <Download className="h-3 w-3" /> Exportar CSV
+            <Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Exportar CSV</span>
           </button>
 
           {/* FullScreen Toggle */}
           <button
             type="button"
             onClick={() => setIsFullScreen(!isFullScreen)}
-            className="p-1 bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 rounded transition cursor-pointer"
+            className="p-2 bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition cursor-pointer touch-manipulation min-h-[40px] min-w-[40px] flex items-center justify-center"
           >
-            {isFullScreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+            {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </button>
         </div>
       </div>
 
-      {/* Excel Formula Bar */}
-      <div className="bg-slate-950 border-b border-slate-850 px-3 py-1 flex items-center gap-2 select-none text-[9px]">
-        <div className="bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-amber-400 font-bold w-16 text-center">
+      {/* Formula Bar - Visible on desktop / grid mode */}
+      <div className="bg-slate-950 border-b border-slate-850 px-3 py-1.5 hidden md:flex items-center gap-2 select-none text-xs">
+        <div className="bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-lg text-amber-400 font-mono font-bold w-16 text-center">
           {selectedCell ? `${getColLetter(selectedCell.colIdx)}${selectedCell.rowIdx + 1}` : "A1"}
         </div>
         <div className="text-slate-600 font-serif italic text-xs font-bold">fx</div>
-        <div className="flex-1 bg-slate-900/80 border border-slate-850 px-2 py-0.5 rounded text-slate-300 font-mono truncate">
+        <div className="flex-1 bg-slate-900/80 border border-slate-850 px-2.5 py-1 rounded-lg text-slate-300 font-mono truncate">
           {activeCellValue}
         </div>
-        <div className="text-[8.5px] text-slate-400 font-mono shrink-0">
-          <strong className="text-slate-200">{sortedInmates.length}</strong> / {inmates.length} reclusos registados
+        <div className="text-[11px] text-slate-400 font-mono shrink-0">
+          <strong className="text-slate-200">{sortedInmates.length}</strong> / {inmates.length} reclusos
         </div>
       </div>
 
       {/* Optional Bulk Actions Node */}
-      {bulkActionsNode && <div className="bg-slate-900/60 border-b border-slate-850 p-2">{bulkActionsNode}</div>}
+      {bulkActionsNode && <div className="bg-slate-900/80 border-b border-slate-850 p-2.5">{bulkActionsNode}</div>}
 
-      {/* Scrollable Virtualized Table Container */}
-      <div className="overflow-x-auto w-full">
+      {/* MOBILE STACKED CARDS VIEW (renders when layoutMode === 'cards' OR on small screen widths when 'auto') */}
+      <div className={`${layoutMode === "cards" ? "block" : layoutMode === "grid" ? "hidden" : "block md:hidden"} p-3 space-y-3`}>
+        {sortedInmates.length === 0 ? (
+          <div className="py-12 text-center text-slate-500 font-sans italic">
+            Nenhum recluso corresponde à pesquisa ativa.
+          </div>
+        ) : (
+          sortedInmates.map((inm, idx) => (
+            <MobileInmateCard
+              key={inm.id}
+              inmate={inm}
+              index={idx}
+              prisons={prisons}
+              isSelected={selectedInmateIds.includes(inm.id)}
+              onToggleSelect={onToggleSelectInmate}
+              onTransfer={onTransferInmate}
+              onUploadPhoto={onUploadPhoto}
+              onExportPDF={onExportPDF}
+              onEditAndSign={onEditAndSign}
+              onToggleHistory={onToggleHistory}
+              onSelectDocumentCode={onSelectDocumentCode}
+              onOpenQuickDossier={onOpenQuickDossier}
+            />
+          ))
+        )}
+      </div>
+
+      {/* DESKTOP VIRTUALIZED GRID VIEW (renders when layoutMode === 'grid' OR on medium+ screens when 'auto') */}
+      <div className={`${layoutMode === "grid" ? "block" : layoutMode === "cards" ? "hidden" : "hidden md:block"} overflow-x-auto w-full`}>
         {/* Sticky Header Row */}
         <div className="sticky top-0 z-20 bg-slate-950 border-b border-slate-800 shadow-md min-w-max">
           {/* Excel Letters Header */}
@@ -516,7 +556,7 @@ export function PrisonerExcelDataGrid({
                 type="checkbox"
                 checked={isAllSelected}
                 onChange={() => onSelectAllInmates(sortedInmates)}
-                className="h-3 w-3 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
+                className="h-3.5 w-3.5 rounded border-slate-800 bg-slate-900 text-amber-500 cursor-pointer accent-amber-500"
               />
             </div>
             {["A", "B", "C", "D", "E", "F", "G", "H"].map((lettr) => (
@@ -633,14 +673,14 @@ export function PrisonerExcelDataGrid({
       </div>
 
       {/* Footer Status Bar */}
-      <div className="bg-slate-950 border-t border-slate-850 px-3 py-1 flex items-center justify-between text-[8.5px] font-mono text-slate-400 select-none">
+      <div className="bg-slate-950 border-t border-slate-850 px-3 py-2 flex items-center justify-between text-xs font-mono text-slate-400 select-none">
         <div className="flex items-center gap-2">
           <span className="text-emerald-400 font-bold uppercase flex items-center gap-1">
-            <Sparkles className="h-2.5 w-2.5" /> GRELHA VIRTUALIZADA REACT-WINDOW
+            <Sparkles className="h-3 w-3" /> MININT SMARTHPHONE READY
           </span>
-          <span>• Selecionados: {selectedInmateIds.length} reclusos</span>
+          <span className="hidden sm:inline">• Selecionados: {selectedInmateIds.length} reclusos</span>
         </div>
-        <div className="text-slate-500">Renderização em janela fixa com contenção de barra de deslocamento</div>
+        <div className="text-slate-500 text-[10px]">Total: {sortedInmates.length} registos ativos</div>
       </div>
     </div>
   );
