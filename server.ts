@@ -19,9 +19,41 @@ async function startServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // API Routes (Mounted first so Vite doesn't intercept other API paths)
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", message: "PNAP-AO Backend Server up & running." });
+  // API Health Check with Active Firestore Validation
+  app.get("/api/health", async (req, res) => {
+    const startTime = Date.now();
+    let firestoreStatus = "disconnected";
+    let latencyMs = 0;
+
+    try {
+      if (typeof dbService !== "undefined" && dbService.getEvents) {
+        await dbService.getEvents();
+        firestoreStatus = "connected";
+      }
+      latencyMs = Date.now() - startTime;
+
+      res.status(200).json({
+        status: "ok",
+        service: "PNAP-AO API",
+        timestamp: new Date().toISOString(),
+        database: {
+          provider: "firestore",
+          status: firestoreStatus,
+          latencyMs: `${latencyMs}ms`
+        }
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        status: "error",
+        service: "PNAP-AO API",
+        timestamp: new Date().toISOString(),
+        database: {
+          provider: "firestore",
+          status: "error",
+          error: error.message
+        }
+      });
+    }
   });
 
   // Institutional Event Bus Routes (Database persistence for audit trail)
@@ -51,14 +83,14 @@ async function startServer() {
 
   // Vite Development and Production Middleware Setup
   if (process.env.NODE_ENV !== "production") {
-    console.log("启动 VITE 调试模式 (Vite Dev Middleware)...");
+    console.log("Iniciando modo desenvolvimento Vite (Vite Dev Middleware)...");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
-    console.log("启动 生产静态资源模式 (Serving production assets)...");
+    console.log("Iniciando modo estático de produção (Serving production assets)...");
     const distPath = path.join(process.cwd(), "dist");
     
     // Serve static files
@@ -72,7 +104,7 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`================================================================`);
-    console.log(`🚀 SERVIDOR GENERAL PNAP EXECUCCIÓN: http://localhost:${PORT}`);
+    console.log(`🚀 SERVIDOR GENERAL PNAP EM EXECUÇÃO: http://localhost:${PORT}`);
     console.log(`🌟 Port: ${PORT} | Bound: 0.0.0.0 | Environment: ${process.env.NODE_ENV || "development"}`);
     console.log(`================================================================`);
   });
