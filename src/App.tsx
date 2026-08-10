@@ -11321,7 +11321,7 @@ export default function App() {
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full animate-ping" />
                   </div>
                   <h2 className="text-base font-bold uppercase tracking-widest text-slate-200 font-mono">
-                    SICP-AO • Sistema Integrado de Custódia Penal
+                    PNAP.AO • Sistema Integrado de Custódia Penal
                   </h2>
                   <p className="text-[9px] font-mono text-slate-500 mt-1 uppercase tracking-wider">
                     Gabinete de Tecnologia e Informação do Ministério do Interior (MININT) — Luanda
