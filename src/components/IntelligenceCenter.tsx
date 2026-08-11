@@ -848,7 +848,7 @@ export default function IntelligenceCenter({
             <span className="text-[9.5px] uppercase font-bold font-mono text-emerald-400 flex items-center gap-1">
               <Terminal className="h-3.5 w-3.5" /> Consola de Logs Forenses do SIEM
             </span>
-            <h3 className="text-sm font-bold text-slate-200 mt-0.5">Logs de Segurança e Correlações em Tempo Real</h3>
+            <h3 className="text-sm font-bold text-slate-200 mt-0.5">Logs de Segurança</h3>
           </div>
 
           {/* Filtering row */}

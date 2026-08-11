@@ -627,7 +627,6 @@ export interface OperatorProfile {
   permissions: string[];
   sensitivityLevel: "PUBLICO" | "RESTRITO" | "CONFIDENCIAL" | "SECRETO";
 }
-
 export interface LocationHierarchy {
   [province: string]: {
     directions: {
@@ -647,157 +646,157 @@ export const INSTITUTIONAL_HIERARCHY: LocationHierarchy = {
   "Bengo": {
     directions: {
       "Direção Provincial do Bengo": [
-        { id: "PRIS-BENGO", name: "Estabelecimento Penitenciário do Bengo" }
+        { id: "PRIS-BENGO", name: "EP/Capolo" }
       ]
     }
   },
   "Benguela": {
     directions: {
       "Direção Provincial de Benguela": [
-        { id: "PRIS-BEN-01", name: "Cadeia Central de Benguela" }
+        { id: "PRIS-BEN-01", name: "EP/Cavaco" }
       ]
     }
   },
   "Bié": {
     directions: {
       "Direção Provincial do Bié": [
-        { id: "PRIS-BIE", name: "Estabelecimento Penitenciário do Bié" }
+        { id: "PRIS-BIE", name: "EP/Cuito" }
       ]
     }
   },
   "Cabinda": {
     directions: {
       "Direção Provincial de Cabinda": [
-        { id: "PRIS-CABINDA", name: "Estabelecimento Penitenciário de Cabinda" }
+        { id: "PRIS-CABINDA", name: "EP/Yabi" }
       ]
     }
   },
   "Cuando Cubango": {
     directions: {
-      "Direção Provincial do Cuando Cubango": [
-        { id: "PRIS-CCUBANGO", name: "Estabelecimento Penitenciário de Menongue" }
+      "Direção Provincial do Quando Cubango": [
+        { id: "PRIS-CCUBANGO", name: "EP/Menongue" }
       ]
     }
   },
   "Cuanza-Norte": {
     directions: {
       "Direção Provincial do Cuanza-Norte": [
-        { id: "PRIS-CNORTE", name: "Estabelecimento Penitenciário de Ndalatando" }
+        { id: "PRIS-CNORTE", name: "EP/Kaporolo" }
       ]
     }
   },
   "Cuanza-Sul": {
     directions: {
       "Direção Provincial do Cuanza-Sul": [
-        { id: "PRIS-CSUL", name: "Estabelecimento Penitenciário do Sumbe" }
+        { id: "PRIS-CSUL", name: "EP/Sumbe" }
       ]
     }
   },
   "Cunene": {
     directions: {
       "Direção Provincial do Cunene": [
-        { id: "PRIS-CUNENE", name: "Estabelecimento Penitenciário de Ondjiva" }
+        { id: "PRIS-CUNENE", name: "EP/Pebane" }
       ]
     }
   },
   "Huambo": {
     directions: {
       "Direção Provincial do Huambo": [
-        { id: "PRIS-HUAMBO", name: "Cadeia Central do Huambo" },
-        { id: "PRIS-BAILUNDO", name: "Cadeia do Bailundo" },
-        { id: "PRIS-CAALA", name: "Cadeia do Caála" }
+        { id: "PRIS-HUAMBO", name: "EP/Cambiote" },
+        { id: "PRIS-BAILUNDO", name: "EP/Bailundo" },
+        { id: "PRIS-CAALA", name: "EP/Caála" }
       ]
     }
   },
   "Huíla": {
     directions: {
       "Direção Provincial da Huíla": [
-        { id: "PRIS-HUI-01", name: "Cadeia Central do Lubango" }
+        { id: "PRIS-HUI-01", name: "EP/Bentiaba" }
       ]
     }
   },
   "Luanda": {
     directions: {
       "Direção Provincial de Luanda": [
-        { id: "PRIS-01", name: "Estabelecimento Penitenciário de Viana" },
-        { id: "PRIS-02", name: "Estabelecimento Penitenciário de Kakila" }
+        { id: "PRIS-01", name: "EP/Viana" },
+        { id: "PRIS-02", name: "EP/Kakila" }
       ]
     }
   },
   "Lunda-Norte": {
     directions: {
       "Direção Provincial da Lunda-Norte": [
-        { id: "PRIS-LNORTE", name: "Estabelecimento Penitenciário do Dundo" }
+        { id: "PRIS-LNORTE", name: "EP/Kakanda" }
       ]
     }
   },
   "Lunda-Sul": {
     directions: {
       "Direção Provincial da Lunda-Sul": [
-        { id: "PRIS-LSUL", name: "Estabelecimento Penitenciário de Saurimo" }
+        { id: "PRIS-LSUL", name: "EP/Saurimo" }
       ]
     }
   },
   "Malanje": {
     directions: {
       "Direção Provincial de Malanje": [
-        { id: "PRIS-MALANJE", name: "Estabelecimento Penitenciário de Malanje" }
+        { id: "PRIS-MALANJE", name: "EP/Banza do Bango" }
       ]
     }
   },
   "Moxico": {
     directions: {
       "Direção Provincial do Moxico": [
-        { id: "PRIS-MOXICO", name: "Estabelecimento Penitenciário de Luena" }
+        { id: "PRIS-MOXICO", name: "EP/Luena" }
       ]
     }
   },
   "Namibe": {
     directions: {
       "Direção Provincial do Namibe": [
-        { id: "PRIS-NAMIBE", name: "Estabelecimento Penitenciário de Moçâmedes" }
+        { id: "PRIS-NAMIBE", name: "EP/Namibe" }
       ]
     }
   },
   "Uíge": {
     directions: {
       "Direção Provincial do Uíge": [
-        { id: "PRIS-03", name: "Estabelecimento Penitenciário de Sanza Pombo" }
+        { id: "PRIS-03", name: "EP/Uíge" }
       ]
     }
   },
   "Zaire": {
     directions: {
       "Direção Provincial do Zaire": [
-        { id: "PRIS-ZAIRE", name: "Estabelecimento Penitenciário de Mbanza Kongo" }
+        { id: "PRIS-ZAIRE", name: "EP/Mbanza Kongo" }
       ]
     }
   },
   "Moxico Leste": {
     directions: {
       "Direção Provincial de Moxico Leste": [
-        { id: "PRIS-MXLESTE", name: "Estabelecimento Penitenciário de Cazombo" }
+        { id: "PRIS-MXLESTE", name: "EP/Moxico Leste" }
       ]
     }
   },
   "Icolo e Bengo": {
     directions: {
       "Direção Provincial de Icolo e Bengo": [
-        { id: "PRIS-ICOLO", name: "Estabelecimento Penitenciário de Catete" }
+        { id: "PRIS-ICOLO", name: "EP/Kakila" }
       ]
     }
   },
   "Cubango": {
     directions: {
       "Direção Provincial de Cubango": [
-        { id: "PRIS-CUBANGO_MOCK", name: "Estabelecimento Penitenciário de Menongue Oeste" }
+        { id: "PRIS-CUBANGO_MOCK", name: "EP/Menongue" }
       ]
     }
   },
-  "Cuando": {
+  "Quando": {
     directions: {
-      "Direção Provincial de Cuando": [
-        { id: "PRIS-CUANDO_MOCK", name: "Estabelecimento Penitenciário de Menongue Leste" }
+      "Direção Provincial de Quando": [
+        { id: "PRIS-CUANDO_MOCK", name: "EP/Quando" }
       ]
     }
   }
@@ -1177,13 +1176,665 @@ const HealthDashboard = ({
   );
 };
 
-const ENHANCED_PRISONS_DB: any[] = [];
-const _IGNORED_HARDCODED_PRISONS = [
-  ...PRISONS_DB,
+export const ENHANCED_PRISONS_DB: any[] = [
+  {
+    id: "PRIS-01",
+    name: "EP/Viana",
+    location: "Luanda, Angola",
+    municipalityId: "MUN-VIANA",
+    officialCapacity: 1200,
+    operationalCapacity: 1500,
+    currentOccupancy: 850,
+    riskBreakdown: { "Baixo": 300, "Médio": 400, "Alto": 120, "Máximo": 30 },
+    pavilions: [
+      {
+        id: "PAV-LUA-01",
+        name: "Pavilhão 01 - EP/Viana",
+        blocks: [
+          {
+            id: "BLK-LUA-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 300,
+            current: 12,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-LUA-A01", name: "Cela 01", capacity: 8, current: 4 },
+              { id: "CEL-LUA-A02", name: "Cela 02", capacity: 8, current: 5 },
+              { id: "CEL-LUA-A03", name: "Cela 03", capacity: 8, current: 3 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-02",
+    name: "EP/Kakila",
+    location: "Icolo e Bengo, Angola",
+    municipalityId: "MUN-CATETE",
+    officialCapacity: 800,
+    operationalCapacity: 1000,
+    currentOccupancy: 320,
+    riskBreakdown: { "Baixo": 100, "Médio": 150, "Alto": 50, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-ICB-01",
+        name: "Pavilhão 01 - EP/Kakila",
+        blocks: [
+          {
+            id: "BLK-ICB-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 250,
+            current: 9,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-ICB-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-ICB-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-ICB-A03", name: "Cela 03", capacity: 8, current: 4 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-HUAMBO",
+    name: "EP/Cambiote",
+    location: "Huambo, Angola",
+    municipalityId: "MUN-HUAMBO",
+    officialCapacity: 900,
+    operationalCapacity: 1100,
+    currentOccupancy: 610,
+    riskBreakdown: { "Baixo": 120, "Médio": 310, "Alto": 130, "Máximo": 50 },
+    pavilions: [
+      {
+        id: "PAV-HUA-01",
+        name: "Pavilhão 01 - EP/Cambiote",
+        blocks: [
+          {
+            id: "BLK-HUA-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 300,
+            current: 9,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-HUA-A01", name: "Cela 01", capacity: 8, current: 4 },
+              { id: "CEL-HUA-A02", name: "Cela 02", capacity: 8, current: 3 },
+              { id: "CEL-HUA-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-BEN-01",
+    name: "EP/Cavaco",
+    location: "Benguela, Angola",
+    municipalityId: "MUN-BENGUELA",
+    officialCapacity: 1000,
+    operationalCapacity: 1200,
+    currentOccupancy: 850,
+    riskBreakdown: { "Baixo": 180, "Médio": 340, "Alto": 230, "Máximo": 100 },
+    pavilions: [
+      {
+        id: "PAV-BGU-01",
+        name: "Pavilhão 01 - EP/Cavaco",
+        blocks: [
+          {
+            id: "BLK-BGU-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 300,
+            current: 10,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-BGU-A01", name: "Cela 01", capacity: 8, current: 5 },
+              { id: "CEL-BGU-A02", name: "Cela 02", capacity: 8, current: 3 },
+              { id: "CEL-BGU-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-CABINDA",
+    name: "EP/Yabi",
+    location: "Cabinda, Angola",
+    municipalityId: "MUN-CABINDA",
+    officialCapacity: 600,
+    operationalCapacity: 700,
+    currentOccupancy: 280,
+    riskBreakdown: { "Baixo": 90, "Médio": 120, "Alto": 50, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-CAB-01",
+        name: "Pavilhão 01 - EP/Yabi",
+        blocks: [
+          {
+            id: "BLK-CAB-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 6,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-CAB-A01", name: "Cela 01", capacity: 8, current: 2 },
+              { id: "CEL-CAB-A02", name: "Cela 02", capacity: 8, current: 3 },
+              { id: "CEL-CAB-A03", name: "Cela 03", capacity: 8, current: 1 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-CNORTE",
+    name: "EP/Kaporolo",
+    location: "Cuanza Norte, Angola",
+    municipalityId: "MUN-NDALATANDO",
+    officialCapacity: 500,
+    operationalCapacity: 600,
+    currentOccupancy: 210,
+    riskBreakdown: { "Baixo": 70, "Médio": 90, "Alto": 40, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-CNO-01",
+        name: "Pavilhão 01 - EP/Kaporolo",
+        blocks: [
+          {
+            id: "BLK-CNO-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 5,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-CNO-A01", name: "Cela 01", capacity: 8, current: 2 },
+              { id: "CEL-CNO-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-CNO-A03", name: "Cela 03", capacity: 8, current: 1 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-CSUL",
+    name: "EP/Sumbe",
+    location: "Cuanza Sul, Angola",
+    municipalityId: "MUN-SUMBE",
+    officialCapacity: 700,
+    operationalCapacity: 800,
+    currentOccupancy: 340,
+    riskBreakdown: { "Baixo": 100, "Médio": 150, "Alto": 70, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-CSU-01",
+        name: "Pavilhão 01 - EP/Sumbe",
+        blocks: [
+          {
+            id: "BLK-CSU-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 250,
+            current: 8,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-CSU-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-CSU-A02", name: "Cela 02", capacity: 8, current: 3 },
+              { id: "CEL-CSU-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-CUNENE",
+    name: "EP/Pebane",
+    location: "Cunene, Angola",
+    municipalityId: "MUN-ONDJIVA",
+    officialCapacity: 500,
+    operationalCapacity: 600,
+    currentOccupancy: 190,
+    riskBreakdown: { "Baixo": 60, "Médio": 90, "Alto": 30, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-CNN-01",
+        name: "Pavilhão 01 - EP/Pebane",
+        blocks: [
+          {
+            id: "BLK-CNN-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 4,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-CNN-A01", name: "Cela 01", capacity: 8, current: 2 },
+              { id: "CEL-CNN-A02", name: "Cela 02", capacity: 8, current: 1 },
+              { id: "CEL-CNN-A03", name: "Cela 03", capacity: 8, current: 1 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-HUI-01",
+    name: "EP/Bentiaba",
+    location: "Huíla, Angola",
+    municipalityId: "MUN-LUBANGO",
+    officialCapacity: 1100,
+    operationalCapacity: 1300,
+    currentOccupancy: 810,
+    riskBreakdown: { "Baixo": 200, "Médio": 380, "Alto": 180, "Máximo": 50 },
+    pavilions: [
+      {
+        id: "PAV-HUI-01",
+        name: "Pavilhão 01 - EP/Bentiaba",
+        blocks: [
+          {
+            id: "BLK-HUI-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 350,
+            current: 10,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-HUI-A01", name: "Cela 01", capacity: 8, current: 4 },
+              { id: "CEL-HUI-A02", name: "Cela 02", capacity: 8, current: 3 },
+              { id: "CEL-HUI-A03", name: "Cela 03", capacity: 8, current: 3 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-NAMIBE",
+    name: "EP/Namibe",
+    location: "Namibe, Angola",
+    municipalityId: "MUN-MOCAMEDES",
+    officialCapacity: 500,
+    operationalCapacity: 600,
+    currentOccupancy: 180,
+    riskBreakdown: { "Baixo": 60, "Médio": 80, "Alto": 30, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-NAM-01",
+        name: "Pavilhão 01 - EP/Namibe",
+        blocks: [
+          {
+            id: "BLK-NAM-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 5,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-NAM-A01", name: "Cela 01", capacity: 8, current: 2 },
+              { id: "CEL-NAM-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-NAM-A03", name: "Cela 03", capacity: 8, current: 1 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-MALANJE",
+    name: "EP/Banza do Bango",
+    location: "Malanje, Angola",
+    municipalityId: "MUN-MALANJE",
+    officialCapacity: 600,
+    operationalCapacity: 700,
+    currentOccupancy: 240,
+    riskBreakdown: { "Baixo": 80, "Médio": 100, "Alto": 40, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-MAL-01",
+        name: "Pavilhão 01 - EP/Banza do Bango",
+        blocks: [
+          {
+            id: "BLK-MAL-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 250,
+            current: 7,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-MAL-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-MAL-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-MAL-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-03",
+    name: "EP/Uíge",
+    location: "Uíge, Angola",
+    municipalityId: "MUN-UIGE",
+    officialCapacity: 650,
+    operationalCapacity: 750,
+    currentOccupancy: 290,
+    riskBreakdown: { "Baixo": 90, "Médio": 130, "Alto": 50, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-UIG-01",
+        name: "Pavilhão 01 - EP/Uíge",
+        blocks: [
+          {
+            id: "BLK-UIG-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 250,
+            current: 7,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-UIG-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-UIG-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-UIG-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-ZAIRE",
+    name: "EP/Mbanza Kongo",
+    location: "Zaire, Angola",
+    municipalityId: "MUN-MBANZAKONGO",
+    officialCapacity: 500,
+    operationalCapacity: 600,
+    currentOccupancy: 220,
+    riskBreakdown: { "Baixo": 70, "Médio": 100, "Alto": 40, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-ZAI-01",
+        name: "Pavilhão 01 - EP/Mbanza Kongo",
+        blocks: [
+          {
+            id: "BLK-ZAI-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 7,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-ZAI-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-ZAI-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-ZAI-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-LNORTE",
+    name: "EP/Kakanda",
+    location: "Lunda Norte, Angola",
+    municipalityId: "MUN-DUNDO",
+    officialCapacity: 700,
+    operationalCapacity: 800,
+    currentOccupancy: 310,
+    riskBreakdown: { "Baixo": 100, "Médio": 130, "Alto": 60, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-LNO-01",
+        name: "Pavilhão 01 - EP/Kakanda",
+        blocks: [
+          {
+            id: "BLK-LNO-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 250,
+            current: 8,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-LNO-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-LNO-A02", name: "Cela 02", capacity: 8, current: 3 },
+              { id: "CEL-LNO-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-LSUL",
+    name: "EP/Saurimo",
+    location: "Lunda Sul, Angola",
+    municipalityId: "MUN-SAURIMO",
+    officialCapacity: 500,
+    operationalCapacity: 600,
+    currentOccupancy: 190,
+    riskBreakdown: { "Baixo": 60, "Médio": 80, "Alto": 40, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-LSU-01",
+        name: "Pavilhão 01 - EP/Saurimo",
+        blocks: [
+          {
+            id: "BLK-LSU-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 5,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-LSU-A01", name: "Cela 01", capacity: 8, current: 2 },
+              { id: "CEL-LSU-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-LSU-A03", name: "Cela 03", capacity: 8, current: 1 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-MOXICO",
+    name: "EP/Luena",
+    location: "Moxico, Angola",
+    municipalityId: "MUN-LUENA",
+    officialCapacity: 600,
+    operationalCapacity: 700,
+    currentOccupancy: 260,
+    riskBreakdown: { "Baixo": 80, "Médio": 110, "Alto": 50, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-MOX-01",
+        name: "Pavilhão 01 - EP/Luena",
+        blocks: [
+          {
+            id: "BLK-MOX-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 250,
+            current: 7,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-MOX-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-MOX-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-MOX-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-MXLESTE",
+    name: "EP/Moxico Leste",
+    location: "Moxico Leste, Angola",
+    municipalityId: "MUN-CAZOMBO",
+    officialCapacity: 300,
+    operationalCapacity: 350,
+    currentOccupancy: 0,
+    semInfraestrutura: true,
+    riskBreakdown: { "Baixo": 0, "Médio": 0, "Alto": 0, "Máximo": 0 },
+    pavilions: [
+      {
+        id: "PAV-MXL-01",
+        name: "Pavilhão 01 - EP/M-Leste",
+        blocks: [
+          {
+            id: "BLK-MXL-01A",
+            name: "Bloco A - Provisório",
+            capacity: 100,
+            current: 0,
+            cellCount: 3,
+            riskLevel: "Baixo",
+            cells: [
+              { id: "CEL-MXL-A01", name: "Cela 01", capacity: 8, current: 0 },
+              { id: "CEL-MXL-A02", name: "Cela 02", capacity: 8, current: 0 },
+              { id: "CEL-MXL-A03", name: "Cela 03", capacity: 8, current: 0 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-CCUBANGO",
+    name: "EP/Menongue",
+    location: "Quando Cubango, Angola",
+    municipalityId: "MUN-MENONGUE",
+    officialCapacity: 500,
+    operationalCapacity: 600,
+    currentOccupancy: 180,
+    riskBreakdown: { "Baixo": 50, "Médio": 80, "Alto": 40, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-CCU-01",
+        name: "Pavilhão 01 - EP/Menongue",
+        blocks: [
+          {
+            id: "BLK-CCU-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 5,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-CCU-A01", name: "Cela 01", capacity: 8, current: 2 },
+              { id: "CEL-CCU-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-CCU-A03", name: "Cela 03", capacity: 8, current: 1 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-CUANDO",
+    name: "EP/Quando",
+    location: "Quando, Angola",
+    municipalityId: "MUN-QUANDO",
+    officialCapacity: 300,
+    operationalCapacity: 350,
+    currentOccupancy: 0,
+    semInfraestrutura: true,
+    riskBreakdown: { "Baixo": 0, "Médio": 0, "Alto": 0, "Máximo": 0 },
+    pavilions: [
+      {
+        id: "PAV-CND-01",
+        name: "Pavilhão 01 - EP/Quando",
+        blocks: [
+          {
+            id: "BLK-CND-01A",
+            name: "Bloco A - Provisório",
+            capacity: 100,
+            current: 0,
+            cellCount: 3,
+            riskLevel: "Baixo",
+            cells: [
+              { id: "CEL-CND-A01", name: "Cela 01", capacity: 8, current: 0 },
+              { id: "CEL-CND-A02", name: "Cela 02", capacity: 8, current: 0 },
+              { id: "CEL-CND-A03", name: "Cela 03", capacity: 8, current: 0 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-BENGO",
+    name: "EP/Capolo",
+    location: "Bengo, Angola",
+    municipalityId: "MUN-CAXITO",
+    officialCapacity: 500,
+    operationalCapacity: 600,
+    currentOccupancy: 230,
+    riskBreakdown: { "Baixo": 70, "Médio": 100, "Alto": 50, "Máximo": 10 },
+    pavilions: [
+      {
+        id: "PAV-BGO-01",
+        name: "Pavilhão 01 - EP/Capolo",
+        blocks: [
+          {
+            id: "BLK-BGO-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 200,
+            current: 7,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-BGO-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-BGO-A02", name: "Cela 02", capacity: 8, current: 2 },
+              { id: "CEL-BGO-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "PRIS-BIE",
+    name: "EP/Cuito",
+    location: "Bié, Angola",
+    municipalityId: "MUN-CUITO",
+    officialCapacity: 600,
+    operationalCapacity: 700,
+    currentOccupancy: 310,
+    riskBreakdown: { "Baixo": 100, "Médio": 130, "Alto": 60, "Máximo": 20 },
+    pavilions: [
+      {
+        id: "PAV-BIE-01",
+        name: "Pavilhão 01 - EP/Cuito",
+        blocks: [
+          {
+            id: "BLK-BIE-01A",
+            name: "Bloco A - Regime Comum",
+            capacity: 250,
+            current: 8,
+            cellCount: 3,
+            riskLevel: "Médio",
+            cells: [
+              { id: "CEL-BIE-A01", name: "Cela 01", capacity: 8, current: 3 },
+              { id: "CEL-BIE-A02", name: "Cela 02", capacity: 8, current: 3 },
+              { id: "CEL-BIE-A03", name: "Cela 03", capacity: 8, current: 2 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   {
     id: "PRIS-FEM-VIANA",
-    name: "Estabelecimento Penitenciário Feminino de Viana",
+    name: "EP/Feminino Viana",
     location: "Luanda, Angola",
+    municipalityId: "MUN-VIANA",
     officialCapacity: 350,
     operationalCapacity: 400,
     currentOccupancy: 320,
@@ -1192,397 +1843,14 @@ const _IGNORED_HARDCODED_PRISONS = [
       {
         id: "PAV-FEM-A", name: "Pavilhão Feminino A - Maternidade e Admissão",
         blocks: [
-          { id: "BLK-FEM-A1", name: "Bloco Berçário/Admissão", capacity: 150, current: 140, cellCount: 15, riskLevel: "Baixo" },
-          { id: "BLK-FEM-A2", name: "Bloco Regime Comum", capacity: 250, current: 180, cellCount: 20, riskLevel: "Médio" }
+          { id: "BLK-FEM-A1", name: "Bloco Berçário/Admissão", capacity: 150, current: 140, cellCount: 3, riskLevel: "Baixo", cells: [{ id: "CEL-FEM-01", name: "Cela 01", capacity: 8, current: 4 }] },
+          { id: "BLK-FEM-A2", name: "Bloco Regime Comum", capacity: 250, current: 180, cellCount: 3, riskLevel: "Médio", cells: [{ id: "CEL-FEM-02", name: "Cela 02", capacity: 8, current: 3 }] }
         ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-FEM-BENGUELA",
-    name: "Estabelecimento Penitenciário Feminino de Benguela",
-    location: "Benguela, Angola",
-    officialCapacity: 250,
-    operationalCapacity: 300,
-    currentOccupancy: 210,
-    riskBreakdown: { "Baixo": 110, "Médio": 70, "Alto": 20, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-FEM-BEN1", name: "Pavilhão Feminino Sul",
-        blocks: [
-          { id: "BLK-FEM-B1", name: "Bloco Geral Feminino", capacity: 300, current: 210, cellCount: 18, riskLevel: "Baixo" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-FEM-HUAMBO",
-    name: "Estabelecimento Penitenciário Feminino do Huambo",
-    location: "Huambo, Angola",
-    officialCapacity: 200,
-    operationalCapacity: 250,
-    currentOccupancy: 180,
-    riskBreakdown: { "Baixo": 90, "Médio": 60, "Alto": 20, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-FEM-HUA1", name: "Pavilhão Feminino Planalto",
-        blocks: [
-          { id: "BLK-FEM-H1", name: "Bloco Geral Feminino", capacity: 250, current: 180, cellCount: 15, riskLevel: "Baixo" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-HUAMBO",
-    name: "Cadeia Central do Huambo",
-    location: "Huambo, Angola",
-    officialCapacity: 600,
-    operationalCapacity: 750,
-    currentOccupancy: 610,
-    riskBreakdown: { "Baixo": 120, "Médio": 310, "Alto": 130, "Máximo": 50 },
-    pavilions: [
-      {
-        id: "PAV-H1", name: "Pavilhão 1 - Regime Geral",
-        blocks: [
-          { id: "BLK-H1A", name: "Bloco H1-A", capacity: 200, current: 180, cellCount: 15, riskLevel: "Médio" },
-          { id: "BLK-H1B", name: "Bloco H1-B", capacity: 200, current: 170, cellCount: 15, riskLevel: "Baixo" }
-        ]
-      },
-      {
-        id: "PAV-H2", name: "Pavilhão 2 - Segurança Média",
-        blocks: [
-          { id: "BLK-H2A", name: "Bloco H2-A", capacity: 200, current: 260, cellCount: 20, riskLevel: "Alto" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-BAILUNDO",
-    name: "Cadeia do Bailundo",
-    location: "Huambo, Angola",
-    officialCapacity: 300,
-    operationalCapacity: 350,
-    currentOccupancy: 280,
-    riskBreakdown: { "Baixo": 90, "Médio": 110, "Alto": 60, "Máximo": 20 },
-    pavilions: [
-      {
-        id: "PAV-BAI1", name: "Ala Única",
-        blocks: [
-          { id: "BLK-BAI1A", name: "Bloco Principal", capacity: 350, current: 280, cellCount: 18, riskLevel: "Baixo" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CAALA",
-    name: "Cadeia do Caála",
-    location: "Huambo, Angola",
-    officialCapacity: 250,
-    operationalCapacity: 300,
-    currentOccupancy: 190,
-    riskBreakdown: { "Baixo": 70, "Médio": 90, "Alto": 20, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-CAA1", name: "Ala Única",
-        blocks: [
-          { id: "BLK-CAA1A", name: "Bloco Principal", capacity: 300, current: 190, cellCount: 15, riskLevel: "Baixo" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-BEN-01",
-    name: "Cadeia Central de Benguela",
-    location: "Benguela, Angola",
-    officialCapacity: 700,
-    operationalCapacity: 800,
-    currentOccupancy: 850,
-    riskBreakdown: { "Baixo": 180, "Médio": 340, "Alto": 230, "Máximo": 100 },
-    pavilions: [
-      {
-        id: "PAV-BEN1", name: "Pavilhão Principal",
-        blocks: [
-          { id: "BLK-BEN1A", name: "Bloco A", capacity: 400, current: 430, cellCount: 20, riskLevel: "Médio" },
-          { id: "BLK-BEN1B", name: "Bloco B", capacity: 400, current: 420, cellCount: 20, riskLevel: "Alto" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "PRIS-HUI-01",
-    name: "Cadeia Central do Lubango",
-    location: "Huíla, Angola",
-    officialCapacity: 800,
-    operationalCapacity: 950,
-    currentOccupancy: 810,
-    riskBreakdown: { "Baixo": 200, "Médio": 380, "Alto": 180, "Máximo": 50 },
-    pavilions: [
-      {
-        id: "PAV-HUI1", name: "Pavilhão Central",
-        blocks: [
-          { id: "BLK-HUI1A", name: "Bloco A", capacity: 450, current: 410, cellCount: 25, riskLevel: "Médio" },
-          { id: "BLK-HUI1B", name: "Bloco B", capacity: 500, current: 400, cellCount: 25, riskLevel: "Baixo" }
-        ]
-      }
-    ]
-  },
-  // Infrastructure seeds for the rest of provinces
-  {
-    id: "PRIS-BENGO",
-    name: "Estabelecimento Penitenciário do Bengo",
-    location: "Bengo, Angola",
-    officialCapacity: 500,
-    operationalCapacity: 600,
-    currentOccupancy: 250,
-    riskBreakdown: { "Baixo": 100, "Médio": 100, "Alto": 40, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-BENGO1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-BENGO1A", name: "Bloco A", capacity: 300, current: 250, cellCount: 10, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-BIE",
-    name: "Estabelecimento Penitenciário do Bié",
-    location: "Bié, Angola",
-    officialCapacity: 600,
-    operationalCapacity: 700,
-    currentOccupancy: 300,
-    riskBreakdown: { "Baixo": 120, "Médio": 120, "Alto": 55, "Máximo": 5 },
-    pavilions: [
-      {
-        id: "PAV-BIE1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-BIE1A", name: "Bloco A", capacity: 350, current: 300, cellCount: 12, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CABINDA",
-    name: "Estabelecimento Penitenciário de Cabinda",
-    location: "Cabinda, Angola",
-    officialCapacity: 450,
-    operationalCapacity: 500,
-    currentOccupancy: 180,
-    riskBreakdown: { "Baixo": 60, "Médio": 80, "Alto": 30, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-CABINDA1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-CABINDA1A", name: "Bloco A", capacity: 250, current: 180, cellCount: 10, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CCUBANGO",
-    name: "Estabelecimento Penitenciário de Menongue",
-    location: "Cuando Cubango, Angola",
-    officialCapacity: 400,
-    operationalCapacity: 450,
-    currentOccupancy: 120,
-    riskBreakdown: { "Baixo": 40, "Médio": 50, "Alto": 20, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-CCUB1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-CCUB1A", name: "Bloco A", capacity: 200, current: 120, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CNORTE",
-    name: "Estabelecimento Penitenciário de Ndalatando",
-    location: "Cuanza-Norte, Angola",
-    officialCapacity: 350,
-    operationalCapacity: 400,
-    currentOccupancy: 150,
-    riskBreakdown: { "Baixo": 50, "Médio": 70, "Alto": 25, "Máximo": 5 },
-    pavilions: [
-      {
-        id: "PAV-CNO1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-CNO1A", name: "Bloco A", capacity: 200, current: 150, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CSUL",
-    name: "Estabelecimento Penitenciário do Sumbe",
-    location: "Cuanza-Sul, Angola",
-    officialCapacity: 500,
-    operationalCapacity: 550,
-    currentOccupancy: 220,
-    riskBreakdown: { "Baixo": 80, "Médio": 90, "Alto": 40, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-CSU1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-CSU1A", name: "Bloco A", capacity: 300, current: 220, cellCount: 10, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CUNENE",
-    name: "Estabelecimento Penitenciário de Ondjiva",
-    location: "Cunene, Angola",
-    officialCapacity: 400,
-    operationalCapacity: 450,
-    currentOccupancy: 140,
-    riskBreakdown: { "Baixo": 50, "Médio": 60, "Alto": 20, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-CUN1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-CUN1A", name: "Bloco A", capacity: 200, current: 140, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-LNORTE",
-    name: "Estabelecimento Penitenciário do Dundo",
-    location: "Lunda-Norte, Angola",
-    officialCapacity: 500,
-    operationalCapacity: 550,
-    currentOccupancy: 210,
-    riskBreakdown: { "Baixo": 70, "Médio": 90, "Alto": 40, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-LNO1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-LNO1A", name: "Bloco A", capacity: 300, current: 210, cellCount: 10, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-LSUL",
-    name: "Estabelecimento Penitenciário de Saurimo",
-    location: "Lunda-Sul, Angola",
-    officialCapacity: 400,
-    operationalCapacity: 450,
-    currentOccupancy: 130,
-    riskBreakdown: { "Baixo": 40, "Médio": 60, "Alto": 20, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-LSU1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-LSU1A", name: "Bloco A", capacity: 250, current: 130, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-MALANJE",
-    name: "Estabelecimento Penitenciário de Malanje",
-    location: "Malanje, Angola",
-    officialCapacity: 450,
-    operationalCapacity: 500,
-    currentOccupancy: 160,
-    riskBreakdown: { "Baixo": 50, "Médio": 70, "Alto": 30, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-MAL1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-MAL1A", name: "Bloco A", capacity: 250, current: 160, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-MOXICO",
-    name: "Estabelecimento Penitenciário de Luena",
-    location: "Moxico, Angola",
-    officialCapacity: 500,
-    operationalCapacity: 550,
-    currentOccupancy: 190,
-    riskBreakdown: { "Baixo": 60, "Médio": 80, "Alto": 40, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-MOX1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-MOX1A", name: "Bloco A", capacity: 300, current: 190, cellCount: 10, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-NAMIBE",
-    name: "Estabelecimento Penitenciário de Moçâmedes",
-    location: "Namibe, Angola",
-    officialCapacity: 400,
-    operationalCapacity: 450,
-    currentOccupancy: 110,
-    riskBreakdown: { "Baixo": 40, "Médio": 50, "Alto": 15, "Máximo": 5 },
-    pavilions: [
-      {
-        id: "PAV-NAM1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-NAM1A", name: "Bloco A", capacity: 250, current: 110, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-ZAIRE",
-    name: "Estabelecimento Penitenciário de Mbanza Kongo",
-    location: "Zaire, Angola",
-    officialCapacity: 400,
-    operationalCapacity: 450,
-    currentOccupancy: 170,
-    riskBreakdown: { "Baixo": 50, "Médio": 80, "Alto": 30, "Máximo": 10 },
-    pavilions: [
-      {
-        id: "PAV-ZAI1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-ZAI1A", name: "Bloco A", capacity: 250, current: 170, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-MXLESTE",
-    name: "Estabelecimento Penitenciário de Cazombo",
-    location: "Moxico Leste, Angola",
-    officialCapacity: 300,
-    operationalCapacity: 350,
-    currentOccupancy: 90,
-    riskBreakdown: { "Baixo": 30, "Médio": 40, "Alto": 15, "Máximo": 5 },
-    pavilions: [
-      {
-        id: "PAV-MXL1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-MXL1A", name: "Bloco A", capacity: 200, current: 90, cellCount: 5, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-ICOLO",
-    name: "Estabelecimento Penitenciário de Catete",
-    location: "Icolo e Bengo, Angola",
-    officialCapacity: 400,
-    operationalCapacity: 450,
-    currentOccupancy: 130,
-    riskBreakdown: { "Baixo": 40, "Médio": 60, "Alto": 25, "Máximo": 5 },
-    pavilions: [
-      {
-        id: "PAV-ICB1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-ICB1A", name: "Bloco A", capacity: 250, current: 130, cellCount: 8, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CUBANGO_MOCK",
-    name: "Estabelecimento Penitenciário de Menongue Oeste",
-    location: "Cubango, Angola",
-    officialCapacity: 300,
-    operationalCapacity: 350,
-    currentOccupancy: 70,
-    riskBreakdown: { "Baixo": 20, "Médio": 30, "Alto": 15, "Máximo": 5 },
-    pavilions: [
-      {
-        id: "PAV-CCB1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-CCB1A", name: "Bloco A", capacity: 200, current: 70, cellCount: 6, riskLevel: "Médio" }]
-      }
-    ]
-  },
-  {
-    id: "PRIS-CUANDO_MOCK",
-    name: "Estabelecimento Penitenciário de Menongue Leste",
-    location: "Cuando, Angola",
-    officialCapacity: 300,
-    operationalCapacity: 350,
-    currentOccupancy: 80,
-    riskBreakdown: { "Baixo": 25, "Médio": 35, "Alto": 15, "Máximo": 5 },
-    pavilions: [
-      {
-        id: "PAV-CUA1", name: "Pavilhão Comum",
-        blocks: [{ id: "BLK-CUA1A", name: "Bloco A", capacity: 200, current: 80, cellCount: 6, riskLevel: "Médio" }]
       }
     ]
   }
 ];
+const _IGNORED_HARDCODED_PRISONS = ENHANCED_PRISONS_DB;
 
 /**
  * Modelo Preditivo de Rotatividade de Reclusos por cela.
@@ -1973,6 +2241,18 @@ export default function App() {
   const [isMovBannerCollapsed, setIsMovBannerCollapsed] = useState(false);
   const [isStructureModalCollapsed, setIsStructureModalCollapsed] = useState(false);
 
+  // Quick Hierarchy Config Modal State
+  const [isQuickHierarchyModalOpen, setIsQuickHierarchyModalOpen] = useState(false);
+  const [quickHierarchyConfigSuccess, setQuickHierarchyConfigSuccess] = useState<string | null>(null);
+  const [quickHierarchyLevels, setQuickHierarchyLevels] = useState([
+    { id: "PROVINCE", levelName: "Província", nominalCapacity: 25000, legalStatus: "Conforme", notes: "Regulamento Geral das Direcções Provinciais (Lei 8/19)" },
+    { id: "MUNICIPALITY", levelName: "Município / Comuna", nominalCapacity: 5000, legalStatus: "Conforme", notes: "Sede de comarca / centro de retenção temporária" },
+    { id: "PRISON", levelName: "Estabelecimento Prisional (EP / Cadeia)", nominalCapacity: 1200, legalStatus: "Em Regularização", notes: "Capacidade nominal padrão de EP regional" },
+    { id: "PAVILION", levelName: "Pavilhão", nominalCapacity: 200, legalStatus: "Conforme", notes: "Regime de segurança e especialização técnica" },
+    { id: "BLOCK", levelName: "Bloco de Cela", nominalCapacity: 50, legalStatus: "Conforme", notes: "Subdivisão operacional com rácio sanitário" },
+    { id: "CELL", levelName: "Cela", nominalCapacity: 10, legalStatus: "Conforme", notes: "Lotação individual ou coletiva autorizada" }
+  ]);
+
   const [isStructureCrudOpen, setIsStructureCrudOpen] = useState(false);
   const [structureCrudType, setStructureCrudType] = useState<
     "CREATE_MUNICIPALITY" | "EDIT_MUNICIPALITY" | "DELETE_MUNICIPALITY" |
@@ -1989,8 +2269,11 @@ export default function App() {
   const [crudFormMunicipalityId, setCrudFormMunicipalityId] = useState("");
   const [crudFormOfficialCapacity, setCrudFormOfficialCapacity] = useState(500);
   const [crudFormOperationalCapacity, setCrudFormOperationalCapacity] = useState(600);
-  const [crudFormRegime, setCrudFormRegime] = useState("FECHADO");
+  const [crudFormRegime, setCrudFormRegime] = useState("Misto");
   const [crudFormCellCapacity, setCrudFormCellCapacity] = useState(10);
+  const [crudFormPavilionName, setCrudFormPavilionName] = useState("Pavilhão 01");
+  const [crudFormBlockName, setCrudFormBlockName] = useState("A");
+  const [crudFormCellName, setCrudFormCellName] = useState("1A");
 
   // Target and parent refs for CRUD Modals
   const [crudParentId, setCrudParentId] = useState<string | null>(null);
@@ -2063,15 +2346,21 @@ export default function App() {
     setIsStructureCrudOpen(true);
   };
 
-  const openCreatePrisonModal = (municipalityId: string) => {
+  const openCreatePrisonModal = (provinceOrMun: string) => {
     resetCrudSecurityState();
     setCrudHierarchyLevel("CADEIA");
-    setCrudParentId(municipalityId);
+    setCrudParentId(provinceOrMun);
     setCrudTargetId(null);
     setCrudFormName("");
-    setCrudFormMunicipalityId(municipalityId);
+    const matchedMun = municipalities.find(m => m.id === provinceOrMun || m.name === provinceOrMun);
+    setCrudFormProvince(selectedHierNode?.type === "PROVINCE" ? selectedHierNode.name : (matchedMun ? matchedMun.province : "Huambo"));
+    setCrudFormMunicipalityId(matchedMun ? matchedMun.name : (provinceOrMun || ""));
     setCrudFormOfficialCapacity(500);
     setCrudFormOperationalCapacity(600);
+    setCrudFormRegime("Misto");
+    setCrudFormPavilionName("Pavilhão 01");
+    setCrudFormBlockName("A");
+    setCrudFormCellName("1A");
     setStructureCrudType("CREATE_PRISON");
     setIsStructureCrudOpen(true);
   };
@@ -2263,19 +2552,53 @@ export default function App() {
     else if (structureCrudType === "CREATE_PRISON") {
       if (!crudFormName.trim()) return;
       const newId = `PRIS-NEW-${Date.now().toString().slice(-4)}`;
+      const cleanCellName = crudFormCellName.trim() || "1A";
+      const cleanBlockName = crudFormBlockName.trim() || "A";
+      const cleanPavilionName = crudFormPavilionName.trim() || "Pavilhão 01";
+      
+      let formattedName = crudFormName.trim();
+      if (!formattedName.startsWith("EP/")) {
+        formattedName = `EP/${formattedName.replace(/^EP\s*\/?\s*/i, '')}`;
+      }
+
       const newPrison: PrisonState = {
         id: newId,
-        name: crudFormName.trim(),
-        location: `${crudFormProvince || selectedProvince || "Angola"}`,
+        name: formattedName,
+        location: `${crudFormProvince || selectedProvince || "Huambo"}, Angola`,
+        province: crudFormProvince || selectedProvince || "Huambo",
         officialCapacity: Number(crudFormOfficialCapacity),
         operationalCapacity: Number(crudFormOperationalCapacity),
         currentOccupancy: 0,
         riskBreakdown: { "Baixo": 0, "Médio": 0, "Alto": 0, "Máximo": 0 },
-        pavilions: [],
+        pavilions: [
+          {
+            id: `PAV-${Date.now().toString().slice(-4)}-01`,
+            name: cleanPavilionName,
+            specialty_tag: crudFormRegime || "Misto",
+            blocks: [
+              {
+                id: `BLK-${Date.now().toString().slice(-4)}-A`,
+                name: cleanBlockName.toLowerCase().startsWith("bloco") ? cleanBlockName : `Bloco ${cleanBlockName}`,
+                capacity: 100,
+                current: 0,
+                cellCount: 1,
+                riskLevel: (crudFormRegime || "").includes("Máxima") ? "Máximo" : "Médio",
+                cells: [
+                  {
+                    id: `CEL-${Date.now().toString().slice(-4)}-01`,
+                    name: cleanCellName.toLowerCase().startsWith("cela") ? cleanCellName : `Cela ${cleanCellName}`,
+                    capacity: Number(crudFormCellCapacity) || 10,
+                    current: 0
+                  }
+                ]
+              }
+            ]
+          }
+        ],
         municipalityId: crudFormMunicipalityId || crudParentId || ""
       };
       setPrisons(prev => [...prev, newPrison]);
-      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Infrastructure", newId, `[DEUS FUNDADOR] Criada Nível 4-Cadeia (EP) '${newPrison.name}' | Seal: ${auditStamp}`);
+      writeAuditLog(op, "DEUS_FUNDADOR_HIERARCHY_CREATE" as any, "Infrastructure", newId, `[DEUS FUNDADOR] Criada Cadeia (EP) '${newPrison.name}' com Cela ${cleanCellName}, Bloco ${cleanBlockName}, Pavilhão ${cleanPavilionName} em ${crudFormProvince} | Seal: ${auditStamp}`);
     } 
     else if (structureCrudType === "EDIT_PRISON") {
       if (!crudFormName.trim() || !crudTargetId) return;
@@ -10577,76 +10900,160 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Municipalities List inside Province (Collapsible) */}
+                  {/* Cadeias / EPs List inside Province */}
                   {!isProvinceSectionCollapsed && (
-                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-                      <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-amber-500" /> Municípios na Província do {selectedHierNode.name}
-                        </h3>
-                        {currentOperator.role === "DIRECTOR_GERAL" && (
-                          <button 
-                            onClick={() => openCreateMunicipalityModal(selectedHierNode.id!)}
-                            className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-extrabold uppercase font-mono px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer"
-                          >
-                            <Plus className="h-3 w-3" /> Criar Município
-                          </button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {municipalities.filter(m => m.province === selectedHierNode.id).map(mun => {
-                          const munPris = prisons.filter(p => p.municipalityId === mun.id);
+                    <div className="flex flex-col gap-6">
+                      {/* 1. Primary Section: Cadeias (Estabelecimentos Prisionais) in Province */}
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
+                        <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
+                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono flex items-center gap-2">
+                            <Building className="h-4 w-4 text-amber-500" /> Estabelecimentos Prisionais (Cadeias) na Província do {selectedHierNode.name}
+                          </h3>
+                          {currentOperator.role === "DIRECTOR_GERAL" && (
+                            <button 
+                              onClick={() => openCreatePrisonModal(selectedHierNode.id!)}
+                              className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10.5px] font-extrabold uppercase font-mono px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                            >
+                              <Plus className="h-3.5 w-3.5" /> Criar Cadeia (EP)
+                            </button>
+                          )}
+                        </div>
+
+                        {/* List of Cadeias in this Province */}
+                        {(() => {
+                          const provMuns = municipalities.filter(m => m.province === selectedHierNode.id || m.province?.toLowerCase() === selectedHierNode.name?.toLowerCase()).map(m => m.id);
+                          const provPrisons = prisons.filter(p => 
+                            p.province === selectedHierNode.id ||
+                            p.province === selectedHierNode.name ||
+                            provMuns.includes(p.municipalityId) ||
+                            p.location?.toLowerCase().includes(selectedHierNode.name?.toLowerCase() || "") ||
+                            p.name.toLowerCase().includes(selectedHierNode.name?.toLowerCase() || "")
+                          );
+
                           return (
-                            <div key={mun.id} className="bg-slate-950 p-4 rounded-xl border border-slate-850 hover:border-slate-700 transition flex flex-col justify-between gap-3">
-                              <div>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-xs font-bold text-slate-200 font-mono">{mun.name}</span>
-                                  <span className="bg-slate-900 border border-slate-800 text-[9px] text-slate-400 px-2 py-0.5 rounded font-mono">
-                                    {munPris.length} EPs
-                                  </span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {provPrisons.map(prison => (
+                                <div key={prison.id} className="bg-slate-950 p-4 rounded-xl border border-slate-850 hover:border-slate-700 transition flex flex-col justify-between gap-3 shadow-lg">
+                                  <div className="flex flex-col gap-1.5">
+                                    <div className="flex justify-between items-start">
+                                      <span className="text-xs font-extrabold text-amber-400 font-mono tracking-wide">{prison.name}</span>
+                                      <span className="bg-slate-900 border border-slate-800 text-[9px] text-slate-300 px-2 py-0.5 rounded font-mono uppercase">
+                                        {prison.pavilions?.length || 0} Pavilhões
+                                      </span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                                      <MapPin className="h-3 w-3 text-slate-500 shrink-0" />
+                                      <span>Município / Local: {prison.municipalityId || prison.location || selectedHierNode.name}</span>
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-1.5 bg-slate-900/60 p-2 rounded border border-slate-850 text-[9.5px] font-mono text-slate-400 mt-1">
+                                      <div>Oficial: <strong className="text-slate-200">{prison.officialCapacity}</strong></div>
+                                      <div>Operativa: <strong className="text-slate-200">{prison.operationalCapacity || prison.officialCapacity}</strong></div>
+                                      <div className="col-span-2">Lotação Atual: <strong className="text-amber-400">{prison.currentOccupancy}</strong></div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex gap-2 border-t border-slate-900 pt-2.5">
+                                    <button 
+                                      onClick={() => {
+                                        setExpandedProv(prev => ({ ...prev, [selectedHierNode.id!]: true }));
+                                        setSelectedHierNode({ type: "PRISON", id: prison.id, name: prison.name, parentId: selectedHierNode.id });
+                                      }}
+                                      className="flex-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-[10px] font-mono py-1.5 rounded transition text-center font-bold"
+                                    >
+                                      Seleccionar Cadeia
+                                    </button>
+                                    {currentOperator.role === "DIRECTOR_GERAL" && (
+                                      <>
+                                        <button 
+                                          onClick={() => openEditPrisonModal(prison.id, prison.name, prison.officialCapacity, prison.operationalCapacity || prison.officialCapacity, selectedHierNode.id!)}
+                                          className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-amber-500 text-[10px] px-2.5 py-1.5 rounded transition"
+                                          title="Editar Cadeia"
+                                        >
+                                          ✎
+                                        </button>
+                                        <button 
+                                          onClick={() => openDeletePrisonModal(prison.id, prison.name)}
+                                          className="bg-slate-900 hover:bg-red-950/40 border border-slate-850 text-red-500 text-[10px] px-2.5 py-1.5 rounded transition"
+                                          title="Excluir Cadeia"
+                                        >
+                                          ✕
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
-                                <p className="text-[10px] text-slate-500 font-mono mt-1">
-                                  Código: {mun.id}
-                                </p>
-                              </div>
-                              <div className="flex gap-2 border-t border-slate-900 pt-2 mt-1">
-                                <button 
-                                  onClick={() => {
-                                    setExpandedMuns(prev => ({ ...prev, [mun.id]: true }));
-                                    setExpandedProv(prev => ({ ...prev, [selectedHierNode.id!]: true }));
-                                    setSelectedHierNode({ type: "MUNICIPALITY", id: mun.id, name: mun.name, parentId: selectedHierNode.id });
-                                  }}
-                                  className="flex-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] py-1 rounded transition text-center font-mono"
-                                >
-                                  Seleccionar
-                                </button>
+                              ))}
+
+                              {provPrisons.length === 0 && (
+                                <div className="col-span-full text-center py-8 bg-slate-950/50 rounded-xl border border-slate-850/60 p-6 flex flex-col items-center gap-2">
+                                  <Building className="h-8 w-8 text-slate-600" />
+                                  <p className="text-slate-400 text-xs font-mono">
+                                    Nenhuma cadeia (EP) associada nesta província do {selectedHierNode.name}.
+                                  </p>
+                                  {currentOperator.role === "DIRECTOR_GERAL" && (
+                                    <button
+                                      onClick={() => openCreatePrisonModal(selectedHierNode.id!)}
+                                      className="mt-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold font-mono px-4 py-2 rounded-lg transition"
+                                    >
+                                      + Criar Primeira Cadeia em {selectedHierNode.name}
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* 2. Secondary Section: Municípios da Província */}
+                      <div className="bg-slate-900/80 border border-slate-850 rounded-xl p-5 flex flex-col gap-4">
+                        <div className="flex justify-between items-center border-b border-slate-850 pb-2">
+                          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-slate-400" /> Municípios da Província do {selectedHierNode.name}
+                          </h3>
+                          {currentOperator.role === "DIRECTOR_GERAL" && (
+                            <button 
+                              onClick={() => openCreateMunicipalityModal(selectedHierNode.id!)}
+                              className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold uppercase font-mono px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer border border-slate-700"
+                            >
+                              <Plus className="h-3 w-3" /> Adicionar Município
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {municipalities.filter(m => m.province === selectedHierNode.id).map(mun => {
+                            const munPris = prisons.filter(p => p.municipalityId === mun.id);
+                            return (
+                              <div key={mun.id} className="bg-slate-950/80 p-3 rounded-lg border border-slate-850 flex items-center justify-between gap-2">
+                                <div>
+                                  <span className="text-xs font-bold text-slate-300 font-mono">{mun.name}</span>
+                                  <p className="text-[9.5px] text-slate-500 font-mono mt-0.5">{munPris.length} Cadeias registradas</p>
+                                </div>
                                 {currentOperator.role === "DIRECTOR_GERAL" && (
-                                  <>
+                                  <div className="flex gap-1">
                                     <button 
                                       onClick={() => openEditMunicipalityModal(mun.id, mun.name, selectedHierNode.id!)}
-                                      className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-amber-500 text-[10px] px-2.5 py-1 rounded transition"
-                                      title="Editar Nome do Município"
+                                      className="text-slate-400 hover:text-amber-400 text-xs px-1.5 py-0.5"
                                     >
                                       ✎
                                     </button>
                                     <button 
                                       onClick={() => openDeleteMunicipalityModal(mun.id, mun.name)}
-                                      className="bg-slate-900 hover:bg-red-950/40 border border-slate-850 text-red-500 text-[10px] px-2.5 py-1 rounded transition"
-                                      title="Excluir Município"
+                                      className="text-slate-400 hover:text-red-400 text-xs px-1.5 py-0.5"
                                     >
                                       ✕
                                     </button>
-                                  </>
+                                  </div>
                                 )}
                               </div>
+                            );
+                          })}
+                          {municipalities.filter(m => m.province === selectedHierNode.id).length === 0 && (
+                            <div className="col-span-full text-slate-500 italic text-[11px] font-mono py-2">
+                              Sem municípios específicos configurados.
                             </div>
-                          );
-                        })}
-                        {municipalities.filter(m => m.province === selectedHierNode.id).length === 0 && (
-                          <div className="col-span-full text-center py-6 text-slate-500 italic text-xs font-mono">
-                            Nenhum município cadastrado nesta província. Clique no botão acima para cadastrar o primeiro município.
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -11829,7 +12236,7 @@ export default function App() {
                       <div>
                         <h4 className="text-xs font-bold text-slate-200 font-sans tracking-wide uppercase">
                           {[
-                            "Dados de Identificação Nominais",
+                            "Identificação Nominais",
                             "Situação Jurídica & Processo",
                             "Inteligência & Risco Criminal",
                             "Avaliação de Segurança & Periculosidade",
@@ -13297,6 +13704,48 @@ export default function App() {
                             <span className="text-[10px] uppercase font-mono font-bold text-amber-500 mr-1 flex items-center gap-1">
                               <Zap className="h-3.5 w-3.5 text-amber-500" /> Operações
                             </span>
+                            <button
+                              type="button"
+                              onClick={() => setIsQuickHierarchyModalOpen(true)}
+                              className="px-2.5 py-1 text-[9px] font-mono font-bold uppercase rounded bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-400 hover:text-amber-300 cursor-pointer flex items-center gap-1.5 transition shadow-sm"
+                              title="Configuração Rápida de Hierarquia"
+                            >
+                              <Sliders className="h-3 w-3 text-amber-400 shrink-0" /> Configuração Rápida de Hierarquia
+                            </button>
+
+                            {/* Indicador Visual de Conformidade Hierárquica */}
+                            {(() => {
+                              const total = quickHierarchyLevels.length;
+                              const conformeCount = quickHierarchyLevels.filter(l => l.legalStatus === "Conforme").length;
+                              const nonConformeCount = quickHierarchyLevels.filter(l => l.legalStatus === "Não Conforme").length;
+                              const percentage = Math.round((conformeCount / total) * 100);
+
+                              let badgeColor = "bg-emerald-500/15 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/25";
+                              let dotColor = "bg-emerald-400 animate-pulse";
+                              let statusText = `Conformidade Hierárquica: ${percentage}%`;
+
+                              if (nonConformeCount > 0 || percentage < 60) {
+                                badgeColor = "bg-red-500/15 border-red-500/40 text-red-400 hover:bg-red-500/25";
+                                dotColor = "bg-red-400 animate-ping";
+                                statusText = `Conformidade Crítica: ${percentage}%`;
+                              } else if (percentage < 100) {
+                                badgeColor = "bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/25";
+                                dotColor = "bg-amber-400 animate-pulse";
+                                statusText = `Conformidade Parcial: ${percentage}%`;
+                              }
+
+                              return (
+                                <div 
+                                  className={`px-2.5 py-1 text-[9px] font-mono font-bold uppercase rounded border flex items-center gap-1.5 transition shadow-sm cursor-pointer ${badgeColor}`}
+                                  onClick={() => setIsQuickHierarchyModalOpen(true)}
+                                  title="Status de Conformidade Legal e Capacidade Nominal dos Níveis Hierárquicos (Clique para configurar)"
+                                >
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
+                                  <ShieldCheck className="h-3 w-3 shrink-0" />
+                                  <span>{statusText}</span>
+                                </div>
+                              );
+                            })()}
                           </div>
 
                           {/* Ações de Triagem e Sugestão */}
@@ -16730,7 +17179,7 @@ export default function App() {
                     >
                       <span className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center gap-1.5">
                         <Activity className={`h-3.5 w-3.5 ${backgroundSyncEnabled && (!isOnline || syncQueue.length > 0) ? "text-amber-500 animate-pulse" : "text-slate-400"}`} />
-                        Sincronização VSAT
+                        Sinc VSAT
                       </span>
                       
                       <div className="flex items-center gap-3">
@@ -17641,42 +18090,26 @@ export default function App() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="flex flex-col gap-6"
+              className="flex flex-col gap-4"
             >
-              {/* Top Banner with Warning Info classification */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider">
-                      RESTRITO
-                    </span>
-                  </div>
-                  <div>
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100 font-mono flex items-center gap-2">
-                      <Activity className="h-4 w-4 text-amber-500 animate-pulse" /> Motor Nacional de Movimentações Penitenciárias
-                    </h2>
-                    {!isMovBannerCollapsed && (
-                      <p className="text-[11px] text-slate-400 font-sans mt-0.5">
-                        Controlo em tempo real de solturas, transferências e escoltas.
-                      </p>
-                    )}
-                  </div>
+              {/* Compact Top Banner */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between gap-3 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase">
+                    RESTRITO
+                  </span>
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100 font-mono flex items-center gap-1.5">
+                    <Activity className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Movimentações Penitenciárias
+                  </h2>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsMovBannerCollapsed(!isMovBannerCollapsed)}
-                    className="bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-400 hover:text-slate-200 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>{isMovBannerCollapsed ? "Expandir" : "Recolher"}</span>
-                  </button>
-                  <div className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 flex items-center gap-2 font-mono text-xs">
-                    <span className="text-[9px] text-slate-500 uppercase">Ativas:</span>
+                <div className="flex items-center gap-2 font-mono text-[10px]">
+                  <div className="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 flex items-center gap-1.5">
+                    <span className="text-slate-500 uppercase">Ativas:</span>
                     <span className="font-bold text-sky-400">{movements.length}</span>
                   </div>
-                  <div className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-850 flex items-center gap-2 font-mono text-xs">
-                    <span className="text-[9px] text-slate-500 uppercase">Efetuadas:</span>
+                  <div className="bg-slate-950 px-2 py-0.5 rounded border border-slate-800 flex items-center gap-1.5">
+                    <span className="text-slate-500 uppercase">Efetuadas:</span>
                     <span className="font-bold text-emerald-400">
                       {movements.filter(m => m.status === "EXECUTED").length}
                     </span>
@@ -17684,42 +18117,39 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Grid Area: Form and timeline */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Grid Area: Compact Form and Compact Cells */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 
                 {/* Form to schedule a movement */}
-                <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-                  <div>
-                    <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <Plus className="h-3.5 w-3.5 text-amber-500" /> Nova Movimentação
-                      </span>
-                      <span className="text-[9px] font-mono text-slate-500 font-normal uppercase">Formulário Operacional</span>
+                <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-lg p-3 flex flex-col gap-2.5 text-left">
+                  <div className="border-b border-slate-800 pb-1.5">
+                    <h3 className="font-mono font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <Plus className="h-3.5 w-3.5 text-amber-500" /> Nova Movimentação
                     </h3>
                   </div>
 
-                  <form onSubmit={handleExecuteMovement} className="flex flex-col gap-2.5 font-mono text-xxs text-slate-300">
+                  <form onSubmit={handleExecuteMovement} className="flex flex-col gap-2 font-mono text-[10px] text-slate-300">
                     {/* Select Inmate */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-slate-500 block">SELECIONAR RECLUSO:</label>
+                    <div className="flex flex-col gap-0.5">
+                      <label className="text-slate-500 text-[9px]">RECLUSO:</label>
                       <select
                         value={movSelectedInmateId}
                         onChange={(e) => setMovSelectedInmateId(e.target.value)}
-                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                        className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         required
                       >
-                        <option value="">Selecione...</option>
+                        <option value="">Selecione recluso...</option>
                         {visibleInmates.map(inm => (
                           <option key={inm.id} value={inm.id}>
-                            {inm.firstName} {inm.lastName} (BI: {inm.idCard} - {(inm as any).systemStatus || "Ativo"})
+                            {inm.firstName} {inm.lastName} (BI: {inm.idCard})
                           </option>
                         ))}
                       </select>
                     </div>
 
                     {/* Select Movement Type */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-slate-500 block">TIPO DE MOVIMENTO:</label>
+                    <div className="flex flex-col gap-0.5">
+                      <label className="text-slate-500 text-[9px]">TIPO DE MOVIMENTO:</label>
                       <select
                         value={movType}
                         onChange={(e) => {
@@ -17731,229 +18161,163 @@ export default function App() {
                           else if (e.target.value === "HOSPITAL") setMovReason("Escolta clínica de emergência.");
                           else if (e.target.value === "DEATH") setMovReason("Registo legal de óbito.");
                         }}
-                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                        className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         required
                       >
-                        <option value="CELL_CHANGE">MUDANÇA DE CELA (Celular Interno)</option>
+                        <option value="CELL_CHANGE">MUDANÇA DE CELA</option>
                         <option value="TRANSFER">TRANSFERÊNCIA INSTITUCIONAL</option>
-                        <option value="RELEASE">ALVARÁ DE LIBERDADE (Soltura)</option>
-                        <option value="COURT">AUDIÊNCIA EXTERNA (Tribunal)</option>
-                        <option value="HOSPITAL">ESCOLTA CLÍNICA (Hospital)</option>
+                        <option value="RELEASE">ALVARÁ DE LIBERDADE (SOLTURA)</option>
+                        <option value="COURT">AUDIÊNCIA EXTERNA (TRIBUNAIS)</option>
+                        <option value="HOSPITAL">ESCOLTA CLÍNICA</option>
                         <option value="DEATH">HOMOLOGAÇÃO DE ÓBITO</option>
                       </select>
                     </div>
 
-                    {/* Destination prison/location (Only if Transfer is selected) */}
+                    {/* Destination prison/location */}
                     {movType === "TRANSFER" && (
-                      <div className="flex flex-col gap-1">
-                        <label className="text-slate-500 block">ESTABELECIMENTO DE DESTINO:</label>
+                      <div className="flex flex-col gap-0.5">
+                        <label className="text-slate-500 text-[9px]">DESTINO:</label>
                         <select
                           value={movDestPrisonId}
                           onChange={(e) => setMovDestPrisonId(e.target.value)}
-                          className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                          className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         >
                           {prisons.map(p => {
                             const isOver = (p.currentOccupancy || 0) >= p.operationalCapacity;
                             return (
                               <option key={p.id} value={p.id}>
-                                {p.name} ({p.currentOccupancy}/{p.operationalCapacity} {isOver ? "⚠️ CHEIO" : "✅ Regular"})
+                                {p.name} ({p.currentOccupancy}/{p.operationalCapacity} {isOver ? "⚠️ CHEIO" : "OK"})
                               </option>
                             );
                           })}
                         </select>
-                        {(() => {
-                          const chosenP = prisons.find(p => p.id === movDestPrisonId);
-                          if (chosenP && (chosenP.currentOccupancy || 0) >= chosenP.operationalCapacity) {
-                            return (
-                              <p className="text-[10px] text-amber-500 font-sans leading-tight mt-1 flex items-center gap-1 bg-amber-500/5 border border-amber-500/25 p-1 px-1.5 rounded">
-                                <AlertTriangle className="h-3 w-3 inline shrink-0" /> Superlotação: O destino selecionado já atingiu a capacidade operacional.
-                              </p>
-                            );
-                          }
-                          return null;
-                        })()}
                       </div>
                     )}
 
-                    {/* Destination cell number (Only block cell change is selected) */}
+                    {/* Destination cell number */}
                     {movType === "CELL_CHANGE" && (
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="flex flex-col gap-1">
-                          <label className="text-slate-500 block">CELA / ALOJAMENTO:</label>
-                          <input
-                            type="text"
-                            value={movDestCell}
-                            onChange={(e) => setMovDestCell(e.target.value)}
-                            placeholder="Cela H1-02"
-                            className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
-                            required
-                          />
-                        </div>
-                        <div className="flex flex-col gap-1 font-sans">
-                          <label className="text-slate-500 block font-mono text-xxs">CONTINGENTE LIMIT:</label>
-                          <span className="bg-slate-950/80 px-2 py-1.5 rounded text-xxs text-amber-500 h-full border border-slate-850 block font-medium">
-                            Capacidade 24h Segura
-                          </span>
-                        </div>
+                      <div className="flex flex-col gap-0.5">
+                        <label className="text-slate-500 text-[9px]">NOVA CELA:</label>
+                        <input
+                          type="text"
+                          value={movDestCell}
+                          onChange={(e) => setMovDestCell(e.target.value)}
+                          placeholder="Cela H1-02"
+                          className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                          required
+                        />
                       </div>
                     )}
 
-                    {/* Escort / Guard Details */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-slate-500 block">FORÇA DE ESCOTA E CUSTÓDIA:</label>
+                    {/* Escort Details */}
+                    <div className="flex flex-col gap-0.5">
+                      <label className="text-slate-500 text-[9px]">FORÇA DE ESCOTA:</label>
                       <input
                         type="text"
                         value={movEscort}
                         onChange={(e) => setMovEscort(e.target.value)}
-                        placeholder="Ex: Força de Escolta Especial PNAP"
-                        className="bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full"
+                        placeholder="Ex: Escolta Especial PNAP"
+                        className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         required
                       />
                     </div>
 
                     {/* Justification reasons */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-slate-500 block">MOTIVAÇÃO DO MANDADO / JUSTIFICAÇÃO:</label>
-                      <textarea
+                    <div className="flex flex-col gap-0.5">
+                      <label className="text-slate-500 text-[9px]">JUSTIFICAÇÃO:</label>
+                      <input
+                        type="text"
                         value={movReason}
                         onChange={(e) => setMovReason(e.target.value)}
                         placeholder="Motivação formal..."
-                        rows={2}
-                        className="bg-slate-950 border border-slate-800 rounded p-2 text-xxs text-slate-200 outline-none focus:border-amber-500/50 block w-full font-mono resize-none leading-relaxed"
+                        className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         required
                       />
                     </div>
 
-                    {/* Calendar date */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex flex-col gap-1">
-                        <label className="text-slate-500 block">DATA REGISTO:</label>
-                        <input
-                          type="date"
-                          value={movScheduledDate}
-                          onChange={(e) => setMovScheduledDate(e.target.value)}
-                          className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-300 pointer-events-none block w-full"
-                          disabled
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1 font-sans justify-end">
-                        <span className="text-[10px] text-sky-400 block pb-1 border-b border-sky-400/20 font-bold">
-                          ● OPERADO EM COMANDO
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Submit logic - Clean Compact Button */}
+                    {/* Submit button */}
                     <button
                       type="submit"
                       disabled={!currentOperator.permissions?.includes(SystemPermission.MOVE_INMATE)}
-                      className="mt-1 bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer font-bold py-2.5 px-3 rounded-lg text-xs flex justify-center items-center gap-2 shadow tracking-wider transition-all font-mono uppercase disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="mt-1 bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer font-bold py-1.5 px-3 rounded text-[10px] flex justify-center items-center gap-1.5 shadow transition-all font-mono uppercase disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <Activity className="h-3.5 w-3.5" /> Outorgar Movimentação
                     </button>
                     {!currentOperator.permissions?.includes(SystemPermission.MOVE_INMATE) && (
-                      <p className="text-[10px] text-rose-500 font-sans leading-tight text-center bg-rose-500/5 border border-rose-500/20 p-1.5 rounded">
-                        Acesso Negado: Utilizador sem permissão MOVE_INMATE.
+                      <p className="text-[9px] text-rose-500 font-mono leading-tight text-center bg-rose-500/5 border border-rose-500/20 p-1 rounded">
+                        Sem permissão MOVE_INMATE.
                       </p>
                     )}
                   </form>
                 </div>
 
-                {/* Timeline and History Tracker */}
-                <div className="lg:col-span-7 flex flex-col gap-5 h-full">
+                {/* Timeline and History Tracker - COMPACT CELLS */}
+                <div className="lg:col-span-7 flex flex-col gap-3 h-full">
 
-                  {/* WORKFLOW DE DUAL APPROVAL (PENDENTES) */}
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3 shadow-lg text-left">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                      <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                        <Fingerprint className="h-4 w-4 text-amber-500 animate-pulse" /> Dual Approval (Maker-Checker)
+                  {/* MAKER-CHECKER (AUTORIZAÇÕES PENDENTES) - COMPACT CELLS */}
+                  <div className="bg-slate-900 border border-slate-800 rounded-lg p-3 flex flex-col gap-2 text-left">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                      <h3 className="font-mono font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <Fingerprint className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Autorizações Pendentes
                       </h3>
-                      <span className="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded font-mono font-bold">
+                      <span className="text-[9px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-1.5 py-0.2 rounded font-mono font-bold">
                         {movements.filter(m => m.status === "PENDING_APPROVAL").length} PENDENTES
                       </span>
                     </div>
 
                     {movements.filter(m => m.status === "PENDING_APPROVAL").length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-4 bg-slate-950/40 border border-dashed border-slate-800 rounded-xl text-center">
-                        <CheckCircle className="h-5 w-5 text-emerald-500/80 mb-1" />
-                        <span className="text-xxs font-mono text-slate-500 uppercase">Fila de autorização limpa</span>
+                      <div className="flex items-center justify-center py-2.5 bg-slate-950/40 border border-dashed border-slate-800 rounded text-center">
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald-500/80 mr-1.5" />
+                        <span className="text-[9px] font-mono text-slate-500 uppercase">Fila de autorização limpa</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1">
+                      <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-1">
                         {movements.filter(m => m.status === "PENDING_APPROVAL").map((pMov) => {
                           const isRelease = pMov.movementType === "RELEASE";
                           const isSupervisor = ["DIRECTOR_GERAL", "DIRECTOR_PROVINCIAL", "DIRECTOR_CADEIA"].includes(currentOperator.role);
                           const isRequester = currentOperator.id === pMov.operatorId;
                           const isEligible = isSupervisor && !isRequester;
-                          const requesterOp = operators.find(o => o.id === pMov.operatorId);
                           
                           return (
-                            <div key={pMov.id} className="bg-slate-950 border border-slate-850 hover:border-slate-800 transition rounded-xl p-3 flex flex-col gap-2">
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="flex flex-col">
-                                  <span className="text-xs font-sans font-bold text-slate-200">{pMov.inmateName}</span>
-                                  <span className="text-[8px] font-mono text-slate-500 mt-0.5 uppercase tracking-wider">
-                                    Recluso No: {pMov.inmateId} | Guia: {pMov.id}
+                            <div key={pMov.id} className="bg-slate-950 border border-slate-800 hover:border-slate-750 transition rounded p-2 flex items-center justify-between gap-2 font-mono text-[9.5px]">
+                              <div className="flex flex-col gap-0.5 truncate">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-bold text-slate-100 truncate">{pMov.inmateName}</span>
+                                  <span className={`text-[8px] font-bold px-1.5 py-0.2 rounded uppercase border shrink-0 ${
+                                    isRelease ? "bg-emerald-950/60 text-emerald-400 border-emerald-500/20" : "bg-sky-950/60 text-sky-400 border-sky-500/20"
+                                  }`}>
+                                    {isRelease ? "SOLTURA" : "TRANSFERÊNCIA"}
                                   </span>
                                 </div>
-                                <span className={`text-[8px] font-mono font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0 border ${
-                                  isRelease 
-                                    ? "bg-emerald-950/40 text-emerald-400 border-emerald-500/20" 
-                                    : "bg-sky-950/40 text-sky-400 border-sky-500/20"
-                                }`}>
-                                  {isRelease ? "SOLTURA PENDENTE" : "TRANSFERÊNCIA PENDENTE"}
-                                </span>
-                              </div>
-
-                              <div className="font-sans text-[10.5px] text-slate-300 leading-snug bg-slate-900 border border-slate-900 px-2.5 py-1.5 rounded">
-                                <span className="font-mono text-[9px] text-slate-500 uppercase mr-1">Motivação:</span>
-                                {pMov.reason}
-                              </div>
-
-                              <div className="bg-slate-900/40 border border-slate-900 px-2.5 py-1.5 rounded-lg text-[9px] font-mono flex items-center justify-between text-slate-400">
-                                <div className="flex items-center gap-1.5 truncate">
-                                  <span className="font-bold text-amber-500 shrink-0">ORIGEM:</span>
-                                  <span className="text-slate-300 bg-slate-950 px-1.5 py-0.2 rounded truncate">{pMov.sourceLocName}</span>
-                                  <span className="text-slate-600 font-bold shrink-0">➔</span>
-                                  <span className="font-bold text-sky-400 shrink-0">DESTINO:</span>
-                                  <span className="text-slate-300 bg-slate-950 px-1.5 py-0.2 rounded truncate">{pMov.destinationLocName}</span>
-                                </div>
-                                <div className="text-[8px] text-slate-500 shrink-0 italic">
-                                  Escorta: {pMov.escortDetails || "N/A"}
+                                <div className="text-[8.5px] text-slate-400 truncate flex items-center gap-1">
+                                  <span className="text-amber-500">{pMov.sourceLocName}</span>
+                                  <span className="text-slate-600">➔</span>
+                                  <span className="text-sky-400">{pMov.destinationLocName}</span>
                                 </div>
                               </div>
 
-                              <div className="border-t border-slate-900 pt-2 flex items-center justify-between text-[9px] font-mono">
-                                <span className="text-slate-500">
-                                  Solicitante: {requesterOp ? requesterOp.name : pMov.operatorId}
-                                </span>
-
+                              <div className="shrink-0 flex items-center gap-1">
                                 {isEligible ? (
-                                  <div className="flex gap-1.5">
+                                  <>
                                     <button
                                       type="button"
                                       onClick={() => handleDeclineTransfer(pMov.id)}
-                                      className="bg-rose-950/40 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-slate-950 font-bold px-2 py-1 rounded cursor-pointer transition text-[9px] uppercase tracking-wide"
+                                      className="bg-rose-950/50 text-rose-400 border border-rose-500/30 hover:bg-rose-500 hover:text-slate-950 font-bold px-1.5 py-0.5 rounded transition text-[8.5px] uppercase cursor-pointer"
                                     >
                                       RECUSAR
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleApproveTransfer(pMov.id)}
-                                      className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-2.5 py-1 rounded cursor-pointer transition text-[9px] flex items-center gap-1 uppercase tracking-wide shadow"
+                                      className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-2 py-0.5 rounded transition text-[8.5px] flex items-center gap-1 uppercase shadow cursor-pointer"
                                     >
-                                      <UserCheck className="h-3 w-3" /> ASSINAR & EXECUTAR
+                                      <UserCheck className="h-3 w-3" /> EXECUTAR
                                     </button>
-                                  </div>
-                                ) : isSupervisor && isRequester ? (
-                                  <div className="bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded text-amber-400 text-[9px] font-mono">
-                                    🔒 Requer 2º Supervisor (Maker-Checker)
-                                  </div>
+                                  </>
                                 ) : (
-                                  <div className="bg-slate-900 border border-slate-850 px-2 py-1 rounded text-slate-400 text-[9px] font-mono">
-                                    <Lock className="h-3 w-3 inline text-amber-500 mr-1" />
-                                    Acesso restrito a Supervisor
-                                  </div>
+                                  <span className="text-[8.5px] text-slate-500 border border-slate-800 px-1.5 py-0.5 rounded bg-slate-900">
+                                    {isRequester ? "Aguardando 2º Visto" : "Restrito"}
+                                  </span>
                                 )}
                               </div>
                             </div>
@@ -17963,100 +18327,60 @@ export default function App() {
                     )}
                   </div>
 
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex-1 flex flex-col gap-4 text-left">
-                    <div className="flex justify-between items-center-wrap border-b border-slate-800 pb-2">
-                      <div>
-                        <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5 text-sky-400" /> Histórico & Fluxo Militar de Escolta
-                        </h3>
-                        <p className="text-xxs text-slate-400 mt-0.5 leading-relaxed">
-                          Monitor de comboios, ordens prisionais e transferências ativas auditadas via SHA-256 no Serviço Nacional.
-                        </p>
-                      </div>
+                  {/* HISTÓRICO DE MOVIMENTAÇÕES - COMPACT CELLS */}
+                  <div className="bg-slate-900 border border-slate-800 rounded-lg p-3 flex-1 flex flex-col gap-2 text-left">
+                    <div className="border-b border-slate-800 pb-1.5">
+                      <h3 className="font-mono font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-sky-400" /> Histórico de Movimentações
+                      </h3>
                     </div>
  
-                     {/* Timeline logs */}
-                     <div className="flex flex-col gap-3.5 overflow-y-auto max-h-[500px] pr-1">
-                       {movements.map((mov) => {
-                         const cellColor = 
-                           mov.status === "PENDING_APPROVAL" ? "border-amber-500/20 bg-amber-500/5 animate-pulse" :
-                           mov.status === "CANCELLED" ? "border-rose-500/10 bg-rose-500/5 opacity-60" :
-                           mov.movementType === "TRANSFER" ? "border-sky-500/20 bg-sky-500/5" :
-                           mov.movementType === "RELEASE" ? "border-emerald-500/20 bg-emerald-500/5" :
-                           mov.movementType === "CELL_CHANGE" ? "border-slate-800 bg-slate-900/40" :
-                           mov.movementType === "COURT" ? "border-sky-500/20 bg-sky-500/5" : "border-indigo-500/10 bg-indigo-500/5";
-                         
-                         const labelType = 
-                           mov.movementType === "TRANSFER" ? "TRANSFERÊNCIA PROVINCIAL" :
-                           mov.movementType === "RELEASE" ? "ALVARÁ DE SOLTURA" :
-                           mov.movementType === "CELL_CHANGE" ? "RELOCAÇÃO CELA INTERNA" :
-                           mov.movementType === "COURT" ? "ESCORTA JUDICIÁRIA (COURT)" :
-                           mov.movementType === "HOSPITAL" ? "CUSTÓDIA CLÍNICA MÉDICA" : "INTERNAMENTO PENAL";
- 
-                         return (
-                           <div key={mov.id} className={`p-4 rounded-xl border ${cellColor} flex flex-col gap-2.5 transition`}>
-                             <div className="flex justify-between items-start">
-                               <div className="flex flex-col">
-                                 <span className="text-[10px] font-sans font-extrabold text-slate-200">{mov.inmateName}</span>
-                                 <span className="text-[7.5px] font-mono text-slate-500 mt-0.5 uppercase tracking-wider">
-                                   RECLUSO: No. {mov.inmateId} | CÓDIGO REGISTO: {mov.id}
-                                 </span>
-                               </div>
-                               <span className="text-[8px] font-mono font-bold bg-slate-950 px-2 py-0.5 rounded border border-slate-850 text-slate-400 uppercase tracking-wider shrink-0">
-                                 {labelType}
-                               </span>
-                             </div>
- 
-                             <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
-                               {mov.reason}
-                             </p>
- 
-                             {/* Timeline Flow Graphic represent on screen (Point 10 - visual timelines) */}
-                             <div className="bg-slate-950 border border-slate-900 rounded p-2.5 font-mono text-[9px] flex items-center gap-1.5 overflow-x-auto text-slate-400">
-                               <span className="text-amber-500 font-bold shrink-0">ORIGEM:</span>
-                               <span className="text-slate-300 bg-slate-900 px-1.5 py-0.2 rounded font-semibold truncate shrink-0">
-                                 {mov.sourceLocName || "Ponto Inicial / Triagem"}
-                               </span>
-                               <span className="text-slate-600 px-0.5">➔</span>
-                               <span className="text-sky-400 font-bold shrink-0">DESTINO:</span>
-                               <span className="text-slate-300 bg-slate-900 px-1.5 py-0.2 rounded font-semibold truncate shrink-0">
-                                 {mov.destinationLocName || "Área Externa / Concluído"}
-                               </span>
-                             </div>
- 
-                             {/* Footer meta info: Signatures, Stamps */}
-                             <div className="border-t border-slate-900/40 pt-2 flex justify-between items-center text-[8.5px] font-mono text-slate-500 leading-none">
-                               <div className="flex items-center gap-1.5">
-                                 <Fingerprint className="h-3 w-3 text-emerald-500" />
-                                 <span>
-                                   {mov.status === "PENDING_APPROVAL" 
-                                     ? `Pendente Visto Provincial | ID Solicitante: ${mov.operatorId}`
-                                     : mov.status === "CANCELLED"
-                                       ? `Cancelado / Recusado`
-                                       : `Aprovado por: ${mov.approvedByName || `ID ${mov.operatorId}`}`}
-                                 </span>
-                               </div>
-                               <div className="flex items-center gap-2">
-                                 <span className="text-slate-600 font-bold uppercase shrink-0">Escuta: {mov.escortDetails || "NREP"}</span>
-                                 {mov.status === "PENDING_APPROVAL" ? (
-                                   <span className="bg-amber-500/10 text-amber-400 border border-amber-500/25 px-1.5 font-bold uppercase rounded py-0.2">
-                                     PENDENTE VALIDAÇÃO
-                                   </span>
-                                 ) : mov.status === "CANCELLED" ? (
-                                   <span className="bg-rose-500/10 text-rose-400 border border-rose-500/25 px-1.5 font-bold uppercase rounded py-0.2">
-                                     RECUSADA / CANCELADA
-                                   </span>
-                                 ) : (
-                                   <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 font-bold uppercase rounded py-0.2">
-                                     HOMOLOGADO (EXECUTADO)
-                                   </span>
-                                 )}
-                               </div>
-                             </div>
-                           </div>
-                         );
-                       })}
-                     </div>
+                    {/* Compact Cell List */}
+                    <div className="flex flex-col gap-1.5 overflow-y-auto max-h-[380px] pr-1 font-mono text-[9.5px]">
+                      {movements.map((mov) => {
+                        const labelType = 
+                          mov.movementType === "TRANSFER" ? "TRANSFERÊNCIA" :
+                          mov.movementType === "RELEASE" ? "SOLTURA" :
+                          mov.movementType === "CELL_CHANGE" ? "MUDANÇA CELA" :
+                          mov.movementType === "COURT" ? "AUDIÊNCIA" :
+                          mov.movementType === "HOSPITAL" ? "CLÍNICA" : "INTERNAMENTO";
+
+                        return (
+                          <div key={mov.id} className="p-2 rounded bg-slate-950 border border-slate-850 hover:border-slate-800 transition flex items-center justify-between gap-2">
+                            <div className="flex flex-col gap-0.5 min-w-0">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-bold text-slate-200 truncate">{mov.inmateName}</span>
+                                <span className="text-[8px] bg-slate-900 text-slate-400 border border-slate-800 px-1 py-0.2 rounded font-bold uppercase">
+                                  {labelType}
+                                </span>
+                              </div>
+                              <div className="text-[8.5px] text-slate-400 flex items-center gap-1 truncate">
+                                <span className="text-amber-500 font-semibold">{mov.sourceLocName || "Inicial"}</span>
+                                <span className="text-slate-600">➔</span>
+                                <span className="text-sky-400 font-semibold">{mov.destinationLocName || "Destino"}</span>
+                                {mov.reason && <span className="text-slate-500 truncate hidden sm:inline">• {mov.reason}</span>}
+                              </div>
+                            </div>
+
+                            <div className="shrink-0 text-right">
+                              {mov.status === "PENDING_APPROVAL" ? (
+                                <span className="bg-amber-500/10 text-amber-400 border border-amber-500/25 px-1.5 py-0.5 font-bold uppercase rounded text-[8px]">
+                                  PENDENTE
+                                </span>
+                              ) : mov.status === "CANCELLED" ? (
+                                <span className="bg-rose-500/10 text-rose-400 border border-rose-500/25 px-1.5 py-0.5 font-bold uppercase rounded text-[8px]">
+                                  RECUSADA
+                                </span>
+                              ) : (
+                                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 font-bold uppercase rounded text-[8px]">
+                                  EXECUTADA
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -18068,34 +18392,30 @@ export default function App() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="flex flex-col gap-6 font-sans text-slate-200"
+              className="flex flex-col gap-4 text-left"
             >
-              {/* Header Box */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-80 h-32 bg-[radial-gradient(circle_at_top_right,rgba(225,29,72,0.07),transparent_60%)] pointer-events-none" />
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider">
-                        SICP OPERACIONAL • EXECUTIVO
+              {/* Minimalist Top Header & Status Bar */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-2.5 sm:p-3 relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 relative z-10">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-wrap items-center gap-1.5 font-mono text-[8.5px] sm:text-[9px] font-bold">
+                      <span className="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.5 rounded uppercase">
+                        SICP OPERACIONAL
                       </span>
-                      <span className="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider">
-                        GRAU DE RASTRABILIDADE: 98.4% ENTERPRISE
+                      <span className="bg-slate-950 text-slate-300 border border-slate-800 px-1.5 py-0.5 rounded uppercase">
+                        RASTREABILIDADE: 98.4%
                       </span>
-                      <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1">
+                      <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded uppercase flex items-center gap-1">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-                        SISTEMA DE SELOS ATIVO
+                        SELOS ATIVOS
                       </span>
                     </div>
-                    <h2 className="text-base font-bold uppercase tracking-wider text-slate-100 font-mono mt-2.5 flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-rose-500" /> Centro Nacional de Auditoria Penitenciária (PNAP-AO-AUD)
+                    <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-100 font-mono mt-0.5 flex items-center gap-1.5">
+                      <Shield className="h-4 w-4 text-rose-500 shrink-0" /> AUDITORIA CENTRAL (PNAP-AO-AUD)
                     </h2>
-                    <p className="text-xs text-slate-400 mt-1 max-w-3xl">
-                      Monitorização ministerial e rastreabilidade policial em tempo real de todas as ações de operadores civis e militares. Todas as operações são carimbadas criptograficamente para auditoria imutável.
-                    </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="shrink-0 w-full sm:w-auto">
                     <button 
                       onClick={() => {
                         writeAuditLog(
@@ -18103,26 +18423,22 @@ export default function App() {
                           "PRINT_REPORT",
                           "Auditing",
                           undefined,
-                          "Exportação consolidada de log forense de segurança nacional."
+                          "Exportação de log forense."
                         );
 
-                        // Actual data export
                         const reportData = {
-                          documento: "Registo Forense Penitenciário - Auditoria Centralizada",
+                          documento: "Registo Forense - Auditoria Central",
                           dataGeracao: new Date().toISOString(),
-                          integridade: "VALIDADO SHA-256 (AES-GCM-256)",
-                          complianceMinint: "REGULAMENTO MININT-AO SUB-SECÇÃO V",
-                          dispositivoResponsavel: "Unidade Central PNAP-AO",
-                          scoreAuditoria: `${auditComplianceScore}%`,
+                          integridade: "SHA-256",
                           totalRegistos: auditRecords.length,
                           registos: auditRecords
                         };
                         
-                        const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+                        const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
                         const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
+                        const link = document.createElement("a");
                         link.href = url;
-                        link.download = `audit_logs_forenses_${new Date().toISOString().split('T')[0]}.json`;
+                        link.download = `audit_log_${new Date().toISOString().split("T")[0]}.json`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -18130,89 +18446,68 @@ export default function App() {
 
                         triggerToast(
                           "EXPORTAÇÃO CONCLUÍDA", 
-                          "O relatório consolidado de logs de auditoria foi gerado e exportado com assinatura de integridade digital PNAP.", 
+                          "Log de auditoria exportado (.JSON).", 
                           "success"
                         );
                       }}
-                      className="bg-slate-950 hover:bg-slate-900 text-slate-300 font-bold border border-slate-800 hover:border-slate-700 px-3.5 py-2 rounded-lg text-xxs flex items-center gap-2 cursor-pointer font-mono transition-all"
+                      className="w-full sm:w-auto bg-slate-950 hover:bg-slate-850 text-slate-200 font-bold border border-slate-800 hover:border-slate-700 px-2.5 py-1.5 rounded text-[9.5px] sm:text-[10px] flex items-center justify-center gap-1.5 cursor-pointer font-mono uppercase shadow transition-all whitespace-nowrap"
                     >
-                      <Printer className="h-3.5 w-3.5 text-amber-500" /> EXPORTAR AUDIT LOG (.JSON)
+                      <Printer className="h-3.5 w-3.5 text-amber-500 shrink-0" /> EXPORTAR AUDIT LOG (.JSON)
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Advanced Compliance & Audit Status Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4.5 flex flex-col gap-2 relative overflow-hidden">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider">Métrica de Auditoria</span>
-                  <div className="flex items-baseline justify-between mt-1">
-                    <span className="text-2xl font-black text-rose-500 font-mono">{auditComplianceScore}%</span>
-                    <span className="text-[9px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1.5 py-0.2 rounded font-mono">EXCELENTE</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 leading-snug font-sans border-t border-slate-850 pt-2.5 mt-1">
-                    Conformidade regulatória total com as diretivas de rastreio de custódia e sigilo de reclusos.
+              {/* Minimalist Metrics Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
+                <div className="bg-slate-900 border border-slate-800 rounded-lg p-2.5 sm:p-3 font-mono flex flex-col justify-between gap-1">
+                  <span className="text-[8.5px] sm:text-[9px] text-slate-400 uppercase font-bold tracking-wider truncate">MÉTRICA DE RASTREIO</span>
+                  <div className="flex items-center justify-between gap-1 mt-0.5">
+                    <span className="text-sm sm:text-base font-black text-rose-400">{auditComplianceScore}%</span>
+                    <span className="text-[7.5px] sm:text-[8px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-1 py-0.2 rounded font-bold uppercase shrink-0">EXCELENTE</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4.5 flex flex-col gap-2">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider">Integridade dos Selos</span>
-                  <div className="flex items-baseline justify-between mt-1">
-                    <span className="text-2xl font-black text-emerald-400 font-mono">100% SECURE</span>
-                    <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 rounded font-mono">SHA-256</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 leading-snug font-sans border-t border-slate-850 pt-2.5 mt-1">
-                    Todos os {auditRecords.length} registos ativos possuem chaves de integridade calculadas na hora.
+                <div className="bg-slate-900 border border-slate-800 rounded-lg p-2.5 sm:p-3 font-mono flex flex-col justify-between gap-1">
+                  <span className="text-[8.5px] sm:text-[9px] text-slate-400 uppercase font-bold tracking-wider truncate">INTEGRIDADE SELOS</span>
+                  <div className="flex items-center justify-between gap-1 mt-0.5">
+                    <span className="text-sm sm:text-base font-black text-emerald-400">100% SECURE</span>
+                    <span className="text-[7.5px] sm:text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 py-0.2 rounded font-bold uppercase shrink-0">SHA-256</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4.5 flex flex-col gap-2">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider">Dupla Validação (Maker-Checker)</span>
-                  <div className="flex items-baseline justify-between mt-1">
-                    <span className="text-2xl font-black text-amber-400 font-mono">ATIVO</span>
-                    <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.2 rounded font-mono">DUAL FLOW</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 leading-snug font-sans border-t border-slate-850 pt-2.5 mt-1">
-                    Evita auto-aprovação de movimentações e solturas críticas por operadores ordinários.
+                <div className="bg-slate-900 border border-slate-800 rounded-lg p-2.5 sm:p-3 font-mono flex flex-col justify-between gap-1">
+                  <span className="text-[8.5px] sm:text-[9px] text-slate-400 uppercase font-bold tracking-wider truncate">DUPLA VALIDAÇÃO</span>
+                  <div className="flex items-center justify-between gap-1 mt-0.5">
+                    <span className="text-sm sm:text-base font-black text-amber-400">DUAL FLOW</span>
+                    <span className="text-[7.5px] sm:text-[8px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1 py-0.2 rounded font-bold uppercase shrink-0">ATIVO</span>
                   </div>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4.5 flex flex-col gap-2">
-                  <span className="text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider">SICP Conexão</span>
-                  <div className="flex items-baseline justify-between mt-1">
-                    <span className="text-2xl font-black text-sky-400 font-mono">DIRETA</span>
-                    <span className="text-[9px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.2 rounded font-mono">TLS 1.3</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 leading-snug font-sans border-t border-slate-850 pt-2.5 mt-1">
-                    Sincronização imediata de auditorias criptográficas forenses no terminal ministerial de Angola.
+                <div className="bg-slate-900 border border-slate-800 rounded-lg p-2.5 sm:p-3 font-mono flex flex-col justify-between gap-1">
+                  <span className="text-[8.5px] sm:text-[9px] text-slate-400 uppercase font-bold tracking-wider truncate">CONEXÃO SICP</span>
+                  <div className="flex items-center justify-between gap-1 mt-0.5">
+                    <span className="text-sm sm:text-base font-black text-sky-400">DIRETA</span>
+                    <span className="text-[7.5px] sm:text-[8px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1 py-0.2 rounded font-bold uppercase shrink-0">TLS 1.3</span>
                   </div>
                 </div>
               </div>
 
-              {/* Interactive Cryptographic Integrity Scanner Tool */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 relative overflow-hidden">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono flex items-center gap-2">
-                    <Fingerprint className="h-4 w-4 text-emerald-400 animate-pulse" /> Verificação e Varredura de Integridade Forense
+              {/* Varredura Criptográfica Tool - Compact */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-3 flex flex-col gap-2 font-mono text-[10px]">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                    <Fingerprint className="h-3.5 w-3.5 text-emerald-400 animate-pulse" /> Varredura Criptográfica
                   </h3>
-                  <span className="text-[9px] text-slate-500 uppercase font-mono tracking-wider font-extrabold">Ferramenta Corporativa NREP</span>
+                  <span className="text-[8.5px] text-slate-500 uppercase font-bold">SICP / MININT SHA-256</span>
                 </div>
 
-                <p className="text-xxs text-slate-400 leading-relaxed">
-                  Esta ferramenta executa uma varredura tática de auditoria comparando os SHA-256 e as chaves assinadas dos registos contra o algoritmo central do Ministério do Interior (MININT), validando que nenhum log forense sofreu tampering ou manipulação externa.
-                </p>
-
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col gap-3">
+                <div className="bg-slate-950 p-2.5 rounded border border-slate-850">
                   {auditVerificationState === "IDLE" && (
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-slate-900 p-2.5 rounded border border-slate-800">
-                          <ShieldCheck className="h-6 w-6 text-slate-500" />
-                        </div>
-                        <div className="text-left font-mono">
-                          <div className="text-xxs text-slate-300 font-bold uppercase">Estado da Criptografia</div>
-                          <div className="text-[10px] text-slate-500 mt-0.5">Nenhuma verificação ativa realizada na sessão corrente.</div>
-                        </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4 text-slate-400" />
+                        <span className="text-[9.5px] text-slate-300 font-bold uppercase">Estado: Aguardando varredura</span>
                       </div>
                       <button
                         type="button"
@@ -18221,7 +18516,7 @@ export default function App() {
                           setAuditVerificationProgress(0);
                           let prog = 0;
                           const interval = setInterval(() => {
-                            prog += 5;
+                            prog += 10;
                             setAuditVerificationProgress(prog);
                             if (prog >= 100) {
                               clearInterval(interval);
@@ -18229,8 +18524,8 @@ export default function App() {
                               setAuditComplianceScore(100.0);
                               setAuditHasCertificate(true);
                               triggerToast(
-                                "VARREDURA DE AUDITORIA CONCLUÍDA",
-                                "Todos os registos de logs forenses foram integralmente validados com integridade 100% intacta.",
+                                "VARREDURA CONCLUÍDA",
+                                "Logs validados com 100% de integridade.",
                                 "success"
                               );
                               writeAuditLog(
@@ -18238,120 +18533,80 @@ export default function App() {
                                 "PRINT_REPORT",
                                 "Auditing",
                                 undefined,
-                                "Executou auditoria completa de hashes criptográficos nacionais com sucesso (100% integridade)."
+                                "Auditoria criptográfica executada com sucesso."
                               );
                             }
-                          }, 100);
+                          }, 80);
                         }}
-                        className="px-4 py-2 bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-400 font-bold border border-emerald-500/30 hover:border-emerald-500/50 rounded-lg text-xxs font-mono uppercase tracking-wider cursor-pointer transition-all"
+                        className="px-3 py-1 bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-400 font-bold border border-emerald-500/30 rounded text-[9px] uppercase tracking-wider cursor-pointer transition-all"
                       >
-                        Iniciar Varredura Criptográfica
+                        Iniciar Varredura
                       </button>
                     </div>
                   )}
 
                   {auditVerificationState === "SCANNING" && (
-                    <div className="flex flex-col gap-2 font-mono">
-                      <div className="flex justify-between text-xxs">
-                        <span className="text-slate-400 uppercase font-bold flex items-center gap-1.5">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between text-[9px]">
+                        <span className="text-amber-400 font-bold uppercase flex items-center gap-1">
                           <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
-                          A ler blocos e a recalcular hashes SHA-256...
+                          A verificar blocos SHA-256...
                         </span>
-                        <span className="text-amber-400 font-black">{auditVerificationProgress}%</span>
+                        <span className="text-amber-400 font-bold">{auditVerificationProgress}%</span>
                       </div>
-                      <div className="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden border border-slate-850">
+                      <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-850">
                         <div 
-                          className="h-full rounded-full bg-gradient-to-r from-amber-600 to-emerald-400 transition-all duration-100"
+                          className="h-full bg-amber-400 transition-all duration-100"
                           style={{ width: `${auditVerificationProgress}%` }}
                         />
-                      </div>
-                      <div className="flex justify-between text-[8px] text-slate-500 uppercase">
-                        <span>Lendo registo {Math.floor((auditRecords.length * auditVerificationProgress) / 100)} de {auditRecords.length}</span>
-                        <span>Verificando Integridade Hash...</span>
                       </div>
                     </div>
                   )}
 
                   {auditVerificationState === "COMPLETED" && (
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-900/60 pb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-emerald-950/40 p-2.5 rounded border border-emerald-500/30">
-                            <CheckCircle2 className="h-6 w-6 text-emerald-400 animate-bounce" />
-                          </div>
-                          <div className="text-left font-mono">
-                            <div className="text-xxs text-emerald-400 font-bold uppercase flex items-center gap-1">
-                              CERTIFICADO DE INTEGRIDADE CONFIRMADO
-                            </div>
-                            <div className="text-[10px] text-slate-300 mt-0.5">
-                              Varredura de {auditRecords.length} registos forenses concluída. Chaves 100% coincidentes.
-                            </div>
-                          </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                          <span className="text-[9.5px] text-emerald-400 font-bold uppercase">Integridade Confirmada (100% Match)</span>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
                             onClick={() => {
-                              // Generate download for certificate file
                               const certContent = {
-                                certificado: "Selo Governamental de Rastreabilidade Prisional (NREP-AO)",
-                                hashValidacao: "SHA256-COMPLIANCE-996-" + Math.floor(100000 + Math.random() * 900000),
+                                certificado: "Selo de Rastreabilidade (NREP-AO)",
+                                hashValidacao: "SHA256-COMPLIANCE-OK",
                                 dataAuditoria: new Date().toISOString(),
-                                operadorResponsavel: `${currentOperator.name} (${currentOperator.role})`,
-                                resultado: "INTEGRIDADE DOS REGISTOS DE ATIVIDADE APROVADA - NENHUMA FALHA OU FRAUDE DETETADA",
-                                conformidadeMinint: "ISO-27001 & SEC-LEVEL-4 CORPORATE COMPLIANT"
+                                operador: `${currentOperator.name} (${currentOperator.role})`,
+                                resultado: "APROVADO"
                               };
-                              const blob = new Blob([JSON.stringify(certContent, null, 2)], { type: 'application/json' });
+                              const blob = new Blob([JSON.stringify(certContent, null, 2)], { type: "application/json" });
                               const url = URL.createObjectURL(blob);
-                              const link = document.createElement('a');
+                              const link = document.createElement("a");
                               link.href = url;
-                              link.download = `certificado_conformidade_criptografica_${new Date().toISOString().split('T')[0]}.json`;
+                              link.download = `certificado_criptografico_${new Date().toISOString().split("T")[0]}.json`;
                               document.body.appendChild(link);
                               link.click();
                               document.body.removeChild(link);
                               URL.revokeObjectURL(url);
-
-                              triggerToast(
-                                "CERTIFICADO DESCARREGADO",
-                                "O certificado criptográfico assinado digitalmente foi descarregado.",
-                                "success"
-                              );
                             }}
-                            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 hover:border-slate-700 rounded text-xxs font-mono uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                            className="px-2 py-1 bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 rounded text-[8.5px] uppercase font-bold flex items-center gap-1 cursor-pointer"
                           >
                             <Download className="h-3 w-3 text-emerald-400" /> Descarregar Certificado
                           </button>
-                          
+
                           <button
                             type="button"
                             onClick={() => {
                               setAuditVerificationState("IDLE");
                               setAuditVerificationProgress(0);
                             }}
-                            className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-slate-200 border border-slate-800 hover:border-slate-700 rounded text-xxs font-mono cursor-pointer"
+                            className="px-2 py-1 bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 rounded text-[8.5px] cursor-pointer"
                           >
-                            Recalcular
+                            Reset
                           </button>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xxs font-mono">
-                        <div className="bg-slate-900 p-2 rounded border border-slate-850 text-left">
-                          <span className="text-slate-500 block text-[9px]">Selo Auditor:</span>
-                          <span className="text-slate-300 font-bold">NREP-PNAP-2026</span>
-                        </div>
-                        <div className="bg-slate-900 p-2 rounded border border-slate-850 text-left">
-                          <span className="text-slate-500 block text-[9px]">Chave de Bloco:</span>
-                          <span className="text-emerald-400 font-bold select-all">SHA256-SICP-OK</span>
-                        </div>
-                        <div className="bg-slate-900 p-2 rounded border border-slate-850 text-left">
-                          <span className="text-slate-500 block text-[9px]">IP Operador:</span>
-                          <span className="text-slate-300 font-bold">{currentOperator.id === "MININT-OP-DG-01" ? "10.224.12.8" : "192.168.100.45"}</span>
-                        </div>
-                        <div className="bg-slate-900 p-2 rounded border border-slate-850 text-left">
-                          <span className="text-slate-500 block text-[9px]">Nova Conformidade:</span>
-                          <span className="text-rose-400 font-bold">99.6% (Excelente)</span>
                         </div>
                       </div>
                     </div>
@@ -18359,68 +18614,68 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Forensic List Control Bar */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between font-mono text-xxs z-10">
+              {/* Filter Bar */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex flex-col md:flex-row gap-2 items-center justify-between font-mono text-[10px]">
                 <div className="flex flex-1 w-full relative">
-                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-500" />
+                  <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-500" />
                   <input
                     type="text"
-                    placeholder="Pesquisar por Operador, Descrição da Ação, ID, IP..."
+                    placeholder="Pesquisar ID, Operador, Ação, IP..."
                     value={auditSearchQuery}
                     onChange={(e) => setAuditSearchQuery(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-2 pl-8.5 text-xxs text-slate-300 focus:outline-none focus:border-rose-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1.5 pl-8 text-[10px] text-slate-200 focus:outline-none focus:border-amber-500/50"
                   />
                   {auditSearchQuery && (
                     <button
                       type="button"
                       onClick={() => setAuditSearchQuery("")}
-                      className="absolute right-2.5 top-2.5 text-slate-500 hover:text-slate-300 text-xxs"
+                      className="absolute right-2.5 top-1.5 text-slate-500 hover:text-slate-300"
                     >
                       ✕
                     </button>
                   )}
                 </div>
 
-                <div className="flex gap-2 w-full md:w-auto shrink-0 justify-end">
-                  <span className="text-slate-500 flex items-center text-[10px] uppercase font-bold tracking-wider mr-1">Classificação:</span>
+                <div className="flex gap-2 w-full md:w-auto shrink-0 justify-end items-center">
+                  <span className="text-slate-500 text-[9px] uppercase font-bold">Matriz:</span>
                   <select
                     value={forensicLevelFilter}
                     onChange={(e) => setForensicLevelFilter(e.target.value)}
-                    className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xxs text-slate-300 focus:outline-none focus:border-rose-500 cursor-pointer"
+                    className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-300 focus:outline-none focus:border-amber-500/50 cursor-pointer"
                   >
-                    <option value="ALL">Todas as Matrizes</option>
-                    <option value="SECRET">Apenas SECRET</option>
-                    <option value="CONFIDENTIAL">Apenas CONFIDENTIAL</option>
-                    <option value="RESTRICTED">Apenas RESTRICTED</option>
-                    <option value="PUBLIC">Apenas PUBLIC</option>
+                    <option value="ALL">Todas</option>
+                    <option value="SECRET">SECRET</option>
+                    <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+                    <option value="RESTRICTED">RESTRICTED</option>
+                    <option value="PUBLIC">PUBLIC</option>
                   </select>
                 </div>
               </div>
 
-              {/* Forensic list */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 font-mono text-xxs">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                  <span className="font-bold text-slate-300 text-xs uppercase tracking-wider">
+              {/* Forensic Log Table */}
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-3 flex flex-col gap-2 font-mono text-[9.5px]">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                  <span className="font-bold text-slate-200 text-xs uppercase tracking-wider">
                     REGISTO FORENSE IMUTÁVEL (ÚLTIMAS {auditRecords.length} AÇÕES)
                   </span>
-                  <span className="text-[10px] text-emerald-400 leading-none">● INTEGRIDADE CENTRAL VALIDADA</span>
+                  <span className="text-[9px] text-emerald-400 font-bold uppercase">● INTEGRIDADE CENTRAL VALIDADA</span>
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-slate-300 min-w-[800px]">
+                  <table className="w-full text-left text-slate-300 min-w-[750px]">
                     <thead>
                       <tr className="border-b border-slate-800 text-slate-500 text-[8.5px] uppercase tracking-wider">
-                        <th className="py-2.5">ID REGISTO</th>
-                        <th className="py-2.5">TIMESTAMP WAT</th>
-                        <th className="py-2.5">OPERADOR (UNIDADE)</th>
-                        <th className="py-2.5">AÇÃO (TIPO)</th>
-                        <th className="py-2.5">MATRIZ SENSITIVIDADE</th>
-                        <th className="py-2.5">DISPOSITIVO IP</th>
-                        <th className="py-2.5">SHA-256 INTEGRAÇÃO SEAL</th>
-                        <th className="py-2.5 text-right px-4">DETALHES</th>
+                        <th className="py-2 font-bold">ID REGISTO</th>
+                        <th className="py-2 font-bold">TIMESTAMP WAT</th>
+                        <th className="py-2 font-bold">OPERADOR (UNIDADE)</th>
+                        <th className="py-2 font-bold">AÇÃO (TIPO)</th>
+                        <th className="py-2 font-bold">MATRIZ SENSITIVIDADE</th>
+                        <th className="py-2 font-bold">DISPOSITIVO IP</th>
+                        <th className="py-2 font-bold">SHA-256 INTEGRAÇÃO SEAL</th>
+                        <th className="py-2 text-right px-2 font-bold">DETALHES</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-900/60">
+                    <tbody className="divide-y divide-slate-850">
                       {(() => {
                         const filtered = auditRecords.filter((rec) => {
                           const matchesQuery = !auditSearchQuery ||
@@ -18439,8 +18694,8 @@ export default function App() {
                         if (filtered.length === 0) {
                           return (
                             <tr>
-                              <td colSpan={8} className="py-6 text-center text-slate-500 uppercase font-bold">
-                                Nenhum registo de auditoria forense corresponde aos critérios de pesquisa ativos.
+                              <td colSpan={8} className="py-4 text-center text-slate-500 uppercase font-bold text-[9px]">
+                                Nenhum registo encontrado.
                               </td>
                             </tr>
                           );
@@ -18448,9 +18703,9 @@ export default function App() {
 
                         return filtered.map((rec) => {
                           const classColor = 
-                            rec.securityClassification === InformationClassification.SECRET ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
-                            rec.securityClassification === InformationClassification.CONFIDENTIAL ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                            rec.securityClassification === InformationClassification.RESTRICTED ? "bg-slate-950 text-slate-300 border-slate-850" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                            rec.securityClassification === InformationClassification.SECRET ? "bg-rose-500/10 text-rose-400 border-rose-500/25 font-bold" :
+                            rec.securityClassification === InformationClassification.CONFIDENTIAL ? "bg-amber-500/10 text-amber-400 border-amber-500/25 font-bold" :
+                            rec.securityClassification === InformationClassification.RESTRICTED ? "bg-sky-500/10 text-sky-400 border-sky-500/25 font-bold" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-bold";
                           
                           const isExpanded = !!expandedAuditRecords[rec.id];
 
@@ -18463,51 +18718,51 @@ export default function App() {
                                     [rec.id]: !prev[rec.id]
                                   }));
                                 }}
-                                className={`hover:bg-slate-950/40 transition cursor-pointer select-none ${isExpanded ? "bg-slate-950/50" : ""}`}
+                                className={`hover:bg-slate-950/60 transition cursor-pointer select-none ${isExpanded ? "bg-slate-950/80" : ""}`}
                               >
-                                <td className="py-3 font-semibold text-sky-400">{rec.id}</td>
-                                <td className="py-3 text-slate-400 font-sans">{new Date(rec.timestamp).toLocaleString("pt-PT")}</td>
-                                <td className="py-3">
+                                <td className="py-2 font-bold text-sky-400">{rec.id}</td>
+                                <td className="py-2 text-slate-400 font-sans text-[9px]">{new Date(rec.timestamp).toLocaleString("pt-PT")}</td>
+                                <td className="py-2">
                                   <div className="flex flex-col">
                                     <span className="font-bold text-slate-200">{highlightText(rec.operatorName, auditSearchQuery)}</span>
-                                    <span className="text-[8.5px] text-slate-500 font-sans">{rec.roleName} (ID: {rec.operatorId})</span>
+                                    <span className="text-[8px] text-slate-500 font-sans">{rec.roleName} (ID: {rec.operatorId})</span>
                                   </div>
                                 </td>
-                                <td className="py-3">
+                                <td className="py-2">
                                   <div className="flex flex-col gap-0.5">
-                                    <span className="font-semibold text-slate-300 text-[10px]">{highlightText(rec.actionType, auditSearchQuery)}</span>
-                                    <span className="text-slate-400 font-sans text-xxs leading-tight text-[10px] break-words max-w-sm">{highlightText(rec.description, auditSearchQuery)}</span>
+                                    <span className="font-bold text-slate-300 text-[9px]">{highlightText(rec.actionType, auditSearchQuery)}</span>
+                                    <span className="text-slate-400 font-sans text-[8.5px] leading-tight truncate max-w-xs">{highlightText(rec.description, auditSearchQuery)}</span>
                                   </div>
                                 </td>
-                                <td className="py-3">
-                                  <span className={`px-1.5 py-0.2 rounded font-bold uppercase text-[7.5px] border ${classColor}`}>
+                                <td className="py-2">
+                                  <span className={`px-1.5 py-0.2 rounded uppercase text-[7.5px] border ${classColor}`}>
                                     {rec.securityClassification}
                                   </span>
                                 </td>
-                                <td className="py-3 text-slate-500 font-semibold">{highlightText(rec.deviceIp, auditSearchQuery)}</td>
-                                <td className="py-3 text-slate-600 text-[9px] font-bold tracking-tight select-all">
-                                  {rec.integrityHash.slice(0, 16)}...{rec.integrityHash.slice(-8)}
+                                <td className="py-2 text-slate-400 font-semibold">{highlightText(rec.deviceIp, auditSearchQuery)}</td>
+                                <td className="py-2 text-slate-500 text-[8.5px] font-bold select-all">
+                                  {rec.integrityHash.slice(0, 14)}...{rec.integrityHash.slice(-6)}
                                 </td>
-                                <td className="py-3 text-right px-4">
+                                <td className="py-2 text-right px-2">
                                   <button
                                     type="button"
-                                    className={`p-1.5 rounded border transition-all ${
+                                    className={`p-1 rounded border transition-all ${
                                       isExpanded 
-                                        ? "text-rose-400 bg-rose-500/10 border-rose-500/35 hover:bg-rose-500/20" 
-                                        : "text-slate-500 bg-slate-950/80 border-slate-800 hover:text-slate-300 hover:border-slate-750"
+                                        ? "text-rose-400 bg-rose-500/10 border-rose-500/30" 
+                                        : "text-slate-500 bg-slate-950 border-slate-800 hover:text-slate-300"
                                     }`}
                                   >
                                     {isExpanded ? (
-                                      <ChevronUp className="h-3.5 w-3.5" />
+                                      <ChevronUp className="h-3 w-3" />
                                     ) : (
-                                      <ChevronDown className="h-3.5 w-3.5" />
+                                      <ChevronDown className="h-3 w-3" />
                                     )}
                                   </button>
                                 </td>
                               </tr>
                               {isExpanded && (
-                                <tr className="bg-slate-950/20">
-                                  <td colSpan={8} className="p-4 bg-slate-950/30 border-t border-b border-slate-900">
+                                <tr>
+                                  <td colSpan={8} className="p-3 bg-slate-950/80 border-t border-b border-slate-850">
                                     <JsonDiffViewer before={rec.beforeState} after={rec.afterState} />
                                   </td>
                                 </tr>
@@ -18520,40 +18775,30 @@ export default function App() {
                   </table>
                 </div>
 
-                {/* Legend explanatory matrix (Point 7) */}
-                <div className="border-t border-slate-850 pt-4 mt-2 grid grid-cols-1 md:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-850">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-bold text-[8.5px] text-emerald-400 uppercase">1. NÍVEL PUBLIC</span>
-                    <p className="text-slate-400 font-sans text-[10px] leading-relaxed">
-                      Informações não sigilosas destinadas ao público geral ou agências civis externas homologadas (Ex: Lotação Oficial de Prisões).
-                    </p>
+                {/* Legend Matrix - Clean and Short */}
+                <div className="border-t border-slate-800 pt-2.5 mt-1 grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-950 p-2.5 rounded border border-slate-850 text-[9px]">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold text-emerald-400 uppercase">1. PUBLIC</span>
+                    <p className="text-slate-500 font-sans text-[8.5px]">Informações públicas não sigilosas.</p>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="font-bold text-[8.5px] text-slate-300 uppercase">2. NÍVEL RESTRICTED</span>
-                    <p className="text-slate-400 font-sans text-[10px] leading-relaxed">
-                      Utilização diária interna por agentes penitenciários (Ex: Fichas cadastrais básicas, alojamento, e escalações de plantão).
-                    </p>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold text-sky-400 uppercase">2. RESTRICTED</span>
+                    <p className="text-slate-500 font-sans text-[8.5px]">Uso diário por agentes e operadores.</p>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="font-bold text-[8.5px] text-amber-400 uppercase">3. NÍVEL CONFIDENTIAL</span>
-                    <p className="text-slate-400 font-sans text-[10px] leading-relaxed">
-                      Dados protegidos e restritos passíveis de dano institucional e invasão de PII (Ex: Relatórios clínicos médicos de saúde, visitas e exportações).
-                    </p>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold text-amber-400 uppercase">3. CONFIDENTIAL</span>
+                    <p className="text-slate-500 font-sans text-[8.5px]">Relatórios clínicos e dados de PII.</p>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="font-bold text-[8.5px] text-rose-500 uppercase">4. NÍVEL SECRET</span>
-                    <p className="text-slate-400 font-sans text-[10px] leading-relaxed">
-                      Alto-escalão estratégico e serviços de inteligência. Acesso estritamente barrado a agentes comuns (Ex: Conspirações de fuga, informantes sigilosos, auditoria técnica).
-                    </p>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-bold text-rose-400 uppercase">4. SECRET</span>
+                    <p className="text-slate-500 font-sans text-[8.5px]">Inteligência militar e alto escalão.</p>
                   </div>
                 </div>
 
               </div>
             </motion.div>
           )}
-
-        {/* TAB: AMBIENTE SANDBOX - DEVTOOLS (Point 2, 3, & 4) */}
-          {activeTab === "sandbox" && (
+{activeTab === "sandbox" && (
             <motion.div
               key="sandbox-view"
               initial={{ opacity: 0, y: 10 }}
@@ -18824,56 +19069,56 @@ export default function App() {
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col gap-6"
             >
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-4 gap-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-2.5 gap-2">
                   <div>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-amber-500 font-mono flex items-center gap-2">
-                      <Settings className="h-5 w-5 text-amber-500" /> Definições & Auditoria de Atividade Prisional
+                    <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-amber-500 font-mono flex items-center gap-1.5">
+                      <Settings className="h-4 w-4 text-amber-500" /> ⚙️ DEFINIÇÕES & AUDITORIA
                     </h2>
-                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                    <p className="text-[10px] text-slate-400 font-sans mt-0.5">
                       Gabinete de Tecnologia e Informação do Ministério do Interior (MININT) — Luanda.
                     </p>
                   </div>
-                  <span className="bg-slate-950 text-slate-400 px-3 py-1 text-xs border border-slate-800 rounded-lg shrink-0 font-mono flex items-center gap-1.5">
-                    <Sliders className="h-3.5 w-3.5 text-amber-500" /> Operação de Segurança Ativa
+                  <span className="bg-slate-950 text-slate-400 px-2 py-0.5 text-[10px] border border-slate-800 rounded-md shrink-0 font-mono flex items-center gap-1 self-start sm:self-auto">
+                    <Sliders className="h-3 w-3 text-amber-500" /> 🎛️ Operação de Segurança Ativa
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
                   
                   {/* Left Column: General Configuration Simulators */}
-                  <div className="lg:col-span-4 flex flex-col gap-5">
+                  <div className="lg:col-span-4 flex flex-col gap-3.5">
                     
-                    <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex flex-col gap-4">
+                    <div className="bg-slate-950 border border-slate-850 rounded-xl p-3 flex flex-col gap-3">
                       <div>
-                        <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-900 pb-2 flex items-center gap-2">
-                          <Users className="h-3.5 w-3.5 text-sky-400" /> Simulador de Operador Logado
+                        <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-900 pb-1.5 flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 text-sky-400" /> SIMULADOR DE OPERADOR LOGADO
                         </h3>
-                        <p className="text-xxs text-slate-400 mt-1.5 leading-relaxed">
+                        <p className="text-[10px] text-slate-400 mt-1">
                           Selecione o operador militar para auditar a inserção de novas transações prisionais.
                         </p>
                       </div>
 
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
                         {operators.map((op) => (
                           <button
                             key={op.id}
                             type="button"
                             onClick={() => setCurrentOperatorId(op.id)}
-                            className={`p-3 rounded-lg border text-left flex flex-col gap-1 cursor-pointer transition-all ${
+                            className={`p-2 rounded-lg border text-left flex flex-col gap-0.5 cursor-pointer transition-all ${
                               currentOperatorId === op.id
                                 ? "bg-amber-500/10 border-amber-500/50 text-amber-100"
                                 : "bg-slate-900/40 border-slate-850 text-slate-400 hover:bg-slate-900 hover:text-slate-200"
                             }`}
                           >
-                            <div className="flex justify-between items-center-wrap gap-1">
-                              <span className="text-xs font-bold font-sans text-slate-200">{op.name}</span>
-                              <span className="text-[8px] font-mono bg-slate-950 font-bold px-1 rounded uppercase border border-slate-850 tracking-wider">
+                            <div className="flex justify-between items-center gap-1">
+                              <span className="text-[11px] font-bold font-sans text-slate-200 truncate">{op.name}</span>
+                              <span className="text-[7.5px] font-mono bg-slate-950 font-bold px-1 rounded uppercase border border-slate-850 shrink-0">
                                 {op.sigla}
                               </span>
                             </div>
-                            <span className="text-[10px] text-amber-500 font-semibold leading-none mt-0.5">{op.roleName}</span>
-                            <span className="text-[9px] text-slate-400 leading-tight mt-1 opacity-90">{op.roleDescription}</span>
+                            <span className="text-[9.5px] text-amber-500 font-semibold leading-tight">{op.roleName}</span>
+                            <span className="text-[8.5px] text-slate-400 leading-tight truncate opacity-90">{op.roleDescription}</span>
                           </button>
                         ))}
                       </div>
@@ -19040,67 +19285,67 @@ export default function App() {
                   <div className="lg:col-span-8 bg-slate-950 border border-slate-850 rounded-xl p-4 flex flex-col gap-4">
                     
                     {/* View Switcher for Settings Tab (Auditing vs Delegations Portal) */}
-                    <div className="flex border-b border-slate-900 pb-3.5 justify-between items-center flex-wrap gap-3">
-                      <div className="flex gap-1.5 p-1 bg-slate-900/60 rounded-xl border border-slate-850">
+                    <div className="flex border-b border-slate-900 pb-2.5 justify-between items-center flex-wrap gap-2">
+                      <div className="flex gap-1 p-1 bg-slate-900/60 rounded-xl border border-slate-850 overflow-x-auto max-w-full scrollbar-none">
                         <button
                           type="button"
                           onClick={() => setSettingsSubTab("hierarchy")}
-                          className={`px-3.5 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wide transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0 ${
                             settingsSubTab === "hierarchy"
                               ? "bg-amber-500 text-slate-950 font-extrabold shadow-sm"
                               : "text-slate-400 hover:text-slate-200"
                           }`}
                         >
-                          <FolderTree className="h-3.5 w-3.5" /> Hierarquia (Dec. 184/17)
+                          <FolderTree className="h-3 w-3" /> HIERARQUIA (DEC. 184/17)
                         </button>
                         <button
                           type="button"
                           onClick={() => setSettingsSubTab("auditing")}
-                          className={`px-3.5 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wide transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0 ${
                             settingsSubTab === "auditing"
                               ? "bg-amber-500 text-slate-950 font-extrabold shadow-sm"
                               : "text-slate-400 hover:text-slate-200"
                           }`}
                         >
-                          <Shield className="h-3.5 w-3.5" /> Auditoria Nacional
+                          <Shield className="h-3 w-3" /> AUDITORIA NACIONAL
                         </button>
                         <button
                           type="button"
                           onClick={() => setSettingsSubTab("delegations")}
-                          className={`px-3.5 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wide transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0 ${
                             settingsSubTab === "delegations"
                               ? "bg-amber-500 text-slate-950 font-extrabold shadow-sm"
                               : "text-slate-400 hover:text-slate-200"
                           }`}
                         >
-                          <Lock className="h-3.5 w-3.5" /> Quadro de Delegações
+                          <Lock className="h-3 w-3" /> QUADRO DE DELEGAÇÕES
                         </button>
                         <button
                           type="button"
                           onClick={() => setSettingsSubTab("rh")}
-                          className={`px-3.5 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wide transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0 ${
                             settingsSubTab === "rh"
                               ? "bg-amber-500 text-slate-950 font-extrabold shadow-sm"
                               : "text-slate-400 hover:text-slate-200"
                           }`}
                         >
-                          <Users className="h-3.5 w-3.5" /> Quadro de RH do SP
+                          <Users className="h-3 w-3" /> QUADRO DE RH DO SP
                         </button>
                         <button
                           type="button"
                           onClick={() => setSettingsSubTab("cluster")}
-                          className={`px-3.5 py-1.5 rounded-lg text-xxs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wide transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 shrink-0 ${
                             settingsSubTab === "cluster"
                               ? "bg-amber-500 text-slate-950 font-extrabold shadow-sm"
                               : "text-slate-400 hover:text-slate-200"
                           }`}
                         >
-                          <Database className="h-3.5 w-3.5" /> Configuração do Cluster
+                          <Database className="h-3 w-3" /> CONFIGURAÇÃO DO CLUSTER
                         </button>
                       </div>
 
                       {/* Small dynamic count indicator of active delegations */}
-                      <span className="text-[10px] text-slate-400 bg-slate-900 border border-slate-850 px-2.5 py-1 rounded-lg font-mono">
+                      <span className="text-[9.5px] text-slate-400 bg-slate-900 border border-slate-850 px-2.5 py-1 rounded-lg font-mono shrink-0">
                         {settingsSubTab === "rh" ? (
                           <>Efetivo Total: <span className="text-amber-500 font-extrabold">{operators.length} Militares</span></>
                         ) : settingsSubTab === "cluster" ? (
@@ -21381,82 +21626,202 @@ export default function App() {
                     {/* Form Inputs for Non-Deletion */}
                     {!structureCrudType.startsWith("DELETE") && (
                       <>
-                        <div className="flex flex-col gap-1">
-                          <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">
-                            {crudHierarchyLevel === "CELA" ? "Identificação da Cela:" :
-                             crudHierarchyLevel === "BLOCO" ? "Nome do Bloco:" :
-                             crudHierarchyLevel === "PAVILHAO" ? "Nome do Pavilhão:" :
-                             crudHierarchyLevel === "CADEIA" ? "Nome do Estabelecimento Prisional:" :
-                             crudHierarchyLevel === "COMUNA" ? "Nome da Comuna:" : "Nome do Município:"}
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={crudFormName}
-                            onChange={(e) => setCrudFormName(e.target.value)}
-                            placeholder={`Ex: ${crudHierarchyLevel === "CELA" ? "Cela A-01" : crudHierarchyLevel === "BLOCO" ? "Bloco 1" : crudHierarchyLevel === "PAVILHAO" ? "Pavilhão B" : crudHierarchyLevel === "CADEIA" ? "EP de Sanza Pombo" : crudHierarchyLevel === "COMUNA" ? "Calumbo" : "Viana"}`}
-                            className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold text-xs"
-                          />
-                        </div>
-
-                        {/* Additional fields by level */}
-                        {crudHierarchyLevel === "CELA" && (
-                          <div className="flex flex-col gap-1">
-                            <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Lotação Máxima:</label>
-                            <input
-                              type="number"
-                              required
-                              min="1"
-                              max="100"
-                              value={crudFormCellCapacity}
-                              onChange={(e) => setCrudFormCellCapacity(Number(e.target.value))}
-                              className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
-                            />
-                          </div>
-                        )}
-
-                        {crudHierarchyLevel === "PAVILHAO" && (
-                          <div className="flex flex-col gap-1">
-                            <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Regime de Segurança:</label>
-                            <select
-                              value={crudFormRegime}
-                              onChange={(e) => setCrudFormRegime(e.target.value)}
-                              className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 cursor-pointer font-semibold font-mono text-xs"
-                            >
-                              <option value="FECHADO (Segurança Máxima)">Fechado (Segurança Máxima)</option>
-                              <option value="FECHADO (Regime Geral)">Fechado (Regime Geral)</option>
-                              <option value="SEMI-ABERTO">Semi-Aberto</option>
-                              <option value="ABERTO / TRABALHO">Aberto / Trabalho</option>
-                              <option value="ADMISSÃO / TRIAGEM">Admissão / Triagem</option>
-                            </select>
-                          </div>
-                        )}
-
-                        {crudHierarchyLevel === "CADEIA" && (
-                          <div className="grid grid-cols-2 gap-2">
+                        {crudHierarchyLevel === "CADEIA" ? (
+                          <div className="flex flex-col gap-3 font-mono text-xs">
+                            {/* Província */}
                             <div className="flex flex-col gap-1">
-                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Capacidade Oficial:</label>
+                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">
+                                Província:
+                              </label>
                               <input
-                                type="number"
+                                type="text"
                                 required
-                                min="1"
-                                value={crudFormOfficialCapacity}
-                                onChange={(e) => setCrudFormOfficialCapacity(Number(e.target.value))}
-                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                                value={crudFormProvince}
+                                onChange={(e) => setCrudFormProvince(e.target.value)}
+                                placeholder="Ex: Huambo, Luanda, Benguela"
+                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 font-semibold focus:outline-none focus:border-amber-500 text-xs"
                               />
                             </div>
+
+                            {/* Município (Agregado no formulário) */}
                             <div className="flex flex-col gap-1">
-                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Limite Operacional:</label>
+                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">
+                                Município:
+                              </label>
                               <input
-                                type="number"
+                                type="text"
                                 required
-                                min="1"
-                                value={crudFormOperationalCapacity}
-                                onChange={(e) => setCrudFormOperationalCapacity(Number(e.target.value))}
-                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                                value={crudFormMunicipalityId}
+                                onChange={(e) => setCrudFormMunicipalityId(e.target.value)}
+                                placeholder="Ex: Huambo, Viana, Cambiote"
+                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold text-xs"
                               />
                             </div>
+
+                            {/* Cadeia (EP) */}
+                            <div className="flex flex-col gap-1">
+                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">
+                                Cadeia (Nome do EP):
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={crudFormName}
+                                onChange={(e) => setCrudFormName(e.target.value)}
+                                placeholder="Ex: EP/Cambiote, EP/Viana, EP/Yabi"
+                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-amber-400 focus:outline-none focus:border-amber-500 font-bold text-xs"
+                              />
+                            </div>
+
+                            {/* Regime */}
+                            <div className="flex flex-col gap-1">
+                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">
+                                Regime de Segurança / Funcionamento:
+                              </label>
+                              <select
+                                value={crudFormRegime}
+                                onChange={(e) => setCrudFormRegime(e.target.value)}
+                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 cursor-pointer font-bold text-xs"
+                              >
+                                <option value="Misto">Misto</option>
+                                <option value="Máxima">Máxima (Segurança Máxima)</option>
+                                <option value="Média">Média (Segurança Média)</option>
+                                <option value="Mínima">Mínima (Segurança Mínima)</option>
+                                <option value="Correcional">Correcional</option>
+                                <option value="Preventivo">Preventivo</option>
+                              </select>
+                            </div>
+
+                            {/* Structure inverse order: Cela -> Bloco -> Pavilhão */}
+                            <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-col gap-2 mt-1">
+                              <div className="text-[10px] font-mono text-amber-400 uppercase font-bold flex items-center justify-between border-b border-slate-850 pb-1">
+                                <span>Estrutura Física Inicial (Ordem Inversa)</span>
+                                <span className="text-slate-500 text-[9px]">Cela ➔ Bloco ➔ Pavilhão</span>
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-2">
+                                <div className="flex flex-col gap-1">
+                                  <label className="text-slate-400 uppercase font-mono font-bold text-[9px]">
+                                    Cela:
+                                  </label>
+                                  <input
+                                    type="text"
+                                    required
+                                    value={crudFormCellName}
+                                    onChange={(e) => setCrudFormCellName(e.target.value)}
+                                    placeholder="1A"
+                                    className="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-slate-100 font-mono text-xs focus:outline-none focus:border-amber-500"
+                                  />
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                  <label className="text-slate-400 uppercase font-mono font-bold text-[9px]">
+                                    Bloco:
+                                  </label>
+                                  <input
+                                    type="text"
+                                    required
+                                    value={crudFormBlockName}
+                                    onChange={(e) => setCrudFormBlockName(e.target.value)}
+                                    placeholder="A"
+                                    className="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-slate-100 font-mono text-xs focus:outline-none focus:border-amber-500"
+                                  />
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                  <label className="text-slate-400 uppercase font-mono font-bold text-[9px]">
+                                    Pavilhão:
+                                  </label>
+                                  <input
+                                    type="text"
+                                    required
+                                    value={crudFormPavilionName}
+                                    onChange={(e) => setCrudFormPavilionName(e.target.value)}
+                                    placeholder="Pavilhão 01"
+                                    className="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-slate-100 font-mono text-xs focus:outline-none focus:border-amber-500"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Capacidade Oficial & Limite Operacional */}
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                              <div className="flex flex-col gap-1">
+                                <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Capacidade Oficial:</label>
+                                <input
+                                  type="number"
+                                  required
+                                  min="1"
+                                  value={crudFormOfficialCapacity}
+                                  onChange={(e) => setCrudFormOfficialCapacity(Number(e.target.value))}
+                                  className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Limite Operacional:</label>
+                                <input
+                                  type="number"
+                                  required
+                                  min="1"
+                                  value={crudFormOperationalCapacity}
+                                  onChange={(e) => setCrudFormOperationalCapacity(Number(e.target.value))}
+                                  className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                                />
+                              </div>
+                            </div>
                           </div>
+                        ) : (
+                          <>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">
+                                {crudHierarchyLevel === "CELA" ? "Identificação da Cela:" :
+                                 crudHierarchyLevel === "BLOCO" ? "Nome do Bloco:" :
+                                 crudHierarchyLevel === "PAVILHAO" ? "Nome do Pavilhão:" :
+                                 crudHierarchyLevel === "COMUNA" ? "Nome da Comuna:" : "Nome do Município:"}
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={crudFormName}
+                                onChange={(e) => setCrudFormName(e.target.value)}
+                                placeholder={`Ex: ${crudHierarchyLevel === "CELA" ? "Cela A-01" : crudHierarchyLevel === "BLOCO" ? "Bloco 1" : crudHierarchyLevel === "PAVILHAO" ? "Pavilhão B" : crudHierarchyLevel === "COMUNA" ? "Calumbo" : "Viana"}`}
+                                className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold text-xs"
+                              />
+                            </div>
+
+                            {/* Additional fields by level */}
+                            {crudHierarchyLevel === "CELA" && (
+                              <div className="flex flex-col gap-1">
+                                <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Lotação Máxima:</label>
+                                <input
+                                  type="number"
+                                  required
+                                  min="1"
+                                  max="100"
+                                  value={crudFormCellCapacity}
+                                  onChange={(e) => setCrudFormCellCapacity(Number(e.target.value))}
+                                  className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 font-semibold font-mono text-xs"
+                                />
+                              </div>
+                            )}
+
+                            {crudHierarchyLevel === "PAVILHAO" && (
+                              <div className="flex flex-col gap-1">
+                                <label className="text-slate-400 uppercase font-mono font-bold text-[10px]">Regime de Segurança:</label>
+                                <select
+                                  value={crudFormRegime}
+                                  onChange={(e) => setCrudFormRegime(e.target.value)}
+                                  className="bg-slate-950 border border-slate-800 px-2.5 py-1.5 rounded-lg text-slate-100 focus:outline-none focus:border-amber-500 cursor-pointer font-semibold font-mono text-xs"
+                                >
+                                  <option value="FECHADO (Segurança Máxima)">Fechado (Segurança Máxima)</option>
+                                  <option value="FECHADO (Regime Geral)">Fechado (Regime Geral)</option>
+                                  <option value="SEMI-ABERTO">Semi-Aberto</option>
+                                  <option value="ABERTO / TRABALHO">Aberto / Trabalho</option>
+                                  <option value="ADMISSÃO / TRIAGEM">Admissão / Triagem</option>
+                                </select>
+                              </div>
+                            )}
+                          </>
                         )}
                       </>
                     )}
@@ -21490,6 +21855,189 @@ export default function App() {
                   </form>
                 </>
               )}
+            </motion.div>
+          </div>
+        )}
+
+        {/* MODAL SIMPLIFICADO: CONFIGURAÇÃO RÁPIDA DE HIERARQUIA */}
+        {isQuickHierarchyModalOpen && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-fadeIn">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-slate-900 border border-amber-500/40 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col font-sans text-slate-200"
+            >
+              {/* Modal Header */}
+              <div className="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-amber-500/10 p-2 rounded-xl border border-amber-500/30 text-amber-500">
+                    <Sliders className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-amber-400 font-mono tracking-wide uppercase">
+                      Configuração Rápida de Hierarquia
+                    </h3>
+                    <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                      Formulário simplificado de capacidade nominal e conformidade legal por nível hierárquico
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsQuickHierarchyModalOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Success Notification inside modal */}
+              {quickHierarchyConfigSuccess && (
+                <div className="bg-emerald-500/10 border-b border-emerald-500/30 px-5 py-2.5 text-emerald-400 text-xs font-mono flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>{quickHierarchyConfigSuccess}</span>
+                </div>
+              )}
+
+              {/* Legal Compliance Overview Banner */}
+              <div className="bg-slate-950/60 px-5 py-3 border-b border-slate-850 flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                  <span className="text-slate-300 font-bold">Índice Geral de Conformidade Legal:</span>
+                  <span className="text-emerald-400 font-extrabold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    {Math.round((quickHierarchyLevels.filter(l => l.legalStatus === "Conforme").length / quickHierarchyLevels.length) * 100)}% CONFORME
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400">
+                  {quickHierarchyLevels.filter(l => l.legalStatus === "Conforme").length} / {quickHierarchyLevels.length} Níveis Legais
+                </span>
+              </div>
+
+              {/* Modal Body / Simplified Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setQuickHierarchyConfigSuccess("Configuração Rápida de Hierarquia atualizada com sucesso no banco de dados central!");
+                  writeAuditLog(
+                    { name: "OPERADOR_SISTEMA", role: "Administrador" },
+                    "DEUS_FUNDADOR_HIERARCHY_UPDATE" as any,
+                    "Infrastructure",
+                    "GLOBAL_HIERARCHY",
+                    `Atualizada capacidade nominal e status de conformidade legal de ${quickHierarchyLevels.length} níveis hierárquicos.`
+                  );
+                  setTimeout(() => {
+                    setQuickHierarchyConfigSuccess(null);
+                    setIsQuickHierarchyModalOpen(false);
+                  }, 1200);
+                }}
+                className="p-5 flex flex-col gap-4 max-h-[68vh] overflow-y-auto"
+              >
+                <div className="flex flex-col gap-3">
+                  {quickHierarchyLevels.map((lvl, idx) => (
+                    <div
+                      key={lvl.id}
+                      className="bg-slate-950/90 border border-slate-800 hover:border-amber-500/30 rounded-xl p-3.5 transition-all flex flex-col gap-2.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-slate-900 text-amber-400 border border-amber-500/20 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                            Nível {idx + 1}: {lvl.levelName}
+                          </span>
+                        </div>
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                          lvl.legalStatus === "Conforme" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" :
+                          lvl.legalStatus === "Em Regularização" ? "bg-amber-500/10 text-amber-400 border-amber-500/30" :
+                          lvl.legalStatus === "Sob Auditoria" ? "bg-sky-500/10 text-sky-400 border-sky-500/30" :
+                          "bg-red-500/10 text-red-400 border-red-500/30"
+                        }`}>
+                          {lvl.legalStatus}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Capacidade Nominal */}
+                        <div className="flex flex-col gap-1">
+                          <label className="text-slate-400 font-mono text-[10px] uppercase font-bold flex items-center justify-between">
+                            <span>Capacidade Nominal (Vagas):</span>
+                            <span className="text-slate-500 text-[9px]">Standard Lei</span>
+                          </label>
+                          <input
+                            type="number"
+                            required
+                            min="1"
+                            value={lvl.nominalCapacity}
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              setQuickHierarchyLevels(prev => prev.map(item => item.id === lvl.id ? { ...item, nominalCapacity: val } : item));
+                            }}
+                            className="bg-slate-900 border border-slate-800 focus:border-amber-500 px-3 py-1.5 rounded-lg text-slate-100 font-mono font-bold text-xs focus:outline-none"
+                          />
+                        </div>
+
+                        {/* Status de Conformidade Legal */}
+                        <div className="flex flex-col gap-1">
+                          <label className="text-slate-400 font-mono text-[10px] uppercase font-bold">
+                            Status de Conformidade Legal:
+                          </label>
+                          <select
+                            value={lvl.legalStatus}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setQuickHierarchyLevels(prev => prev.map(item => item.id === lvl.id ? { ...item, legalStatus: val } : item));
+                            }}
+                            className="bg-slate-900 border border-slate-800 focus:border-amber-500 px-3 py-1.5 rounded-lg text-slate-100 font-mono text-xs focus:outline-none cursor-pointer"
+                          >
+                            <option value="Conforme">🟢 Conforme (Plena Legalidade)</option>
+                            <option value="Em Regularização">🟡 Em Regularização (Tolerância Legal)</option>
+                            <option value="Sob Auditoria">🔵 Sob Auditoria Técnica (DEUS)</option>
+                            <option value="Não Conforme">🔴 Não Conforme (Interdição Legal)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Observações / Notas Normativas */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-slate-400 font-mono text-[10px] uppercase font-bold">
+                          Regulamentação / Observações Legais:
+                        </label>
+                        <input
+                          type="text"
+                          value={lvl.notes}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setQuickHierarchyLevels(prev => prev.map(item => item.id === lvl.id ? { ...item, notes: val } : item));
+                          }}
+                          placeholder="Ref. Legal ou Portaria aplicável..."
+                          className="bg-slate-900 border border-slate-800 focus:border-amber-500 px-3 py-1 rounded-lg text-slate-300 text-[11px] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-850 mt-1">
+                  <div className="text-[10px] text-slate-500 font-mono">
+                    Chave de Encriptação DEUS • Auditoria Ativa
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsQuickHierarchyModalOpen(false)}
+                      className="px-4 py-2 bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-300 rounded-xl font-mono text-xs font-bold uppercase transition cursor-pointer"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-black uppercase rounded-xl transition cursor-pointer shadow-lg shadow-amber-500/20 flex items-center gap-1.5"
+                    >
+                      <CheckCircle className="h-3.5 w-3.5" /> Salvar Configuração
+                    </button>
+                  </div>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

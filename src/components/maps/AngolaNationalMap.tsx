@@ -1,8 +1,25 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import * as d3 from "d3";
 import { ANGOLA_21_PROVINCES_GEOJSON } from "../../assets/maps/angolaProvincesGeoJSON";
 import { ANGOLA_PROVINCES_21, AngolaProvinceData } from "../../data/geography/angolaProvinces";
-import { Building2, ShieldAlert, Users, MapPin, X, Layers, Activity, Maximize2 } from "lucide-react";
+import { 
+  Building2, 
+  ShieldAlert, 
+  Users, 
+  MapPin, 
+  X, 
+  Layers, 
+  Activity, 
+  Maximize2,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Compass,
+  Crosshair,
+  Move,
+  Globe,
+  Focus
+} from "lucide-react";
 
 export interface PrisonMarkerData {
   id: string;
@@ -47,29 +64,29 @@ export interface AngolaNationalMapProps {
   width?: number;
 }
 
-// Label customization for exact positioning and rotation inside vector shapes
-const PROVINCE_LABEL_CONFIG: Record<string, { label: string; offset: [number, number]; rotate?: number; fontSize?: number }> = {
-  CAB: { label: "CABINDA", offset: [0, 0], rotate: -42, fontSize: 10 },
-  ZAI: { label: "ZAIRE", offset: [0, 0], fontSize: 11 },
-  UIG: { label: "UÍGE", offset: [0, 0], fontSize: 12 },
-  BGO: { label: "BENGO", offset: [-5, -10], fontSize: 10 },
-  ICB: { label: "ICOLO E BENGO", offset: [-8, 2], rotate: -48, fontSize: 8.5 },
-  LUA: { label: "LUANDA", offset: [-18, -2], fontSize: 9 },
-  CNO: { label: "CUANZA-NORTE", offset: [0, 0], rotate: -38, fontSize: 9.5 },
-  CSU: { label: "CUANZA-SUL", offset: [0, 0], fontSize: 11 },
-  MAL: { label: "MALANJE", offset: [0, 0], fontSize: 12 },
-  LNO: { label: "LUNDA-NORTE", offset: [0, -5], fontSize: 11 },
-  LSU: { label: "LUNDA-SUL", offset: [0, 0], fontSize: 11 },
-  MOX: { label: "MOXICO", offset: [0, -8], fontSize: 12 },
-  MXL: { label: "MOXICO LESTE", offset: [0, 0], fontSize: 9.5 },
-  BIE: { label: "BIÉ", offset: [0, 0], fontSize: 12 },
-  HUA: { label: "HUAMBO", offset: [0, 0], fontSize: 10.5 },
-  BEN: { label: "BENGUELA", offset: [0, 0], fontSize: 11 },
-  HUI: { label: "HUÍLA", offset: [0, -5], fontSize: 12 },
-  NAM: { label: "NAMIBE", offset: [-2, 0], fontSize: 10.5 },
-  CUN: { label: "CUNENE", offset: [0, 0], fontSize: 11.5 },
-  CCU: { label: "CUBANGO", offset: [0, 0], fontSize: 11 },
-  CND: { label: "QUANDO", offset: [0, 0], fontSize: 12 }
+// Label customization for exact positioning, horizontal text alignment, and leader lines
+const PROVINCE_LABEL_CONFIG: Record<string, { label: string; offset: [number, number]; rotate?: number; fontSize?: number; isSmall?: boolean; needsLeader?: boolean }> = {
+  CAB: { label: "CABINDA", offset: [-12, -26], fontSize: 9.5, isSmall: true, needsLeader: true },
+  ZAI: { label: "ZAIRE", offset: [-10, -20], fontSize: 10, isSmall: true, needsLeader: true },
+  UIG: { label: "UÍGE", offset: [0, 0], fontSize: 11 },
+  BGO: { label: "BENGO", offset: [-28, -14], fontSize: 9.5, isSmall: true, needsLeader: true },
+  ICB: { label: "ICOLO E BENGO", offset: [-32, 14], fontSize: 8.5, isSmall: true, needsLeader: true },
+  LUA: { label: "LUANDA", offset: [-35, -8], fontSize: 9, isSmall: true, needsLeader: true },
+  CNO: { label: "CUANZA-NORTE", offset: [18, -18], fontSize: 9, isSmall: true, needsLeader: true },
+  CSU: { label: "CUANZA-SUL", offset: [0, 0], fontSize: 10.5 },
+  MAL: { label: "MALANJE", offset: [0, 0], fontSize: 11 },
+  LNO: { label: "LUNDA-NORTE", offset: [0, -5], fontSize: 10.5 },
+  LSU: { label: "LUNDA-SUL", offset: [0, 0], fontSize: 10.5 },
+  MOX: { label: "MOXICO", offset: [0, -8], fontSize: 11 },
+  MXL: { label: "MOXICO LESTE", offset: [0, 0], fontSize: 9 },
+  BIE: { label: "BIÉ", offset: [0, 0], fontSize: 11 },
+  HUA: { label: "HUAMBO", offset: [0, 0], fontSize: 10 },
+  BEN: { label: "BENGUELA", offset: [0, 0], fontSize: 10.5 },
+  HUI: { label: "HUÍLA", offset: [0, -5], fontSize: 11 },
+  NAM: { label: "NAMIBE", offset: [-2, 0], fontSize: 10 },
+  CUN: { label: "CUNENE", offset: [0, 0], fontSize: 10.5 },
+  CCU: { label: "CUBANGO", offset: [0, 0], fontSize: 10.5 },
+  CND: { label: "QUANDO", offset: [0, 0], fontSize: 10.5 }
 };
 
 export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
@@ -85,17 +102,27 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
   width = 750
 }) => {
   const [hoveredProvCode, setHoveredProvCode] = useState<string | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [themeStyle, setThemeStyle] = useState<"VECTOR_ORANGE" | "TACTICAL_DARK">("VECTOR_ORANGE");
+
+  // Zoom & Pan interactive state
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [panOffset, setPanOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [mouseGeo, setMouseGeo] = useState<{ lat: number; lng: number } | null>(null);
+
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   // D3 Projection setup
   const { projectedFeatures, projection } = useMemo(() => {
     const proj = d3.geoMercator();
     
-    // Fit the 21 provinces into the SVG canvas with controlled margins
+    // Fit the 21 provinces into the SVG canvas with balanced margins for all 21 provinces + Cabinda enclave
     proj.fitExtent(
       [
-        [35, 30],
-        [width - 35, height - 30]
+        [20, 25],
+        [width - 20, height - 25]
       ],
       ANGOLA_21_PROVINCES_GEOJSON as any
     );
@@ -135,6 +162,73 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
       projectedFeatures: featuresWithPaths
     };
   }, [width, height]);
+
+  // Zoom & Pan Helpers
+  const handleZoomIn = () => setZoomLevel(prev => Math.min(Number((prev + 0.25).toFixed(2)), 4.0));
+  const handleZoomOut = () => setZoomLevel(prev => Math.max(Number((prev - 0.25).toFixed(2)), 0.6));
+  const handleResetView = () => {
+    setZoomLevel(1);
+    setPanOffset({ x: 0, y: 0 });
+  };
+
+  const handleCenterOnSelected = () => {
+    if (activeSelectedFeature) {
+      const cx = activeSelectedFeature.centroidX;
+      const cy = activeSelectedFeature.centroidY;
+      const targetScale = 1.8;
+      setZoomLevel(targetScale);
+      setPanOffset({
+        x: width / 2 - cx * targetScale,
+        y: height / 2 - cy * targetScale
+      });
+    } else {
+      handleResetView();
+    }
+  };
+
+  // Mouse Drag & Wheel handlers
+  const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (e.button === 0) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (isDragging) {
+      setPanOffset({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+
+    if (svgRef.current && projection) {
+      const rect = svgRef.current.getBoundingClientRect();
+      const scaleX = width / rect.width;
+      const scaleY = height / rect.height;
+      const rawX = (e.clientX - rect.left) * scaleX;
+      const rawY = (e.clientY - rect.top) * scaleY;
+
+      const mapX = (rawX - panOffset.x) / zoomLevel;
+      const mapY = (rawY - panOffset.y) / zoomLevel;
+
+      const inverted = projection.invert([mapX, mapY]);
+      if (inverted && !isNaN(inverted[0]) && !isNaN(inverted[1])) {
+        setMouseGeo({ lng: Number(inverted[0].toFixed(4)), lat: Number(inverted[1].toFixed(4)) });
+      }
+    }
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleWheel = (e: React.WheelEvent<SVGSVGElement>) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      setZoomLevel(prev => Math.min(Number((prev + 0.15).toFixed(2)), 4.0));
+    } else {
+      setZoomLevel(prev => Math.max(Number((prev - 0.15).toFixed(2)), 0.6));
+    }
+  };
 
   // Helper: test if province is selected
   const isSelected = (provNameOrCode: string) => {
@@ -219,10 +313,16 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
 
       {/* SVG CANVAS */}
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-full max-h-[640px] object-contain"
+        className="w-full h-full max-h-[640px] object-contain cursor-grab active:cursor-grabbing"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
       >
         <defs>
           {/* Gradients */}
@@ -273,6 +373,9 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
           <rect width={width} height={height} fill="url(#bgGrid)" />
         </g>
 
+        {/* INTERACTIVE TRANSFORM GROUP (PAN & ZOOM) */}
+        <g id="map-zoom-pan-group" transform={`translate(${panOffset.x}, ${panOffset.y}) scale(${zoomLevel})`}>
+
         {/* PROVINCE POLYGONS LAYER */}
         <g id="angola-vector-polygons">
           {projectedFeatures.map((item) => {
@@ -303,8 +406,17 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
                 key={item.meta.provinceCode}
                 className="cursor-pointer transition-all duration-150"
                 onClick={() => handleProvinceClick(item.meta)}
-                onMouseEnter={() => setHoveredProvCode(item.meta.provinceCode)}
-                onMouseLeave={() => setHoveredProvCode(null)}
+                onMouseEnter={(e) => {
+                  setHoveredProvCode(item.meta.provinceCode);
+                  setTooltipPos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseMove={(e) => {
+                  setTooltipPos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseLeave={() => {
+                  setHoveredProvCode(null);
+                  setTooltipPos(null);
+                }}
               >
                 {/* Polygon Shape */}
                 <path
@@ -335,7 +447,7 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
           })}
         </g>
 
-        {/* EMBEDDED PROVINCE TEXT LABELS */}
+        {/* EMBEDDED PROVINCE TEXT LABELS WITH HORIZONTAL CARDS & LEADER LINES */}
         <g id="angola-province-labels" className="pointer-events-none">
           {projectedFeatures.map((item) => {
             const selected = isSelected(item.meta.provinceCode) || isSelected(item.meta.name);
@@ -344,33 +456,70 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
             const code = item.meta.provinceCode;
             const cfg = PROVINCE_LABEL_CONFIG[code] || { label: item.meta.name.toUpperCase(), offset: [0, 0] };
             
-            const posX = item.centroidX + cfg.offset[0];
-            const posY = item.centroidY + cfg.offset[1];
-            const rot = cfg.rotate || 0;
-            const size = cfg.fontSize || 11;
+            const origX = item.centroidX;
+            const origY = item.centroidY;
+            const posX = origX + cfg.offset[0];
+            const posY = origY + cfg.offset[1];
+            const size = cfg.fontSize || 10.5;
+            const hasOffset = cfg.offset[0] !== 0 || cfg.offset[1] !== 0;
+
+            const labelStr = cfg.label;
+            const approxCharWidth = size * 0.62;
+            const cardWidth = labelStr.length * approxCharWidth + 12;
+            const cardHeight = size + 8;
+
+            const bgFill = themeStyle === "VECTOR_ORANGE"
+              ? (selected ? "rgba(2, 6, 23, 0.92)" : "rgba(15, 23, 42, 0.82)")
+              : (selected ? "rgba(245, 158, 11, 0.9)" : "rgba(2, 6, 23, 0.85)");
+
+            const bgStroke = selected ? "#38bdf8" : (isHovered ? "#ffffff" : "rgba(255, 255, 255, 0.25)");
 
             const textColor = themeStyle === "VECTOR_ORANGE"
-              ? (selected ? "#020617" : "#ffffff")
-              : (selected ? "#f59e0b" : "#e2e8f0");
+              ? (selected ? "#fbbf24" : "#ffffff")
+              : (selected ? "#020617" : "#e2e8f0");
 
             return (
-              <g
-                key={`label-${code}`}
-                transform={`translate(${posX}, ${posY}) rotate(${rot})`}
-              >
+              <g key={`label-${code}`}>
+                {/* Leader line for small/offset provinces */}
+                {(hasOffset || cfg.needsLeader) && (
+                  <line
+                    x1={origX}
+                    y1={origY}
+                    x2={posX}
+                    y2={posY}
+                    stroke={themeStyle === "VECTOR_ORANGE" ? "#fef08a" : "#94a3b8"}
+                    strokeWidth="1"
+                    strokeDasharray="2 3"
+                    opacity="0.75"
+                  />
+                )}
+
+                {/* Label Background Card */}
+                <rect
+                  x={posX - cardWidth / 2}
+                  y={posY - cardHeight / 2}
+                  width={cardWidth}
+                  height={cardHeight}
+                  rx={4}
+                  ry={4}
+                  fill={bgFill}
+                  stroke={bgStroke}
+                  strokeWidth="0.8"
+                />
+
+                {/* Horizontal Text */}
                 <text
-                  x="0"
-                  y="0"
+                  x={posX}
+                  y={posY + 0.5}
                   textAnchor="middle"
                   dominantBaseline="central"
                   fill={textColor}
-                  fontSize={selected ? size + 1.5 : size}
+                  fontSize={selected ? size + 1 : size}
                   fontFamily="system-ui, -apple-system, sans-serif"
-                  fontWeight="900"
-                  letterSpacing="0.4px"
-                  className="drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                  fontWeight="800"
+                  letterSpacing="0.3px"
                 >
-                  {cfg.label}
+                  {labelStr}
                 </text>
               </g>
             );
@@ -434,7 +583,68 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
             );
           })}
         </g>
+
+        </g> {/* END MAP PAN & ZOOM TRANSFORM GROUP */}
       </svg>
+
+      {/* FLOATING MAP ADJUSTMENT & ZOOM CONTROLS HUD */}
+      <div className="absolute top-14 right-3 z-20 pointer-events-auto flex flex-col gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-800/80 shadow-2xl">
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700/80 transition cursor-pointer flex items-center justify-center"
+          title="Aumentar Zoom (+)"
+        >
+          <ZoomIn className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700/80 transition cursor-pointer flex items-center justify-center"
+          title="Reduzir Zoom (-)"
+        >
+          <ZoomOut className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleCenterOnSelected}
+          className="p-2 rounded-lg bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-slate-700/80 transition cursor-pointer flex items-center justify-center"
+          title="Focar / Centralizar Província Selecionada"
+        >
+          <Focus className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={handleResetView}
+          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition cursor-pointer flex items-center justify-center"
+          title="Re-centrar / Ajustar Vista Completa"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* COMPASS & REAL-TIME GPS COORDINATES HUD */}
+      <div className="absolute bottom-3 left-3 z-20 pointer-events-none flex items-center gap-3 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-400 shadow-xl">
+        <div className="flex items-center gap-1 text-amber-400 font-bold">
+          <Compass className="h-3.5 w-3.5 text-amber-400 animate-spin-slow" />
+          <span>N</span>
+        </div>
+        <div className="h-3 w-[1px] bg-slate-800" />
+        <div className="flex items-center gap-1.5">
+          <Globe className="h-3 w-3 text-cyan-400 shrink-0" />
+          {mouseGeo ? (
+            <span className="text-slate-200 font-semibold">
+              GPS: <span className="text-cyan-400">{mouseGeo.lat}° S</span>, <span className="text-amber-400">{mouseGeo.lng}° E</span>
+            </span>
+          ) : (
+            <span className="text-slate-500">WGS84: Passe o cursor no mapa</span>
+          )}
+        </div>
+        <div className="h-3 w-[1px] bg-slate-800" />
+        <div className="text-slate-400 font-bold">
+          Escala: <span className="text-amber-400">{Math.round(zoomLevel * 100)}%</span>
+        </div>
+      </div>
 
       {/* INSPECTOR / CONTEXT PANEL */}
       {showInspectorPanel && activeSelectedFeature && activeSelectedData && (
@@ -501,6 +711,43 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
           )}
         </div>
       )}
+
+      {/* FLOATING HOVER TOOLTIP */}
+      {hoveredProvCode && tooltipPos && (() => {
+        const featureItem = projectedFeatures.find(f => f.meta.provinceCode === hoveredProvCode);
+        if (!featureItem) return null;
+        const op = getProvinceOperationalData(featureItem.meta);
+        return (
+          <div
+            className="fixed z-50 pointer-events-none bg-slate-950/95 border border-amber-500/80 px-3 py-2 rounded-xl shadow-2xl backdrop-blur-md font-mono text-left animate-fadeIn"
+            style={{
+              left: Math.min(tooltipPos.x + 15, window.innerWidth - 220),
+              top: Math.max(tooltipPos.y - 70, 20)
+            }}
+          >
+            <div className="flex items-center gap-1.5 border-b border-slate-800 pb-1 mb-1">
+              <MapPin className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+              <strong className="text-xs text-slate-100 uppercase tracking-wider font-extrabold">{featureItem.meta.name}</strong>
+              <span className="text-[9px] text-slate-400 font-sans">({featureItem.meta.capital})</span>
+            </div>
+            <div className="text-[10px] text-slate-300 flex flex-col gap-0.5">
+              <div className="flex justify-between gap-4">
+                <span className="text-slate-400">EPs Operacionais:</span>
+                <strong className="text-amber-400 font-bold">{op.prisonsCount}</strong>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="text-slate-400">Lotação Total:</span>
+                <strong className="text-slate-200">{op.totalOccupancy} / {op.totalCapacity}</strong>
+              </div>
+              {op.hasCritical && (
+                <div className="text-rose-400 text-[9px] font-bold uppercase mt-0.5 animate-pulse">
+                  ⚠️ Alerta Crítico Activo
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

@@ -888,22 +888,22 @@ export function OrganizationalHierarchyConfig({
     <div className="OrganizationalHierarchyConfig flex flex-col gap-6 text-slate-100 font-sans">
       
       {/* HEADER BAR & JURISDICTION GUARD */}
-      <div className="bg-slate-950 border border-slate-850 rounded-2xl p-5 shadow-xl flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400 shrink-0">
-            <FolderTree className="h-6 w-6" />
+      <div className="bg-slate-950 border border-slate-850 rounded-xl p-3 sm:p-4 shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-400 shrink-0">
+            <FolderTree className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base font-bold text-slate-100 uppercase tracking-wide font-mono">
-                Estrutura Orgânica & Dependências Estatutárias (Decreto 184/17)
+              <h2 className="text-xs sm:text-sm font-bold text-slate-100 uppercase tracking-wide font-mono">
+                Estrutura Orgânica(184/17)
               </h2>
               {isNational ? (
-                <span className="bg-blue-500/20 border border-blue-500/40 text-blue-300 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span className="bg-blue-500/20 border border-blue-500/40 text-blue-300 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                   <ShieldCheck className="h-3 w-3" /> Âmbito Nacional Central
                 </span>
               ) : (
-                <span className="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span className="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                   <Lock className="h-3 w-3 text-amber-400" /> Jurisdição Exclusiva: {operatorProvince}
                 </span>
               )}
@@ -911,21 +911,21 @@ export function OrganizationalHierarchyConfig({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-amber-400 text-xs font-mono font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition cursor-pointer"
+            className="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-amber-400 text-[10px] sm:text-xs font-mono font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
             title={isSidebarCollapsed ? "Expandir Painel Lateral" : "Recolher Painel Lateral para Modo Mini (1%)"}
           >
             {isSidebarCollapsed ? (
               <>
-                <PanelLeftOpen className="h-4 w-4 text-amber-400" />
-                <span className="hidden sm:inline">Expandir Menu</span>
+                <PanelLeftOpen className="h-3.5 w-3.5 text-amber-400" />
+                <span className="inline">Expandir Menu</span>
               </>
             ) : (
               <>
-                <PanelLeftClose className="h-4 w-4 text-slate-400" />
-                <span className="hidden sm:inline">Recolher (1%)</span>
+                <PanelLeftClose className="h-3.5 w-3.5 text-slate-400" />
+                <span className="inline">Recolher (1%)</span>
               </>
             )}
           </button>
@@ -936,9 +936,9 @@ export function OrganizationalHierarchyConfig({
               resetForm();
               setIsModalOpen(true);
             }}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-black px-3.5 py-2 rounded-xl flex items-center gap-2 transition shadow-lg shadow-amber-500/20 cursor-pointer"
+            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-[10px] sm:text-xs font-black px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition shadow cursor-pointer"
           >
-            <Plus className="h-4 w-4 stroke-[3]" />
+            <Plus className="h-3.5 w-3.5 stroke-[3]" />
             Adicionar Sub-Divisão
           </button>
 
@@ -947,54 +947,60 @@ export function OrganizationalHierarchyConfig({
               setTargetParentUnitId(activeDirectorate?.id || "OU-DP-HUAMBO");
               setIsAssociateModalOpen(true);
             }}
-            className="bg-slate-900 hover:bg-slate-850 border border-slate-750 text-slate-200 font-mono text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-2 transition cursor-pointer"
+            className="bg-slate-900 hover:bg-slate-850 border border-slate-750 text-slate-200 font-mono text-[10px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
           >
-            <LinkIcon className="h-4 w-4 text-emerald-400" />
+            <LinkIcon className="h-3.5 w-3.5 text-emerald-400" />
             Associar Estabelecimento
           </button>
         </div>
       </div>
 
       {/* METRICS & STATS BAR */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex items-center gap-3.5">
-          <div className="p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400">
-            <Building2 className="h-5 w-5" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 sm:p-3 flex items-center gap-2.5">
+          <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-md text-blue-400 shrink-0">
+            <Building2 className="h-4 w-4" />
           </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">Direções na Matriz</span>
-            <span className="text-lg font-bold font-mono text-slate-100">{totalProvincialDirs} <span className="text-xs text-slate-500 font-normal">{isNational ? "Províncias" : "Sua Província"}</span></span>
-          </div>
-        </div>
-
-        <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex items-center gap-3.5">
-          <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-400">
-            <Layers className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">Dependências Orgânicas</span>
-            <span className="text-lg font-bold font-mono text-slate-100">{totalSubDivisions} <span className="text-xs text-slate-500 font-normal">Dept / Gabinetes</span></span>
+          <div className="min-w-0">
+            <span className="text-[8.5px] sm:text-[9.5px] text-slate-400 font-mono uppercase font-semibold block truncate">DIREÇÕES NA MATRIZ</span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-slate-100 flex items-baseline gap-1">
+              {totalProvincialDirs} <span className="text-[9px] text-slate-500 font-normal">{isNational ? "18 Províncias" : "Sua Província"}</span>
+            </span>
           </div>
         </div>
 
-        <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex items-center gap-3.5">
-          <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-400">
-            <Building className="h-5 w-5" />
+        <div className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 sm:p-3 flex items-center gap-2.5">
+          <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-md text-amber-400 shrink-0">
+            <Layers className="h-4 w-4" />
           </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">EPs Vinculados</span>
-            <span className="text-lg font-bold font-mono text-slate-100">{totalAssociatedPrisons} <span className="text-xs text-slate-500 font-normal">Cadeias</span></span>
+          <div className="min-w-0">
+            <span className="text-[8.5px] sm:text-[9.5px] text-slate-400 font-mono uppercase font-semibold block truncate">DEPENDÊNCIAS ORGÂNICAS</span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-slate-100 flex items-baseline gap-1">
+              {totalSubDivisions} <span className="text-[9px] text-slate-500 font-normal">324 Dept / Gabinetes</span>
+            </span>
           </div>
         </div>
 
-        <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex items-center gap-3.5">
-          <div className="p-2.5 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-400">
-            <ShieldCheck className="h-5 w-5" />
+        <div className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 sm:p-3 flex items-center gap-2.5">
+          <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-emerald-400 shrink-0">
+            <Building className="h-4 w-4" />
           </div>
-          <div>
-            <span className="text-[10px] text-slate-400 font-mono uppercase font-semibold block">Conformidade Orgânica</span>
-            <span className="text-sm font-bold font-mono text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Dec. Pres. 184/17
+          <div className="min-w-0">
+            <span className="text-[8.5px] sm:text-[9.5px] text-slate-400 font-mono uppercase font-semibold block truncate">EPS VINCULADOS</span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-slate-100 flex items-baseline gap-1">
+              {totalAssociatedPrisons} <span className="text-[9px] text-slate-500 font-normal">Cadeias</span>
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-slate-950 border border-slate-850 rounded-lg p-2.5 sm:p-3 flex items-center gap-2.5">
+          <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-md text-purple-400 shrink-0">
+            <ShieldCheck className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <span className="text-[8.5px] sm:text-[9.5px] text-slate-400 font-mono uppercase font-semibold block truncate">CONFORMIDADE ORGÂNICA</span>
+            <span className="text-xs sm:text-sm font-bold font-mono text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> Dec. Pres. 184/17
             </span>
           </div>
         </div>
@@ -1160,16 +1166,16 @@ export function OrganizationalHierarchyConfig({
           
           {/* Active Directorate Details Box */}
           {activeDirectorate ? (
-            <div className="bg-slate-950 border border-slate-850 rounded-2xl p-5 flex flex-col gap-5">
+            <div className="bg-slate-950 border border-slate-850 rounded-xl p-3.5 sm:p-4 flex flex-col gap-3.5">
               
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-900 pb-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 border-b border-slate-900 pb-3">
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-base font-bold text-slate-100 font-mono uppercase">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-100 font-mono uppercase">
                       {activeDirectorate.name}
                     </h3>
-                    <span className="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full">
-                      Província de {activeDirectorate.province}
+                    <span className="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full">
+                      Província do {activeDirectorate.province}
                     </span>
                   </div>
                 </div>
@@ -1177,7 +1183,7 @@ export function OrganizationalHierarchyConfig({
                 <div className="flex items-center gap-2 flex-wrap shrink-0">
                   <button
                     onClick={() => handlePurgeAndRedesignStatutoryUnits(activeDirectorate)}
-                    className="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 font-mono text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-2 transition cursor-pointer"
+                    className="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 font-mono text-[10px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
                     title="Anula a estrutura anterior e redesenha de forma limpa as 18 dependências regulamentares conforme Decreto Presidencial 184/17"
                   >
                     <Trash2 className="h-3.5 w-3.5 text-rose-400" />
@@ -1186,7 +1192,7 @@ export function OrganizationalHierarchyConfig({
 
                   <button
                     onClick={() => handleAutoConformDirectorate(activeDirectorate)}
-                    className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-2 transition cursor-pointer"
+                    className="bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] sm:text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer"
                     title="Gera e sincroniza automaticamente as 18 dependências regulamentares conforme o Decreto 184/17"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
@@ -1215,23 +1221,23 @@ export function OrganizationalHierarchyConfig({
               })()}
 
               {/* ASYNC CACHE & INTEGRITY STATUS BANNER */}
-              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-mono">
-                <div className="flex items-center gap-2 text-slate-300">
+              <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-2 sm:p-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-[10px] sm:text-xs font-mono">
+                <div className="flex items-center gap-2 text-slate-300 flex-wrap">
                   {isLoadingDeps ? (
-                    <span className="flex items-center gap-2 text-amber-400 font-bold">
-                      <RefreshCw className="h-4 w-4 animate-spin" /> Carregando 18 dependências assincronamente...
+                    <span className="flex items-center gap-1.5 text-amber-400 font-bold">
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin" /> Carregando...
                     </span>
                   ) : isFromCache ? (
-                    <span className="flex items-center gap-2 text-cyan-400 font-bold">
-                      <Zap className="h-4 w-4 text-cyan-400" /> Carregado via Cache de Jurisdição (`localStorage`)
+                    <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
+                      <Zap className="h-3.5 w-3.5 text-cyan-400" /> Carregado via Cache de Jurisdição ('localStorage')
                     </span>
                   ) : (
-                    <span className="flex items-center gap-2 text-emerald-400 font-bold">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Sincronizado do Decreto Presidencial 184/17
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Sincronizado (Dec. 184/17)
                     </span>
                   )}
                   {lastSyncTime && (
-                    <span className="text-[10px] text-slate-500 font-sans border-l border-slate-750 pl-2">
+                    <span className="text-[9.5px] text-slate-500 font-sans border-l border-slate-750 pl-2">
                       Sincronizado às {lastSyncTime}
                     </span>
                   )}
@@ -1240,8 +1246,8 @@ export function OrganizationalHierarchyConfig({
                 <button
                   onClick={() => loadStatutoryDependenciesAsync(activeDirectorate, true)}
                   disabled={isLoadingDeps}
-                  className="text-[11px] bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-amber-400 border border-slate-700 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
-                  title="Atualizar chave de cache do localStorage e recarregar dependências assincronamente"
+                  className="text-[10px] bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-amber-400 border border-slate-700 px-2 py-0.5 rounded-md flex items-center gap-1 transition cursor-pointer disabled:opacity-50 shrink-0"
+                  title="Atualizar chave de cache do localStorage e recarregar dependências"
                 >
                   <RefreshCw className={`h-3 w-3 ${isLoadingDeps ? "animate-spin" : ""}`} />
                   Recarregar Assincronamente
@@ -1343,7 +1349,7 @@ export function OrganizationalHierarchyConfig({
                           onClick={() => handleAutoConformDirectorate(activeDirectorate)}
                           className="bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold px-4 py-2 rounded-xl border border-emerald-500/40"
                         >
-                          Auto-Conformar (18 Dependências)
+                          Auto-Conformar
                         </button>
                       </div>
                     </div>

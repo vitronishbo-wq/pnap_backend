@@ -8,6 +8,7 @@ import {
   RefreshCw,
   Sliders,
   CheckCircle,
+  X,
   Wifi,
   WifiOff,
   Clock,
@@ -18,6 +19,7 @@ import {
   Globe,
   CornerDownRight,
   Shield,
+  ShieldCheck,
   Activity,
   AlertTriangle,
   Play,
@@ -983,6 +985,18 @@ export default function ClusterConfigurationPanel() {
   const [syncIntervalMinutes, setSyncIntervalMinutes] = useState<number>(15);
   const [conflictResolution, setConflictResolution] = useState<string>("cloud-wins");
 
+  // Quick Hierarchy Config State
+  const [isQuickHierarchyModalOpen, setIsQuickHierarchyModalOpen] = useState(false);
+  const [quickHierarchyConfigSuccess, setQuickHierarchyConfigSuccess] = useState<string | null>(null);
+  const [quickHierarchyLevels, setQuickHierarchyLevels] = useState([
+    { id: "PROVINCE", levelName: "Província", nominalCapacity: 25000, legalStatus: "Conforme", notes: "Regulamento Geral das Direcções Provinciais (Lei 8/19)" },
+    { id: "MUNICIPALITY", levelName: "Município / Comuna", nominalCapacity: 5000, legalStatus: "Conforme", notes: "Sede de comarca / centro de retenção temporária" },
+    { id: "PRISON", levelName: "Estabelecimento Prisional (EP / Cadeia)", nominalCapacity: 1200, legalStatus: "Em Regularização", notes: "Capacidade nominal padrão de EP regional" },
+    { id: "PAVILION", levelName: "Pavilhão", nominalCapacity: 200, legalStatus: "Conforme", notes: "Regime de segurança e especialização técnica" },
+    { id: "BLOCK", levelName: "Bloco de Cela", nominalCapacity: 50, legalStatus: "Conforme", notes: "Subdivisão operacional com rácio sanitário" },
+    { id: "CELL", levelName: "Cela", nominalCapacity: 10, legalStatus: "Conforme", notes: "Lotação individual ou coletiva autorizada" }
+  ]);
+
   const triggerPingTest = () => {
     setMeasuringIntegrity(true);
     setTimeout(() => {
@@ -1280,13 +1294,59 @@ export default function ClusterConfigurationPanel() {
             <Layers className="h-6 w-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[9px] bg-amber-500 text-slate-950 font-mono font-black uppercase px-2 py-0.5 rounded shadow">
-                POSTGRESQL CENTRAL CLUSTER
-              </span>
-              <span className="text-[9px] bg-slate-900 text-amber-500 font-mono font-bold uppercase px-2 py-0.5 rounded border border-slate-800">
-                DB: pnap_db
-              </span>
+            <div className="flex items-center gap-2 flex-wrap justify-between w-full">
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] bg-amber-500 text-slate-950 font-mono font-black uppercase px-2 py-0.5 rounded shadow">
+                  POSTGRESQL CENTRAL CLUSTER
+                </span>
+                <span className="text-[9px] bg-slate-900 text-amber-500 font-mono font-bold uppercase px-2 py-0.5 rounded border border-slate-800">
+                  DB: pnap_db
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsQuickHierarchyModalOpen(true)}
+                  className="px-3 py-1 text-[10px] font-mono font-bold uppercase rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold cursor-pointer flex items-center gap-1.5 shadow-md transition"
+                  title="Configuração Rápida de Hierarquia"
+                >
+                  <Sliders className="h-3.5 w-3.5 text-slate-950 shrink-0" /> Configuração Rápida de Hierarquia
+                </button>
+
+                {/* Indicador Visual de Conformidade Hierárquica */}
+                {(() => {
+                  const total = quickHierarchyLevels.length;
+                  const conformeCount = quickHierarchyLevels.filter(l => l.legalStatus === "Conforme").length;
+                  const nonConformeCount = quickHierarchyLevels.filter(l => l.legalStatus === "Não Conforme").length;
+                  const percentage = Math.round((conformeCount / total) * 100);
+
+                  let badgeColor = "bg-emerald-500/15 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/25";
+                  let dotColor = "bg-emerald-400 animate-pulse";
+                  let statusText = `Conformidade Hierárquica: ${percentage}%`;
+
+                  if (nonConformeCount > 0 || percentage < 60) {
+                    badgeColor = "bg-red-500/15 border-red-500/40 text-red-400 hover:bg-red-500/25";
+                    dotColor = "bg-red-400 animate-ping";
+                    statusText = `Conformidade Crítica: ${percentage}%`;
+                  } else if (percentage < 100) {
+                    badgeColor = "bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/25";
+                    dotColor = "bg-amber-400 animate-pulse";
+                    statusText = `Conformidade Parcial: ${percentage}%`;
+                  }
+
+                  return (
+                    <div 
+                      className={`px-2.5 py-1 text-[10px] font-mono font-bold uppercase rounded border flex items-center gap-1.5 transition shadow-sm cursor-pointer ${badgeColor}`}
+                      onClick={() => setIsQuickHierarchyModalOpen(true)}
+                      title="Status de Conformidade Legal e Capacidade Nominal dos Níveis Hierárquicos (Clique para configurar)"
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
+                      <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                      <span>{statusText}</span>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
             <h2 className="text-sm font-bold text-slate-100 font-sans mt-2">
               Arquitetura de Alta Disponibilidade e Carga Distribuída
@@ -3263,6 +3323,182 @@ export default function ClusterConfigurationPanel() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* MODAL SIMPLIFICADO: CONFIGURAÇÃO RÁPIDA DE HIERARQUIA */}
+      {isQuickHierarchyModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-fadeIn">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-slate-900 border border-amber-500/40 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col font-sans text-slate-200"
+          >
+            {/* Modal Header */}
+            <div className="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-500/10 p-2 rounded-xl border border-amber-500/30 text-amber-500">
+                  <Sliders className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-amber-400 font-mono tracking-wide uppercase">
+                    Configuração Rápida de Hierarquia
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                    Formulário simplificado de capacidade nominal e conformidade legal por nível hierárquico
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuickHierarchyModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Success Notification inside modal */}
+            {quickHierarchyConfigSuccess && (
+              <div className="bg-emerald-500/10 border-b border-emerald-500/30 px-5 py-2.5 text-emerald-400 text-xs font-mono flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span>{quickHierarchyConfigSuccess}</span>
+              </div>
+            )}
+
+            {/* Legal Compliance Overview Banner */}
+            <div className="bg-slate-950/60 px-5 py-3 border-b border-slate-850 flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-emerald-400" />
+                <span className="text-slate-300 font-bold">Índice Geral de Conformidade Legal:</span>
+                <span className="text-emerald-400 font-extrabold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  {Math.round((quickHierarchyLevels.filter(l => l.legalStatus === "Conforme").length / quickHierarchyLevels.length) * 100)}% CONFORME
+                </span>
+              </div>
+              <span className="text-[10px] text-slate-400">
+                {quickHierarchyLevels.filter(l => l.legalStatus === "Conforme").length} / {quickHierarchyLevels.length} Níveis Legais
+              </span>
+            </div>
+
+            {/* Modal Body / Simplified Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setQuickHierarchyConfigSuccess("Configuração Rápida de Hierarquia atualizada com sucesso!");
+                setTimeout(() => {
+                  setQuickHierarchyConfigSuccess(null);
+                  setIsQuickHierarchyModalOpen(false);
+                }, 1200);
+              }}
+              className="p-5 flex flex-col gap-4 max-h-[68vh] overflow-y-auto"
+            >
+              <div className="flex flex-col gap-3">
+                {quickHierarchyLevels.map((lvl, idx) => (
+                  <div
+                    key={lvl.id}
+                    className="bg-slate-950/90 border border-slate-800 hover:border-amber-500/30 rounded-xl p-3.5 transition-all flex flex-col gap-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-slate-900 text-amber-400 border border-amber-500/20 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                          Nível {idx + 1}: {lvl.levelName}
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                        lvl.legalStatus === "Conforme" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" :
+                        lvl.legalStatus === "Em Regularização" ? "bg-amber-500/10 text-amber-400 border-amber-500/30" :
+                        lvl.legalStatus === "Sob Auditoria" ? "bg-sky-500/10 text-sky-400 border-sky-500/30" :
+                        "bg-red-500/10 text-red-400 border-red-500/30"
+                      }`}>
+                        {lvl.legalStatus}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Capacidade Nominal */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-slate-400 font-mono text-[10px] uppercase font-bold flex items-center justify-between">
+                          <span>Capacidade Nominal (Vagas):</span>
+                          <span className="text-slate-500 text-[9px]">Standard Lei</span>
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min="1"
+                          value={lvl.nominalCapacity}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setQuickHierarchyLevels(prev => prev.map(item => item.id === lvl.id ? { ...item, nominalCapacity: val } : item));
+                          }}
+                          className="bg-slate-900 border border-slate-800 focus:border-amber-500 px-3 py-1.5 rounded-lg text-slate-100 font-mono font-bold text-xs focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Status de Conformidade Legal */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-slate-400 font-mono text-[10px] uppercase font-bold">
+                          Status de Conformidade Legal:
+                        </label>
+                        <select
+                          value={lvl.legalStatus}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setQuickHierarchyLevels(prev => prev.map(item => item.id === lvl.id ? { ...item, legalStatus: val } : item));
+                          }}
+                          className="bg-slate-900 border border-slate-800 focus:border-amber-500 px-3 py-1.5 rounded-lg text-slate-100 font-mono text-xs focus:outline-none cursor-pointer"
+                        >
+                          <option value="Conforme">🟢 Conforme (Plena Legalidade)</option>
+                          <option value="Em Regularização">🟡 Em Regularização (Tolerância Legal)</option>
+                          <option value="Sob Auditoria">🔵 Sob Auditoria Técnica (DEUS)</option>
+                          <option value="Não Conforme">🔴 Não Conforme (Interdição Legal)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Observações / Notas Normativas */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-slate-400 font-mono text-[10px] uppercase font-bold">
+                        Regulamentação / Observações Legais:
+                      </label>
+                      <input
+                        type="text"
+                        value={lvl.notes}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setQuickHierarchyLevels(prev => prev.map(item => item.id === lvl.id ? { ...item, notes: val } : item));
+                        }}
+                        placeholder="Ref. Legal ou Portaria aplicável..."
+                        className="bg-slate-900 border border-slate-800 focus:border-amber-500 px-3 py-1 rounded-lg text-slate-300 text-[11px] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex items-center justify-between pt-3 border-t border-slate-850 mt-1">
+                <div className="text-[10px] text-slate-500 font-mono">
+                  Chave de Encriptação DEUS • Auditoria Ativa
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsQuickHierarchyModalOpen(false)}
+                    className="px-4 py-2 bg-slate-950 hover:bg-slate-850 border border-slate-800 text-slate-300 rounded-xl font-mono text-xs font-bold uppercase transition cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-black uppercase rounded-xl transition cursor-pointer shadow-lg shadow-amber-500/20 flex items-center gap-1.5"
+                  >
+                    <CheckCircle className="h-3.5 w-3.5" /> Salvar Configuração
+                  </button>
+                </div>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
 
     </div>
   );

@@ -658,6 +658,148 @@ export default function DeusFundadorPanel({
     showNotification(`Operador "${opObj.name}" deletado.`, "info");
   };
 
+  // Automated System Provisioning Utility for 21 Provinces (1 Pavilion, 1 Block, 3 Cells per province)
+  const handleAutoProvision21Provinces = () => {
+    const provincePrisonMap: Record<string, string> = {
+      "Luanda": "EP/Viana",
+      "Icolo e Bengo": "EP/Kakila",
+      "Huambo": "EP/Cambiote",
+      "Benguela": "EP/Cavaco",
+      "Cabinda": "EP/Yabi",
+      "Cuanza Norte": "EP/Kaporolo",
+      "Cuanza Sul": "EP/Sumbe",
+      "Cunene": "EP/Pebane",
+      "Huíla": "EP/Bentiaba",
+      "Namibe": "EP/Namibe",
+      "Malanje": "EP/Banza do Bango",
+      "Uíge": "EP/Uíge",
+      "Zaire": "EP/Mbanza Kongo",
+      "Lunda Norte": "EP/Kakanda",
+      "Lunda Sul": "EP/Saurimo",
+      "Moxico": "EP/Luena",
+      "Moxico Leste": "EP/Moxico Leste",
+      "Quando Cubango": "EP/Menongue",
+      "Quando": "EP/Quando",
+      "Bengo": "EP/Capolo",
+      "Bié": "EP/Cuito"
+    };
+
+    setPrisons((prevPrisons) => {
+      const updatedList = [...prevPrisons];
+
+      provinces.forEach((prov) => {
+        const canonicalPrisonName = provincePrisonMap[prov.name] || `EP ${prov.name}`;
+        
+        // Find if prison already exists for this province
+        let pIndex = updatedList.findIndex((p) =>
+          (p.location && p.location.toLowerCase().includes(prov.name.toLowerCase())) ||
+          p.name.toLowerCase().includes(canonicalPrisonName.toLowerCase()) ||
+          p.name.toLowerCase().includes(prov.name.toLowerCase())
+        );
+
+        let prisonObj: any;
+        if (pIndex === -1) {
+          // Create new prison if missing
+          const freshId = `PRIS-${prov.code}-${Math.floor(100 + Math.random() * 900)}`;
+          prisonObj = {
+            id: freshId,
+            name: canonicalPrisonName,
+            location: `${prov.name}, Angola`,
+            officialCapacity: 300,
+            operationalCapacity: 350,
+            currentOccupancy: 0,
+            riskBreakdown: { Baixo: 0, Médio: 0, Alto: 0, Máximo: 0 },
+            pavilions: []
+          };
+          updatedList.push(prisonObj);
+          pIndex = updatedList.length - 1;
+        } else {
+          // Clone existing prison object
+          prisonObj = { ...updatedList[pIndex] };
+        }
+
+        // Ensure Pavilions array exists
+        const pavilionsList = prisonObj.pavilions ? [...prisonObj.pavilions] : [];
+
+        // Ensure 1 Pavilion exists
+        if (pavilionsList.length === 0) {
+          pavilionsList.push({
+            id: `PAV-${prov.code}-01`,
+            name: `Pavilhão Central (${prov.name})`,
+            blocks: []
+          });
+        }
+
+        // Process Pavilions
+        const updatedPavilions = pavilionsList.map((pav: any) => {
+          const blocksList = pav.blocks ? [...pav.blocks] : [];
+
+          // Ensure 1 Block exists
+          if (blocksList.length === 0) {
+            blocksList.push({
+              id: `BLK-${prov.code}-A`,
+              name: `Bloco A - Segurança Geral`,
+              capacity: 100,
+              current: 0,
+              cellCount: 0,
+              riskLevel: "Médio",
+              cells: []
+            });
+          }
+
+          // Process Blocks
+          const updatedBlocks = blocksList.map((blk: any) => {
+            const cellsList = blk.cells ? [...blk.cells] : [];
+
+            // Ensure 3 Cells exist
+            const cellNames = ["Cela C-01", "Cela C-02", "Cela C-03"];
+            cellNames.forEach((cName, cIdx) => {
+              const exists = cellsList.some((c: any) =>
+                c.name.toLowerCase() === cName.toLowerCase() || c.name.includes(`C-0${cIdx + 1}`)
+              );
+              if (!exists) {
+                cellsList.push({
+                  id: `CEL-${prov.code}-0${cIdx + 1}`,
+                  name: cName,
+                  capacity: 8,
+                  current: 0
+                });
+              }
+            });
+
+            return {
+              ...blk,
+              cellCount: cellsList.length,
+              cells: cellsList
+            };
+          });
+
+          return {
+            ...pav,
+            blocks: updatedBlocks
+          };
+        });
+
+        prisonObj.pavilions = updatedPavilions;
+        updatedList[pIndex] = prisonObj;
+      });
+
+      return updatedList;
+    });
+
+    writeAuditLog(
+      currentOperator,
+      "SYSTEM_AUTO_PROVISION",
+      "Prisons",
+      "PROVINCES_21_ALL",
+      `UTILITÁRIO DE SISTEMA (SICP): Geração/Validação da hierarquia de 1 Pavilhão, 1 Bloco e 3 Celas para todas as 21 províncias de Angola.`
+    );
+
+    showNotification(
+      `Sincronização concluída! 21 Províncias com 1 Pavilhão, 1 Bloco e 3 Celas garantidos.`
+    );
+  };
+
   // Filtered lists for rendering
   const filteredPrisons = prisons.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -688,9 +830,20 @@ export default function DeusFundadorPanel({
             <h2 className="text-xs font-bold uppercase tracking-wider text-amber-500 font-mono flex items-center gap-1.5 leading-none">
               Gestão de Topologia & Estrutura (21 Províncias)
             </h2>
+            <p className="text-[10px] text-slate-400 font-sans mt-1">
+              Controlo hierárquico nacional: Estabelecimentos, Pavilhões, Blocos e Celas.
+            </p>
           </div>
         </div>
         <div className="shrink-0 flex items-center gap-2">
+          <button
+            onClick={handleAutoProvision21Provinces}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 text-xs border border-amber-400 rounded-lg font-mono flex items-center gap-1.5 font-extrabold cursor-pointer transition shadow-lg shadow-amber-500/10 active:scale-95"
+            title="Criar/Sincronizar Estrutura Automática (1 Pavilhão, 1 Bloco e 3 Celas em cada uma das 21 Províncias)"
+          >
+            <FolderPlus className="h-4 w-4" />
+            ⚡ GERAR ESTRUTURA (21 PROVÍNCIAS)
+          </button>
           <span className="bg-slate-950 text-amber-500 px-2.5 py-1 text-[10px] border border-amber-500/20 rounded-lg font-mono flex items-center gap-1.5 font-bold">
             <Fingerprint className="h-3.5 w-3.5" /> ATIVO
           </span>
@@ -839,13 +992,48 @@ export default function DeusFundadorPanel({
           {/* SECTION 1: OVERVIEW OF 21 PROVINCES (IMMUTABLE RECORD HEAD) */}
           {activeSection === "overview" && (
             <div className="flex flex-col gap-4">
-              <div>
-                <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-1.5">
-                  <Sliders className="h-3.5 w-3.5 text-amber-500" /> DPA 2024 — Províncias de Angola (Fontes de Verdade Imutáveis)
-                </h3>
-                <p className="text-xxs text-slate-400 mt-1 leading-relaxed">
-                  As 21 Províncias Oficiais sob a nova Divisão Político-Administrativa de Angola (2024). Estes territórios são fontes imutáveis integradas nas tabelas de controle governamentais.
-                </p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                <div>
+                  <h3 className="font-sans font-bold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sliders className="h-3.5 w-3.5 text-amber-500" /> DPA 2024 — Províncias de Angola (Fontes de Verdade Imutáveis)
+                  </h3>
+                  <p className="text-xxs text-slate-400 mt-1 leading-relaxed">
+                    As 21 Províncias Oficiais sob a nova Divisão Político-Administrativa de Angola (2024).
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleAutoProvision21Provinces}
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-2 text-xs font-mono font-black rounded-xl border border-amber-400 flex items-center gap-2 cursor-pointer transition shadow-lg shadow-amber-500/10 active:scale-95 shrink-0"
+                >
+                  <FolderPlus className="h-4 w-4" />
+                  Gera/Sincronizar Estrutura (21 Províncias)
+                </button>
+              </div>
+
+              {/* System Utility Banner */}
+              <div className="p-4 rounded-xl bg-slate-950 border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 mt-0.5">
+                    <Layers className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-amber-400 font-mono uppercase tracking-wide">
+                      Utilitário de Resiliência de Dados & Hierarquia Canónica
+                    </h4>
+                    <p className="text-[11px] text-slate-300 font-sans mt-0.5 leading-relaxed">
+                      Garante que cada uma das <strong>21 Províncias de Angola</strong> possui a estrutura mínima obrigatória: <strong>1 Estabelecimento Penitenciário</strong>, <strong>1 Pavilhão</strong>, <strong>1 Bloco</strong> e <strong>3 Celas</strong> (Hierarquia Pai-Filho-Neto).
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleAutoProvision21Provinces}
+                  className="w-full md:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs font-mono rounded-lg transition border border-amber-300 shrink-0 shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Executar Auto-Provisionamento
+                </button>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

@@ -142,6 +142,7 @@ export interface PrisonState {
   id: string;
   name: string;
   location: string;
+  province?: string;
   officialCapacity: number;
   operationalCapacity: number;
   currentOccupancy: number;
