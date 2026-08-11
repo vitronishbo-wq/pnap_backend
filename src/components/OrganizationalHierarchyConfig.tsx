@@ -36,7 +36,9 @@ import {
   ShieldAlert,
   Eye,
   SlidersHorizontal,
-  Zap
+  Zap,
+  GitFork,
+  MapPin
 } from "lucide-react";
 import { OrganizationalUnit, TerritorialScope } from "../types";
 
@@ -293,7 +295,93 @@ export function OrganizationalHierarchyConfig({
   // Filters & Active Directorate State
   const [selectedProvinceFilter, setSelectedProvinceFilter] = useState<string>(isNational ? "Huambo" : operatorProvince);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeCategoryTab, setActiveCategoryTab] = useState<"ALL" | "CAT_1" | "CAT_2" | "CAT_3" | "CAT_4" | "TREE">("ALL");
+  const [activeCategoryTab, setActiveCategoryTab] = useState<"ALL" | "CAT_1" | "CAT_2" | "CAT_3" | "CAT_4" | "TREE" | "SUBORDINATION">("ALL");
+
+  // Explicit Subordination Management States
+  const [isSubordinationModalOpen, setIsSubordinationModalOpen] = useState<boolean>(false);
+  const [targetSubUnit, setTargetSubUnit] = useState<OrganizationalUnit | null>(null);
+  const [newParentUnitId, setNewParentUnitId] = useState<string>("");
+  const [subSearchQuery, setSubSearchQuery] = useState<string>("");
+  const [subProvinceFilter, setSubProvinceFilter] = useState<string>("ALL");
+  const [subTypeFilter, setSubTypeFilter] = useState<string>("ALL");
+
+  // Helper validation for subordination: prisons/units in a province can ONLY be subordinated to same province or Direção Geral
+  const validateSubordination = (
+    unit: OrganizationalUnit | null,
+    parentId: string
+  ): { valid: boolean; errorReason?: string; isNationalParent?: boolean } => {
+    if (!unit) return { valid: false, errorReason: "Nenhuma unidade selecionada." };
+    if (!parentId) return { valid: false, errorReason: "Selecione o superior hierárquico pretendido." };
+    if (unit.id === parentId) return { valid: false, errorReason: "A unidade não pode ser subordinada a si própria." };
+
+    if (parentId === "OU-MININT-DG" || parentId === "CENTRO-OPERACIONAL-NACIONAL") {
+      return { valid: true, isNationalParent: true };
+    }
+
+    const parentUnit = organizationalUnits.find(u => u.id === parentId);
+    if (!parentUnit) {
+      return { valid: true, isNationalParent: true };
+    }
+
+    const isParentNational =
+      parentUnit.level === TerritorialScope.NATIONAL ||
+      parentUnit.id === "OU-MININT-DG" ||
+      parentUnit.name.toLowerCase().includes("direção geral") ||
+      parentUnit.name.toLowerCase().includes("direcção geral");
+
+    if (isParentNational) {
+      return { valid: true, isNationalParent: true };
+    }
+
+    const unitProv = unit.province?.toLowerCase().trim();
+    const parentProv = parentUnit.province?.toLowerCase().trim();
+
+    if (unitProv && parentProv && unitProv !== parentProv) {
+      return {
+        valid: false,
+        errorReason: `VIOLAÇÃO TERRITORIAL: A cadeia/unidade da província de '${unit.province}' não pode ser subordinada à unidade '${parentUnit.name}' da província de '${parentUnit.province}'. Pela regulamentação do Serviço Penitenciário (Decreto Presidencial 184/17), unidades provinciais só podem ser subordinadas a órgãos da mesma província (${unit.province}) ou à Direção Geral.`
+      };
+    }
+
+    return { valid: true, isNationalParent: false };
+  };
+
+  const handleSaveSubordination = () => {
+    if (!targetSubUnit || !newParentUnitId) return;
+
+    const validation = validateSubordination(targetSubUnit, newParentUnitId);
+    if (!validation.valid) {
+      triggerToast("ERRO DE VALIDAÇÃO HIERÁRQUICA", validation.errorReason || "Subordinação inválida.", "error");
+      return;
+    }
+
+    const parentObj = organizationalUnits.find(u => u.id === newParentUnitId) || {
+      id: "OU-MININT-DG",
+      name: "Direção Geral do Serviço Penitenciário"
+    };
+
+    setOrganizationalUnits(prev =>
+      prev.map(u => {
+        if (u.id === targetSubUnit.id) {
+          return {
+            ...u,
+            parentId: newParentUnitId
+          };
+        }
+        return u;
+      })
+    );
+
+    triggerToast(
+      "SUBORDINAÇÃO HOMOLOGADA",
+      `A subordinação de '${targetSubUnit.name}' foi vinculada com sucesso a '${parentObj.name}'.`,
+      "success"
+    );
+
+    setIsSubordinationModalOpen(false);
+    setTargetSubUnit(null);
+    setNewParentUnitId("");
+  };
 
   // Left Sidebar Collapsibility State (1% recolhível / mini-sidebar)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
@@ -1327,10 +1415,226 @@ export function OrganizationalHierarchyConfig({
                   <Network className="h-3.5 w-3.5" />
                   Visão em Árvore
                 </button>
+
+                <button
+                  onClick={() => setActiveCategoryTab("SUBORDINATION")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                    activeCategoryTab === "SUBORDINATION"
+                      ? "bg-indigo-600 text-white font-black shadow-md shadow-indigo-600/30 ring-1 ring-indigo-400/50"
+                      : "bg-slate-900 text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  <GitFork className="h-3.5 w-3.5 text-indigo-300" />
+                  Subordinação Hierárquica
+                  <span className="bg-indigo-950 text-indigo-300 border border-indigo-700/50 text-[9px] px-1.5 py-0.2 rounded-full font-sans font-semibold">
+                    DG
+                  </span>
+                </button>
               </div>
 
               {/* DISPLAY GRID OF DEPENDENCIES WITH FUNCTIONAL RESPONSIBILITIES */}
-              {activeCategoryTab !== "TREE" ? (
+              {activeCategoryTab === "SUBORDINATION" ? (
+                <div className="flex flex-col gap-5">
+                  {/* Banner Notice */}
+                  <div className="bg-slate-950 border border-indigo-500/30 rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                    <div className="flex items-start gap-3.5 z-10">
+                      <div className="p-3 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-indigo-400 shrink-0 mt-0.5">
+                        <GitFork className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-black text-slate-100 font-mono uppercase tracking-wide">
+                            Matriz de Subordinação Hierárquica e Vínculos Territoriais
+                          </h3>
+                          <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full">
+                            Competência Exclusiva: Director Geral
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-300 font-sans mt-1 max-w-3xl leading-relaxed">
+                          Configure as relações formais de dependência hierárquica entre Unidades Orgânicas e Estabelecimentos Penitenciários (Cadeias).
+                          <strong className="text-amber-400 block mt-0.5 font-mono">
+                            ⚠️ Regra do Decreto Presidencial n.º 184/17: Uma cadeia de determinada província só pode estar subordinada a unidades dessa mesma província ou directamente à Direção Geral.
+                          </strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Filter & Search Toolbar */}
+                  <div className="bg-slate-950 border border-slate-850 rounded-2xl p-3.5 flex flex-wrap justify-between items-center gap-3">
+                    <div className="flex items-center gap-2.5 flex-wrap flex-1 min-w-[280px]">
+                      {/* Search */}
+                      <div className="relative flex-1 min-w-[200px]">
+                        <Search className="h-3.5 w-3.5 text-slate-500 absolute left-3 top-2.5" />
+                        <input
+                          type="text"
+                          placeholder="Pesquisar unidade, cadeia ou código..."
+                          value={subSearchQuery}
+                          onChange={(e) => setSubSearchQuery(e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 font-mono"
+                        />
+                      </div>
+
+                      {/* Province Filter */}
+                      <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+                        <span className="text-[10px] font-mono text-slate-500 uppercase font-bold">Província:</span>
+                        <select
+                          value={subProvinceFilter}
+                          onChange={(e) => setSubProvinceFilter(e.target.value)}
+                          className="bg-transparent text-xs text-slate-200 font-mono focus:outline-none cursor-pointer"
+                        >
+                          <option value="ALL">Todas as Províncias</option>
+                          {ALL_PROVINCES_LIST.map(p => (
+                            <option key={p} value={p}>{p}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Type Filter */}
+                      <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+                        <span className="text-[10px] font-mono text-slate-500 uppercase font-bold">Tipo:</span>
+                        <select
+                          value={subTypeFilter}
+                          onChange={(e) => setSubTypeFilter(e.target.value)}
+                          className="bg-transparent text-xs text-slate-200 font-mono focus:outline-none cursor-pointer"
+                        >
+                          <option value="ALL">Todos os Tipos</option>
+                          <option value="CADEIAS">Apenas Cadeias / EP</option>
+                          <option value="DEPARTAMENTOS">Apenas Departamentos</option>
+                          <option value="GABINETES">Apenas Gabinetes / Conselhos</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Summary Badges */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg">
+                        Unidades Mapeadas: <strong className="text-indigo-400 font-bold">{organizationalUnits.length}</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Subordination Items Grid / Table */}
+                  <div className="grid grid-cols-1 gap-3">
+                    {organizationalUnits
+                      .filter(u => {
+                        if (subSearchQuery.trim()) {
+                          const q = subSearchQuery.toLowerCase();
+                          const matchesName = u.name.toLowerCase().includes(q);
+                          const matchesCode = u.code?.toLowerCase().includes(q);
+                          if (!matchesName && !matchesCode) return false;
+                        }
+                        if (subProvinceFilter !== "ALL") {
+                          if (u.province?.toLowerCase().trim() !== subProvinceFilter.toLowerCase().trim()) return false;
+                        }
+                        if (subTypeFilter === "CADEIAS") {
+                          if (u.divisionType !== "ESTAB_PENITENCIARIO" && u.level !== TerritorialScope.ESTABLISHMENT && !u.category?.startsWith("IV")) return false;
+                        } else if (subTypeFilter === "DEPARTAMENTOS") {
+                          if (u.divisionType !== "DEPARTAMENTO") return false;
+                        } else if (subTypeFilter === "GABINETES") {
+                          if (u.divisionType !== "GABINETE" && u.divisionType !== "CONSELHO") return false;
+                        }
+                        return true;
+                      })
+                      .map(unit => {
+                        const parentUnit = organizationalUnits.find(p => p.id === unit.parentId);
+                        const validation = validateSubordination(unit, unit.parentId || "OU-MININT-DG");
+                        const isPrison = unit.divisionType === "ESTAB_PENITENCIARIO" || unit.level === TerritorialScope.ESTABLISHMENT || unit.category?.startsWith("IV");
+
+                        return (
+                          <div
+                            key={unit.id}
+                            className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
+                              !validation.valid
+                                ? "bg-rose-950/20 border-rose-500/40 shadow-lg shadow-rose-950/30"
+                                : isPrison
+                                ? "bg-amber-950/10 border-amber-500/30 hover:border-amber-500/50"
+                                : "bg-slate-950/80 border-slate-850 hover:border-slate-750"
+                            }`}
+                          >
+                            <div className="flex items-start gap-3 flex-1">
+                              <div className={`p-2.5 rounded-xl border shrink-0 mt-0.5 ${
+                                isPrison ? "bg-amber-500/10 border-amber-500/30 text-amber-400" : "bg-indigo-500/10 border-indigo-500/30 text-indigo-400"
+                              }`}>
+                                {isPrison ? <Building className="h-5 w-5" /> : <Building2 className="h-5 w-5" />}
+                              </div>
+
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-xs font-bold font-mono text-slate-100">
+                                    {unit.name}
+                                  </span>
+                                  {unit.code && (
+                                    <span className="text-[10px] font-mono text-slate-400 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">
+                                      {unit.code}
+                                    </span>
+                                  )}
+                                  <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                                    isPrison ? "bg-amber-500/20 text-amber-300 border-amber-500/40" : "bg-slate-850 text-slate-300 border-slate-750"
+                                  }`}>
+                                    {isPrison ? "ESTABELECIMENTO PENITENCIÁRIO" : unit.divisionType || "UNIDADE"}
+                                  </span>
+                                  <span className="text-[9px] font-mono text-slate-300 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <MapPin className="h-2.5 w-2.5 text-amber-400" /> {unit.province || "Angola"}
+                                  </span>
+                                </div>
+
+                                {/* Subordination Relationship line */}
+                                <div className="flex items-center gap-2 text-xs font-mono text-slate-400 mt-1">
+                                  <span className="text-slate-500 text-[11px]">Subordinado a:</span>
+                                  <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 px-2.5 py-1 rounded-lg text-slate-200">
+                                    <ArrowRight className="h-3 w-3 text-indigo-400 shrink-0" />
+                                    <span className="font-bold text-slate-100">
+                                      {parentUnit ? parentUnit.name : "Direção Geral do Serviço Penitenciário"}
+                                    </span>
+                                    {parentUnit?.province && (
+                                      <span className="text-[9px] text-slate-400 bg-slate-950 px-1.5 py-0.2 rounded border border-slate-850">
+                                        {parentUnit.province}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Status & Action */}
+                            <div className="flex items-center gap-3 self-end md:self-center shrink-0">
+                              {validation.valid ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                                  <CheckCircle2 className="h-3.5 w-3.5" />
+                                  {validation.isNationalParent ? "Direção Geral" : "Mesma Província (Conforme)"}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/50 animate-pulse">
+                                  <AlertCircle className="h-3.5 w-3.5 text-rose-400" />
+                                  Violação Territorial
+                                </span>
+                              )}
+
+                              {isNational ? (
+                                <button
+                                  onClick={() => {
+                                    setTargetSubUnit(unit);
+                                    setNewParentUnitId(unit.parentId || "OU-MININT-DG");
+                                    setIsSubordinationModalOpen(true);
+                                  }}
+                                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg shadow-indigo-600/20 flex items-center gap-1.5 cursor-pointer transition"
+                                >
+                                  <GitFork className="h-3.5 w-3.5" />
+                                  Alterar Superior
+                                </button>
+                              ) : (
+                                <span className="text-[10px] font-mono text-slate-500 bg-slate-900 border border-slate-850 px-2 py-1 rounded-lg flex items-center gap-1">
+                                  <Lock className="h-3 w-3" /> Apenas DG
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              ) : activeCategoryTab !== "TREE" ? (
                 <div className="flex flex-col gap-4">
                   
                   {/* Category Filter Rendering */}
@@ -2078,7 +2382,11 @@ export function OrganizationalHierarchyConfig({
                   >
                     <option value="">-- Selecione o Estabelecimento --</option>
                     {prisons
-                      .filter(p => isNational || (p.location && p.location.toLowerCase().includes(operatorProvince.toLowerCase())) || (p.province && p.province.toLowerCase() === operatorProvince.toLowerCase()))
+                      .filter(p => {
+                        const targetProv = activeDirectorate?.province || (isNational ? selectedProvinceFilter : operatorProvince);
+                        if (!targetProv) return true;
+                        return (p.location && p.location.toLowerCase().includes(targetProv.toLowerCase())) || (p.province && p.province.toLowerCase() === targetProv.toLowerCase());
+                      })
                       .map(p => (
                         <option key={p.id} value={p.id}>
                           {p.name} ({p.location || 'Angola'})
@@ -2104,6 +2412,154 @@ export function OrganizationalHierarchyConfig({
                 </div>
 
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL 4: SUBORDINATION REASSIGNMENT */}
+      <AnimatePresence>
+        {isSubordinationModalOpen && targetSubUnit && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-950 border border-slate-800 rounded-2xl p-6 w-full max-w-xl shadow-2xl flex flex-col gap-5 text-slate-100 font-sans"
+            >
+              <div className="border-b border-slate-900 pb-3 flex justify-between items-center">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-indigo-500/10 border border-indigo-500/30 rounded-xl text-indigo-400">
+                    <GitFork className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-100 font-mono uppercase tracking-wide">
+                      Alterar Superior Hierárquico (Subordinação)
+                    </h3>
+                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                      Definição do vínculo de comando segundo a regulamentação penitenciária (Decreto Presidencial 184/17).
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setIsSubordinationModalOpen(false);
+                    setTargetSubUnit(null);
+                  }}
+                  className="text-slate-500 hover:text-slate-200 text-xs font-mono px-2 py-1 rounded bg-slate-900 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Target Unit Details Card */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 flex flex-col gap-1.5">
+                <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Unidade Alvo:</span>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-xs font-bold font-mono text-amber-300">
+                    {targetSubUnit.name}
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-300 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <MapPin className="h-3 w-3 text-amber-400" /> Província: {targetSubUnit.province || "Angola"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Parent Selector */}
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-mono uppercase font-bold text-slate-300 block">
+                  Selecione o Novo Superior Hierárquico:
+                </label>
+                <select
+                  value={newParentUnitId}
+                  onChange={(e) => setNewParentUnitId(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 font-mono focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="OU-MININT-DG">
+                    🏛️ DIREÇÃO GERAL DO SERVIÇO PENITENCIÁRIO (NÍVEL NACIONAL)
+                  </option>
+                  {organizationalUnits
+                    .filter(u => u.id !== targetSubUnit.id)
+                    .map(u => {
+                      const isSameProv = u.province?.toLowerCase().trim() === targetSubUnit.province?.toLowerCase().trim();
+                      const isNat = u.level === TerritorialScope.NATIONAL || u.id === "OU-MININT-DG" || u.name.toLowerCase().includes("direção geral") || u.name.toLowerCase().includes("direcção geral");
+                      const isValidOption = isSameProv || isNat;
+
+                      return (
+                        <option
+                          key={u.id}
+                          value={u.id}
+                          disabled={!isValidOption}
+                          className={!isValidOption ? "text-slate-600 bg-slate-950" : "text-slate-200"}
+                        >
+                          {isNat ? "🏛️ [NACIONAL - DG]" : isSameProv ? "📍 [MESMA PROVÍNCIA]" : "⛔ [OUTRA PROVÍNCIA - PROIBIDO]"} {u.name} ({u.province || "Nacional"})
+                        </option>
+                      );
+                    })}
+                </select>
+              </div>
+
+              {/* Real-time Validation Box */}
+              {(() => {
+                const val = validateSubordination(targetSubUnit, newParentUnitId);
+                if (val.valid) {
+                  return (
+                    <div className="p-3.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2.5">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold font-mono block text-emerald-200">
+                          Vínculo Hierárquico Conforme e Aprovado
+                        </span>
+                        <span className="text-[11px] font-sans text-emerald-300/90 leading-tight block mt-0.5">
+                          Esta subordinação respeita integralmente a regulamentação territorial e hierárquica.
+                        </span>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="p-3.5 rounded-xl border bg-rose-500/20 border-rose-500/50 text-rose-200 text-xs flex items-start gap-2.5">
+                      <AlertCircle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold font-mono block text-rose-300">
+                          Erro de Validação Territorial
+                        </span>
+                        <span className="text-[11px] font-sans text-rose-200/90 leading-tight block mt-0.5">
+                          {val.errorReason}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+              })()}
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-2 border-t border-slate-900 pt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSubordinationModalOpen(false);
+                    setTargetSubUnit(null);
+                  }}
+                  className="bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs font-mono font-bold px-4 py-2 rounded-xl cursor-pointer"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveSubordination}
+                  disabled={!validateSubordination(targetSubUnit, newParentUnitId).valid}
+                  className={`font-mono text-xs font-black px-5 py-2 rounded-xl shadow-lg transition flex items-center gap-1.5 ${
+                    validateSubordination(targetSubUnit, newParentUnitId).valid
+                      ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30 cursor-pointer"
+                      : "bg-slate-850 text-slate-600 border border-slate-800 cursor-not-allowed opacity-60"
+                  }`}
+                >
+                  <Check className="h-4 w-4 stroke-[3]" />
+                  Homologar Subordinação
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

@@ -3236,6 +3236,7 @@ export default function App() {
     if (!isOperatorNational && !isCentroOperacionalMatch && !isOperatorProvincialMatch && !isOperatorEstabMatch) {
       if (operator.province && institutionalHierarchy[operator.province]) {
         setSelectedProvince(operator.province);
+        setSelectedProvinceFilter(operator.province);
         const dirs = Object.keys(institutionalHierarchy[operator.province].directions || {});
         if (dirs.length > 0) {
           setSelectedDir(dirs[0]);
@@ -3247,9 +3248,12 @@ export default function App() {
         }
       } else {
         setSelectedProvince("Centro Operacional");
+        setSelectedProvinceFilter("ALL");
         setSelectedDir("Direção Geral / Centro Operacional Nacional");
         setSelectedEstablishmentId("CENTRO-OPERACIONAL-NACIONAL");
       }
+    } else if (!isOperatorNational && operator.province) {
+      setSelectedProvinceFilter(operator.province);
     }
 
     // Set current logged in operator
@@ -4022,11 +4026,12 @@ export default function App() {
     return [currentOperator.province || "Huambo"];
   }, [currentOperator, prisons]);
 
-  // Lock selectedProvinceFilter to operator's province if non-national
+  // Lock selectedProvinceFilter and selectedProvince to operator's province if non-national
   useEffect(() => {
     const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
     if (!isNational && currentOperator.province) {
       setSelectedProvinceFilter(currentOperator.province);
+      setSelectedProvince(currentOperator.province);
     }
   }, [currentOperator]);
 
@@ -4190,24 +4195,18 @@ export default function App() {
 
   const visibleOperators = useMemo(() => {
     const isNational = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
-    if (isNational) return operators;
-    const isProvincial = currentOperator.territorialScope === TerritorialScope.PROVINCIAL || currentOperator.level === "PROVINCIAL" || currentOperator.role === "DIRECTOR_PROVINCIAL";
-    if (isProvincial && currentOperator.province) {
-      const provClean = currentOperator.province.toLowerCase().trim();
-      return operators.filter(op => 
-        op.level === "NATIONAL" || op.role === "DIRECTOR_GERAL" || 
-        (op.province && op.province.toLowerCase().trim() === provClean)
-      );
+    const activeProv = !isNational 
+      ? currentOperator.province?.toLowerCase().trim() 
+      : (selectedProvinceFilter !== "ALL" ? selectedProvinceFilter.toLowerCase().trim() : null);
+
+    if (activeProv) {
+      return operators.filter(op => op.province && op.province.toLowerCase().trim() === activeProv);
     }
     if (currentOperator.assignedPrisonId) {
-      return operators.filter(op =>
-        op.level === "NATIONAL" || op.role === "DIRECTOR_GERAL" ||
-        op.assignedPrisonId === currentOperator.assignedPrisonId ||
-        (currentOperator.province && op.province && op.province.toLowerCase().trim() === currentOperator.province.toLowerCase().trim())
-      );
+      return operators.filter(op => op.assignedPrisonId === currentOperator.assignedPrisonId);
     }
     return operators;
-  }, [currentOperator, operators]);
+  }, [currentOperator, operators, selectedProvinceFilter]);
 
   // Form states for scheduling a movement
   const [movSelectedInmateId, setMovSelectedInmateId] = useState("");
@@ -8586,11 +8585,17 @@ export default function App() {
                       onChange={(e) => setSelectedProvince(e.target.value)}
                       className="bg-[#070c18] border border-slate-700/80 p-3 rounded-xl text-xs font-bold text-slate-100 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 cursor-pointer w-full transition-all shadow-inner"
                     >
-                      {Object.keys(institutionalHierarchy).map((prov) => (
-                        <option key={prov} value={prov}>
-                          {prov === "Centro Operacional" ? "⭐ Centro Operacional (Nacional / Superadmin)" : prov}
-                        </option>
-                      ))}
+                      {Object.keys(institutionalHierarchy)
+                        .filter((prov) => {
+                          const isOperatorNational = currentOperator?.level === "NATIONAL" || currentOperator?.role === "DIRECTOR_GERAL" || currentOperator?.territorialScope === "NATIONAL";
+                          if (isOperatorNational) return true;
+                          return prov.toLowerCase().trim() === (currentOperator?.province || "Huambo").toLowerCase().trim();
+                        })
+                        .map((prov) => (
+                          <option key={prov} value={prov}>
+                            {prov === "Centro Operacional" ? "⭐ Centro Operacional (Nacional / Superadmin)" : prov}
+                          </option>
+                        ))}
                     </select>
                   </div>
 
@@ -9545,13 +9550,13 @@ export default function App() {
                 const query = sidebarSiglaSearch.trim().toLowerCase();
 
                 // 1. Establishments
-                const epItems = prisons.map((p) => {
+                const epItems = visiblePrisons.map((p) => {
                   const lowerName = p.name.toLowerCase();
                   let sigla = p.code ? p.code.toUpperCase() : "EP";
                   if (lowerName.includes("viana") && lowerName.includes("feminino")) sigla = "EP-FEM";
                   else if (lowerName.includes("viana")) sigla = "EP-VIA";
                   else if (lowerName.includes("kakila")) sigla = "EP-KAK";
-                  else if (lowerName.includes("huambo")) sigla = "EP-HUA";
+                  else if (lowerName.includes("huambo") || lowerName.includes("cambiote")) sigla = "EP-CAM";
                   else if (lowerName.includes("cabinda")) sigla = "EP-CAB";
                   else if (lowerName.includes("namibe")) sigla = "EP-NAM";
                   else if (lowerName.includes("custóias") || lowerName.includes("ndalatando")) sigla = "EP-CUS";
@@ -9578,7 +9583,20 @@ export default function App() {
                 });
 
                 // 2. Departments
-                const depItems = organizationalUnits.map((u) => {
+                const isNatOp = currentOperator.territorialScope === TerritorialScope.NATIONAL || currentOperator.level === "NATIONAL" || currentOperator.role === "DIRECTOR_GERAL";
+                const targetProvForUnits = !isNatOp 
+                  ? currentOperator.province?.toLowerCase().trim() 
+                  : (selectedProvinceFilter !== "ALL" ? selectedProvinceFilter.toLowerCase().trim() : null);
+
+                const filteredUnits = organizationalUnits.filter((u) => {
+                  if (targetProvForUnits) {
+                    if (u.level === TerritorialScope.NATIONAL) return false;
+                    return u.province?.toLowerCase().trim() === targetProvForUnits;
+                  }
+                  return true;
+                });
+
+                const depItems = filteredUnits.map((u) => {
                   let sigla = u.code ? u.code.split("-")[0].toUpperCase() : "DEP";
                   if (u.name.includes("Segurança") || u.name.includes("Inteligência")) sigla = "DNIP";
                   else if (u.name.includes("Inspeção")) sigla = "DNI";
@@ -10226,7 +10244,7 @@ export default function App() {
                                       onChange={(e) => setNewInmatePrison(e.target.value)} 
                                       className="bg-slate-950 border border-slate-850 focus:border-emerald-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                                     >
-                                      {prisons.map(p => (
+                                      {visiblePrisons.map(p => (
                                         <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                                       ))}
                                     </select>
@@ -10391,7 +10409,7 @@ export default function App() {
                               onChange={(e) => setTransferDestPrison(e.target.value)} 
                               className="bg-slate-950 border border-slate-850 focus:border-sky-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                             >
-                              {prisons.map(p => (
+                              {visiblePrisons.map(p => (
                                 <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                               ))}
                             </select>
@@ -10475,7 +10493,7 @@ export default function App() {
                               onChange={(e) => setMutinyPrison(e.target.value)} 
                               className="bg-slate-950 border border-slate-850 focus:border-red-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                             >
-                              {prisons.map(p => (
+                              {visiblePrisons.map(p => (
                                 <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                               ))}
                             </select>
@@ -10594,7 +10612,7 @@ export default function App() {
                               onChange={(e) => setSanitaryPrison(e.target.value)} 
                               className="bg-slate-950 border border-slate-850 focus:border-amber-500/50 rounded-lg p-2.5 text-slate-200 outline-none text-xs"
                             >
-                              {prisons.map(p => (
+                              {visiblePrisons.map(p => (
                                 <option key={p.id} value={p.id}>{formatEPName(p.name)}</option>
                               ))}
                             </select>
@@ -17374,7 +17392,7 @@ export default function App() {
                                       onChange={(e) => setBulkDestPrisonId(e.target.value)}
                                       className="bg-slate-950 border border-slate-800 rounded px-1.5 py-1 text-[10px] text-slate-300 font-mono focus:outline-none focus:border-amber-500 cursor-pointer flex-1"
                                     >
-                                      {prisons.map((pr) => (
+                                      {visiblePrisons.map((pr) => (
                                         <option key={pr.id} value={pr.id}>
                                           {pr.name.replace("Estabelecimento Penitenciário de ", "EP ")}
                                         </option>
@@ -18182,7 +18200,7 @@ export default function App() {
                           onChange={(e) => setMovDestPrisonId(e.target.value)}
                           className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-amber-500/50 block w-full"
                         >
-                          {prisons.map(p => {
+                          {visiblePrisons.map(p => {
                             const isOver = (p.currentOccupancy || 0) >= p.operationalCapacity;
                             return (
                               <option key={p.id} value={p.id}>
@@ -18856,6 +18874,13 @@ export default function App() {
                         key={op.id}
                         onClick={() => {
                           setCurrentOperatorId(op.id);
+                          if (op.province && op.level !== "NATIONAL" && op.role !== "DIRECTOR_GERAL") {
+                            setSelectedProvinceFilter(op.province);
+                            setSelectedHierNode({ type: "PROVINCE", id: op.province, name: op.province });
+                          } else {
+                            setSelectedProvinceFilter("ALL");
+                            setSelectedHierNode({ type: "PROVINCE", id: "ALL", name: "Todas as Províncias" });
+                          }
                           writeAuditLog(
                             augOp,
                             "LOGIN",
@@ -19104,7 +19129,16 @@ export default function App() {
                           <button
                             key={op.id}
                             type="button"
-                            onClick={() => setCurrentOperatorId(op.id)}
+                            onClick={() => {
+                              setCurrentOperatorId(op.id);
+                              if (op.province && op.level !== "NATIONAL" && op.role !== "DIRECTOR_GERAL") {
+                                setSelectedProvinceFilter(op.province);
+                                setSelectedHierNode({ type: "PROVINCE", id: op.province, name: op.province });
+                              } else {
+                                setSelectedProvinceFilter("ALL");
+                                setSelectedHierNode({ type: "PROVINCE", id: "ALL", name: "Todas as Províncias" });
+                              }
+                            }}
                             className={`p-2 rounded-lg border text-left flex flex-col gap-0.5 cursor-pointer transition-all ${
                               currentOperatorId === op.id
                                 ? "bg-amber-500/10 border-amber-500/50 text-amber-100"
@@ -23766,7 +23800,7 @@ export default function App() {
                   onChange={(e) => setTransferDestPrison(e.target.value)}
                   className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
                 >
-                  {prisons.map((p) => (
+                  {visiblePrisons.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name.replace("Estabelecimento Penitenciário de ", "EP ")} ({p.capacity} vagas)
                     </option>
@@ -23846,7 +23880,7 @@ export default function App() {
                   onChange={(e) => setQuickIncidentPrisonId(e.target.value)}
                   className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
                 >
-                  {prisons.map((p) => (
+                  {visiblePrisons.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name.replace("Estabelecimento Penitenciário de ", "EP ")}
                     </option>

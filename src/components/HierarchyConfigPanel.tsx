@@ -154,8 +154,14 @@ export default function HierarchyConfigPanel({
   writeAuditLog,
   currentOperator
 }: HierarchyConfigPanelProps) {
+  const isNational = currentOperator?.territorialScope === "NATIONAL" || currentOperator?.level === "NATIONAL" || currentOperator?.role === "DIRECTOR_GERAL";
+  const operatorProvince = currentOperator?.province || "Huambo";
+
   const [activeTab, setActiveTab] = useState<"provincial" | "establishments" | "tree" | "matrix">("provincial");
-  const [selectedProvName, setSelectedProvName] = useState<string>("Luanda");
+  const [selectedProvName, setSelectedProvName] = useState<string>(() => {
+    if (!isNational && operatorProvince) return operatorProvince;
+    return "Huambo";
+  });
   const [selectedPrisonId, setSelectedPrisonId] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -511,6 +517,7 @@ export default function HierarchyConfigPanel({
 
             <div className="flex flex-col gap-1 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar">
               {provinces
+                .filter((p) => isNational || p.name.toLowerCase().trim() === operatorProvince.toLowerCase().trim())
                 .filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
                 .map((prov) => {
                   const isSelected = selectedProvName === prov.name;
@@ -673,11 +680,17 @@ export default function HierarchyConfigPanel({
                 onChange={(e) => setSelectedPrisonId(e.target.value)}
                 className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
               >
-                {prisons.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.location})
-                  </option>
-                ))}
+                {prisons
+                  .filter((p) => {
+                    const targetProv = isNational ? selectedProvName : operatorProvince;
+                    if (!targetProv) return true;
+                    return (p.location && p.location.toLowerCase().includes(targetProv.toLowerCase())) || (p.province && p.province.toLowerCase() === targetProv.toLowerCase());
+                  })
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.location})
+                    </option>
+                  ))}
               </select>
             </div>
           </div>

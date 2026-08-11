@@ -112,20 +112,28 @@ export default function EstablishmentDirectorDashboard({
   triggerNotification
 }: EstablishmentDirectorDashboardProps) {
   
-  // 1. Resolve director's specific prison
-  const directorPrisonId = currentOperator.assignedPrisonId || "PRIS-01";
+  // 1. Resolve director's specific prison dynamically based on assigned prison or operator province
+  const directorPrisonId = useMemo(() => {
+    if (currentOperator.assignedPrisonId) return currentOperator.assignedPrisonId;
+    if (currentOperator.province) {
+      const pMatch = prisons.find(p => (p.location && p.location.toLowerCase().includes(currentOperator.province.toLowerCase())) || ((p as any).province && (p as any).province.toLowerCase() === currentOperator.province.toLowerCase()));
+      if (pMatch) return pMatch.id;
+    }
+    return "PRIS-HUAMBO";
+  }, [currentOperator, prisons]);
+
   const myPrison = useMemo(() => {
-    return prisons.find(p => p.id === directorPrisonId) || prisons[0] || null;
+    return prisons.find(p => p.id === directorPrisonId) || prisons.find(p => p.id === "PRIS-HUAMBO") || prisons[0] || null;
   }, [prisons, directorPrisonId]);
 
-  // Clean prison name for matching in incidents database (e.g. "EP Viana" from "Estabelecimento Penitenciário de Viana")
+  // Clean prison name for matching in incidents database
   const shortPrisonName = useMemo(() => {
-    if (!myPrison) return "EP Viana";
+    if (!myPrison) return "EP Cambiote";
+    if (myPrison.name.includes("Cambiote") || myPrison.name.includes("Huambo")) return "EP Cambiote";
     if (myPrison.name.includes("Viana")) return "EP Viana";
     if (myPrison.name.includes("Kakila")) return "EP Kakila";
     if (myPrison.name.includes("Sanza")) return "EP Sanza Pombo";
-    if (myPrison.name.includes("Huambo")) return "EP Viana"; // Fallback mapping
-    return myPrison.name;
+    return myPrison.name.replace("Estabelecimento Penitenciário de ", "EP ").replace("Estabelecimento Penitenciário do ", "EP ");
   }, [myPrison]);
 
   // 2. Incident Statistics for this unit specifically
