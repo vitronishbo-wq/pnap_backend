@@ -16,6 +16,8 @@ import { eventBus } from "./utils/eventBus";
 import { MNCPEngine, PENAL_CODE_GRAPH } from "./utils/mncpEngine";
 import { motion, AnimatePresence } from "motion/react";
 import {
+  LayoutDashboard,
+  FileCheck2,
   Database,
   Shield,
   FolderTree,
@@ -92,7 +94,8 @@ import {
   Compass,
   ArrowUpRight,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Radar
 } from "lucide-react";
 import { SpecialServicesModule } from "./components/SpecialServicesModule";
 
@@ -1647,6 +1650,17 @@ export default function App() {
   const [newInmateStep, setNewInmateStep] = useState(1);
   const [admittedInmateTicket, setAdmittedInmateTicket] = useState<any | null>(null);
 
+  // --- OPERATIONAL CONSOLE & QUICK ACTION MODALS STATES (FASE 2) ---
+  const [establishmentSearchQuery, setEstablishmentSearchQuery] = useState("");
+  const [sidebarSiglaSearch, setSidebarSiglaSearch] = useState("");
+  const [sidebarFilterTab, setSidebarFilterTab] = useState<"ALL" | "EP" | "DEP" | "PROV">("ALL");
+  const [isQuickTransferModalOpen, setIsQuickTransferModalOpen] = useState(false);
+  const [isQuickIncidentModalOpen, setIsQuickIncidentModalOpen] = useState(false);
+  const [quickIncidentType, setQuickIncidentType] = useState<"DISCIPLINAR" | "EVASÃO" | "MÉDICO" | "REDES" | "INFRAESTRUTURA" | "SEGURANÇA">("DISCIPLINAR");
+  const [quickIncidentSeverity, setQuickIncidentSeverity] = useState<"CRÍTICA" | "MÉDIA" | "LIGEIRA">("MÉDIA");
+  const [quickIncidentDesc, setQuickIncidentDesc] = useState("");
+  const [quickIncidentPrisonId, setQuickIncidentPrisonId] = useState("PRIS-01");
+
   // --- TRANSFERENCE MISSION STATES ---
   const [transferSelectedInmateId, setTransferSelectedInmateId] = useState("");
   const [transferDestPrison, setTransferDestPrison] = useState("PRIS-VIANA");
@@ -1686,6 +1700,7 @@ export default function App() {
 
   const [dashboardSubTab, setDashboardSubTab] = useState<"capacity" | "risk-map">("capacity");
   const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(true); // Starts expanded for the workspace feel
+  const [isInspectorOpen, setIsInspectorOpen] = useState<boolean>(false); // Inspector / tracking console state
   const [globalWorkspaceSearch, setGlobalWorkspaceSearch] = useState<string>("");
   const [selectedSearchInmateModal, setSelectedSearchInmateModal] = useState<any | null>(null);
   const [selectedSearchInmateIsOutOfScope, setSelectedSearchInmateIsOutOfScope] = useState<boolean>(false);
@@ -7693,7 +7708,7 @@ export default function App() {
     return list;
   }, [commandPaletteQuery, systemCommands, prisons, inmates, triggerToast]);
 
-  // Keyboard Listener for Command Palette (Ctrl+K or Ctrl+Shift+P and Arrow key navigation)
+  // Keyboard Listener for Command Palette & Modal Escape Closing (2.10)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isK = e.key.toLowerCase() === "k" && (e.ctrlKey || e.metaKey);
@@ -7706,12 +7721,27 @@ export default function App() {
         return;
       }
 
+      if (e.key === "Escape") {
+        if (isCommandPaletteOpen) {
+          e.preventDefault();
+          setIsCommandPaletteOpen(false);
+          return;
+        }
+        // Close any active surface/modal/drawer/sheet
+        setIsQuickTransferModalOpen(false);
+        setIsQuickIncidentModalOpen(false);
+        setIsMobileFilterOpen(false);
+        setIsMobileMultiStepAddOpen(false);
+        setIsMobileQROpen(false);
+        setIsMobileTouchSignatureOpen(false);
+        setIsMobileOccupancyOpen(false);
+        setSelectedQuickDossierInmate(null);
+        return;
+      }
+
       if (!isCommandPaletteOpen) return;
 
-      if (e.key === "Escape") {
-        e.preventDefault();
-        setIsCommandPaletteOpen(false);
-      } else if (e.key === "ArrowDown") {
+      if (e.key === "ArrowDown") {
         e.preventDefault();
         setActiveCommandIndex(prev => (prev + 1) % Math.max(1, filteredCommands.length));
       } else if (e.key === "ArrowUp") {
@@ -8678,11 +8708,16 @@ export default function App() {
       {/* 2. BARRA SUPERIOR DESKTOP (CONTEXT BAR / TITLE BAR) */}
       <header className="hidden md:flex h-11 bg-[#090c10] border-b border-slate-900 items-center justify-between px-4 shrink-0 select-none">
         
-        {/* Left Side: System Context / Breadcrumbs */}
+        {/* Left Side: System Context / Breadcrumbs & Collapsible Menu Trigger */}
         <div className="flex items-center gap-2.5">
-          <div className="bg-[#040609] p-1 rounded border border-slate-800 shadow-md flex items-center justify-center shrink-0">
-            <Shield className="h-4 w-4 text-amber-500" />
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            className="bg-[#040609] p-1.5 rounded border border-slate-800 hover:border-amber-500/50 text-slate-400 hover:text-amber-400 shadow-md flex items-center justify-center shrink-0 cursor-pointer transition-all"
+            title={isSidebarExpanded ? "Recolher Menu Lateral" : "Expandir Menu Lateral"}
+          >
+            <PanelLeftClose className={`h-4 w-4 transition-transform ${!isSidebarExpanded ? "rotate-180" : ""}`} />
+          </button>
           <div className="flex items-center gap-2 text-[10.5px] font-mono text-slate-400">
             <span className="font-bold text-slate-200 tracking-wider">PNAP.AO • ANGOLA</span>
             <span className="text-slate-600 font-bold">/</span>
@@ -8703,7 +8738,8 @@ export default function App() {
                    activeTab === "special-services" ? "Reinserção Social" :
                    activeTab === "penal-code" ? "Doutrina CNEL" :
                    activeTab === "erd" ? "Esquema ERD" :
-                   activeTab === "settings" ? "Ajustes & Config" : "Dicionário Sandbox"}
+                   activeTab === "settings" ? "Ajustes & Config" :
+                   activeTab === "sandbox" ? "Simulador DevTools" : "Sistema Operacional"}
                 </span>
               </>
             )}
@@ -8711,14 +8747,14 @@ export default function App() {
         </div>
 
         {/* Center: Global Context Search Box styled exactly like VS Code Command Palette */}
-        <div className="relative w-[480px] max-w-lg hidden md:block">
+        <div className="relative w-[300px] max-w-[320px] hidden md:block">
           <Search className="absolute left-2.5 top-1.5 h-3 w-3 text-slate-500" />
           <input
             type="text"
-            placeholder="PNAP-AO OS: Pesquisa Nacional de Reclusos, NREP, BI ou EPs... (Ctrl + P)"
+            placeholder="Pesquisar Recluso, NREP, BI ou EP... (Ctrl+P)"
             value={globalWorkspaceSearch}
             onChange={(e) => setGlobalWorkspaceSearch(e.target.value)}
-            className="w-full bg-[#040609] border border-slate-800/80 hover:border-slate-750 focus:border-amber-500/50 rounded-md py-1 pl-8 pr-8 text-[10px] font-mono text-slate-300 placeholder-slate-550 focus:outline-none transition-all shadow-inner h-7"
+            className="w-full bg-[#040609] border border-slate-800/80 hover:border-slate-750 focus:border-amber-500/50 rounded-md py-1 pl-8 pr-8 text-[10px] font-mono text-slate-300 placeholder-slate-550 focus:outline-none transition-all shadow-inner h-7 truncate"
           />
           {globalWorkspaceSearch ? (
             <button 
@@ -8827,39 +8863,6 @@ export default function App() {
 
         {/* Right Side: Operational Context Selectors & Profile */}
         <div className="flex items-center gap-3">
-          
-          {/* Jurisdiction / Province Filter */}
-          <div className="flex items-center gap-1.5 bg-[#040609] px-2 h-7 rounded border border-slate-800">
-            <span className="text-[9px] uppercase font-bold text-slate-500 font-mono hidden lg:inline">JUR:</span>
-            <select
-              value={selectedProvinceFilter}
-              onChange={(e) => {
-                setSelectedProvinceFilter(e.target.value);
-                writeAuditLog(
-                  currentOperator,
-                  "PRINT_REPORT",
-                  "Território",
-                  undefined,
-                  `Alterou filtro territorial para: ${e.target.value}`
-                );
-              }}
-              disabled={currentOperator.territorialScope !== TerritorialScope.NATIONAL}
-              className="bg-transparent border-none text-slate-350 text-[10px] font-mono font-bold rounded focus:outline-none cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed pr-1"
-            >
-              {currentOperator.territorialScope === TerritorialScope.NATIONAL ? (
-                <>
-                  <option value="ALL">🌍 Todas as Províncias</option>
-                  {PROVINCES_HARDCODED.map(prov => (
-                    <option key={prov} value={prov}>📍 {prov}</option>
-                  ))}
-                </>
-              ) : (
-                <option value={currentOperator.province || "Luanda"}>
-                  📍 Província {currentOperator.province || "Luanda"}
-                </option>
-              )}
-            </select>
-          </div>
 
           {/* Sync status button */}
           {syncQueue.length > 0 && (
@@ -8915,8 +8918,25 @@ export default function App() {
         
         {/* A. ACTIVITY BAR (VS CODE LAYOUT FAR LEFT - DESKTOP ONLY) */}
         <aside className="hidden md:flex w-12 bg-[#090b0f] border-r border-slate-900 flex-col items-center justify-between py-4 select-none shrink-0">
-          <div className="flex flex-col gap-4 items-center w-full">
-            {/* Commmando & Intelligence Center */}
+          <div className="flex flex-col gap-3 items-center w-full">
+            {/* 1. PAINEL */}
+            <button
+              onClick={() => {
+                setActiveTab("dashboard");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "dashboard" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title="1. Painel Operacional"
+            >
+              <LayoutDashboard className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                1. Painel Operacional (Geral)
+              </span>
+            </button>
+
+            {/* 2. COMANDO */}
             <button
               onClick={() => {
                 setActiveTab("centro-comando");
@@ -8925,14 +8945,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "centro-comando" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="Centro Nacional de Comando"
+              title="2. Centro Nacional de Comando"
             >
               <Radio className="h-5 w-5 animate-pulse" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Centro Nacional de Comando (VSAT)
+                2. Comando Nacional (VSAT)
               </span>
             </button>
 
+            {/* 3. INTELIGÊNCIA */}
             <button
               onClick={() => {
                 setActiveTab("centro-inteligencia");
@@ -8941,15 +8962,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "centro-inteligencia" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="Centro de Inteligência Penitenciária"
+              title="3. Inteligência Penitenciária"
             >
               <ShieldAlert className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Inteligência Penitenciária (SIEM)
+                3. Inteligência Penitenciária (SIEM)
               </span>
             </button>
 
-            {/* Admissions */}
+            {/* 4. ADMISSÕES */}
             <button
               onClick={() => {
                 setActiveTab("admissions");
@@ -8958,15 +8979,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "admissions" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="Módulo de Admissão"
+              title="4. Admissão & Cadastro Central"
             >
               <Users className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Admissão & Cadastro Central
+                4. Admissões & Cadastro Central
               </span>
             </button>
 
-            {/* Movements */}
+            {/* 5. MOVIMENTOS */}
             <button
               onClick={() => {
                 setActiveTab("movements");
@@ -8975,51 +8996,32 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "movements" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="Movimentações Penais"
+              title="5. Movimentações & Transferências"
             >
               <Activity className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Movimentação & Transferências
+                5. Movimentos & Transferências
               </span>
             </button>
 
-            {/* Doutrina / Engenharia Legislativa (CNEL) */}
+            {/* 6. DOCUMENTOS */}
             <button
               onClick={() => {
-                setActiveTab("penal-code");
+                setActiveTab("documents");
                 setSelectedHierNode(null);
               }}
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
-                activeTab === "penal-code" ? "bg-slate-900 text-amber-500 border border-slate-800 animate-pulse" : "text-slate-400 hover:text-slate-200"
+                activeTab === "documents" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="Centro Nacional de Engenharia Legislativa (CNEL)"
+              title="6. Guias & Documentos Oficiais"
             >
-              <Scale className="h-5 w-5 text-amber-500" />
+              <FileCheck2 className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Engenharia Legislativa (CNEL)
+                6. Guias & Documentos Oficiais
               </span>
             </button>
 
-            {/* Motor Nacional de Classificação Penitenciária (MNCP) */}
-            <button
-              onClick={() => {
-                setActiveTab("mncp-engine");
-                setSelectedHierNode(null);
-              }}
-              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
-                activeTab === "mncp-engine" ? "bg-slate-900 text-amber-400 border border-slate-800 ring-1 ring-amber-500/40" : "text-slate-400 hover:text-slate-200"
-              }`}
-              title="Motor Nacional de Classificação Penitenciária (MNCP)"
-            >
-              <Cpu className="h-5 w-5 text-amber-400" />
-              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Motor de Classificação (MNCP)
-              </span>
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-4 items-center w-full">
-            {/* System config / auditing */}
+            {/* 7. AUDITORIA */}
             <button
               onClick={() => {
                 setActiveTab("auditing");
@@ -9028,11 +9030,62 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "auditing" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="Auditoria Central"
+              title="7. Auditoria Geral"
             >
               <Database className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Auditoria Geral (Auditing)
+                7. Auditoria Geral (Audit Log)
+              </span>
+            </button>
+
+            {/* 8. RH & SERVIÇOS */}
+            <button
+              onClick={() => {
+                setActiveTab("special-services");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "special-services" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title="8. RH & Serviços de Reinserção"
+            >
+              <Briefcase className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                8. RH & Serviços de Reinserção
+              </span>
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-3 items-center w-full">
+            {/* Doutrina / Engenharia Legislativa (CNEL) */}
+            <button
+              onClick={() => {
+                setActiveTab("penal-code");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "penal-code" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title="CNEL Doutrina"
+            >
+              <Scale className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                Doutrina CNEL
+              </span>
+            </button>
+
+            {/* CONSOLA DE RASTREIO & CONTEXTO */}
+            <button
+              onClick={() => setIsInspectorOpen(!isInspectorOpen)}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                isInspectorOpen ? "bg-amber-500/20 text-amber-400 border border-amber-500/60 shadow-md" : "text-slate-500 hover:text-amber-400"
+              }`}
+              title="Consola de Rastreio (Detetor de Contexto)"
+            >
+              <Radar className="h-5 w-5 animate-pulse text-amber-400" />
+              <span className="absolute left-1.5 top-1.5 h-1.5 w-1.5 bg-emerald-500 rounded-full animate-ping" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                Consola de Rastreio & Contexto (SIEM)
               </span>
             </button>
 
@@ -9048,482 +9101,308 @@ export default function App() {
             >
               <Settings className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Ajustes do Painel & Simulador
+                Ajustes do Painel
               </span>
             </button>
           </div>
         </aside>
 
-        {/* B. EXPLORER INSTITUCIONAL (LEFT SIDEBAR PANEL - DESKTOP ONLY) */}
+        {/* B. EXPLORER INSTITUCIONAL - DENSE COMPACT LIST (FASE 2 RESTRUCTURING) */}
         {isSidebarExpanded && (
-          <aside className="hidden lg:flex w-72 bg-[#090b0f] border-r border-slate-900 flex-col select-none shrink-0 h-full animate-fadeIn overflow-hidden pb-4">
+          <aside className="hidden lg:flex w-72 bg-[#090b0f] border-r border-slate-900 flex-col select-none shrink-0 h-full animate-fadeIn overflow-hidden pb-1 font-mono">
             
-            {/* Sidebar Explorer Title Header Bar */}
-            <div className="h-9 px-3 border-b border-slate-900 flex items-center justify-between bg-[#06080c] shrink-0">
-              <span className="text-[10px] font-mono font-bold text-slate-400 tracking-wider uppercase">Estrutura Institucional</span>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={() => {
-                    const isAnyExpanded = 
-                      expandedWorkspaceFolders.departamentos_comando !== false ||
-                      expandedWorkspaceFolders.direcoes_provinciais !== false ||
-                      expandedWorkspaceFolders.acesso_rapido_eps !== false ||
-                      expandedWorkspaceFolders.missões !== false;
-                    
-                    setExpandedWorkspaceFolders(prev => ({
-                      ...prev,
-                      departamentos_comando: !isAnyExpanded,
-                      direcoes_provinciais: !isAnyExpanded,
-                      acesso_rapido_eps: !isAnyExpanded,
-                      missões: !isAnyExpanded,
-                      republica_angola: !isAnyExpanded,
-                      minint: !isAnyExpanded,
-                      servico_penitenciario: !isAnyExpanded,
-                      direcoes_nacionais: !isAnyExpanded,
-                      estabelecimentos: !isAnyExpanded,
-                      unidades_especiais: !isAnyExpanded
-                    }));
-                    if (isAnyExpanded) {
-                      setExpandedProv({});
-                      setExpandedPrisons({});
-                      setExpandedPavilions({});
-                      setExpandedCells({});
-                    }
-                  }} 
-                  className="p-1 hover:bg-slate-800/80 rounded text-slate-500 hover:text-slate-350 cursor-pointer transition-colors"
-                  title="Colapsar / Expandir Todos os Blocos"
+            {/* Header */}
+            <div className="h-8 px-2.5 border-b border-slate-900 flex items-center justify-between bg-[#06080c] shrink-0">
+              <span className="text-[9.5px] font-black text-slate-300 tracking-wider uppercase">
+                DIRETÓRIO RÁPIDO DE SIGLAS
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsSidebarExpanded(false)}
+                className="p-0.5 hover:bg-slate-800/80 rounded text-slate-500 hover:text-amber-400 cursor-pointer transition-colors"
+                title="Ocultar Painel"
+              >
+                <PanelLeftClose className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            {/* Fast Filter Input & Jurisdiction Scope */}
+            <div className="p-1.5 border-b border-slate-900 bg-[#05070a] flex flex-col gap-1 shrink-0">
+              
+              {/* Jurisdiction / Territorial Scope Selector */}
+              <div className="flex items-center justify-between bg-[#080c14] border border-slate-800 rounded px-1.5 py-0.5 text-[9.5px]">
+                <span className="text-[8.5px] font-bold text-slate-400 uppercase tracking-widest shrink-0 font-mono">
+                  JURISDIÇÃO:
+                </span>
+                <select
+                  value={selectedProvinceFilter}
+                  onChange={(e) => {
+                    setSelectedProvinceFilter(e.target.value);
+                    writeAuditLog(
+                      currentOperator,
+                      "PRINT_REPORT",
+                      "Território",
+                      undefined,
+                      `Alterou filtro territorial para: ${e.target.value}`
+                    );
+                  }}
+                  disabled={currentOperator.territorialScope !== TerritorialScope.NATIONAL}
+                  className="bg-transparent border-none text-amber-400 text-[9.5px] font-mono font-bold focus:outline-none cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed pr-1 w-full text-right"
                 >
-                  <ChevronUp className="h-3.5 w-3.5" />
+                  {currentOperator.territorialScope === TerritorialScope.NATIONAL ? (
+                    <>
+                      <option value="ALL">Todas as Províncias</option>
+                      {PROVINCES_HARDCODED.map(prov => (
+                        <option key={prov} value={prov}>{prov}</option>
+                      ))}
+                    </>
+                  ) : (
+                    <option value={currentOperator.province || "Luanda"}>
+                      Província {currentOperator.province || "Luanda"}
+                    </option>
+                  )}
+                </select>
+              </div>
+
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500" />
+                <input
+                  type="text"
+                  value={sidebarSiglaSearch}
+                  onChange={(e) => setSidebarSiglaSearch(e.target.value)}
+                  placeholder="Filtrar SIGLA (EP-VIA, DNIP, HUA)..."
+                  className="w-full bg-[#080c14] border border-slate-800 rounded pl-7 pr-2 py-0.5 text-[10px] text-slate-200 placeholder:text-slate-500 font-mono focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1 text-[8.5px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => setSidebarFilterTab("ALL")}
+                  className={`flex-1 py-0.5 rounded text-center transition cursor-pointer border ${
+                    sidebarFilterTab === "ALL" ? "bg-amber-500 text-slate-950 border-amber-400 font-black" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200"
+                  }`}
+                >
+                  TODOS
                 </button>
                 <button
-                  onClick={() => setIsSidebarExpanded(false)}
-                  className="p-1 hover:bg-slate-800/80 rounded text-slate-500 hover:text-amber-400 cursor-pointer transition-colors"
-                  title="Ocultar Painel da Estrutura Institucional"
+                  type="button"
+                  onClick={() => setSidebarFilterTab("EP")}
+                  className={`flex-1 py-0.5 rounded text-center transition cursor-pointer border ${
+                    sidebarFilterTab === "EP" ? "bg-amber-500 text-slate-950 border-amber-400 font-black" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200"
+                  }`}
                 >
-                  <PanelLeftClose className="h-3.5 w-3.5" />
+                  EPs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSidebarFilterTab("DEP")}
+                  className={`flex-1 py-0.5 rounded text-center transition cursor-pointer border ${
+                    sidebarFilterTab === "DEP" ? "bg-amber-500 text-slate-950 border-amber-400 font-black" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200"
+                  }`}
+                >
+                  DEPs
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSidebarFilterTab("PROV")}
+                  className={`flex-1 py-0.5 rounded text-center transition cursor-pointer border ${
+                    sidebarFilterTab === "PROV" ? "bg-amber-500 text-slate-950 border-amber-400 font-black" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200"
+                  }`}
+                >
+                  PROVs
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto scrollbar-thin select-none">
-              
-              {/* SECTION 1: PROVINCIAL TERRITORIAL HIERARCHY (PAI + FILHO + NETO) */}
-              <div className="flex flex-col text-[11px] font-mono p-2 gap-3">
-                
-                <div className="flex flex-col gap-1">
-                  <div 
-                    onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, direcoes_provinciais: !p.direcoes_provinciais }))}
-                    className="flex items-center justify-between px-1.5 py-1 hover:bg-slate-850/50 rounded cursor-pointer text-slate-200 font-bold text-[10.5px] select-none"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <LayoutGrid className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                      <span className="uppercase tracking-wider">Estrutura Províncias & EPs</span>
-                    </span>
-                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform ${expandedWorkspaceFolders.direcoes_provinciais !== false ? "" : "-rotate-90"}`} />
-                  </div>
+            {/* Dense Flat List */}
+            <div className="flex-1 overflow-y-auto scrollbar-thin p-1 flex flex-col gap-0.5">
+              {(() => {
+                const query = sidebarSiglaSearch.trim().toLowerCase();
 
-                  {expandedWorkspaceFolders.direcoes_provinciais !== false && (
-                    <div className="flex flex-col gap-1 pl-1 border-l border-slate-850">
-                      {visibleProvinces.map(prov => {
-                        const isExp = !!expandedProv[prov];
-                        const isSelected = selectedHierNode?.type === "PROVINCE" && selectedHierNode.id === prov;
-                        const provPrisons = visiblePrisons.filter(p => p.location.toLowerCase().includes(prov.toLowerCase()));
-                        const provDeps = organizationalUnits.filter(u => u.province?.toLowerCase().trim() === prov.toLowerCase().trim() && u.parentId !== "OU-MININT-DG");
-                        
-                        return (
-                          <div key={prov} className="flex flex-col">
-                            {/* PAI: PROVÍNCIA (ex: Huambo) */}
-                            <div 
-                              onClick={() => {
-                                setExpandedProv(p => ({ ...p, [prov]: !p[prov] }));
-                                setSelectedHierNode({ type: "PROVINCE", id: prov, name: prov });
-                                setActiveTab("" as any);
-                                setCurrentMission(null);
-                              }}
-                              className={`px-2 py-1.5 flex items-center justify-between rounded cursor-pointer transition-all border ${
-                                isSelected 
-                                  ? "bg-amber-500/15 border-amber-500/50 text-amber-300 font-bold shadow-sm" 
-                                  : "bg-slate-900/40 border-slate-800/60 text-slate-200 hover:text-white hover:bg-slate-850/80 hover:border-slate-700"
-                              }`}
-                            >
-                              <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase">
-                                <MapPin className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                                <span>{prov}</span>
-                                <span className="text-[8px] font-mono text-amber-400/90 font-medium">({provDeps.length} Dep | {provPrisons.length} EPs)</span>
-                              </span>
-                              <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform ${isExp ? "" : "-rotate-90"}`} />
-                            </div>
+                // 1. Establishments
+                const epItems = prisons.map((p) => {
+                  const lowerName = p.name.toLowerCase();
+                  let sigla = p.code ? p.code.toUpperCase() : "EP";
+                  if (lowerName.includes("viana") && lowerName.includes("feminino")) sigla = "EP-FEM";
+                  else if (lowerName.includes("viana")) sigla = "EP-VIA";
+                  else if (lowerName.includes("kakila")) sigla = "EP-KAK";
+                  else if (lowerName.includes("huambo")) sigla = "EP-HUA";
+                  else if (lowerName.includes("cabinda")) sigla = "EP-CAB";
+                  else if (lowerName.includes("namibe")) sigla = "EP-NAM";
+                  else if (lowerName.includes("custóias") || lowerName.includes("ndalatando")) sigla = "EP-CUS";
+                  else if (lowerName.includes("calulo")) sigla = "EP-CAL";
+                  else if (lowerName.includes("malanje")) sigla = "EP-MAL";
 
-                            {/* FILHOS & NETOS */}
-                            {isExp && (
-                              <div className="pl-2 border-l border-amber-900/30 ml-2 flex flex-col gap-1.5 my-1">
-                                
-                                {/* FILHO 1: DEPENDÊNCIAS ORGÂNICAS ESTATUTÁRIAS (DEC. 184/17) */}
-                                <div className="flex flex-col">
-                                  <div
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setExpandedProvDeps(prev => ({ ...prev, [prov]: !prev[prov] }));
-                                    }}
-                                    className="px-2 py-1 flex items-center justify-between rounded bg-purple-950/30 border border-purple-900/50 hover:border-purple-700 text-purple-300 cursor-pointer text-[9.5px] font-mono font-bold"
-                                  >
-                                    <span className="flex items-center gap-1.5 truncate">
-                                      <FolderTree className="h-3 w-3 text-purple-400 shrink-0" />
-                                      <span className="truncate">Dependências Orgânicas</span>
-                                      <span className="text-[8px] text-purple-300 font-mono font-bold">
-                                        ({provDeps.length})
-                                      </span>
-                                    </span>
-                                    <ChevronDown className={`h-2.5 w-2.5 text-purple-400 transition-transform ${expandedProvDeps[prov] ? "" : "-rotate-90"}`} />
-                                  </div>
+                  const count = visibleInmates.filter((i) => (i.assignedPrisonId || i.prisonId) === p.id).length;
+                  const isSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === p.id;
 
-                                  {/* NETOS DAS DEPENDÊNCIAS: DEPARTAMENTOS -> SECÇÕES/PELOTÕES */}
-                                  {expandedProvDeps[prov] && (
-                                    <div className="pl-2 border-l border-purple-900/40 ml-1.5 flex flex-col gap-1 my-1">
-                                      {provDeps.map(dep => {
-                                        const depSections = GET_DEPARTMENT_SUBSECTIONS(dep.code || dep.name);
-                                        const isDepExp = !!expandedDepSections[dep.id];
+                  return {
+                    id: `EP-${p.id}`,
+                    category: "EP" as const,
+                    sigla,
+                    title: p.name.replace("Estabelecimento Penitenciário de ", "EP ").replace("Estabelecimento Penitenciário do ", "EP "),
+                    subtitle: p.location,
+                    meta: `${count}/${p.capacity}`,
+                    isSel,
+                    onClick: () => {
+                      setSelectedHierNode({ type: "ESTABLISHMENT", id: p.id, name: p.name });
+                      setActiveTab("" as any);
+                      setCurrentMission(null);
+                    },
+                  };
+                });
 
-                                        return (
-                                          <div key={dep.id} className="flex flex-col">
-                                            {/* FILHO: DEPARTAMENTO / GABINETE */}
-                                            <div
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setExpandedDepSections(prev => ({ ...prev, [dep.id]: !prev[dep.id] }));
-                                                setSelectedHierNode({ type: "PROVINCE", id: prov, name: `${prov} > ${dep.name}` });
-                                                setSelectedProvinceFilter(prov);
-                                              }}
-                                              className="px-1.5 py-1 rounded bg-slate-900/70 hover:bg-purple-950/50 text-slate-300 hover:text-amber-300 text-[9px] font-mono flex items-center justify-between cursor-pointer border border-slate-800/80 hover:border-purple-800/60 transition-all font-medium"
-                                              title={`${dep.name} - ${dep.functionDescription || 'Clique para ver secções e atribuições'}`}
-                                            >
-                                              <span className="truncate flex items-center gap-1.5">
-                                                <ShieldCheck className="h-2.5 w-2.5 text-purple-400 shrink-0" />
-                                                <span className="truncate">{dep.name}</span>
-                                              </span>
-                                              <div className="flex items-center gap-1 shrink-0">
-                                                {dep.code && (
-                                                  <span className="text-[7.5px] text-amber-400 font-bold">{dep.code.split('-')[0]}</span>
-                                                )}
-                                                <ChevronDown className={`h-2 w-2 text-purple-400 transition-transform ${isDepExp ? "" : "-rotate-90"}`} />
-                                              </div>
-                                            </div>
+                // 2. Departments
+                const depItems = organizationalUnits.map((u) => {
+                  let sigla = u.code ? u.code.split("-")[0].toUpperCase() : "DEP";
+                  if (u.name.includes("Segurança") || u.name.includes("Inteligência")) sigla = "DNIP";
+                  else if (u.name.includes("Inspeção")) sigla = "DNI";
+                  else if (u.name.includes("Operações")) sigla = "DPO";
+                  else if (u.name.includes("Administração") || u.name.includes("Finanças")) sigla = "DPA";
+                  else if (u.name.includes("Recursos Humanos")) sigla = "DPRH";
+                  else if (u.name.includes("Logística")) sigla = "DPL";
+                  else if (u.name.includes("Geral")) sigla = "DG-SP";
 
-                                            {/* NETO: SECÇÕES & ATRIBUIÇÕES FUNCIONAIS */}
-                                            {isDepExp && (
-                                              <div className="pl-2 border-l border-purple-800/40 ml-2 flex flex-col gap-0.5 my-1">
-                                                {depSections.map(sec => (
-                                                  <div
-                                                    key={sec.id}
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setSelectedHierNode({ type: "PROVINCE", id: prov, name: `${dep.name} > ${sec.name}` });
-                                                      setSelectedProvinceFilter(prov);
-                                                      setActiveTab("settings" as any);
-                                                      setSettingsSubTab("hierarchy");
-                                                      setCurrentMission(null);
-                                                    }}
-                                                    className="px-1.5 py-0.5 rounded hover:bg-purple-900/30 text-slate-400 hover:text-purple-200 text-[8.5px] font-mono flex items-center justify-between cursor-pointer transition-all border border-transparent hover:border-purple-800/40"
-                                                    title={`Atribuição Operacional: ${sec.name}`}
-                                                  >
-                                                    <span className="truncate flex items-center gap-1">
-                                                      <span className="text-purple-400 font-bold text-[7.5px]">└</span>
-                                                      <span className="truncate">{sec.name}</span>
-                                                    </span>
-                                                    <span className="text-[7px] text-purple-400/80 uppercase font-mono">{sec.type}</span>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                                </div>
+                  const isSel = selectedHierNode?.type === "PROVINCE" && selectedHierNode.name.includes(u.name);
 
-                                {/* SUB-FOLDER 2: ESTABELECIMENTOS PENITENCIÁRIOS */}
-                                <div className="flex flex-col">
-                                  <div
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setExpandedProvPrisons(prev => ({ ...prev, [prov]: prev[prov] === false ? true : false }));
-                                    }}
-                                    className="px-2 py-0.5 flex items-center justify-between rounded bg-slate-900/80 border border-sky-950/60 hover:border-sky-800 text-sky-300 cursor-pointer text-[9.5px] font-mono font-bold"
-                                  >
-                                    <span className="flex items-center gap-1.5 truncate">
-                                      <Building className="h-3 w-3 text-sky-400 shrink-0" />
-                                      <span className="truncate">Cadeias / EPs</span>
-                                      <span className="text-[8px] text-sky-300 font-bold">({provPrisons.length})</span>
-                                    </span>
-                                    <ChevronDown className={`h-2.5 w-2.5 text-sky-400 transition-transform ${expandedProvPrisons[prov] !== false ? "" : "-rotate-90"}`} />
-                                  </div>
+                  return {
+                    id: `DEP-${u.id}`,
+                    category: "DEP" as const,
+                    sigla,
+                    title: u.name,
+                    subtitle: u.province || "Nacional",
+                    meta: u.divisionType || u.category || "DEP",
+                    isSel,
+                    onClick: () => {
+                      setSelectedHierNode({ type: "PROVINCE", id: u.province || "Luanda", name: u.name });
+                      setSelectedProvinceFilter(u.province || "Luanda");
+                    },
+                  };
+                });
 
-                                  {expandedProvPrisons[prov] !== false && (
-                                    <div className="pl-2 border-l border-slate-800 ml-1.5 flex flex-col gap-1 my-1">
-                                      {provPrisons.map(pris => {
-                                        const isPrisExp = !!expandedPrisons[pris.id];
-                                        const isPrisSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
-                                        const isFemalePris = pris.name.toLowerCase().includes("feminino");
+                // 3. Provinces
+                const provSiglaMap: Record<string, string> = {
+                  Luanda: "LUA", Huambo: "HUA", Benguela: "BGU", Cabinda: "CAB",
+                  Huíla: "HLA", Namibe: "NAM", "Cuanza Norte": "CNO", "Cuanza Sul": "CSU",
+                  Malanje: "MAL", Uíge: "UIG", Zaire: "ZAI", "Lunda Norte": "LNO",
+                  "Lunda Sul": "LSU", Moxico: "MOX", "Cuando Cubango": "CCU",
+                  Cunene: "CUN", Bié: "BIE", Bengo: "BEN",
+                };
 
-                                        return (
-                                          <div key={pris.id} className="flex flex-col">
-                                            <div 
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setExpandedPrisons(prev => ({ ...prev, [pris.id]: !prev[pris.id] }));
-                                                setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name, parentId: prov });
-                                                setActiveTab("" as any);
-                                                setCurrentMission(null);
-                                              }}
-                                              className={`px-2 py-1 flex items-center justify-between rounded border transition-all cursor-pointer ${
-                                                isPrisSel 
-                                                  ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold" 
-                                                  : isFemalePris
-                                                    ? "bg-pink-950/20 border-pink-900/40 text-pink-300 hover:bg-pink-900/40 hover:text-white"
-                                                    : "bg-slate-900/70 border-slate-800/80 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-700"
-                                              }`}
-                                            >
-                                              <span className="flex items-center gap-1.5 text-[9.5px] font-mono truncate font-bold">
-                                                <Building className={`h-3 w-3 shrink-0 ${isFemalePris ? "text-pink-400" : "text-sky-400"}`} />
-                                                <span className="truncate">{formatEPName(pris.name)}</span>
-                                              </span>
-                                              <ChevronDown className={`h-2.5 w-2.5 text-slate-500 transition-transform ${isPrisExp ? "" : "-rotate-90"}`} />
-                                            </div>
+                const provItems = visibleProvinces.map((prov) => {
+                  const sigla = provSiglaMap[prov] || prov.substring(0, 3).toUpperCase();
+                  const pCount = visiblePrisons.filter((p) => p.location.toLowerCase().includes(prov.toLowerCase())).length;
+                  const isSel = selectedHierNode?.type === "PROVINCE" && selectedHierNode.id === prov;
 
-                                            {isPrisExp && (
-                                              <div className="pl-2 border-l border-slate-850 ml-1.5 flex flex-col gap-0.5 my-1">
-                                          {pris.pavilions?.map(pav => {
-                                            const isPavExp = !!expandedPavilions[pav.id];
-                                            const isPavSel = selectedHierNode?.type === "PAVILION" && selectedHierNode.id === pav.id;
-                                            return (
-                                              <div key={pav.id} className="flex flex-col">
-                                                <div 
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setExpandedPavilions(prev => ({ ...prev, [pav.id]: !prev[pav.id] }));
-                                                    setSelectedHierNode({ type: "PAVILION", id: pav.id, name: pav.name, parentId: pris.id, grandparentId: prov });
-                                                    setActiveTab("" as any);
-                                                    setCurrentMission(null);
-                                                  }}
-                                                  className={`px-2 py-0.5 flex items-center justify-between rounded cursor-pointer transition-all ${
-                                                    isPavSel ? "bg-slate-800 text-amber-400 font-bold" : "text-slate-400 hover:text-slate-200 hover:bg-slate-850/50"
-                                                  }`}
-                                                >
-                                                  <span className="flex items-center gap-1 text-[9px] font-mono truncate">
-                                                    <Layers className="h-2.5 w-2.5 text-amber-500 shrink-0" />
-                                                    <span className="truncate">{pav.name.replace("Pavilhão ", "Pav. ")}</span>
-                                                  </span>
-                                                  <ChevronDown className={`h-2 w-2 text-slate-600 transition-transform ${isPavExp ? "" : "-rotate-90"}`} />
-                                                </div>
+                  return {
+                    id: `PROV-${prov}`,
+                    category: "PROV" as const,
+                    sigla: `PR-${sigla}`,
+                    title: `Província de ${prov}`,
+                    subtitle: "Comando Provincial",
+                    meta: `${pCount} EPs`,
+                    isSel,
+                    onClick: () => {
+                      setSelectedHierNode({ type: "PROVINCE", id: prov, name: prov });
+                      setSelectedProvinceFilter(prov);
+                      setActiveTab("" as any);
+                      setCurrentMission(null);
+                    },
+                  };
+                });
 
-                                                {isPavExp && (
-                                                  <div className="pl-2 border-l border-slate-850 ml-1.5 flex flex-col gap-0.5">
-                                                    {pav.blocks?.map(cell => {
-                                                      const isCellExp = !!expandedCells[cell.id];
-                                                      const isCellSel = selectedHierNode?.type === "CELL" && selectedHierNode.id === cell.id;
-                                                      const cellInmates = inmates.filter(i => i.assignedBlockId === cell.id);
-                                                      return (
-                                                        <div key={cell.id} className="flex flex-col">
-                                                          <div 
-                                                            onClick={(e) => {
-                                                              e.stopPropagation();
-                                                              setExpandedCells(prev => ({ ...prev, [cell.id]: !prev[cell.id] }));
-                                                              setSelectedHierNode({ type: "CELL", id: cell.id, name: cell.name, parentId: pav.id, grandparentId: pris.id });
-                                                              setActiveTab("" as any);
-                                                              setCurrentMission(null);
-                                                            }}
-                                                            className={`px-1.5 py-0.5 flex items-center justify-between rounded cursor-pointer transition-all ${
-                                                              isCellSel ? "bg-[#0f1b29] text-emerald-400 font-bold" : "text-slate-500 hover:text-slate-300 hover:bg-slate-900/40"
-                                                            }`}
-                                                          >
-                                                            <span className="flex items-center gap-1 text-[8.5px] font-mono truncate">
-                                                              <HeartPulse className="h-2.5 w-2.5 text-emerald-500 shrink-0" />
-                                                              <span className="truncate">{cell.name}</span>
-                                                              <span className="text-[7.5px] text-slate-600 font-bold">({cellInmates.length})</span>
-                                                            </span>
-                                                            <ChevronDown className={`h-2 w-2 text-slate-700 transition-transform ${isCellExp ? "" : "-rotate-90"}`} />
-                                                          </div>
+                let combined = [...epItems, ...depItems, ...provItems];
 
-                                                          {isCellExp && (
-                                                            <div className="pl-2 border-l border-emerald-950/40 ml-1 flex flex-col gap-0.5">
-                                                              {cellInmates.map(inmate => (
-                                                                <div 
-                                                                  key={inmate.id}
-                                                                  onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setSelectedObjectInmate(inmate);
-                                                                    triggerToast("DOSSIER COGNITIVO", `${inmate.firstName} selecionado.`, "info");
-                                                                  }}
-                                                                  className="px-1.5 py-0.5 flex items-center gap-1.5 rounded cursor-pointer hover:bg-slate-900/60 transition-all text-slate-400 hover:text-slate-200 text-[8px]"
-                                                                >
-                                                                  <Users className="h-2.5 w-2.5 text-slate-500 shrink-0" />
-                                                                  <span className="truncate font-sans font-medium">{inmate.firstName} {inmate.lastName}</span>
-                                                                </div>
-                                                              ))}
-                                                              {cellInmates.length === 0 && (
-                                                                <div className="pl-2 py-0.5 text-slate-600 text-[7px] italic">Vazia</div>
-                                                              )}
-                                                            </div>
-                                                          )}
-                                                        </div>
-                                                      );
-                                                    })}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            );
-                                          })}
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
+                if (sidebarFilterTab !== "ALL") {
+                  combined = combined.filter((i) => i.category === sidebarFilterTab);
+                }
+
+                if (query) {
+                  combined = combined.filter(
+                    (i) =>
+                      i.sigla.toLowerCase().includes(query) ||
+                      i.title.toLowerCase().includes(query) ||
+                      i.subtitle.toLowerCase().includes(query)
+                  );
+                }
+
+                if (combined.length === 0) {
+                  return (
+                    <div className="p-2 border border-slate-850 rounded text-center text-slate-500 text-[9.5px]">
+                      Sem resultados para "{sidebarSiglaSearch}"
                     </div>
                   );
-                })}
-              </div>
-            )}
-          </div>
+                }
 
-                {/* HIGH-CONTRAST EP QUICK DIRECT BUTTONS */}
-                <div className="flex flex-col gap-1 border-t border-slate-850 pt-2 mt-1">
-                  <div 
-                    onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, acesso_rapido_eps: !p.acesso_rapido_eps }))}
-                    className="flex items-center justify-between px-1 py-1 hover:bg-slate-850/50 rounded cursor-pointer text-slate-300 font-bold text-[10px] select-none"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Zap className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                      <span className="uppercase tracking-wider">Acesso Rápido EPs</span>
-                    </span>
-                    <ChevronDown className={`h-3 w-3 text-slate-500 transition-transform ${expandedWorkspaceFolders.acesso_rapido_eps !== false ? "" : "-rotate-90"}`} />
-                  </div>
+                return combined.map((item) => {
+                  let badgeStyle = "bg-amber-500/15 border-amber-500/40 text-amber-400";
+                  if (item.category === "DEP") badgeStyle = "bg-purple-950/40 border-purple-800/60 text-purple-300";
+                  if (item.category === "PROV") badgeStyle = "bg-slate-900 border-slate-750 text-slate-300";
 
-                  {expandedWorkspaceFolders.acesso_rapido_eps !== false && (
-                    <div className="flex flex-wrap gap-1 pt-0.5">
-                      {prisons.map(pris => {
-                        const isSel = selectedHierNode?.type === "ESTABLISHMENT" && selectedHierNode.id === pris.id;
-                        const isFem = pris.name.toLowerCase().includes("feminino");
-                        return (
-                          <button
-                            key={pris.id}
-                            onClick={() => {
-                              setSelectedHierNode({ type: "ESTABLISHMENT", id: pris.id, name: pris.name });
-                              setActiveTab("" as any);
-                              setCurrentMission(null);
-                            }}
-                            className={`px-2 py-1 rounded text-[9.5px] font-mono font-extrabold border transition-all cursor-pointer ${
-                              isSel
-                                ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
-                                : isFem
-                                  ? "bg-pink-950/40 text-pink-300 border-pink-800/60 hover:bg-pink-900 hover:text-white"
-                                  : "bg-slate-900 border-slate-750 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-600"
-                            }`}
-                          >
-                            {formatEPName(pris.name)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-              </div>
-
-              {/* SECTION 2: OPERATIONAL MISSIONS LAUNCHER */}
-              <div className="flex flex-col border-t border-slate-900 mt-2">
-                <div 
-                  onClick={() => setExpandedWorkspaceFolders(p => ({ ...p, missões: !p.missões }))}
-                  className="flex items-center justify-between px-2.5 py-1.5 bg-[#0d0f14] hover:bg-[#12151c] cursor-pointer border-b border-slate-900 text-slate-300 font-mono text-[9px] uppercase font-bold tracking-wider select-none shrink-0 transition-colors"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                    <span>MISSÕES OPERACIONAIS</span>
-                  </span>
-                  <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-transform duration-200 ${expandedWorkspaceFolders.missões !== false ? "" : "-rotate-90"}`} />
-                </div>
-
-                {expandedWorkspaceFolders.missões !== false && (
-                  <div className="flex flex-col gap-1 p-2 text-[10px] font-mono">
-                    <button 
-                      onClick={() => {
-                        setCurrentMission("nova-admissao");
-                        setSelectedHierNode(null);
-                      }}
-                      className={`w-full text-left p-1.5 rounded border transition-all cursor-pointer flex items-center gap-1.5 ${
-                        currentMission === "nova-admissao" 
-                          ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400 font-bold" 
-                          : "bg-[#040609]/60 border-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-800"
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={item.onClick}
+                      className={`w-full text-left px-1.5 py-1 rounded border transition-all cursor-pointer flex items-center justify-between gap-1.5 select-none ${
+                        item.isSel
+                          ? "bg-amber-500/20 border-amber-500/70 text-amber-300 font-bold shadow-sm"
+                          : "bg-[#06080d]/90 border-slate-850/80 hover:bg-slate-850/80 hover:border-slate-750 text-slate-200"
                       }`}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
-                      <span className="truncate">Nova Admissão / Ingresso</span>
-                    </button>
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                        <span className={`px-1 py-0.2 rounded text-[8.5px] font-black tracking-wide shrink-0 font-mono border text-center min-w-[48px] ${badgeStyle}`}>
+                          {item.sigla}
+                        </span>
+                        <div className="flex flex-col truncate min-w-0 leading-tight">
+                          <span className="text-[10px] font-bold truncate text-slate-100">{item.title}</span>
+                          <span className="text-[8px] text-slate-500 truncate">{item.subtitle}</span>
+                        </div>
+                      </div>
 
-                    <button 
-                      onClick={() => {
-                        setCurrentMission("transferencia-recluso");
-                        setSelectedHierNode(null);
-                      }}
-                      className={`w-full text-left p-1.5 rounded border transition-all cursor-pointer flex items-center gap-1.5 ${
-                        currentMission === "transferencia-recluso" 
-                          ? "bg-sky-500/10 border-sky-500/40 text-sky-400 font-bold" 
-                          : "bg-[#040609]/60 border-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-800"
-                      }`}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
-                      <span className="truncate">Transferência de Custódia</span>
+                      <span className="text-[8px] text-slate-400 font-mono shrink-0 text-right">
+                        {item.meta}
+                      </span>
                     </button>
-
-                    <button 
-                      onClick={() => {
-                        setCurrentMission("declaracao-motim");
-                        setSelectedHierNode(null);
-                      }}
-                      className={`w-full text-left p-1.5 rounded border transition-all cursor-pointer flex items-center gap-1.5 ${
-                        currentMission === "declaracao-motim" 
-                          ? "bg-red-500/10 border-red-500/40 text-red-400 font-bold" 
-                          : "bg-[#040609]/60 border-slate-900/60 text-slate-400 hover:text-red-400 hover:border-red-900/40"
-                      }`}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />
-                      <span className="truncate">Incidente Crítico / Motim</span>
-                    </button>
-
-                    <button 
-                      onClick={() => {
-                        setCurrentMission("inspecao-sanitaria");
-                        setSelectedHierNode(null);
-                      }}
-                      className={`w-full text-left p-1.5 rounded border transition-all cursor-pointer flex items-center gap-1.5 ${
-                        currentMission === "inspecao-sanitaria" 
-                          ? "bg-amber-500/10 border-amber-500/40 text-amber-450 font-bold" 
-                          : "bg-[#040609]/60 border-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-800"
-                      }`}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                      <span className="truncate">Inspeção Sanitária Geral</span>
-                    </button>
-
-                    <button 
-                      onClick={() => {
-                        setShowNEPAuditor(true);
-                      }}
-                      className="w-full text-left p-1.5 rounded border transition-all cursor-pointer flex items-center gap-1.5 bg-amber-500/10 border-amber-500/40 text-amber-400 font-bold hover:bg-amber-500/20"
-                    >
-                      <ShieldCheck className="h-3 w-3 text-amber-400 shrink-0" />
-                      <span className="truncate">Auditoria N.E.P. (Dec. 272/16)</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
+                  );
+                });
+              })()}
             </div>
+
+            {/* Compact Operational Launcher */}
+            <div className="p-1.5 border-t border-slate-900 bg-[#06080c] shrink-0 flex flex-col gap-1 text-[9px]">
+              <span className="text-[8.5px] font-bold text-slate-400 uppercase tracking-widest block">
+                MISSÕES RÁPIDAS
+              </span>
+
+              <div className="grid grid-cols-2 gap-1">
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMultiStepAddOpen(true)}
+                  className="px-1.5 py-0.5 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/60 rounded text-[8.5px] font-bold text-center transition cursor-pointer"
+                >
+                  + ADMISSÃO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsQuickTransferModalOpen(true)}
+                  className="px-1.5 py-0.5 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded text-[8.5px] font-bold text-center transition cursor-pointer"
+                >
+                  ⇄ TRANSFERÊNCIA
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsInspectorOpen(true)}
+                  className="col-span-2 mt-0.5 px-2 py-1 bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 hover:text-amber-200 border border-amber-800/60 rounded text-[8.5px] font-bold text-center transition cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <Radio className="h-3 w-3 text-amber-400 animate-pulse shrink-0" />
+                  CONSOLA DE RASTREIO & DETETOR
+                </button>
+              </div>
+            </div>
+
           </aside>
         )}
 
@@ -9588,7 +9467,7 @@ export default function App() {
                 { tab: "auditing", label: "Auditoria Central", icon: Database, color: "text-amber-500" },
                 { tab: "settings", label: "Ajustes & Config", icon: Settings, color: "text-slate-400" },
                 { tab: "deus-fundador", label: "Direção Geral", icon: Crown, color: "text-amber-500" },
-                { tab: "sandbox", label: "Dicionário Sandbox", icon: FileCode, color: "text-slate-500" },
+                { tab: "sandbox", label: "Simulador DevTools", icon: FileCode, color: "text-slate-500" },
                 { tab: "documents", label: "Guias de Trânsito", icon: FileText, color: "text-amber-600" },
                 { tab: "special-services", label: "Reinserção Social", icon: Database, color: "text-teal-500" }
               ]
@@ -11333,501 +11212,191 @@ export default function App() {
                 </div>
               )}
 
-                  {/* TAB 1: DASHBOARD / VISÃO GERAL DE CAPACIDADE */}
+                  {/* TAB 1: DASHBOARD OPERACIONAL / CONSOLA PRINCIPAL (FASE 2) */}
               {activeTab === "dashboard" && (
-                <div className="flex flex-col gap-6">
-                  {dashboardSubTab === "capacity" ? (
-                    <motion.div
-                      key="dashboard-view-capacity"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex flex-col gap-6"
-                    >
-                      {/* DASHBOARD DE INTELIGÊNCIA & SEGURANÇA (PERFIS DE RISCO EM TEMPO REAL) */}
-                      <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-4 shadow-xl">
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-800 pb-3 gap-3">
-                          <div>
-                            <h2 className="text-xs font-bold uppercase tracking-wider text-red-500 font-mono flex items-center gap-2">
-                              <Shield className="h-4 w-4 text-red-500 animate-pulse" /> Inteligência & Segurança: Perfis de Risco
-                            </h2>
-                          </div>
+                <div className="flex flex-col gap-3 font-mono">
+                  {/* 2.4 — PAINEL PRINCIPAL: TELEMETRIA CRUA DE ALTO CONTRASTE */}
+                  {(() => {
+                    const totalCap = visiblePrisons.reduce((acc, p) => acc + (p.capacity || 0), 0);
+                    const totalPop = totalFilteredInmates;
+                    const occPct = totalCap > 0 ? (totalPop / totalCap) * 100 : 0;
+                    const formattedOccPct = occPct.toFixed(1).replace(".", ",") + "%";
+                    const activeAlerts = filteredIncidentsData.reduce((acc, curr) => acc + curr.Agressao + curr.Fuga + curr.PosseIlicita + curr.Indisciplina, 0);
+                    const pendingActions = syncQueue.length + inmates.filter(i => i.status === "EM_TRANSITO" || i.status === "REGISTO_INICIAL").length;
 
-                          {/* Filtro por Unidade Prisional */}
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
-                              <Filter className="h-3.5 w-3.5 text-amber-500" /> Filtrar Prisão:
-                            </span>
-                            <select
-                              value={selectedRiskPrisonFilter}
-                              onChange={(e) => setSelectedRiskPrisonFilter(e.target.value)}
-                              className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-300 font-mono focus:outline-none focus:border-amber-500 cursor-pointer min-w-[220px]"
-                            >
-                              {currentOperator.role === "DIRECTOR_GERAL" ? (
-                                <option value="ALL">Geral Nacional (Tudo)</option>
-                              ) : currentOperator.role === "DIRECTOR_PROVINCIAL" ? (
-                                <option value="ALL">Provincial Luanda (Completo)</option>
-                              ) : null}
-                              {visiblePrisons.map((p) => (
-                                <option key={p.id} value={p.id}>
-                                  {p.name.replace("Estabelecimento Penitenciário de", "EP")}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
+                    return (
+                      <div className="bg-[#05080e] border border-slate-800 rounded p-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-slate-100">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">POPULAÇÃO</span>
+                          <span className="text-xl md:text-2xl font-black text-amber-500 tracking-tight">{totalPop.toLocaleString()}</span>
+                          <span className="text-[9px] text-slate-500">Reclusos em custódia</span>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                          <div className="md:col-span-5 flex flex-col items-center justify-center relative bg-slate-950/40 p-4 border border-slate-800/50 rounded-xl">
-                    <div className="absolute flex flex-col items-center justify-center text-center pointer-events-none">
-                      <span className="text-3xl font-black text-slate-100 font-mono">{totalFilteredInmates}</span>
-                      <span className="text-[9px] uppercase tracking-wider text-slate-500 font-bold font-sans">Total Filtrado</span>
-                    </div>
-                    
-                    <div className="h-64 w-full flex items-center justify-center">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={riskDistribution}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={68}
-                            outerRadius={88}
-                            paddingAngle={5}
-                            dataKey="value"
-                          >
-                            {riskDistribution.map((entry, index) => (
-                              <ReCell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip content={<CustomDonutTooltip />} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <p className="text-[10px] text-slate-500 font-sans italic text-center">
-                      Passe o rato sobre os segmentos para ver o detalhamento operacional.
-                    </p>
-                  </div>
-
-                  {/* Right Side: Detailed Breakdowns & Legend Cards */}
-                  <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {riskDistribution.map((entry) => (
-                      <div 
-                        key={entry.name}
-                        className="p-4 rounded-xl border flex flex-col gap-2 transition hover:bg-slate-950/30"
-                        style={{ 
-                          backgroundColor: `${entry.color}05`, 
-                          borderColor: `${entry.color}20` 
-                        }}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="flex items-center gap-2 text-xs font-bold font-sans uppercase tracking-wider text-slate-200">
-                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-                            Controlo {entry.name}
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">LOTAÇÃO</span>
+                          <span className={`text-xl md:text-2xl font-black tracking-tight ${occPct > 100 ? "text-red-400" : occPct > 85 ? "text-amber-400" : "text-emerald-400"}`}>
+                            {formattedOccPct}
                           </span>
-                          <span 
-                            className="text-xs font-mono font-bold px-2.5 py-0.5 rounded border"
-                            style={{ 
-                              color: entry.color, 
-                              borderColor: `${entry.color}35`,
-                              backgroundColor: `${entry.color}10`
-                            }}
-                          >
-                            {entry.value} reclusos ({entry.percent}%)
-                          </span>
+                          <span className="text-[9px] text-slate-500">{totalPop} / {totalCap} vagas</span>
                         </div>
-                        <p className="text-[11px] text-slate-400 font-sans leading-relaxed">
-                          {entry.desc}
-                        </p>
-                        
-                        {/* Interactive miniature progress bar */}
-                        <div className="w-full bg-slate-950 h-1 rounded-full overflow-hidden mt-1">
-                          <div 
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{ 
-                              width: `${entry.percent}%`,
-                              backgroundColor: entry.color
-                            }}
-                          />
+
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ALERTAS</span>
+                          <span className={`text-xl md:text-2xl font-black tracking-tight ${activeAlerts > 0 ? "text-red-400" : "text-slate-300"}`}>
+                            {activeAlerts}
+                          </span>
+                          <span className="text-[9px] text-slate-500">Ocorrências ativas</span>
+                        </div>
+
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">PENDENTES</span>
+                          <span className={`text-xl md:text-2xl font-black tracking-tight ${pendingActions > 0 ? "text-amber-400" : "text-slate-300"}`}>
+                            {pendingActions}
+                          </span>
+                          <span className="text-[9px] text-slate-500">Processos na fila</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })()}
 
-                </div>
-              </div>
+                  {/* 2.6 — AÇÕES PRINCIPAIS RÁPIDAS DA CONSOLA */}
+                  <div className="bg-[#070a10] border border-slate-800 rounded p-2.5 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                      <Zap className="h-4 w-4 text-amber-500" />
+                      <span>Operações Consola</span>
+                    </div>
 
-              {/* SECÇÃO DE DATA VISUALIZATION COM RECHARTS */}
-              <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-6 shadow-xl">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-800 pb-4 gap-4">
-                  <div>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-amber-500 font-mono flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" /> Indicadores & Data Visualization (Business Intelligence)
-                    </h2>
-                    <p className="text-xs text-slate-400 mt-1 font-sans">
-                      Análise visual de tendências macro, monitorização de admissões prisionais mensais e rácio de conflitos disciplinares por estabelecimento.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={handleSimulateIncident}
-                      className="px-3 py-1.5 text-xxs font-mono rounded bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 transition flex items-center gap-1.5 cursor-pointer text-red-0"
-                    >
-                      <AlertTriangle className="h-3 w-3 text-red-0" /> Simular Alerta Disciplinar
-                    </button>
-                    <div className="bg-slate-950 p-1 border border-slate-800 rounded flex gap-1 text-[10px] font-mono">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
                       <button
-                        onClick={() => setAdmissionChartMode("split")}
-                        className={`px-2 py-0.5 rounded cursor-pointer transition ${
-                          admissionChartMode === "split" ? "bg-amber-500 text-slate-950 font-bold" : "text-slate-400 hover:text-slate-200"
-                        }`}
+                        type="button"
+                        onClick={() => setIsMobileMultiStepAddOpen(true)}
+                        className="flex-1 sm:flex-none px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        title="Registar nova admissão"
                       >
-                        Categorias
+                        <Plus className="h-3.5 w-3.5 stroke-[2.5]" />
+                        <span>+ ADMITIR</span>
                       </button>
+
                       <button
-                        onClick={() => setAdmissionChartMode("total")}
-                        className={`px-2 py-0.5 rounded cursor-pointer transition ${
-                          admissionChartMode === "total" ? "bg-amber-500 text-slate-950 font-bold" : "text-slate-400 hover:text-slate-200"
-                        }`}
+                        type="button"
+                        onClick={() => setIsQuickTransferModalOpen(true)}
+                        className="flex-1 sm:flex-none px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-bold text-[11px] rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        title="Iniciar guia de transferência"
                       >
-                        Total
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        <span>⇄ TRANSFERIR</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsQuickIncidentModalOpen(true)}
+                        className="flex-1 sm:flex-none px-3 py-1.5 bg-red-900/60 hover:bg-red-800/80 text-red-200 border border-red-700 font-bold text-[11px] rounded flex items-center justify-center gap-1.5 transition cursor-pointer"
+                        title="Registar novo incidente"
+                      >
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        <span>+ INCIDENTE</span>
                       </button>
                     </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                  {/* CHART 1: HISTÓRICO DE ADMISSÕES */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex justify-between items-center bg-slate-950/40 px-3 py-2 border border-slate-800/60 rounded">
-                      <div>
-                        <h3 className="text-xs font-semibold text-slate-200 font-sans">Tendência Histórica de Admissões por Mês</h3>
-                        <p className="text-[10px] text-slate-500 mt-0.5 font-sans">Indicador de fluxo de acolhimento nos últimos 12 meses</p>
+                  {/* 2.5 — ÁREA DE LOTAÇÃO DOS ESTABELECIMENTOS */}
+                  <div className="bg-[#05080e] border border-slate-800 rounded p-3 flex flex-col gap-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-850 pb-2">
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-amber-500" />
+                        <h3 className="text-xs font-bold text-slate-200 uppercase tracking-widest">
+                          LOTAÇÃO POR ESTABELECIMENTO
+                        </h3>
                       </div>
-                      <span className="text-[10px] font-mono bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded">
-                        Total Jun/26: {admissionsTrendData[11].preventivas + admissionsTrendData[11].condenacoes} Reclusos
+
+                      {/* Pesquisar estabelecimento... */}
+                      <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+                        <input
+                          type="text"
+                          value={establishmentSearchQuery}
+                          onChange={(e) => setEstablishmentSearchQuery(e.target.value)}
+                          placeholder="Pesquisar estabelecimento..."
+                          className="w-full bg-[#080c14] border border-slate-800 rounded pl-8 pr-2 py-1 text-[11px] text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-amber-500 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full table-fixed text-left text-xs font-mono">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-[10px] text-slate-400 uppercase tracking-wider">
+                            <th className="py-0 px-2 font-semibold w-[40%]">ESTABELECIMENTO</th>
+                            <th className="py-0 px-2 font-semibold w-[32%] text-center">EFETIVO / LOTAÇÃO</th>
+                            <th className="py-0 px-2 font-semibold w-[13%] text-center">ESTADO</th>
+                            <th className="py-0 px-2 font-semibold w-[15%] text-right">AÇÃO</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-850">
+                          {visiblePrisons
+                            .filter(p => !establishmentSearchQuery || p.name.toLowerCase().includes(establishmentSearchQuery.toLowerCase()) || p.code.toLowerCase().includes(establishmentSearchQuery.toLowerCase()))
+                            .map((p) => {
+                              const prisonInmates = visibleInmates.filter(i => (i.assignedPrisonId || i.prisonId) === p.id);
+                              const count = prisonInmates.length;
+                              const cap = p.capacity || 1000;
+                              const pct = Math.round((count / cap) * 100);
+                              const isOverloaded = pct > 100 || pct > 85;
+                              const shortName = p.name.replace("Estabelecimento Penitenciário de ", "EP ").replace("Estabelecimento Penitenciário do ", "EP ").toUpperCase();
+
+                              return (
+                                <tr key={p.id} className="hover:bg-slate-900/60 transition-colors">
+                                  <td className="py-0 px-2 font-bold text-slate-200 text-[11px] truncate">
+                                    {shortName}
+                                  </td>
+                                  <td className="py-0 px-2 text-slate-200 font-bold text-[11px] text-center whitespace-nowrap">
+                                    <span className="inline-block min-w-[36px] text-right font-mono">{count.toLocaleString()}</span>
+                                    <span className="text-slate-500 font-normal font-mono"> / {cap.toLocaleString()}</span>
+                                    <span className={`ml-2 inline-block min-w-[38px] text-center px-1 py-0 rounded text-[9px] font-extrabold font-mono border ${isOverloaded ? "bg-red-950/80 text-red-400 border-red-800/60" : "bg-emerald-950/80 text-emerald-400 border-emerald-800/60"}`}>
+                                      {pct}%
+                                    </span>
+                                  </td>
+                                  <td className="py-0 px-2 text-center whitespace-nowrap">
+                                    {isOverloaded ? (
+                                      <span className="text-amber-400 font-black text-xs" title="Sobrelotação ou Ocupação Alta">⚠</span>
+                                    ) : (
+                                      <span className="text-emerald-400 font-black text-[10px]" title="Ocupação Normal">●</span>
+                                    )}
+                                  </td>
+                                  <td className="py-0 px-2 text-right whitespace-nowrap">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveTab("admissions");
+                                        setSelectedRiskPrisonFilter(p.id);
+                                      }}
+                                      className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-[9px] font-bold font-mono transition cursor-pointer"
+                                    >
+                                      ABRIR
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* INFORMAÇÃO COMPLEMENTAR ACCORDION */}
+                  <details className="bg-[#05080e] border border-slate-800 rounded p-2.5 group">
+                    <summary className="cursor-pointer font-mono text-[11px] font-bold text-slate-400 hover:text-slate-200 flex items-center justify-between select-none">
+                      <span className="flex items-center gap-1.5">
+                        <TrendingUp className="h-3.5 w-3.5 text-amber-500" />
+                        ANÁLISE DE RISCOS E DISTRIBUIÇÃO DETALHADA
                       </span>
+                      <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="pt-3">
+                      <RiskMapDashboard visiblePrisons={visiblePrisons} inmates={visibleInmates} />
                     </div>
-
-                    <div className="h-72 w-full pr-4">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart
-                          data={admissionsTrendData}
-                          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                        >
-                          <defs>
-                            <linearGradient id="colorPreventivas" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                            </linearGradient>
-                            <linearGradient id="colorCondenacoes" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                            </linearGradient>
-                            <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                          <XAxis 
-                            dataKey="month" 
-                            stroke="#64748b" 
-                            fontSize={9} 
-                            tickLine={false}
-                            fontFamily="JetBrains Mono, monospace"
-                          />
-                          <YAxis 
-                            stroke="#64748b" 
-                            fontSize={9} 
-                            tickLine={false}
-                            axisLine={false}
-                            fontFamily="JetBrains Mono, monospace"
-                          />
-                          <Tooltip content={<CustomAdmissionsTooltip />} />
-                          <Legend 
-                            verticalAlign="top" 
-                            height={36} 
-                            iconType="circle"
-                            iconSize={8}
-                            wrapperStyle={{
-                              fontSize: "10px",
-                              fontFamily: "Space Grotesk, sans-serif"
-                            }}
-                          />
-                          {admissionChartMode === "split" ? (
-                            <>
-                              <Area 
-                                type="monotone" 
-                                name="Preventivas" 
-                                dataKey="preventivas" 
-                                stroke="#f59e0b" 
-                                strokeWidth={2}
-                                fillOpacity={1} 
-                                fill="url(#colorPreventivas)" 
-                              />
-                              <Area 
-                                type="monotone" 
-                                name="Condenações" 
-                                dataKey="condenacoes" 
-                                stroke="#3b82f6" 
-                                strokeWidth={2}
-                                fillOpacity={1} 
-                                fill="url(#colorCondenacoes)" 
-                              />
-                            </>
-                          ) : (
-                            <Area 
-                              type="monotone" 
-                              name="Total Admissões" 
-                              dataKey={(row) => row.preventivas + row.condenacoes} 
-                              stroke="#10b981" 
-                              strokeWidth={2}
-                              fillOpacity={1} 
-                              fill="url(#colorTotal)" 
-                            />
-                          )}
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* CHART 2: HISTÓRICO DE INCIDENTES DISCIPLINARES */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-950/40 px-3 py-2 border border-slate-800/60 rounded gap-2">
-                      <div>
-                        <h3 className="text-xs font-semibold text-slate-200 font-sans">Incidentes Disciplinares por Unidade</h3>
-                        <p className="text-[10px] text-slate-500 mt-0.5 font-sans">Histórico consolidado de incidentes graves por prisão</p>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[9px] font-mono bg-slate-950 text-slate-400 border border-slate-850 px-2 py-0.5 rounded">
-                          Filtro Ativo: <strong className="text-amber-500">{disciplinarySeverityFilter}</strong>
-                        </span>
-                        <span className="text-[10px] font-mono bg-red-500/10 text-red-405 border border-red-500/20 px-2 py-0.5 rounded text-red-400">
-                          Total Filtrado: {filteredIncidentsData.reduce((acc, curr) => acc + curr.Agressao + curr.Fuga + curr.PosseIlicita + curr.Indisciplina, 0)} Alertas
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Control Panel: Severity and Threat Type Toggles */}
-                    <div className="bg-slate-900/25 border border-slate-900/60 p-3 rounded-xl flex flex-col gap-3">
-                      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-                        {/* Severity Filter segment group */}
-                        <div className="flex flex-col gap-1.5 w-full lg:w-auto">
-                          <span className="text-[9px] text-slate-400 font-mono uppercase tracking-wider font-extrabold flex items-center gap-1">
-                            <Sliders className="w-3 h-3 text-amber-500" /> Nível de Severidade (Severity Filter):
-                          </span>
-                          <div className="grid grid-cols-5 gap-1 bg-slate-950/80 p-1 rounded-lg border border-slate-850">
-                            {[
-                              { id: "ALL", label: "TODOS", color: "text-slate-400 hover:text-slate-200", activeBg: "bg-slate-800 text-slate-200 border-slate-700" },
-                              { id: "LOW", label: "BAIXA", color: "text-blue-500 hover:text-blue-400", activeBg: "bg-blue-500/10 text-blue-400 border-blue-500/30" },
-                              { id: "MEDIUM", label: "MÉDIA", color: "text-amber-500 hover:text-amber-400", activeBg: "bg-amber-500/10 text-amber-405 border-amber-500/30" },
-                              { id: "HIGH", label: "ALTA", color: "text-orange-500 hover:text-orange-400", activeBg: "bg-orange-500/10 text-orange-400 border-orange-500/30" },
-                              { id: "CRITICAL", label: "CRÍTICA", color: "text-red-500 hover:text-red-400", activeBg: "bg-red-500/10 text-red-400 border-red-500/30" },
-                            ].map(btn => {
-                              const isActive = disciplinarySeverityFilter === btn.id;
-                              return (
-                                <button
-                                  key={btn.id}
-                                  type="button"
-                                  onClick={() => setDisciplinarySeverityFilter(btn.id as any)}
-                                  className={`px-2 py-1 rounded text-[8px] font-bold font-mono transition duration-150 border cursor-pointer ${
-                                    isActive 
-                                      ? `${btn.activeBg} font-extrabold shadow-sm` 
-                                      : `bg-transparent border-transparent text-slate-450 ${btn.color}`
-                                  }`}
-                                >
-                                  {btn.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Threat Type Toggle Group */}
-                        <div className="flex flex-col gap-1.5 w-full lg:w-auto">
-                          <span className="text-[9px] text-slate-400 font-mono uppercase tracking-wider font-extrabold flex items-center gap-1">
-                            <Shield className="w-3 h-3 text-red-500" /> Alternar Tipos de Ameaça (Toggle Types):
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              { key: "Agressao", label: "Agressões", colorClass: "bg-red-500/10 border-red-500/30 text-red-400", idleClass: "border-slate-850 hover:bg-slate-900/40 text-slate-600", dotColor: "bg-red-500" },
-                              { key: "Fuga", label: "Fugas", colorClass: "bg-orange-500/10 border-orange-500/30 text-orange-400", idleClass: "border-slate-850 hover:bg-slate-900/40 text-slate-600", dotColor: "bg-orange-500" },
-                              { key: "PosseIlicita", label: "Posse Ilícita", colorClass: "bg-purple-500/10 border-purple-500/30 text-purple-400", idleClass: "border-slate-850 hover:bg-slate-900/40 text-slate-600", dotColor: "bg-purple-500" },
-                              { key: "Indisciplina", label: "Indisciplina", colorClass: "bg-blue-500/10 border-blue-500/30 text-blue-400", idleClass: "border-slate-850 hover:bg-slate-900/40 text-slate-600", dotColor: "bg-blue-500" },
-                            ].map(type => {
-                              const isEnabled = disciplinaryActiveTypes[type.key as keyof typeof disciplinaryActiveTypes];
-                              return (
-                                <button
-                                  key={type.key}
-                                  type="button"
-                                  onClick={() => setDisciplinaryActiveTypes(prev => ({ ...prev, [type.key]: !prev[type.key as keyof typeof prev] }))}
-                                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-mono border cursor-pointer transition duration-150 select-none ${
-                                    isEnabled ? `${type.colorClass} font-bold` : `${type.idleClass} line-through opacity-40`
-                                  }`}
-                                >
-                                  <span className={`w-1.5 h-1.5 rounded-full ${type.dotColor} ${isEnabled ? "animate-pulse" : "bg-slate-600 opacity-30"}`} />
-                                  {type.label}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="h-72 w-full pr-4">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={filteredIncidentsData}
-                          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                          <XAxis 
-                            dataKey="unit" 
-                            stroke="#64748b" 
-                            fontSize={10} 
-                            tickLine={false}
-                            fontFamily="Space Grotesk, sans-serif"
-                          />
-                          <YAxis 
-                            stroke="#64748b" 
-                            fontSize={9} 
-                            tickLine={false}
-                            axisLine={false}
-                            fontFamily="JetBrains Mono, monospace"
-                          />
-                          <Tooltip content={<CustomIncidentsTooltip />} />
-                          <Legend 
-                            verticalAlign="top" 
-                            height={36} 
-                            iconType="rect"
-                            iconSize={8}
-                            wrapperStyle={{
-                              fontSize: "10px",
-                              fontFamily: "Space Grotesk, sans-serif"
-                            }}
-                          />
-                          {disciplinaryActiveTypes.Agressao && <Bar name="Agressões" dataKey="Agressao" fill="#ef4444" radius={[4, 4, 0, 0]} />}
-                          {disciplinaryActiveTypes.Fuga && <Bar name="Tentativas de Fuga" dataKey="Fuga" fill="#f97316" radius={[4, 4, 0, 0]} />}
-                          {disciplinaryActiveTypes.PosseIlicita && <Bar name="Posse Ilícita" dataKey="PosseIlicita" fill="#a855f7" radius={[4, 4, 0, 0]} />}
-                          {disciplinaryActiveTypes.Indisciplina && <Bar name="Indisciplina Geral" dataKey="Indisciplina" fill="#3b82f6" radius={[4, 4, 0, 0]} />}
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Hourly Heat Map Legend for Peak Incident Times */}
-                    <div className="bg-slate-950/25 border border-slate-900 rounded-xl p-3.5 flex flex-col gap-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-900 pb-2">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                          <h4 className="text-[10px] font-bold text-slate-300 uppercase tracking-wider font-mono">
-                            Mapa Térmico de Horários (Pico de Ocorrências)
-                          </h4>
-                        </div>
-                        <span className="text-[8.5px] text-slate-500 font-mono">
-                          Fuso Horário Oficial (GMT+1) • Últimos 30 dias
-                        </span>
-                      </div>
-
-                      {/* The Heatmap Grid */}
-                      <div className="grid grid-cols-6 sm:grid-cols-12 md:grid-cols-24 gap-1.5 mt-1">
-                        {[
-                          { h: "00", v: 3, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Período calmo de repouso" },
-                          { h: "01", v: 2, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Período calmo de repouso" },
-                          { h: "02", v: 1, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Período calmo de repouso" },
-                          { h: "03", v: 1, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Período calmo de repouso" },
-                          { h: "04", v: 2, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Período calmo de repouso" },
-                          { h: "05", v: 4, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Abertura parcial e rondas iniciais" },
-                          { h: "06", v: 6, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Troca de turno operacional" },
-                          { h: "07", v: 12, c: "bg-blue-500/10 border-blue-500/20 text-blue-400", desc: "Abertura das celas e pequeno-almoço" },
-                          { h: "08", v: 18, c: "bg-blue-500/10 border-blue-500/20 text-blue-400", desc: "Início do expediente laboral interno" },
-                          { h: "09", v: 24, c: "bg-amber-500/10 border-amber-500/20 text-amber-500", desc: "Movimentações para pátio e consultas" },
-                          { h: "10", v: 32, c: "bg-amber-500/20 border-amber-500/30 text-amber-405 font-bold", desc: "Revistas sistemáticas de segurança" },
-                          { h: "11", v: 45, c: "bg-red-500/10 border-red-500/20 text-red-405 font-bold animate-pulse", desc: "Pico de atividade: recreação pré-almoço" },
-                          { h: "12", v: 28, c: "bg-amber-500/15 border-amber-500/25 text-amber-405", desc: "Rendição da guarda intermédia" },
-                          { h: "13", v: 30, c: "bg-amber-500/20 border-amber-500/30 text-amber-405", desc: "Recluso pós-refeição nos pátios" },
-                          { h: "14", v: 58, c: "bg-red-500/20 border-red-500/35 text-red-405 font-extrabold animate-pulse", desc: "Pico crítico: atividades ao ar livre / desporto" },
-                          { h: "15", v: 64, c: "bg-red-500/25 border-red-500/40 text-red-500 font-extrabold animate-pulse", desc: "Pico máximo diário: encerramento e retorno às celas" },
-                          { h: "16", v: 50, c: "bg-red-500/15 border-red-500/30 text-red-405 font-bold animate-pulse", desc: "Contagem geral vespertina de reclusos" },
-                          { h: "17", v: 35, c: "bg-amber-500/20 border-amber-500/30 text-amber-405", desc: "Bloqueio primário de pavilhões" },
-                          { h: "18", v: 26, c: "bg-blue-500/15 border-blue-500/25 text-blue-400", desc: "Distribuição do jantar" },
-                          { h: "19", v: 22, c: "bg-blue-500/10 border-blue-500/20 text-blue-400", desc: "Trancamento definitivo de celas" },
-                          { h: "20", v: 38, c: "bg-amber-500/15 border-amber-500/25 text-amber-450", desc: "Alta tensão inicial pós-lockdown" },
-                          { h: "21", v: 41, c: "bg-amber-500/20 border-amber-500/30 text-amber-405 font-bold", desc: "Troca de guarda da noite" },
-                          { h: "22", v: 15, c: "bg-blue-500/10 border-blue-500/20 text-blue-400", desc: "Silêncio geral regulamentar" },
-                          { h: "23", v: 8, c: "bg-slate-900/40 border-slate-950 text-slate-500", desc: "Rondas preventivas de sentinelas" }
-                        ].map((item, idx) => (
-                          <div 
-                            key={idx} 
-                            className={`flex flex-col items-center justify-center p-1 sm:p-1.5 rounded border text-center transition cursor-help relative group ${item.c}`}
-                            title={`${item.h}:00 - ${item.desc} (${item.v} incidentes)`}
-                          >
-                            <span className="text-[8px] font-bold font-mono tracking-tighter leading-none mb-0.5 sm:mb-1 block">
-                              {item.h}h
-                            </span>
-                            <div className="w-2.5 h-1 md:w-3.5 md:h-1.5 rounded bg-current opacity-70 group-hover:opacity-100 transition-opacity" />
-                            
-                            {/* Hover tooltip code */}
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center pointer-events-none z-30 transition-all">
-                              <div className="bg-slate-950 border border-slate-800 text-slate-200 text-[9px] font-mono p-2 rounded-lg shadow-xl whitespace-nowrap flex flex-col gap-1 items-start">
-                                <span className="font-extrabold text-slate-100 text-[10px] border-b border-slate-800 pb-0.5 w-full flex justify-between gap-4">
-                                  <span>Horário: {item.h}:00</span>
-                                  <span className="text-amber-450">{item.v} Ocorrências</span>
-                                </span>
-                                <span className="text-slate-400 leading-normal text-xxs max-w-[180px] text-left">
-                                  {item.desc}
-                                </span>
-                              </div>
-                              <div className="w-1.5 h-1.5 bg-slate-950 border-r border-b border-slate-800 rotate-45 -mt-1" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Range Scale Indicators */}
-                      <div className="flex items-center justify-between mt-1 text-[8.5px] font-mono text-slate-500 border-t border-slate-900/60 pt-2 flex-wrap gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-slate-650 block uppercase font-bold text-[8px]">Incisões / Frequência:</span>
-                          <div className="flex items-center gap-4">
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-slate-900 border border-slate-800 rounded-sm" /> Repouso (Silêncio)
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-blue-500/10 border border-blue-500/20 rounded-sm" /> Baixo
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-amber-500/20 border border-amber-500/30 rounded-sm" /> Moderado
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <span className="w-2 h-2 bg-red-500/25 border border-red-500/40 rounded-sm" /> Crítico
-                            </span>
-                          </div>
-                        </div>
-                        <span className="text-[8px] font-extrabold text-slate-450 bg-slate-950 border border-slate-900 px-2 py-0.5 rounded-lg uppercase tracking-wider">
-                          Mapeamento Horário Consolidadado
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  </details>
                 </div>
-              </div>
-
-            </motion.div>
-              ) : (
-                <motion.div
-                  key="dashboard-view-risk-map"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="w-full"
-                >
-                  <RiskMapDashboard visiblePrisons={visiblePrisons} inmates={visibleInmates} />
-                </motion.div>
               )}
-            </div>
-          )}
 
           {/* TAB: CENTRO NACIONAL DE COMANDO */}
           {activeTab === "centro-comando" && (
@@ -21301,8 +20870,10 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      {/* D. ADAPTIVE RIGHT-SIDE OPERATIONAL INSPECTOR */}
+      {/* D. ADAPTIVE OPERATIONAL INSPECTOR (DRAWER OVERLAY TOGGLED FROM LEFT NAV) */}
       <OperationalInspector
+        isOpen={isInspectorOpen}
+        onClose={() => setIsInspectorOpen(false)}
         selectedHierNode={selectedHierNode}
         currentOperator={currentOperator}
         isOnline={isOnline}
@@ -23601,6 +23172,215 @@ export default function App() {
           setSelectedRiskPrisonFilter("ALL");
         }}
       />
+
+      {/* QUICK TRANSFER CONTEXTUAL MODAL (FASE 2) */}
+      {isQuickTransferModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 font-mono">
+          <div className="bg-[#080c14] border border-slate-800 rounded-lg max-w-md w-full p-4 flex flex-col gap-3 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-850 pb-2">
+              <div className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4 text-amber-500" />
+                <h3 className="text-xs font-bold text-slate-100 uppercase tracking-widest">
+                  ⇄ GUIA RÁPIDA DE TRANSFERÊNCIA
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuickTransferModalOpen(false)}
+                className="text-slate-500 hover:text-slate-200 text-xs font-bold px-1 py-0.5 rounded"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2 text-xs">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                  SELECCIONAR RECLUSO:
+                </label>
+                <select
+                  value={transferSelectedInmateId}
+                  onChange={(e) => setTransferSelectedInmateId(e.target.value)}
+                  className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
+                >
+                  <option value="">-- Seleccionar Recluso --</option>
+                  {visibleInmates.map((i) => (
+                    <option key={i.id} value={i.id}>
+                      {i.id} • {i.firstName} {i.lastName} ({i.assignedPrisonId})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                  ESTABELECIMENTO DE DESTINO:
+                </label>
+                <select
+                  value={transferDestPrison}
+                  onChange={(e) => setTransferDestPrison(e.target.value)}
+                  className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
+                >
+                  {prisons.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name.replace("Estabelecimento Penitenciário de ", "EP ")} ({p.capacity} vagas)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                  MOTIVO / FUNDAMENTAÇÃO:
+                </label>
+                <input
+                  type="text"
+                  value={transferReason}
+                  onChange={(e) => setTransferReason(e.target.value)}
+                  placeholder="Motivo da transferência..."
+                  className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-850">
+              <button
+                type="button"
+                onClick={() => setIsQuickTransferModalOpen(false)}
+                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded text-xs font-bold transition"
+              >
+                CANCELAR
+              </button>
+              <button
+                type="button"
+                disabled={!transferSelectedInmateId}
+                onClick={() => {
+                  if (transferSelectedInmateId) {
+                    handleTransferInmate(transferSelectedInmateId, transferDestPrison);
+                    triggerToast("TRANSFERÊNCIA CONCLUÍDA", `Guia emitida para o recluso ${transferSelectedInmateId}`, "success");
+                    setIsQuickTransferModalOpen(false);
+                    setTransferSelectedInmateId("");
+                  }
+                }}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 rounded text-xs font-bold transition"
+              >
+                CONFIRMAR TRANSFERÊNCIA
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QUICK INCIDENT CONTEXTUAL MODAL (FASE 2) */}
+      {isQuickIncidentModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 font-mono">
+          <div className="bg-[#080c14] border border-slate-800 rounded-lg max-w-md w-full p-4 flex flex-col gap-3 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-850 pb-2">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+                <h3 className="text-xs font-bold text-slate-100 uppercase tracking-widest">
+                  + REGISTAR OCORRÊNCIA / INCIDENTE
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuickIncidentModalOpen(false)}
+                className="text-slate-500 hover:text-slate-200 text-xs font-bold px-1 py-0.5 rounded"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-2 text-xs">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                  ESTABELECIMENTO:
+                </label>
+                <select
+                  value={quickIncidentPrisonId}
+                  onChange={(e) => setQuickIncidentPrisonId(e.target.value)}
+                  className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
+                >
+                  {prisons.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name.replace("Estabelecimento Penitenciário de ", "EP ")}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                    TIPO DE INCIDENTE:
+                  </label>
+                  <select
+                    value={quickIncidentType}
+                    onChange={(e) => setQuickIncidentType(e.target.value as any)}
+                    className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="DISCIPLINAR">DISCIPLINAR</option>
+                    <option value="EVASÃO">EVASÃO</option>
+                    <option value="MÉDICO">MÉDICO</option>
+                    <option value="REDES">REDES / TI</option>
+                    <option value="INFRAESTRUTURA">INFRAESTRUTURA</option>
+                    <option value="SEGURANÇA">SEGURANÇA Geral</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                    GRAVIDADE:
+                  </label>
+                  <select
+                    value={quickIncidentSeverity}
+                    onChange={(e) => setQuickIncidentSeverity(e.target.value as any)}
+                    className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="CRÍTICA">CRÍTICA (Vermelho)</option>
+                    <option value="MÉDIA">MÉDIA (Amarelo)</option>
+                    <option value="LIGEIRA">LIGEIRA (Cinza)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                  DESCRIÇÃO DAS CIRCUNSTÂNCIAS:
+                </label>
+                <textarea
+                  value={quickIncidentDesc}
+                  onChange={(e) => setQuickIncidentDesc(e.target.value)}
+                  placeholder="Descreva sumariamente a ocorrência..."
+                  rows={3}
+                  className="w-full bg-[#030509] border border-slate-800 rounded px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-850">
+              <button
+                type="button"
+                onClick={() => setIsQuickIncidentModalOpen(false)}
+                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded text-xs font-bold transition"
+              >
+                CANCELAR
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  triggerToast("INCIDENTE REGISTADO", `Ocorrência ${quickIncidentType} registada no ${quickIncidentPrisonId}`, "warning");
+                  setIsQuickIncidentModalOpen(false);
+                  setQuickIncidentDesc("");
+                }}
+                className="px-3 py-1.5 bg-red-800 hover:bg-red-700 text-red-100 rounded text-xs font-bold transition"
+              >
+                REGISTAR OCORRÊNCIA
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -21,11 +21,15 @@ import {
   Layers,
   MapPin,
   Flame,
-  AlertCircle
+  AlertCircle,
+  X,
+  Radar
 } from "lucide-react";
 import { SystemPermission } from "../types";
 
 interface OperationalInspectorProps {
+  isOpen?: boolean;
+  onClose?: () => void;
   selectedHierNode: {
     type: "PROVINCE" | "MUNICIPALITY" | "PRISON" | "PAVILION" | "CELL" | "ESTABLISHMENT" | null;
     id: string | null;
@@ -45,6 +49,8 @@ interface OperationalInspectorProps {
 }
 
 export function OperationalInspector({
+  isOpen: propIsOpen,
+  onClose: propOnClose,
   selectedHierNode,
   currentOperator,
   isOnline,
@@ -56,7 +62,17 @@ export function OperationalInspector({
   healthRecords = [],
   incidentAlerts = []
 }: OperationalInspectorProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
+
+  const handleClose = () => {
+    if (propOnClose) {
+      propOnClose();
+    } else {
+      setInternalIsOpen(false);
+    }
+  };
+
   const [currentTime, setCurrentTime] = useState("");
   const [activeTab, setActiveTab] = useState<"status" | "logs">("status");
   const [logs, setLogs] = useState<Array<{ id: string; msg: string; type: "info" | "success" | "warning" | "critical"; timestamp: string }>>([]);
@@ -248,60 +264,42 @@ export function OperationalInspector({
     );
   };
 
-  return (
-    <div className="flex h-full shrink-0 select-none relative z-30">
-      
-      {/* 1. COMPACT COLLAPSED STRIP */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="w-10 bg-[#080b11] border-l border-slate-900 flex flex-col items-center py-4 justify-between h-full hover:bg-[#0c1018] cursor-pointer transition-all text-slate-500 hover:text-amber-500"
-          title="Expandir Painel de Contexto"
-        >
-          <div className="flex flex-col items-center gap-6">
-            <ChevronLeft className="h-4 w-4 animate-pulse" />
-            <div className="writing-mode-vertical text-[9px] font-mono tracking-widest text-slate-500 uppercase rotate-180 py-2">
-              CONSOLA DE CONTEXTO • PNAP-AO
-            </div>
-            <Activity className="h-4 w-4 text-emerald-500 animate-[pulse_2s_infinite]" />
-          </div>
-          <div className="flex flex-col gap-1 items-center">
-            <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-ping" />
-            <span className="text-[7px] font-mono font-bold">LIVE</span>
-          </div>
-        </button>
-      )}
+  if (!isOpen) return null;
 
-      {/* 2. MAIN INSPECTOR CONTAINER */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 330, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 180 }}
-            className="w-[330px] bg-[#070a10] border-l border-slate-900 flex flex-col h-full overflow-hidden min-w-[330px]"
-          >
-            
-            {/* Header: Title & Close Button */}
-            <div className="p-4 bg-[#0a0f18] border-b border-slate-900 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="p-1 bg-amber-500/10 border border-amber-500/30 rounded text-amber-500">
-                  <Radio className="h-4 w-4 animate-pulse" />
-                </div>
-                <div>
-                  <div className="text-[8px] font-mono tracking-widest text-amber-500 font-bold uppercase">Consola de Rastreio</div>
-                  <div className="text-[10px] font-sans font-bold text-slate-200">DETETOR DE CONTEXTO</div>
-                </div>
+  return (
+    <AnimatePresence>
+      <div 
+        className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex justify-end animate-fadeIn select-none"
+        onClick={handleClose}
+      >
+        <motion.div
+          initial={{ x: 350, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 350, opacity: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          onClick={(e) => e.stopPropagation()}
+          className="w-[340px] max-w-[90vw] bg-[#070a10] border-l border-slate-800 flex flex-col h-full shadow-2xl overflow-hidden"
+        >
+          
+          {/* Header: Title & Close Button */}
+          <div className="p-3.5 bg-[#0a0f18] border-b border-slate-900 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="p-1 bg-amber-500/10 border border-amber-500/30 rounded text-amber-500">
+                <Radio className="h-4 w-4 animate-pulse" />
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 text-slate-500 hover:text-slate-300 hover:bg-slate-900/60 rounded cursor-pointer transition-colors"
-                title="Recolher Painel"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
+              <div>
+                <div className="text-[8px] font-mono tracking-widest text-amber-500 font-bold uppercase">Consola de Rastreio</div>
+                <div className="text-[10px] font-sans font-bold text-slate-200">DETETOR DE CONTEXTO</div>
+              </div>
             </div>
+            <button
+              onClick={handleClose}
+              className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 rounded cursor-pointer transition-colors"
+              title="Fechar Consola"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
             {/* Sub-Header: Global Time and VPN Status */}
             <div className="px-4 py-2 bg-[#04060b] border-b border-slate-900/40 flex items-center justify-between text-[8px] font-mono text-slate-400 shrink-0">
@@ -570,9 +568,7 @@ export function OperationalInspector({
             </div>
 
           </motion.div>
-        )}
-      </AnimatePresence>
-
-    </div>
+        </div>
+    </AnimatePresence>
   );
 }

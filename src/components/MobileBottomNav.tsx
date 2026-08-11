@@ -34,9 +34,9 @@ export function MobileBottomNav({
         {/* Dashboard / Painel */}
         <button
           type="button"
-          onClick={() => setActiveTab("centro-comando")}
+          onClick={() => setActiveTab("dashboard")}
           className={`flex-1 min-h-[48px] flex flex-col items-center justify-center p-1 rounded-xl transition cursor-pointer touch-manipulation ${
-            activeTab === "centro-comando"
+            activeTab === "dashboard" || activeTab === "centro-comando"
               ? "text-amber-400 bg-amber-500/10 font-bold"
               : "text-slate-400 hover:text-slate-200"
           }`}
@@ -93,9 +93,9 @@ export function MobileBottomNav({
         {/* Lotação / EPs */}
         <button
           type="button"
-          onClick={() => setActiveTab("governance")}
+          onClick={() => setActiveTab("dashboard")}
           className={`flex-1 min-h-[48px] flex flex-col items-center justify-center p-1 rounded-xl relative transition cursor-pointer touch-manipulation ${
-            activeTab === "governance"
+            activeTab === "dashboard"
               ? "text-amber-400 bg-amber-500/10 font-bold"
               : "text-slate-400 hover:text-slate-200"
           }`}
