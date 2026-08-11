@@ -1418,122 +1418,88 @@ export function OrganizationalHierarchyConfig({
                               </div>
                             </div>
 
-                            {/* Section Content */}
+                            {/* Section Content - COMPACT HIGH DENSITY TABLE */}
                             {isExpanded && (
-                              <div className="p-3.5 grid grid-cols-1 md:grid-cols-2 gap-3.5 bg-slate-950/40">
+                              <div className="overflow-x-auto bg-slate-950/80">
                                 {section.units.length === 0 ? (
-                                  <div className="col-span-2 p-4 text-center text-xs font-mono text-slate-500 italic">
+                                  <div className="p-3 text-center text-xs font-mono text-slate-500 italic">
                                     Nenhuma unidade registada nesta categoria.
                                   </div>
                                 ) : (
-                                  section.units.map((unit) => {
-                                    const isCat1 = unit.category?.startsWith("I -") || unit.divisionType === "GABINETE";
-                                    const isCat2 = unit.category?.startsWith("II -");
-                                    const isCat3 = unit.category?.startsWith("III -") || unit.divisionType === "CONSELHO";
-                                    const isCat4 = unit.divisionType === "ESTAB_PENITENCIARIO" || unit.level === TerritorialScope.ESTABLISHMENT;
+                                  <table className="w-full text-left text-xs font-mono border-collapse">
+                                    <thead>
+                                      <tr className="border-b border-slate-850 bg-slate-900/50 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                        <th className="py-2 px-3">Cód / Unidade</th>
+                                        <th className="py-2 px-3">Categoria</th>
+                                        <th className="py-2 px-3">Responsável</th>
+                                        <th className="py-2 px-3 text-right">Ações</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-850/60">
+                                      {section.units.map((unit) => {
+                                        const isCat1 = unit.category?.startsWith("I -") || unit.divisionType === "GABINETE";
+                                        const isCat2 = unit.category?.startsWith("II -");
+                                        const isCat3 = unit.category?.startsWith("III -") || unit.divisionType === "CONSELHO";
+                                        const isCat4 = unit.divisionType === "ESTAB_PENITENCIARIO" || unit.level === TerritorialScope.ESTABLISHMENT;
 
-                                    return (
-                                      <div
-                                        key={unit.id}
-                                        className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 ${
-                                          isCat4
-                                            ? "bg-emerald-950/20 border-emerald-850/60 hover:border-emerald-700"
-                                            : isCat1
-                                            ? "bg-purple-950/10 border-slate-800 hover:border-purple-500/40"
-                                            : isCat2
-                                            ? "bg-blue-950/10 border-slate-800 hover:border-blue-500/40"
-                                            : "bg-amber-950/10 border-slate-800 hover:border-amber-500/40"
-                                        }`}
-                                      >
-                                        <div className="flex flex-col gap-2">
-                                          <div className="flex items-start justify-between gap-2">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                              {isCat1 && <Briefcase className="h-4 w-4 text-purple-400 shrink-0" />}
-                                              {isCat2 && <Shield className="h-4 w-4 text-blue-400 shrink-0" />}
-                                              {isCat3 && <Users className="h-4 w-4 text-amber-400 shrink-0" />}
-                                              {isCat4 && <Building className="h-4 w-4 text-emerald-400 shrink-0" />}
-                                              
-                                              <span className="text-xs font-mono font-bold text-slate-100">
-                                                {unit.name}
+                                        return (
+                                          <tr key={unit.id} className="hover:bg-slate-900/60 transition">
+                                            <td className="py-2 px-3 font-bold text-slate-100 flex items-center gap-2">
+                                              {isCat1 && <Briefcase className="h-3.5 w-3.5 text-purple-400 shrink-0" />}
+                                              {isCat2 && <Shield className="h-3.5 w-3.5 text-blue-400 shrink-0" />}
+                                              {isCat3 && <Users className="h-3.5 w-3.5 text-amber-400 shrink-0" />}
+                                              {isCat4 && <Building className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+                                              {unit.code && (
+                                                <span className="bg-slate-900 border border-slate-800 text-amber-400 text-[9px] px-1.5 py-0.5 rounded font-bold">
+                                                  {unit.code}
+                                                </span>
+                                              )}
+                                              <span className="truncate max-w-[280px]">{unit.name}</span>
+                                            </td>
+                                            <td className="py-2 px-3 text-[10px]">
+                                              <span className={`px-2 py-0.5 rounded font-bold ${
+                                                isCat1 ? "bg-purple-950/40 text-purple-300 border border-purple-800/40"
+                                                : isCat2 ? "bg-blue-950/40 text-blue-300 border border-blue-800/40"
+                                                : isCat3 ? "bg-amber-950/40 text-amber-300 border border-amber-800/40"
+                                                : "bg-emerald-950/40 text-emerald-300 border border-emerald-800/40"
+                                              }`}>
+                                                {unit.category || (isCat4 ? "IV - Cadeia" : "Dependência")}
                                               </span>
-                                            </div>
-
-                                            {unit.code && (
-                                              <span className="bg-slate-950 border border-slate-800 text-amber-400 text-[9px] font-mono px-2 py-0.5 rounded shrink-0 font-bold">
-                                                {unit.code}
-                                              </span>
-                                            )}
-                                          </div>
-
-                                          {unit.category && (
-                                            <span className="text-[9px] font-mono text-slate-400 bg-slate-950/60 border border-slate-800 px-2 py-0.5 rounded w-fit">
-                                              {unit.category}
-                                            </span>
-                                          )}
-
-                                          <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
-                                            <strong className="text-slate-400 font-mono text-[10px]">Função Principal:</strong> {unit.functionDescription || "Atribuição legal conforme Decreto Presidencial 184/17."}
-                                          </p>
-
-                                          {/* Administrative and Operational Duties Preview */}
-                                          <div className="bg-slate-950/80 border border-slate-850 rounded-lg p-2.5 flex flex-col gap-1.5 text-[10px]">
-                                            <div className="text-slate-300 font-sans">
-                                              <strong className="text-purple-400 font-mono uppercase">Atribuição Administrativa:</strong>{" "}
-                                              <span className="text-slate-400 line-clamp-2">
-                                                {unit.administrativeResponsibilities || "Gestão do expediente geral, arquivo documental e prestação de contas à Direção Provincial."}
-                                              </span>
-                                            </div>
-                                            <div className="text-slate-300 font-sans">
-                                              <strong className="text-blue-400 font-mono uppercase">Atribuição Operativa:</strong>{" "}
-                                              <span className="text-slate-400 line-clamp-2">
-                                                {unit.operationalResponsibilities || "Execução das diretivas de segurança, patrulhamento, revistas e controlo de disciplina."}
-                                              </span>
-                                            </div>
-                                            {isCat4 && (
-                                              <div className="hidden">
-                                                <FolderTree className="h-3 w-3 text-emerald-400 shrink-0" />
-                                                <span>Estruturas Administrativas e Operativas replicadas em Secções Internas (Controlo Penal, Segurança, Saúde, Logística).</span>
+                                            </td>
+                                            <td className="py-2 px-3 text-[11px] text-slate-300">
+                                              {unit.headOfficerName || "A Nomear"}
+                                            </td>
+                                            <td className="py-2 px-3 text-right">
+                                              <div className="flex items-center justify-end gap-1">
+                                                <button
+                                                  onClick={() => handleOpenRespInspector(unit)}
+                                                  className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-mono font-bold px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer transition"
+                                                  title="Atribuições"
+                                                >
+                                                  <FileText className="h-3 w-3" />
+                                                  Atribuições
+                                                </button>
+                                                <button
+                                                  onClick={() => handleEditUnit(unit)}
+                                                  className="p-1 hover:bg-slate-800 text-slate-400 hover:text-blue-400 rounded transition"
+                                                  title="Editar"
+                                                >
+                                                  <Edit3 className="h-3.5 w-3.5" />
+                                                </button>
+                                                <button
+                                                  onClick={() => handleDeleteUnit(unit.id, unit.name)}
+                                                  className="p-1 hover:bg-slate-800 text-slate-400 hover:text-red-400 rounded transition"
+                                                  title="Excluir"
+                                                >
+                                                  <Trash2 className="h-3.5 w-3.5" />
+                                                </button>
                                               </div>
-                                            )}
-                                          </div>
-                                        </div>
-
-                                        {/* Actions footer */}
-                                        <div className="flex items-center justify-between border-t border-slate-850/80 pt-2.5 mt-1">
-                                          <span className="text-[9.5px] font-mono text-slate-500">
-                                            Chefia: {unit.headOfficerName || "A Nomear"}
-                                          </span>
-
-                                          <div className="flex items-center gap-1.5">
-                                            <button
-                                              onClick={() => handleOpenRespInspector(unit)}
-                                              className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold px-2.5 py-1 rounded-md flex items-center gap-1 cursor-pointer transition"
-                                              title="Definir responsabilidades funcionais administrativas e operativas"
-                                            >
-                                              <FileText className="h-3 w-3 text-amber-400" />
-                                              Definir Atribuições
-                                            </button>
-
-                                            <button
-                                              onClick={() => handleEditUnit(unit)}
-                                              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-blue-400 rounded transition"
-                                              title="Editar divisão"
-                                            >
-                                              <Edit3 className="h-3.5 w-3.5" />
-                                            </button>
-
-                                            <button
-                                              onClick={() => handleDeleteUnit(unit.id, unit.name)}
-                                              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-red-400 rounded transition"
-                                              title="Excluir divisão"
-                                            >
-                                              <Trash2 className="h-3.5 w-3.5" />
-                                            </button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
+                                    </tbody>
+                                  </table>
                                 )}
                               </div>
                             )}
@@ -1542,114 +1508,86 @@ export function OrganizationalHierarchyConfig({
                       })}
                     </div>
                   ) : (
-                    /* FILTERED SINGLE CATEGORY VIEW */
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                      {(activeCategoryTab === "CAT_1" ? cat1Units
-                        : activeCategoryTab === "CAT_2" ? cat2Units
-                        : activeCategoryTab === "CAT_3" ? cat3Units
-                        : cat4Units
-                      ).map((unit) => {
-                        const isCat1 = unit.category?.startsWith("I -") || unit.divisionType === "GABINETE";
-                        const isCat2 = unit.category?.startsWith("II -");
-                        const isCat3 = unit.category?.startsWith("III -") || unit.divisionType === "CONSELHO";
-                        const isCat4 = unit.divisionType === "ESTAB_PENITENCIARIO" || unit.level === TerritorialScope.ESTABLISHMENT;
+                    /* FILTERED SINGLE CATEGORY VIEW - COMPACT TABLE */
+                    <div className="overflow-x-auto bg-slate-950/80 rounded-xl border border-slate-850">
+                      <table className="w-full text-left text-xs font-mono border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-850 bg-slate-900/50 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                            <th className="py-2 px-3">Cód / Unidade</th>
+                            <th className="py-2 px-3">Categoria</th>
+                            <th className="py-2 px-3">Responsável</th>
+                            <th className="py-2 px-3 text-right">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-850/60">
+                          {(activeCategoryTab === "CAT_1" ? cat1Units
+                            : activeCategoryTab === "CAT_2" ? cat2Units
+                            : activeCategoryTab === "CAT_3" ? cat3Units
+                            : cat4Units
+                          ).map((unit) => {
+                            const isCat1 = unit.category?.startsWith("I -") || unit.divisionType === "GABINETE";
+                            const isCat2 = unit.category?.startsWith("II -");
+                            const isCat3 = unit.category?.startsWith("III -") || unit.divisionType === "CONSELHO";
+                            const isCat4 = unit.divisionType === "ESTAB_PENITENCIARIO" || unit.level === TerritorialScope.ESTABLISHMENT;
 
-                        return (
-                          <div
-                            key={unit.id}
-                            className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 ${
-                              isCat4
-                                ? "bg-emerald-950/20 border-emerald-850/60 hover:border-emerald-700"
-                                : isCat1
-                                ? "bg-slate-900/60 border-slate-800 hover:border-purple-500/40"
-                                : isCat2
-                                ? "bg-slate-900/60 border-slate-800 hover:border-blue-500/40"
-                                : "bg-slate-900/60 border-slate-800 hover:border-amber-500/40"
-                            }`}
-                          >
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  {isCat1 && <Briefcase className="h-4 w-4 text-purple-400 shrink-0" />}
-                                  {isCat2 && <Shield className="h-4 w-4 text-blue-400 shrink-0" />}
-                                  {isCat3 && <Users className="h-4 w-4 text-amber-400 shrink-0" />}
-                                  {isCat4 && <Building className="h-4 w-4 text-emerald-400 shrink-0" />}
-                                  
-                                  <span className="text-xs font-mono font-bold text-slate-100">
-                                    {unit.name}
+                            return (
+                              <tr key={unit.id} className="hover:bg-slate-900/60 transition">
+                                <td className="py-2 px-3 font-bold text-slate-100 flex items-center gap-2">
+                                  {isCat1 && <Briefcase className="h-3.5 w-3.5 text-purple-400 shrink-0" />}
+                                  {isCat2 && <Shield className="h-3.5 w-3.5 text-blue-400 shrink-0" />}
+                                  {isCat3 && <Users className="h-3.5 w-3.5 text-amber-400 shrink-0" />}
+                                  {isCat4 && <Building className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+                                  {unit.code && (
+                                    <span className="bg-slate-900 border border-slate-800 text-amber-400 text-[9px] px-1.5 py-0.5 rounded font-bold">
+                                      {unit.code}
+                                    </span>
+                                  )}
+                                  <span className="truncate max-w-[280px]">{unit.name}</span>
+                                </td>
+                                <td className="py-2 px-3 text-[10px]">
+                                  <span className={`px-2 py-0.5 rounded font-bold ${
+                                    isCat1 ? "bg-purple-950/40 text-purple-300 border border-purple-800/40"
+                                    : isCat2 ? "bg-blue-950/40 text-blue-300 border border-blue-800/40"
+                                    : isCat3 ? "bg-amber-950/40 text-amber-300 border border-amber-800/40"
+                                    : "bg-emerald-950/40 text-emerald-300 border border-emerald-800/40"
+                                  }`}>
+                                    {unit.category || (isCat4 ? "IV - Cadeia" : "Dependência")}
                                   </span>
-                                </div>
-
-                                {unit.code && (
-                                  <span className="bg-slate-950 border border-slate-800 text-amber-400 text-[9px] font-mono px-2 py-0.5 rounded shrink-0">
-                                    {unit.code}
-                                  </span>
-                                )}
-                              </div>
-
-                              {unit.category && (
-                                <span className="text-[9px] font-mono text-slate-400 bg-slate-950/60 border border-slate-800 px-2 py-0.5 rounded w-fit">
-                                  {unit.category}
-                                </span>
-                              )}
-
-                              <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
-                                <strong className="text-slate-400 font-mono text-[10px]">Função Principal:</strong> {unit.functionDescription || "Atribuição legal conforme Decreto Presidencial 184/17."}
-                              </p>
-
-                              {/* Administrative and Operational Duties Preview */}
-                              <div className="bg-slate-950/80 border border-slate-850 rounded-lg p-2.5 flex flex-col gap-1.5 text-[10px]">
-                                <div className="text-slate-300 font-sans">
-                                  <strong className="text-purple-400 font-mono uppercase">Atribuição Administrativa:</strong>{" "}
-                                  <span className="text-slate-400 line-clamp-2">
-                                    {unit.administrativeResponsibilities || "Gestão do expediente geral, arquivo documental e prestação de contas à Direção Provincial."}
-                                  </span>
-                                </div>
-                                <div className="text-slate-300 font-sans">
-                                  <strong className="text-blue-400 font-mono uppercase">Atribuição Operativa:</strong>{" "}
-                                  <span className="text-slate-400 line-clamp-2">
-                                    {unit.operationalResponsibilities || "Execução das diretivas de segurança, patrulhamento, revistas e controlo de disciplina."}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Actions footer */}
-                            <div className="flex items-center justify-between border-t border-slate-850/80 pt-2.5 mt-1">
-                              <span className="text-[9.5px] font-mono text-slate-500">
-                                Chefia: {unit.headOfficerName || "A Nomear"}
-                              </span>
-
-                              <div className="flex items-center gap-1.5">
-                                <button
-                                  onClick={() => handleOpenRespInspector(unit)}
-                                  className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold px-2.5 py-1 rounded-md flex items-center gap-1 cursor-pointer transition"
-                                  title="Definir responsabilidades funcionais administrativas e operativas"
-                                >
-                                  <FileText className="h-3 w-3 text-amber-400" />
-                                  Definir Atribuições
-                                </button>
-
-                                <button
-                                  onClick={() => handleEditUnit(unit)}
-                                  className="p-1 hover:bg-slate-800 text-slate-400 hover:text-blue-400 rounded transition"
-                                  title="Editar divisão"
-                                >
-                                  <Edit3 className="h-3.5 w-3.5" />
-                                </button>
-
-                                <button
-                                  onClick={() => handleDeleteUnit(unit.id, unit.name)}
-                                  className="p-1 hover:bg-slate-800 text-slate-400 hover:text-red-400 rounded transition"
-                                  title="Excluir divisão"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+                                </td>
+                                <td className="py-2 px-3 text-[11px] text-slate-300">
+                                  {unit.headOfficerName || "A Nomear"}
+                                </td>
+                                <td className="py-2 px-3 text-right">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <button
+                                      onClick={() => handleOpenRespInspector(unit)}
+                                      className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-mono font-bold px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer transition"
+                                      title="Atribuições"
+                                    >
+                                      <FileText className="h-3 w-3" />
+                                      Atribuições
+                                    </button>
+                                    <button
+                                      onClick={() => handleEditUnit(unit)}
+                                      className="p-1 hover:bg-slate-800 text-slate-400 hover:text-blue-400 rounded transition"
+                                      title="Editar"
+                                    >
+                                      <Edit3 className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteUnit(unit.id, unit.name)}
+                                      className="p-1 hover:bg-slate-800 text-slate-400 hover:text-red-400 rounded transition"
+                                      title="Excluir"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   )}
 
