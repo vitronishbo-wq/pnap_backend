@@ -789,6 +789,15 @@ export function OrganizationalHierarchyConfig({
     }
 
     if (editingUnitId) {
+      const currentUnit = organizationalUnits.find(u => u.id === editingUnitId);
+      if (currentUnit) {
+        const val = validateSubordination(currentUnit, parentUnitId);
+        if (!val.valid) {
+          triggerToast("ERRO DE VALIDAÇÃO HIERÁRQUICA", val.errorReason || "Subordinação territorial inválida.", "error");
+          return;
+        }
+      }
+
       setOrganizationalUnits(prev => prev.map(u => {
         if (u.id === editingUnitId) {
           return {
@@ -806,6 +815,15 @@ export function OrganizationalHierarchyConfig({
       triggerToast("HIERARQUIA ATUALIZADA", `Unidade '${formName}' atualizada com sucesso.`, "success");
     } else {
       const parentUnit = organizationalUnits.find(u => u.id === parentUnitId);
+      if (parentUnit && parentUnit.level !== TerritorialScope.NATIONAL && parentUnit.id !== "OU-MININT-DG") {
+        const parentProv = parentUnit.province?.toLowerCase().trim();
+        const subProv = selectedProvinceFilter?.toLowerCase().trim();
+        if (parentProv && subProv && parentProv !== subProv) {
+          triggerToast("ERRO DE VALIDAÇÃO HIERÁRQUICA", `Cadeias e divisões subordinadas devem pertencer à mesma província da unidade superior ('${parentUnit.province}').`, "error");
+          return;
+        }
+      }
+
       const newUnit: OrganizationalUnit = {
         id: `OU-SUB-${Date.now()}`,
         name: formName,
