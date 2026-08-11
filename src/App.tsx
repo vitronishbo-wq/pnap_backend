@@ -8928,15 +8928,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "dashboard" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="1. Painel Operacional"
+              title={activeTab === "dashboard" ? "➔ Painel Operacional [ATIVO]" : "• PAINEL GERAL"}
             >
               <LayoutDashboard className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                1. Painel Operacional (Geral)
+                {activeTab === "dashboard" ? "➔ Painel Operacional [ATIVO]" : "• PAINEL GERAL"}
               </span>
             </button>
 
-            {/* 2. COMANDO */}
+            {/* 2. COMANDO (CNC) */}
             <button
               onClick={() => {
                 setActiveTab("centro-comando");
@@ -8945,15 +8945,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "centro-comando" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="2. Centro Nacional de Comando"
+              title={activeTab === "centro-comando" ? "➔ Centro Nacional de Comando [ATIVO]" : "• C. N. C."}
             >
               <Radio className="h-5 w-5 animate-pulse" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                2. Comando Nacional (VSAT)
+                {activeTab === "centro-comando" ? "➔ Centro Nacional de Comando [ATIVO]" : "• C. N. C."}
               </span>
             </button>
 
-            {/* 3. INTELIGÊNCIA */}
+            {/* 3. INTELIGÊNCIA (CI - SIEM) */}
             <button
               onClick={() => {
                 setActiveTab("centro-inteligencia");
@@ -8962,15 +8962,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "centro-inteligencia" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="3. Inteligência Penitenciária"
+              title={activeTab === "centro-inteligencia" ? "➔ Centro de Inteligência (SIEM) [ATIVO]" : "• C. I. (SIEM)"}
             >
               <ShieldAlert className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                3. Inteligência Penitenciária (SIEM)
+                {activeTab === "centro-inteligencia" ? "➔ Centro de Inteligência (SIEM) [ATIVO]" : "• C. I. (SIEM)"}
               </span>
             </button>
 
-            {/* 4. ADMISSÕES */}
+            {/* 4. ADMISSÃO & UBICAÇÃO */}
             <button
               onClick={() => {
                 setActiveTab("admissions");
@@ -8979,15 +8979,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "admissions" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="4. Admissão & Cadastro Central"
+              title={activeTab === "admissions" ? "➔ Admissão e Ubicação [ATIVO]" : "• ADM. UBIC."}
             >
               <Users className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                4. Admissões & Cadastro Central
+                {activeTab === "admissions" ? "➔ Admissão e Ubicação [ATIVO]" : "• ADM. UBIC."}
               </span>
             </button>
 
-            {/* 5. MOVIMENTOS */}
+            {/* 5. MOVIMENTAÇÕES PENAIS */}
             <button
               onClick={() => {
                 setActiveTab("movements");
@@ -8996,15 +8996,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "movements" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="5. Movimentações & Transferências"
+              title={activeTab === "movements" ? "➔ Movimentações Penais [ATIVO]" : "• MOV. PENAL"}
             >
               <Activity className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                5. Movimentos & Transferências
+                {activeTab === "movements" ? "➔ Movimentações Penais [ATIVO]" : "• MOV. PENAL"}
               </span>
             </button>
 
-            {/* 6. DOCUMENTOS */}
+            {/* 6. EMISSÃO DE DOCUMENTOS */}
             <button
               onClick={() => {
                 setActiveTab("documents");
@@ -9013,11 +9013,11 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "documents" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="6. Guias & Documentos Oficiais"
+              title={activeTab === "documents" ? "➔ Emissão de Documentos [ATIVO]" : "• EMIS. DOC."}
             >
               <FileCheck2 className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                6. Guias & Documentos Oficiais
+                {activeTab === "documents" ? "➔ Emissão de Documentos [ATIVO]" : "• EMIS. DOC."}
               </span>
             </button>
 
@@ -9030,15 +9030,15 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "auditing" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="7. Auditoria Geral"
+              title="Auditoria Central (Audit Log)"
             >
               <Database className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                7. Auditoria Geral (Audit Log)
+                Auditoria Central (Audit Log)
               </span>
             </button>
 
-            {/* 8. RH & SERVIÇOS */}
+            {/* 8. SERVIÇOS E REINSERÇÃO */}
             <button
               onClick={() => {
                 setActiveTab("special-services");
@@ -9047,17 +9047,17 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "special-services" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="8. RH & Serviços de Reinserção"
+              title={activeTab === "special-services" ? "➔ Serviços e Reinserção [ATIVO]" : "• SERV. REINS."}
             >
               <Briefcase className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                8. RH & Serviços de Reinserção
+                {activeTab === "special-services" ? "➔ Serviços e Reinserção [ATIVO]" : "• SERV. REINS."}
               </span>
             </button>
           </div>
 
           <div className="flex flex-col gap-3 items-center w-full">
-            {/* Doutrina / Engenharia Legislativa (CNEL) */}
+            {/* DOUTRINA, LEGISLAÇÃO & GOVERNAÇÃO */}
             <button
               onClick={() => {
                 setActiveTab("penal-code");
@@ -9066,11 +9066,11 @@ export default function App() {
               className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
                 activeTab === "penal-code" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
               }`}
-              title="CNEL Doutrina"
+              title={activeTab === "penal-code" ? "➔ Doutrina, Legislação & Governação [ATIVO]" : "• DOUT. LEG."}
             >
               <Scale className="h-5 w-5" />
               <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
-                Doutrina CNEL
+                {activeTab === "penal-code" ? "➔ Doutrina, Legislação & Governação [ATIVO]" : "• DOUT. LEG."}
               </span>
             </button>
 

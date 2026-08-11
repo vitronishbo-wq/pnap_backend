@@ -2,7 +2,7 @@ import React from "react";
 import { 
   LayoutDashboard, 
   Users, 
-  QrCode, 
+  UserPlus, 
   Building2, 
   ArrowLeftRight,
   Filter,
@@ -12,8 +12,8 @@ import {
 interface MobileBottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  onOpenQRScanner: () => void;
-  onOpenFilters: () => void;
+  onOpenQRScanner?: () => void;
+  onOpenFilters?: () => void;
   onOpenAddInmate: () => void;
   activeInmateCount?: number;
   alertCount?: number;
@@ -45,7 +45,7 @@ export function MobileBottomNav({
           <span className="text-[10px] font-medium mt-0.5">Painel</span>
         </button>
 
-        {/* Reclusos / Cadastro */}
+        {/* Reclusos / Consulta */}
         <button
           type="button"
           onClick={() => setActiveTab("admissions")}
@@ -64,15 +64,15 @@ export function MobileBottomNav({
           )}
         </button>
 
-        {/* Central FAB: Add / QR Scan */}
-        <div className="relative -top-3 px-1 flex items-center gap-1">
+        {/* Central Primary Action FAB: Admissão Rápida (+ Admitir) */}
+        <div className="relative -top-3 px-1 flex flex-col items-center">
           <button
             type="button"
-            onClick={onOpenQRScanner}
-            className="w-12 h-12 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/30 flex items-center justify-center font-bold active:scale-95 transition cursor-pointer touch-manipulation border-2 border-slate-950"
-            title="Validar Selo QR"
+            onClick={onOpenAddInmate}
+            className="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/30 flex items-center justify-center font-bold active:scale-95 transition cursor-pointer touch-manipulation border-2 border-slate-950"
+            title="Nova Admissão de Recluso (+ Admitir)"
           >
-            <QrCode className="h-6 w-6 stroke-[2.5]" />
+            <UserPlus className="h-6 w-6 stroke-[2.5]" />
           </button>
         </div>
 

@@ -28,6 +28,7 @@ import {
   Zap,
   BarChart2
 } from "lucide-react";
+import { AngolaNationalMap } from "./maps/AngolaNationalMap";
 
 // Types
 import { InmateState } from "../data/schemaData";
@@ -740,201 +741,38 @@ export default function NationalCommandCenter({
           </div>
 
           {/* SVG MAP WRAPPER */}
-          <div className="bg-slate-950 rounded-xl border border-slate-900 p-4 flex-1 flex items-center justify-center relative overflow-hidden h-[450px]">
-            {/* Ambient Background Grid pattern inside SVG */}
+          <div className="bg-slate-950 rounded-xl border border-slate-900 p-2 flex-1 flex items-center justify-center relative overflow-hidden min-h-[480px]">
+            {/* Ambient Background Grid pattern */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:24px_24px] opacity-15 pointer-events-none" />
             
-            <svg 
-              viewBox="100 0 450 600" 
-              className="w-full h-full max-h-[420px] transition-transform select-none"
-            >
-              {/* Wireframe border outline of Angola */}
-              <path
-                d={borderOutlinePath}
-                fill="none"
-                stroke="#334155"
-                strokeWidth="2.5"
-                strokeDasharray="4 4"
-                className="opacity-45"
-              />
-
-              {/* Angola fill outline */}
-              <path
-                d={borderOutlinePath}
-                fill="#0f172a"
-                fillOpacity="0.4"
-                stroke="#475569"
-                strokeWidth="1.5"
-                className="transition hover:fill-slate-900"
-              />
-
-              {/* DRAW LIVE ROUTES OF TRANSIT (If movements mode active) */}
-              {mapMode === "MOVEMENTS" && liveEscorts.map((esc) => {
-                if (esc.status === "ARRIVED") return null;
-                // Calculate position along path
-                const dx = esc.destCoords.x - esc.originCoords.x;
-                const dy = esc.destCoords.y - esc.originCoords.y;
-                const t = esc.progress / 100;
-                const currentX = esc.originCoords.x + dx * t;
-                const currentY = esc.originCoords.y + dy * t;
-
-                return (
-                  <g key={esc.id}>
-                    {/* Trajectory path */}
-                    <line
-                      x1={esc.originCoords.x}
-                      y1={esc.originCoords.y}
-                      x2={esc.destCoords.x}
-                      y2={esc.destCoords.y}
-                      stroke="#0284c7"
-                      strokeWidth="2"
-                      strokeDasharray="4 4"
-                      className="opacity-70"
-                    />
-                    
-                    {/* Animated Pulse circle on movement destination */}
-                    <circle
-                      cx={esc.destCoords.x}
-                      cy={esc.destCoords.y}
-                      r="12"
-                      fill="none"
-                      stroke="#0284c7"
-                      strokeWidth="1"
-                      className="animate-ping opacity-45"
-                    />
-
-                    {/* Live Truck pointer */}
-                    <circle
-                      cx={currentX}
-                      cy={currentY}
-                      r="6"
-                      fill="#0284c7"
-                      className="animate-pulse"
-                    />
-                    <text
-                      x={currentX + 8}
-                      y={currentY + 3}
-                      fill="#0ea5e9"
-                      fontSize="7.5"
-                      fontFamily="monospace"
-                      fontWeight="bold"
-                    >
-                      {esc.id} ({esc.progress}%)
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* DRAW PROVINCES AS LABELED NODE POINTS */}
-              {Object.entries(PROVINCES_COORDS)
-                .filter(([name]) => isNational || name.toLowerCase().trim() === opProvince.toLowerCase().trim())
-                .map(([name, p]) => {
-                const isSelected = selectedProvince === name;
-                return (
-                  <g 
-                    key={name}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedProvince(isSelected ? null : name)}
-                  >
-                    <circle
-                      cx={p.x}
-                      cy={p.y}
-                      r={isSelected ? "5" : "3"}
-                      fill={isSelected ? "#f59e0b" : "#475569"}
-                      className="transition hover:fill-amber-400"
-                    />
-                    <text
-                      x={p.x + 6}
-                      y={p.y + 3}
-                      fill={isSelected ? "#f59e0b" : "#64748b"}
-                      fontSize="7"
-                      fontFamily="sans-serif"
-                      fontWeight={isSelected ? "bold" : "normal"}
-                    >
-                      {p.name}
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* DRAW PRISON MARKERS */}
-              {Object.values(PRISON_MARKERS).map((mark) => {
-                const isSelected = selectedPrisonId === mark.id;
-                const realPrison = prisons.find(p => p.id === mark.id);
-                if (!realPrison) return null;
-
-                const prisonInmatesCount = inmates.filter(
-                  i => i.status === "ACTIVE" && i.assignedPrisonId === mark.id
-                ).length;
-                const capacity = realPrison.operationalCapacity || realPrison.officialCapacity || 100;
-                const occPercent = Math.round((prisonInmatesCount / capacity) * 100);
-
-                // Set status color
-                let color = "#10b981"; // safe (green)
-                if (occPercent > 110) {
-                  color = "#f43f5e"; // critical overcrowding (red)
-                } else if (occPercent > 90) {
-                  color = "#f59e0b"; // warning (yellow)
-                }
-
-                // If Heatmap mode, draw larger radius circles with opacity
-                const hasActiveCritOcc = occurrences.some(
-                  o => o.prisonId === mark.id && o.status !== "RESOLVED" && o.severity === "CRÍTICA"
-                );
-
-                return (
-                  <g 
-                    key={mark.id}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedPrisonId(isSelected ? null : mark.id)}
-                  >
-                    {/* Draw large heat ring if in HEATMAP mode or if has critical occurrences */}
-                    {(mapMode === "HEATMAP" || hasActiveCritOcc) && (
-                      <circle
-                        cx={mark.x}
-                        cy={mark.y}
-                        r={mapMode === "HEATMAP" ? Math.max(12, Math.min(40, occPercent / 3)) : "20"}
-                        fill={hasActiveCritOcc ? "#ef4444" : "#f59e0b"}
-                        fillOpacity="0.18"
-                        className="animate-pulse"
-                      />
-                    )}
-
-                    {/* Ring Border */}
-                    <circle
-                      cx={mark.x}
-                      cy={mark.y}
-                      r={isSelected ? "9" : "6"}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth="1.5"
-                    />
-
-                    {/* Core dot */}
-                    <circle
-                      cx={mark.x}
-                      cy={mark.y}
-                      r={isSelected ? "5" : "3.5"}
-                      fill={color}
-                    />
-
-                    {/* Tactical label */}
-                    <text
-                      x={mark.x}
-                      y={mark.y - 12}
-                      textAnchor="middle"
-                      fill={isSelected ? "#fbbf24" : "#f1f5f9"}
-                      fontSize="8"
-                      fontFamily="monospace"
-                      fontWeight="black"
-                      className="drop-shadow-md"
-                    >
-                      {mark.name} ({occPercent}%)
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
+            <AngolaNationalMap
+              selectedProvince={selectedProvince}
+              onSelectProvince={(provName, provCode) => setSelectedProvince(provName === "ALL" ? null : provName)}
+              prisons={prisons.map(p => ({
+                id: p.id,
+                name: formatEPName(p.name),
+                location: p.location || p.provinceName || p.province || p.name,
+                provinceCode: p.provinceCode,
+                currentOccupancy: inmates.filter(i => i.status === "ACTIVE" && i.assignedPrisonId === p.id).length,
+                capacity: p.operationalCapacity || p.officialCapacity || 100,
+                lat: p.lat || p.latitude,
+                lng: p.lng || p.longitude
+              }))}
+              movements={liveEscorts.map(e => ({
+                id: e.id,
+                inmateName: e.inmateName,
+                origin: e.origin,
+                destination: e.destination,
+                status: e.status,
+                progress: e.progress,
+                originCoords: e.originCoords ? { lng: e.originCoords.x > 180 ? 13.23 : 12 + e.originCoords.x / 40, lat: e.originCoords.y > 90 ? -8.83 : -5 - e.originCoords.y / 40 } : undefined,
+                destCoords: e.destCoords ? { lng: e.destCoords.x > 180 ? 13.40 : 12 + e.destCoords.x / 40, lat: e.destCoords.y > 90 ? -12.58 : -5 - e.destCoords.y / 40 } : undefined
+              }))}
+              occurrences={occurrences}
+              mapMode={mapMode}
+              height={520}
+              width={820}
+            />
 
             {/* Float HUD Information Box */}
             <div className="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-800 rounded-lg p-2.5 text-left max-w-xs font-mono text-[8px] flex flex-col gap-1 shadow-xl">
