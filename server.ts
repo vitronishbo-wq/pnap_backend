@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 
 // Import Controllers
@@ -92,13 +93,25 @@ async function startServer() {
   } else {
     console.log("Iniciando modo estático de produção (Serving production assets)...");
     const distPath = path.join(process.cwd(), "dist");
+    const indexPath = path.join(distPath, "index.html");
     
-    // Serve static files
-    app.use(express.static(distPath));
+    // Serve static files if directory exists
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+    }
     
-    // SPA routing callback (Express v4 pattern)
+    // SPA routing fallback / API root status check
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(200).json({
+          status: "online",
+          service: "PNAP-AO API Service",
+          message: "Servidor API Node.js em execução. O frontend é servido via Firebase Hosting / CDN.",
+          timestamp: new Date().toISOString()
+        });
+      }
     });
   }
 
