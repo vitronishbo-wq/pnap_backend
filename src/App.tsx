@@ -18062,9 +18062,6 @@ export default function App() {
               </div>
             </motion.div>
           )}
-
-
-          {/* TAB: AUDITORIA NACIONAL - CENTRO FORENSE (Point 8) */}
           {activeTab === "auditing" && (
             <motion.div
               key="auditing-view"

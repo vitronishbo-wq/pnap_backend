@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import * as d3 from "d3";
 import { ANGOLA_21_PROVINCES_GEOJSON } from "../../assets/maps/angolaProvincesGeoJSON";
 import { ANGOLA_PROVINCES_21, AngolaProvinceData } from "../../data/geography/angolaProvinces";
-import { Building2, ShieldAlert, Users, Navigation, MapPin, X, Activity } from "lucide-react";
+import { Building2, ShieldAlert, Users, MapPin, X, Layers, Activity, Maximize2 } from "lucide-react";
 
 export interface PrisonMarkerData {
   id: string;
@@ -21,7 +21,7 @@ export interface LiveMovementData {
   origin: string;
   destination: string;
   status: "DEPARTED" | "EN_ROUTE" | "ARRIVED";
-  progress: number; // 0 to 100
+  progress: number;
   originCoords?: { lng: number; lat: number };
   destCoords?: { lng: number; lat: number };
 }
@@ -47,6 +47,31 @@ export interface AngolaNationalMapProps {
   width?: number;
 }
 
+// Label customization for exact positioning and rotation inside vector shapes
+const PROVINCE_LABEL_CONFIG: Record<string, { label: string; offset: [number, number]; rotate?: number; fontSize?: number }> = {
+  CAB: { label: "CABINDA", offset: [0, 0], rotate: -42, fontSize: 10 },
+  ZAI: { label: "ZAIRE", offset: [0, 0], fontSize: 11 },
+  UIG: { label: "UÍGE", offset: [0, 0], fontSize: 12 },
+  BGO: { label: "BENGO", offset: [-5, -10], fontSize: 10 },
+  ICB: { label: "ICOLO E BENGO", offset: [-8, 2], rotate: -48, fontSize: 8.5 },
+  LUA: { label: "LUANDA", offset: [-18, -2], fontSize: 9 },
+  CNO: { label: "CUANZA-NORTE", offset: [0, 0], rotate: -38, fontSize: 9.5 },
+  CSU: { label: "CUANZA-SUL", offset: [0, 0], fontSize: 11 },
+  MAL: { label: "MALANJE", offset: [0, 0], fontSize: 12 },
+  LNO: { label: "LUNDA-NORTE", offset: [0, -5], fontSize: 11 },
+  LSU: { label: "LUNDA-SUL", offset: [0, 0], fontSize: 11 },
+  MOX: { label: "MOXICO", offset: [0, -8], fontSize: 12 },
+  MXL: { label: "MOXICO LESTE", offset: [0, 0], fontSize: 9.5 },
+  BIE: { label: "BIÉ", offset: [0, 0], fontSize: 12 },
+  HUA: { label: "HUAMBO", offset: [0, 0], fontSize: 10.5 },
+  BEN: { label: "BENGUELA", offset: [0, 0], fontSize: 11 },
+  HUI: { label: "HUÍLA", offset: [0, -5], fontSize: 12 },
+  NAM: { label: "NAMIBE", offset: [-2, 0], fontSize: 10.5 },
+  CUN: { label: "CUNENE", offset: [0, 0], fontSize: 11.5 },
+  CCU: { label: "CUBANGO", offset: [0, 0], fontSize: 11 },
+  CND: { label: "QUANDO", offset: [0, 0], fontSize: 12 }
+};
+
 export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
   selectedProvince = null,
   onSelectProvince,
@@ -56,21 +81,21 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
   mapMode = "STATUS",
   showInspectorPanel = true,
   className = "",
-  height = 600,
-  width = 800
+  height = 680,
+  width = 750
 }) => {
   const [hoveredProvCode, setHoveredProvCode] = useState<string | null>(null);
+  const [themeStyle, setThemeStyle] = useState<"VECTOR_ORANGE" | "TACTICAL_DARK">("VECTOR_ORANGE");
 
-  // 1. Configure D3 Projection for Angola (fit GeoJSON to viewBox)
-  const { pathGenerator, projectedFeatures, projection } = useMemo(() => {
-    // Create D3 Mercator projection centered on Angola
+  // D3 Projection setup
+  const { projectedFeatures, projection } = useMemo(() => {
     const proj = d3.geoMercator();
     
-    // Fit the GeoJSON FeatureCollection into the specified SVG canvas dimensions with padding
+    // Fit the 21 provinces into the SVG canvas with controlled margins
     proj.fitExtent(
       [
-        [30, 25],
-        [width - 30, height - 25]
+        [35, 30],
+        [width - 35, height - 30]
       ],
       ANGOLA_21_PROVINCES_GEOJSON as any
     );
@@ -79,10 +104,12 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
 
     const featuresWithPaths = ANGOLA_21_PROVINCES_GEOJSON.features.map((feature) => {
       const svgPath = pathGen(feature as any) || "";
-      const centroid = pathGen.centroid(feature as any); // [x, y] center of polygon
+      const centroid = pathGen.centroid(feature as any);
       
       const meta = ANGOLA_PROVINCES_21.find(
-        p => p.provinceCode === feature.properties.provinceCode || p.name.toLowerCase() === feature.properties.name.toLowerCase()
+        p => p.provinceCode.toLowerCase() === feature.properties.provinceCode.toLowerCase() ||
+             p.name.toLowerCase() === feature.properties.name.toLowerCase() ||
+             feature.id.toLowerCase() === p.provinceCode.toLowerCase()
       );
 
       return {
@@ -105,12 +132,11 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
 
     return {
       projection: proj,
-      pathGenerator: pathGen,
       projectedFeatures: featuresWithPaths
     };
   }, [width, height]);
 
-  // 2. Helper to check if a province is selected
+  // Helper: test if province is selected
   const isSelected = (provNameOrCode: string) => {
     if (!selectedProvince || selectedProvince === "ALL") return false;
     const selLower = selectedProvince.toLowerCase();
@@ -118,7 +144,7 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
     return selLower === targetLower || selLower.includes(targetLower) || targetLower.includes(selLower);
   };
 
-  // 3. Operational statistics calculator for selected / hovered province
+  // Operational metrics for selected/hovered province
   const getProvinceOperationalData = (provMeta: AngolaProvinceData) => {
     const matchedPrisons = prisons.filter(p => {
       const loc = (p.location || p.provinceCode || p.name || "").toLowerCase();
@@ -167,88 +193,115 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col items-center justify-center select-none ${className}`}>
+    <div className={`relative w-full h-full flex flex-col items-center justify-center select-none bg-slate-950 rounded-2xl overflow-hidden border border-slate-900 shadow-2xl ${className}`}>
       
-      {/* MAP SVG CANVAS */}
+      {/* MAP HEADER / TITLE & THEME TOGGLE HUD */}
+      <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-auto bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-800/80 shadow-lg">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+          <h2 className="text-sm font-black tracking-widest text-slate-100 uppercase font-sans">
+            ANGOLA <span className="text-amber-500 text-xs font-mono font-normal">| 21 PROVÍNCIAS</span>
+          </h2>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setThemeStyle(themeStyle === "VECTOR_ORANGE" ? "TACTICAL_DARK" : "VECTOR_ORANGE")}
+            className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-mono font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 transition"
+            title="Alternar estilo visual do mapa"
+          >
+            <Layers className="h-3 w-3" />
+            {themeStyle === "VECTOR_ORANGE" ? "ESTILO VETORIAL" : "ESTILO TÁCTICO"}
+          </button>
+        </div>
+      </div>
+
+      {/* SVG CANVAS */}
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(15,23,42,0.8)]"
+        className="w-full h-full max-h-[640px] object-contain"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Cyber Glow Filters */}
-          <filter id="nationalGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
-          <filter id="goldSelectedGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
           {/* Gradients */}
-          <linearGradient id="provGradientDefault" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0f172a" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#1e293b" stopOpacity="0.7" />
+          <linearGradient id="angolaOrangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f97316" />
+            <stop offset="50%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#d97706" />
           </linearGradient>
 
-          <linearGradient id="provGradientHover" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0369a1" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#0f172a" stopOpacity="0.9" />
+          <linearGradient id="angolaOrangeHover" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fbbf24" />
+            <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>
 
-          <linearGradient id="provGradientSelected" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#78350f" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#b45309" stopOpacity="0.6" />
+          <linearGradient id="angolaOrangeSelected" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fef08a" />
+            <stop offset="100%" stopColor="#f59e0b" />
           </linearGradient>
+
+          <linearGradient id="tacticalDarkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0f172a" />
+            <stop offset="100%" stopColor="#1e293b" />
+          </linearGradient>
+
+          {/* Glowing Filters */}
+          <filter id="hoverGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <filter id="selectedGoldGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
 
-        {/* 1. MAP BACKGROUND GRID & RADAR RINGS */}
-        <g opacity="0.15">
-          <circle cx={width / 2} cy={height / 2} r={height * 0.42} stroke="#38bdf8" strokeWidth="1" strokeDasharray="6 6" />
-          <circle cx={width / 2} cy={height / 2} r={height * 0.28} stroke="#f59e0b" strokeWidth="1" strokeDasharray="4 4" />
+        {/* BACKGROUND SUBTLE TACTICAL GRID */}
+        <g opacity="0.08">
+          <pattern id="bgGrid" width="30" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#f59e0b" strokeWidth="0.8" />
+          </pattern>
+          <rect width={width} height={height} fill="url(#bgGrid)" />
         </g>
 
-        {/* 2. PROVINCE POLYGON MAP LAYER */}
-        <g id="angola-provinces-layer">
+        {/* PROVINCE POLYGONS LAYER */}
+        <g id="angola-vector-polygons">
           {projectedFeatures.map((item) => {
             const selected = isSelected(item.meta.provinceCode) || isSelected(item.meta.name);
             const isHovered = hoveredProvCode === item.meta.provinceCode;
             const opData = getProvinceOperationalData(item.meta);
 
-            // Determine border and fill color based on risk / state
-            let strokeColor = "#334155";
-            let strokeWidth = "1.2";
-            let fillColor = "url(#provGradientDefault)";
+            // Styling variables based on theme
+            let fillColor = themeStyle === "VECTOR_ORANGE" ? "url(#angolaOrangeGradient)" : "url(#tacticalDarkGradient)";
+            let strokeColor = themeStyle === "VECTOR_ORANGE" ? "#020617" : "#334155";
+            let strokeWidth = themeStyle === "VECTOR_ORANGE" ? "3.5" : "1.8";
 
             if (selected) {
-              strokeColor = "#f59e0b";
-              strokeWidth = "2.8";
-              fillColor = "url(#provGradientSelected)";
-            } else if (isHovered) {
+              fillColor = themeStyle === "VECTOR_ORANGE" ? "url(#angolaOrangeSelected)" : "url(#angolaOrangeGradient)";
               strokeColor = "#38bdf8";
-              strokeWidth = "2.2";
-              fillColor = "url(#provGradientHover)";
+              strokeWidth = "4.5";
+            } else if (isHovered) {
+              fillColor = "url(#angolaOrangeHover)";
+              strokeColor = "#ffffff";
+              strokeWidth = "4.0";
             } else if (opData.hasCritical) {
               strokeColor = "#f43f5e";
-              strokeWidth = "1.8";
-            } else if (opData.occupancyRate > 110) {
-              strokeColor = "#f59e0b";
-              strokeWidth = "1.5";
+              strokeWidth = "3.8";
             }
 
             return (
               <g
                 key={item.meta.provinceCode}
-                className="cursor-pointer transition-all duration-200 group"
+                className="cursor-pointer transition-all duration-150"
                 onClick={() => handleProvinceClick(item.meta)}
                 onMouseEnter={() => setHoveredProvCode(item.meta.provinceCode)}
                 onMouseLeave={() => setHoveredProvCode(null)}
@@ -260,20 +313,21 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
                   stroke={strokeColor}
                   strokeWidth={strokeWidth}
                   strokeLinejoin="round"
-                  filter={selected ? "url(#goldSelectedGlow)" : isHovered ? "url(#nationalGlow)" : undefined}
-                  className="transition-all duration-200"
+                  strokeLinecap="round"
+                  filter={selected ? "url(#selectedGoldGlow)" : isHovered ? "url(#hoverGlow)" : undefined}
+                  className="transition-all duration-150"
                 />
 
-                {/* Pulse ring on critical active alerts */}
+                {/* Pulse Ring on Critical Alert */}
                 {opData.hasCritical && (
                   <circle
                     cx={item.centroidX}
                     cy={item.centroidY}
-                    r="18"
+                    r="22"
                     fill="none"
                     stroke="#f43f5e"
-                    strokeWidth="1"
-                    className="animate-ping opacity-60 pointer-events-none"
+                    strokeWidth="2"
+                    className="animate-ping opacity-75 pointer-events-none"
                   />
                 )}
               </g>
@@ -281,54 +335,49 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
           })}
         </g>
 
-        {/* 3. PROVINCE LABELS & CENTROID DOTS */}
-        <g id="angola-labels-layer" className="pointer-events-none">
+        {/* EMBEDDED PROVINCE TEXT LABELS */}
+        <g id="angola-province-labels" className="pointer-events-none">
           {projectedFeatures.map((item) => {
             const selected = isSelected(item.meta.provinceCode) || isSelected(item.meta.name);
             const isHovered = hoveredProvCode === item.meta.provinceCode;
 
-            return (
-              <g key={`label-${item.meta.provinceCode}`} transform={`translate(${item.centroidX}, ${item.centroidY})`}>
-                {/* Centroid Dot */}
-                <circle
-                  r={selected ? "5" : item.meta.isCapital ? "4" : "3"}
-                  fill={selected ? "#f59e0b" : isHovered ? "#38bdf8" : item.meta.isCapital ? "#f59e0b" : "#64748b"}
-                  stroke="#020617"
-                  strokeWidth="1"
-                />
+            const code = item.meta.provinceCode;
+            const cfg = PROVINCE_LABEL_CONFIG[code] || { label: item.meta.name.toUpperCase(), offset: [0, 0] };
+            
+            const posX = item.centroidX + cfg.offset[0];
+            const posY = item.centroidY + cfg.offset[1];
+            const rot = cfg.rotate || 0;
+            const size = cfg.fontSize || 11;
 
-                {/* Label Box */}
-                <g transform="translate(0, -10)">
-                  <rect
-                    x={-(item.meta.name.length * 3.5 + 4)}
-                    y="-9"
-                    width={item.meta.name.length * 7 + 8}
-                    height="14"
-                    rx="3"
-                    fill="#020617"
-                    fillOpacity={selected || isHovered ? "0.95" : "0.75"}
-                    stroke={selected ? "#f59e0b" : isHovered ? "#38bdf8" : "#1e293b"}
-                    strokeWidth="0.8"
-                  />
-                  <text
-                    x="0"
-                    y="1"
-                    textAnchor="middle"
-                    fill={selected ? "#f59e0b" : isHovered ? "#ffffff" : item.meta.isCapital ? "#f59e0b" : "#cbd5e1"}
-                    fontSize={selected ? "9.5" : "8.5"}
-                    fontFamily="monospace"
-                    fontWeight={selected || isHovered ? "900" : "600"}
-                    letterSpacing="0.3px"
-                  >
-                    {item.meta.name.toUpperCase()}
-                  </text>
-                </g>
+            const textColor = themeStyle === "VECTOR_ORANGE"
+              ? (selected ? "#020617" : "#ffffff")
+              : (selected ? "#f59e0b" : "#e2e8f0");
+
+            return (
+              <g
+                key={`label-${code}`}
+                transform={`translate(${posX}, ${posY}) rotate(${rot})`}
+              >
+                <text
+                  x="0"
+                  y="0"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill={textColor}
+                  fontSize={selected ? size + 1.5 : size}
+                  fontFamily="system-ui, -apple-system, sans-serif"
+                  fontWeight="900"
+                  letterSpacing="0.4px"
+                  className="drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                >
+                  {cfg.label}
+                </text>
               </g>
             );
           })}
         </g>
 
-        {/* 4. LIVE MOVEMENTS & TRANSIT LINES (IF MOVEMENTS MODE) */}
+        {/* LIVE MOVEMENTS LAYER */}
         {mapMode === "MOVEMENTS" && (
           <g id="movements-layer" className="pointer-events-none">
             {movements.map((m) => {
@@ -348,12 +397,12 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
                     x2={pDest[0]}
                     y2={pDest[1]}
                     stroke="#38bdf8"
-                    strokeWidth="2"
-                    strokeDasharray="4 4"
-                    opacity="0.8"
+                    strokeWidth="2.5"
+                    strokeDasharray="5 5"
+                    opacity="0.9"
                   />
-                  <circle cx={currentX} cy={currentY} r="5" fill="#f59e0b" className="animate-pulse" />
-                  <text x={currentX + 7} y={currentY + 3} fill="#f59e0b" fontSize="8" fontFamily="monospace" fontWeight="bold">
+                  <circle cx={currentX} cy={currentY} r="6" fill="#f59e0b" className="animate-pulse" />
+                  <text x={currentX + 8} y={currentY + 3} fill="#f59e0b" fontSize="9" fontFamily="monospace" fontWeight="bold">
                     {m.id} ({m.progress}%)
                   </text>
                 </g>
@@ -362,8 +411,8 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
           </g>
         )}
 
-        {/* 5. PRISONS / ESTABLISHMENTS MARKERS */}
-        <g id="prisons-layer">
+        {/* PRISON / ESTABLISHMENT MARKERS */}
+        <g id="prisons-markers-layer">
           {prisons.map((p) => {
             if (!p.lat || !p.lng) return null;
             const pos = projection([p.lng, p.lat]);
@@ -377,9 +426,9 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
             return (
               <g key={p.id} transform={`translate(${pos[0]}, ${pos[1]})`} className="cursor-pointer">
                 {mapMode === "HEATMAP" && (
-                  <circle r={Math.max(12, Math.min(36, occPct / 3))} fill={markerColor} fillOpacity="0.25" className="animate-pulse" />
+                  <circle r={Math.max(14, Math.min(38, occPct / 2.5))} fill={markerColor} fillOpacity="0.3" className="animate-pulse" />
                 )}
-                <circle r="6" fill="#020617" stroke={markerColor} strokeWidth="1.8" />
+                <circle r="6" fill="#020617" stroke={markerColor} strokeWidth="2" />
                 <circle r="3" fill={markerColor} />
               </g>
             );
@@ -387,17 +436,17 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
         </g>
       </svg>
 
-      {/* 6. TOUCH / DESKTOP COMPACT CONTEXTUAL OVERLAY PANEL */}
+      {/* INSPECTOR / CONTEXT PANEL */}
       {showInspectorPanel && activeSelectedFeature && activeSelectedData && (
-        <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-slate-950/95 border border-amber-500/50 p-3.5 rounded-xl shadow-2xl backdrop-blur-md z-30 animate-fadeIn font-mono text-left">
+        <div className="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-slate-950/95 border border-amber-500/60 p-4 rounded-xl shadow-2xl backdrop-blur-md z-30 font-mono text-left animate-fadeIn">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-amber-400 animate-bounce" />
               <div>
-                <h4 className="font-extrabold text-xs text-slate-100 uppercase tracking-wider">
+                <h4 className="font-black text-sm text-slate-100 uppercase tracking-wider">
                   {activeSelectedFeature.meta.name}
                 </h4>
-                <span className="text-[9px] text-slate-400 block font-sans">
+                <span className="text-[10px] text-slate-400 block font-sans">
                   Cap: {activeSelectedFeature.meta.capital} • {activeSelectedFeature.meta.region}
                 </span>
               </div>
@@ -415,17 +464,17 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center my-2">
-            <div className="bg-slate-900 border border-slate-850 p-1.5 rounded">
+            <div className="bg-slate-900 border border-slate-800 p-2 rounded-lg">
               <span className="text-[8px] text-slate-400 block uppercase">Unidades</span>
               <strong className="text-sm font-black text-amber-400">{activeSelectedData.prisonsCount}</strong>
             </div>
 
-            <div className="bg-slate-900 border border-slate-850 p-1.5 rounded">
+            <div className="bg-slate-900 border border-slate-800 p-2 rounded-lg">
               <span className="text-[8px] text-slate-400 block uppercase">Reclusos</span>
               <strong className="text-sm font-black text-slate-100">{activeSelectedData.totalOccupancy}</strong>
             </div>
 
-            <div className="bg-slate-900 border border-slate-850 p-1.5 rounded">
+            <div className="bg-slate-900 border border-slate-800 p-2 rounded-lg">
               <span className="text-[8px] text-slate-400 block uppercase">Lotação</span>
               <strong className={`text-sm font-black ${activeSelectedData.occupancyRate > 100 ? "text-rose-400" : "text-emerald-400"}`}>
                 {activeSelectedData.occupancyRate}%
@@ -434,20 +483,20 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
           </div>
 
           {activeSelectedData.matchedPrisons.length > 0 ? (
-            <div className="mt-2 text-[9.5px] border-t border-slate-850 pt-2 flex flex-col gap-1">
-              <span className="text-[8px] text-slate-500 font-bold uppercase">Estabelecimentos Prisionais:</span>
-              <div className="max-h-20 overflow-y-auto space-y-1">
+            <div className="mt-2 text-[10px] border-t border-slate-850 pt-2 flex flex-col gap-1">
+              <span className="text-[9px] text-slate-400 font-bold uppercase">Estabelecimentos Prisionais:</span>
+              <div className="max-h-24 overflow-y-auto space-y-1 pr-1">
                 {activeSelectedData.matchedPrisons.map(p => (
-                  <div key={p.id} className="flex justify-between items-center text-slate-300 bg-slate-900/60 px-2 py-1 rounded">
+                  <div key={p.id} className="flex justify-between items-center text-slate-300 bg-slate-900 px-2 py-1.5 rounded border border-slate-850">
                     <span className="truncate">{p.name}</span>
-                    <span className="font-bold text-amber-400 shrink-0">{p.currentOccupancy || 0} ecl.</span>
+                    <span className="font-bold text-amber-400 shrink-0 ml-2">{p.currentOccupancy || 0} ecl.</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <span className="text-[9px] text-slate-500 italic block mt-1">
-              Sem estabelecimentos prisionais ativos nesta jurisdição.
+            <span className="text-[10px] text-slate-500 italic block mt-1">
+              Sem estabelecimentos prisionais registrados nesta província.
             </span>
           )}
         </div>
