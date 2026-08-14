@@ -867,7 +867,7 @@ export default function HierarchyConfigPanel({
                       21 Direcções Provinciais (Serviços Executivos Locais):
                     </span>
 
-                    {provinces.slice(0, 8).map((p) => {
+                    {provinces.map((p) => {
                       const nodeKey = `PROV-${p.name}`;
                       const isExpanded = expandedNodes[nodeKey];
                       const subs = provincialSubLevels[p.name] || [];

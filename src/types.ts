@@ -49,16 +49,24 @@ export interface OrganizationalUnit {
   parentId?: string;
   province?: string;
   prisonId?: string;
-  divisionType?: "DIRECAO_PROVINCIAL" | "DEPARTAMENTO" | "SECCAO" | "REPARTICAO" | "GABINETE" | "ESTAB_PENITENCIARIO" | "CONSELHO";
+  divisionType?: "DIRECAO_GERAL" | "DIRECAO_NACIONAL" | "DIRECAO_PROVINCIAL" | "DEPARTAMENTO" | "SECCAO" | "REPARTICAO" | "GABINETE" | "ESTAB_PENITENCIARIO" | "CONSELHO" | "ESCOLA_NACIONAL" | "HOSPITAL_PRISIONAL" | "SERVICO_CENTRAL";
+  treeLevel?: "L1_DG" | "L2_PROV" | "L3_EP" | "L4_ORGAO" | string;
+  hierarchyLevel?: number; // 1 (DG), 2 (Provincial), 3 (EP), 4 (Órgão)
+  levelLabel?: string;
   code?: string;
+  sigla?: string;
   legalBasis?: string;
   headOfficerName?: string;
-  category?: "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" | "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" | "III - DEPENDÊNCIAS DE APOIO INSTRUMENTAL" | "IV - UNIDADES EXECUTIVAS DE CUSTÓDIA";
+  headOfficerRank?: string;
+  category?: "ÓRGÃOS DE DIRECÇÃO SUPERIOR" | "ÓRGÃOS DE APOIO INSTRUMENTAL E CONSULTIVO" | "ÓRGÃOS DE APOIO TÉCNICO E ADMINISTRATIVO" | "ÓRGÃOS OPERACIONAIS E EXECUTIVOS NACIONAIS" | "ÓRGÃOS DE FORMAÇÃO E SAÚDE ESPECIALIZADOS" | "I - DEPENDÊNCIAS ADMINISTRATIVAS (Apoio Técnico)" | "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)" | "III - DEPENDÊNCIAS DE APOIO INSTRUMENTAL" | "IV - UNIDADES EXECUTIVAS DE CUSTÓDIA" | string;
   functionDescription?: string;
   administrativeResponsibilities?: string;
   operationalResponsibilities?: string;
   chiefOfficerRank?: string;
   chiefOfficerPhone?: string;
+  mirrorNationalUnitId?: string;
+  mirrorProvincialTemplateCode?: string;
+  subSectionsCount?: number;
 }
 
 export interface Delegation {
@@ -238,3 +246,8 @@ export interface InmateState {
   pavilionName?: string;
   reintegrationProgress?: number;
 }
+
+export type SystemOperator = OperatorProfile;
+export type Prison = PrisonState | any;
+export type Inmate = InmateState | any;
+

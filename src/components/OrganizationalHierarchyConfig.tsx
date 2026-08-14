@@ -38,7 +38,18 @@ import {
   SlidersHorizontal,
   Zap,
   GitFork,
-  MapPin
+  MapPin,
+  Workflow,
+  Share2,
+  Compass,
+  ArrowUpRight,
+  Split,
+  X,
+  ArrowDown,
+  ArrowUp,
+  Settings2,
+  AlertTriangle,
+  FileCheck
 } from "lucide-react";
 import { OrganizationalUnit, TerritorialScope } from "../types";
 
@@ -50,6 +61,135 @@ export interface OrganizationalHierarchyConfigProps {
   triggerToast?: (title: string, message: string, type: "success" | "warning" | "info" | "error") => void;
   currentOperator?: any;
 }
+
+// 4 Canonical Administrative Tree Levels
+export type AdministrativeTreeLevel = "L1_DG" | "L2_PROV" | "L3_EP" | "L4_ORGAO";
+
+export interface LevelDefinitionMeta {
+  num: number;
+  levelKey: AdministrativeTreeLevel;
+  label: string;
+  shortLabel: string;
+  scope: string;
+  badgeBg: string;
+  badgeBorder: string;
+  badgeText: string;
+  colorName: string;
+  icon: any;
+  description: string;
+  allowedParentLevels: AdministrativeTreeLevel[];
+  defaultDivisionTypes: string[];
+}
+
+export const ADMINISTRATIVE_LEVEL_DEFINITIONS: Record<AdministrativeTreeLevel, LevelDefinitionMeta> = {
+  L1_DG: {
+    num: 1,
+    levelKey: "L1_DG",
+    label: "Nível 1 — Direcção Geral (DGSP / MININT)",
+    shortLabel: "Direcção Geral",
+    scope: "Nacional / Central",
+    badgeBg: "bg-amber-500/10",
+    badgeBorder: "border-amber-500/30",
+    badgeText: "text-amber-400",
+    colorName: "amber",
+    icon: ShieldCheck,
+    description: "Órgão Central de Comando Superior, Direcções Nacionais e Serviços Centrais da Administração Penitenciária.",
+    allowedParentLevels: [],
+    defaultDivisionTypes: ["DIRECAO_GERAL", "DIRECAO_NACIONAL", "SERVICO_CENTRAL", "ESCOLA_NACIONAL"]
+  },
+  L2_PROV: {
+    num: 2,
+    levelKey: "L2_PROV",
+    label: "Nível 2 — Província (Direcção Provincial)",
+    shortLabel: "Direcção Provincial",
+    scope: "Provincial (18 Províncias)",
+    badgeBg: "bg-blue-500/10",
+    badgeBorder: "border-blue-500/30",
+    badgeText: "text-blue-400",
+    colorName: "blue",
+    icon: Building2,
+    description: "Órgãos de Direcção e Tutela Territorial a nível das 18 Províncias de Angola.",
+    allowedParentLevels: ["L1_DG"],
+    defaultDivisionTypes: ["DIRECAO_PROVINCIAL"]
+  },
+  L3_EP: {
+    num: 3,
+    levelKey: "L3_EP",
+    label: "Nível 3 — Estabelecimento Penitenciário (EP / Cadeia)",
+    shortLabel: "Estabelecimento Penitenciário",
+    scope: "Custódia Carcerária",
+    badgeBg: "bg-emerald-500/10",
+    badgeBorder: "border-emerald-500/30",
+    badgeText: "text-emerald-400",
+    colorName: "emerald",
+    icon: Building,
+    description: "Unidades Penitenciárias de Custódia, Estabelecimentos de Regime Fechado/Semiaberto e Campos de Produção.",
+    allowedParentLevels: ["L2_PROV", "L1_DG"],
+    defaultDivisionTypes: ["ESTAB_PENITENCIARIO", "HOSPITAL_PRISIONAL"]
+  },
+  L4_ORGAO: {
+    num: 4,
+    levelKey: "L4_ORGAO",
+    label: "Nível 4 — Órgão / Departamento / Secção / Serviço",
+    shortLabel: "Órgão / Secção / Serviço",
+    scope: "Executivo / Operacional",
+    badgeBg: "bg-purple-500/10",
+    badgeBorder: "border-purple-500/30",
+    badgeText: "text-purple-400",
+    colorName: "purple",
+    icon: Layers,
+    description: "Departamentos de Controlo Penal, Segurança, Reabilitação, Saúde, Logística, Gabinetes e Secções Técnicas.",
+    allowedParentLevels: ["L3_EP", "L2_PROV", "L1_DG"],
+    defaultDivisionTypes: ["DEPARTAMENTO", "SECCAO", "GABINETE", "REPARTICAO", "CONSELHO", "SERVICO_CENTRAL"]
+  }
+};
+
+// Dynamic helper to resolve unit's Administrative Tree Level reading from OrganizationalUnit state
+export const getUnitTreeLevel = (unit: OrganizationalUnit): AdministrativeTreeLevel => {
+  // 1. Explicit treeLevel definition stored in OrganizationalUnit state
+  if (unit.treeLevel === "L1_DG" || unit.treeLevel === "L2_PROV" || unit.treeLevel === "L3_EP" || unit.treeLevel === "L4_ORGAO") {
+    return unit.treeLevel as AdministrativeTreeLevel;
+  }
+
+  // 2. Explicit numerical hierarchyLevel (1=DG, 2=Provincial, 3=EP, 4=Órgão)
+  if (unit.hierarchyLevel === 1) return "L1_DG";
+  if (unit.hierarchyLevel === 2) return "L2_PROV";
+  if (unit.hierarchyLevel === 3) return "L3_EP";
+  if (unit.hierarchyLevel === 4) return "L4_ORGAO";
+
+  // 3. Dynamic statutory inference based on unit properties
+  if (
+    unit.level === TerritorialScope.NATIONAL || 
+    unit.divisionType === "DIRECAO_GERAL" || 
+    unit.divisionType === "DIRECAO_NACIONAL" || 
+    unit.id === "OU-MININT-DG" || 
+    unit.category === "ÓRGÃOS DE DIRECÇÃO SUPERIOR" ||
+    !unit.parentId
+  ) {
+    return "L1_DG";
+  }
+  
+  if (
+    (unit.level === TerritorialScope.PROVINCIAL && unit.divisionType === "DIRECAO_PROVINCIAL") ||
+    (unit.id.startsWith("OU-DP-") && !unit.divisionType?.includes("SECCAO") && !unit.divisionType?.includes("DEPARTAMENTO") && !unit.divisionType?.includes("GABINETE")) ||
+    (unit.level === TerritorialScope.PROVINCIAL && (!unit.parentId || unit.parentId === "OU-MININT-DG") && !unit.divisionType && !unit.prisonId)
+  ) {
+    return "L2_PROV";
+  }
+  
+  if (
+    unit.divisionType === "ESTAB_PENITENCIARIO" || 
+    unit.divisionType === "HOSPITAL_PRISIONAL" ||
+    unit.level === TerritorialScope.ESTABLISHMENT || 
+    unit.category?.startsWith("IV") ||
+    unit.prisonId !== undefined
+  ) {
+    return "L3_EP";
+  }
+  
+  // Default is Level 4 (Órgão / Departamento / Secção / Serviço)
+  return "L4_ORGAO";
+};
 
 // 18 Standard Statutory Sub-Units defined by Decreto Presidencial n.º 184/17 de 11 de Agosto
 const STANDARD_STATUTORY_SUBUNITS = [
@@ -277,9 +417,440 @@ const STANDARD_STATUTORY_SUBUNITS = [
 ];
 
 const ALL_PROVINCES_LIST = [
-  "Luanda", "Huambo", "Benguela", "Huíla", "Cabinda", "Uíge", "Cuanza Norte", "Cuanza Sul",
-  "Bengo", "Bié", "Cuando Cubango", "Cunene", "Lunda Norte", "Lunda Sul", "Malanje", "Moxico", "Namibe", "Zaire"
+  "Bengo", "Benguela", "Bié", "Cabinda", "Quando", "Cubango", 
+  "Cuanza-Norte", "Cuanza-Sul", "Cunene", "Huambo", "Huíla", "Icolo e Bengo", 
+  "Luanda", "Lunda-Norte", "Lunda-Sul", "Malanje", "Moxico", 
+  "Moxico Leste", "Namibe", "Uíge", "Zaire"
 ];
+
+const normalizeProvince = (name?: string): string => {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\s-_]/g, "");
+};
+
+// ==========================================
+// NREP-AO STATUTORY VALIDATION ENGINE
+// Decreto Presidencial n.º 184/17 de 11 de Agosto
+// ==========================================
+
+export type NrepRuleCode = 
+  | "ORPHAN_NODE" 
+  | "INVALID_LEVEL_SEQUENCE" 
+  | "TERRITORIAL_MISMATCH" 
+  | "CIRCULAR_DEPENDENCY" 
+  | "SELF_SUBORDINATION"
+  | "INVALID_ROOT_LINK";
+
+export interface NrepValidationIssue {
+  id: string;
+  unitId: string;
+  unitName: string;
+  unitLevel: AdministrativeTreeLevel;
+  parentUnitId?: string;
+  parentUnitName?: string;
+  parentUnitLevel?: AdministrativeTreeLevel;
+  ruleCode: NrepRuleCode;
+  severity: "CRITICAL" | "WARNING";
+  title: string;
+  description: string;
+  legalReference: string;
+  suggestedFix?: string;
+}
+
+export interface NrepTreeValidationReport {
+  isValid: boolean;
+  criticalCount: number;
+  warningCount: number;
+  issues: NrepValidationIssue[];
+  orphanedNodes: OrganizationalUnit[];
+  sequenceViolations: { unit: OrganizationalUnit; parent?: OrganizationalUnit; reason: string }[];
+  territorialAnomalies: { unit: OrganizationalUnit; parent: OrganizationalUnit; reason: string }[];
+  circularLoops: { unit: OrganizationalUnit; loopPath: string[] }[];
+  ruleMetrics: {
+    sequenceRulePassed: boolean;
+    orphanRulePassed: boolean;
+    territoryRulePassed: boolean;
+    acyclicRulePassed: boolean;
+  };
+}
+
+/**
+ * Validates whether a single proposed unit (creation, edit, reassign, subordination) 
+ * satisfies NREP-AO statutory rules before persisting.
+ */
+export const validateSingleUnitNrepRules = (params: {
+  unitId?: string | null;
+  name: string;
+  treeLevel: AdministrativeTreeLevel;
+  parentId?: string | null;
+  province?: string;
+  allUnits: OrganizationalUnit[];
+  levelDefs?: Record<AdministrativeTreeLevel, LevelDefinitionMeta>;
+}): { isValid: boolean; errorReason?: string; issues: NrepValidationIssue[] } => {
+  const { unitId, name, treeLevel, parentId, province, allUnits, levelDefs = ADMINISTRATIVE_LEVEL_DEFINITIONS } = params;
+  const issues: NrepValidationIssue[] = [];
+
+  const def = levelDefs[treeLevel] || ADMINISTRATIVE_LEVEL_DEFINITIONS[treeLevel];
+  const unitDisplayName = name.trim() || `Unidade Nível ${def.num}`;
+
+  // 1. Root L1 Rule
+  if (treeLevel === "L1_DG") {
+    if (parentId && parentId !== "OU-MININT-DG" && parentId !== "CENTRO-OPERACIONAL-NACIONAL") {
+      const parentUnit = allUnits.find(u => u.id === parentId);
+      if (parentUnit) {
+        const parentLvl = getUnitTreeLevel(parentUnit);
+        if (parentLvl !== "L1_DG") {
+          const reason = `INVERSÃO DE COMANDO NREP-AO: A Direcção Geral (Nível 1) não pode ser subordinada a um escalão inferior (${levelDefs[parentLvl]?.label || parentLvl}). Conforme o Decreto Presidencial n.º 184/17, a Direcção Geral constitui o topo da hierarquia prisional.`;
+          issues.push({
+            id: `ISSUE-${Date.now()}-1`,
+            unitId: unitId || "NEW",
+            unitName: unitDisplayName,
+            unitLevel: treeLevel,
+            parentUnitId: parentId,
+            parentUnitName: parentUnit.name,
+            parentUnitLevel: parentLvl,
+            ruleCode: "INVALID_LEVEL_SEQUENCE",
+            severity: "CRITICAL",
+            title: "Inversão de Hierarquia (L1 subordinado a escalão inferior)",
+            description: reason,
+            legalReference: "Decreto Presidencial n.º 184/17, Artigo 2.º",
+            suggestedFix: "Vincular à Raiz Central (OU-MININT-DG) ou definir como nó raiz de Direcção Geral."
+          });
+          return { isValid: false, errorReason: reason, issues };
+        }
+      }
+    }
+    return { isValid: true, issues: [] };
+  }
+
+  // 2. Orphan Check: L2, L3, L4 MUST have a valid parent
+  if (!parentId || parentId.trim() === "") {
+    const reason = `NÓ ÓRFÃO PROIBIDO PELO NREP-AO: Unidades de Nível ${def.num} (${def.shortLabel}) não podem existir sem um superior hierárquico. É obrigatório vincular a uma dependência superior activa.`;
+    issues.push({
+      id: `ISSUE-${Date.now()}-2`,
+      unitId: unitId || "NEW",
+      unitName: unitDisplayName,
+      unitLevel: treeLevel,
+      ruleCode: "ORPHAN_NODE",
+      severity: "CRITICAL",
+      title: "Criação de Nó Órfão Desvinculado",
+      description: reason,
+      legalReference: "NREP-AO / Decreto Presidencial n.º 184/17, Estrutura Orgânica",
+      suggestedFix: `Selecione um superior hierárquico compatível (${def.allowedParentLevels.map(l => levelDefs[l]?.shortLabel || l).join(" ou ")}).`
+    });
+    return { isValid: false, errorReason: reason, issues };
+  }
+
+  // 3. Self-subordination
+  if (unitId && parentId === unitId) {
+    const reason = "AUTO-SUBORDINAÇÃO: Uma unidade não pode ser subordinada a si própria.";
+    issues.push({
+      id: `ISSUE-${Date.now()}-3`,
+      unitId: unitId,
+      unitName: unitDisplayName,
+      unitLevel: treeLevel,
+      parentUnitId: parentId,
+      ruleCode: "SELF_SUBORDINATION",
+      severity: "CRITICAL",
+      title: "Auto-Subordinação Inválida",
+      description: reason,
+      legalReference: "Princípios da Hierarquia e Comando da Função Pública",
+      suggestedFix: "Selecione outro superior hierárquico independente."
+    });
+    return { isValid: false, errorReason: reason, issues };
+  }
+
+  // 4. Parent Existence Check
+  const parentUnit = allUnits.find(u => u.id === parentId);
+  const isSpecialRoot = parentId === "OU-MININT-DG" || parentId === "CENTRO-OPERACIONAL-NACIONAL";
+  if (!parentUnit && !isSpecialRoot) {
+    const reason = `SUPERIOR INEXISTENTE: O superior hierárquico selecionado (ID: ${parentId}) não existe no organograma.`;
+    issues.push({
+      id: `ISSUE-${Date.now()}-4`,
+      unitId: unitId || "NEW",
+      unitName: unitDisplayName,
+      unitLevel: treeLevel,
+      parentUnitId: parentId,
+      ruleCode: "ORPHAN_NODE",
+      severity: "CRITICAL",
+      title: "Superior Hierárquico Inexistente",
+      description: reason,
+      legalReference: "NREP-AO Integridade de Árvore",
+      suggestedFix: "Selecione uma Direcção Provincial ou Direcção Geral existente."
+    });
+    return { isValid: false, errorReason: reason, issues };
+  }
+
+  const parentLvl: AdministrativeTreeLevel = isSpecialRoot 
+    ? "L1_DG" 
+    : (parentUnit ? getUnitTreeLevel(parentUnit) : "L1_DG");
+
+  // 5. Allowed Sequence Validation (L2, L3, L4)
+  if (!def.allowedParentLevels.includes(parentLvl)) {
+    let reason = "";
+    if (treeLevel === "L2_PROV") {
+      reason = `SEQUÊNCIA ORGÂNICA INVÁLIDA: A Direcção Provincial (Nível 2) só pode reportar à Direcção Geral (Nível 1). Não é permitido vincular uma Direcção Provincial a um Estabelecimento Penitenciário (Nível 3) ou Secção (Nível 4).`;
+    } else if (treeLevel === "L3_EP") {
+      reason = `SEQUÊNCIA ORGÂNICA INVÁLIDA: Um Estabelecimento Penitenciário (Nível 3) deve reportar a uma Direcção Provincial (Nível 2) ou à Direcção Geral (Nível 1). Não pode reportar a uma Secção/Órgão (Nível 4) nem a outro Estabelecimento Penitenciário.`;
+    } else if (treeLevel === "L4_ORGAO") {
+      reason = `SEQUÊNCIA ORGÂNICA INVÁLIDA: Um Órgão/Secção (Nível 4) deve estar inserido num Estabelecimento Penitenciário (Nível 3), Direcção Provincial (Nível 2) ou Direcção Geral (Nível 1).`;
+    } else {
+      reason = `SEQUÊNCIA ORGÂNICA INVÁLIDA: O nível ${def.num} (${def.shortLabel}) não pode reportar a uma unidade de nível ${levelDefs[parentLvl]?.num || parentLvl} (${levelDefs[parentLvl]?.shortLabel || parentLvl}).`;
+    }
+
+    issues.push({
+      id: `ISSUE-${Date.now()}-5`,
+      unitId: unitId || "NEW",
+      unitName: unitDisplayName,
+      unitLevel: treeLevel,
+      parentUnitId: parentId,
+      parentUnitName: parentUnit?.name || "Raiz Nacional",
+      parentUnitLevel: parentLvl,
+      ruleCode: "INVALID_LEVEL_SEQUENCE",
+      severity: "CRITICAL",
+      title: "Sequência Hierárquica Incompatível",
+      description: reason,
+      legalReference: "Decreto Presidencial n.º 184/17 de 11 de Agosto",
+      suggestedFix: `Altere o superior para uma unidade de nível: ${def.allowedParentLevels.map(l => levelDefs[l]?.shortLabel || l).join(" ou ")}.`
+    });
+    return { isValid: false, errorReason: reason, issues };
+  }
+
+  // 6. Territorial / Provincial Jurisdiction Check
+  if (parentUnit && parentLvl !== "L1_DG" && parentUnit.level !== TerritorialScope.NATIONAL) {
+    const unitProv = normalizeProvince(province);
+    const parentProv = normalizeProvince(parentUnit.province);
+
+    if (unitProv && parentProv && unitProv !== parentProv) {
+      const reason = `VIOLAÇÃO DE CIRCUNSCRIÇÃO TERRITORIAL: A unidade da província de '${province}' não pode ser subordinada à unidade '${parentUnit.name}' de '${parentUnit.province}'. Conforme o NREP-AO, unidades executivas devem estar vinculadas à Direcção Provincial da mesma jurisdição ou à Direcção Geral Nacional.`;
+      issues.push({
+        id: `ISSUE-${Date.now()}-6`,
+        unitId: unitId || "NEW",
+        unitName: unitDisplayName,
+        unitLevel: treeLevel,
+        parentUnitId: parentId,
+        parentUnitName: parentUnit.name,
+        parentUnitLevel: parentLvl,
+        ruleCode: "TERRITORIAL_MISMATCH",
+        severity: "CRITICAL",
+        title: "Incompatibilidade Territorial Provincial",
+        description: reason,
+        legalReference: "Decreto Presidencial n.º 184/17, Artigo 4.º (Âmbito Provincial)",
+        suggestedFix: `Vincule à Direcção Provincial de ${province} ou à Direcção Geral Nacional.`
+      });
+      return { isValid: false, errorReason: reason, issues };
+    }
+  }
+
+  // 7. Cycle Detection (Ancestry traversal)
+  if (unitId && parentUnit) {
+    const visited = new Set<string>([unitId]);
+    let curr: OrganizationalUnit | undefined = parentUnit;
+    while (curr && curr.parentId) {
+      if (visited.has(curr.id) || curr.id === unitId) {
+        const reason = `DEPENDÊNCIA CIRCULAR DETECTADA: Vincular '${unitDisplayName}' a '${parentUnit.name}' cria um ciclo hierárquico infinito de subordinação.`;
+        issues.push({
+          id: `ISSUE-${Date.now()}-7`,
+          unitId: unitId,
+          unitName: unitDisplayName,
+          unitLevel: treeLevel,
+          parentUnitId: parentId,
+          parentUnitName: parentUnit.name,
+          ruleCode: "CIRCULAR_DEPENDENCY",
+          severity: "CRITICAL",
+          title: "Loop Hierárquico Circular",
+          description: reason,
+          legalReference: "Princípios Estruturais de Encadeamento Orgânico",
+          suggestedFix: "Selecione um superior hierárquico ascendente não pertencente à sub-árvore desta unidade."
+        });
+        return { isValid: false, errorReason: reason, issues };
+      }
+      visited.add(curr.id);
+      curr = allUnits.find(u => u.id === curr?.parentId);
+    }
+  }
+
+  return { isValid: true, issues: [] };
+};
+
+/**
+ * Full Tree Auditor validating entire org chart against NREP-AO & Decreto Presidencial 184/17
+ */
+export const validateNrepOrganicTree = (
+  units: OrganizationalUnit[],
+  levelDefs: Record<AdministrativeTreeLevel, LevelDefinitionMeta> = ADMINISTRATIVE_LEVEL_DEFINITIONS
+): NrepTreeValidationReport => {
+  const issues: NrepValidationIssue[] = [];
+  const orphanedNodes: OrganizationalUnit[] = [];
+  const sequenceViolations: { unit: OrganizationalUnit; parent?: OrganizationalUnit; reason: string }[] = [];
+  const territorialAnomalies: { unit: OrganizationalUnit; parent: OrganizationalUnit; reason: string }[] = [];
+  const circularLoops: { unit: OrganizationalUnit; loopPath: string[] }[] = [];
+
+  let sequenceRulePassed = true;
+  let orphanRulePassed = true;
+  let territoryRulePassed = true;
+  let acyclicRulePassed = true;
+
+  units.forEach(u => {
+    const uLvl = getUnitTreeLevel(u);
+    const uDef = levelDefs[uLvl] || ADMINISTRATIVE_LEVEL_DEFINITIONS[uLvl];
+
+    // Root node
+    if (u.id === "OU-MININT-DG") return;
+
+    // Check Orphan
+    if (!u.parentId || u.parentId.trim() === "") {
+      if (uLvl !== "L1_DG") {
+        orphanRulePassed = false;
+        orphanedNodes.push(u);
+        issues.push({
+          id: `ORPHAN-${u.id}`,
+          unitId: u.id,
+          unitName: u.name,
+          unitLevel: uLvl,
+          ruleCode: "ORPHAN_NODE",
+          severity: "CRITICAL",
+          title: "Nó Órfão Desvinculado",
+          description: `A unidade '${u.name}' (Nível ${uDef?.num || '?'}) não possui superior hierárquico. Conforme o NREP-AO, toda unidade deve estar ancorada no organograma.`,
+          legalReference: "Decreto Presidencial n.º 184/17, Organograma Oficial",
+          suggestedFix: `Vincular à Direcção Provincial de ${u.province || "Huambo"} ou à Direcção Geral.`
+        });
+      }
+      return;
+    }
+
+    const parent = units.find(p => p.id === u.parentId);
+    const isSpecialRoot = u.parentId === "OU-MININT-DG" || u.parentId === "CENTRO-OPERACIONAL-NACIONAL";
+
+    if (!parent && !isSpecialRoot) {
+      orphanRulePassed = false;
+      orphanedNodes.push(u);
+      issues.push({
+        id: `ORPHAN-BROKEN-${u.id}`,
+        unitId: u.id,
+        unitName: u.name,
+        unitLevel: uLvl,
+        parentUnitId: u.parentId,
+        ruleCode: "ORPHAN_NODE",
+        severity: "CRITICAL",
+        title: "Ponteiro Superior Inexistente",
+        description: `A unidade '${u.name}' aponta para o ID de superior '${u.parentId}', que não existe no sistema.`,
+        legalReference: "NREP-AO Integridade Referencial",
+        suggestedFix: `Reatribuir a um superior hierárquico válido.`
+      });
+      return;
+    }
+
+    const parentLvl: AdministrativeTreeLevel = isSpecialRoot 
+      ? "L1_DG" 
+      : (parent ? getUnitTreeLevel(parent) : "L1_DG");
+
+    // Sequence Check
+    if (uDef && !uDef.allowedParentLevels.includes(parentLvl)) {
+      sequenceRulePassed = false;
+      const parentLabel = levelDefs[parentLvl]?.shortLabel || parentLvl;
+      const parentNum = levelDefs[parentLvl]?.num || '?';
+      const reason = `Incompatibilidade de Escalão: Nível ${uDef.num} (${uDef.shortLabel}) subordinado a Nível ${parentNum} (${parentLabel}). Permitidos: ${uDef.allowedParentLevels.map(l => levelDefs[l]?.shortLabel || l).join(", ")}.`;
+      sequenceViolations.push({ unit: u, parent, reason });
+      issues.push({
+        id: `SEQ-${u.id}`,
+        unitId: u.id,
+        unitName: u.name,
+        unitLevel: uLvl,
+        parentUnitId: u.parentId,
+        parentUnitName: parent?.name || "Raiz Nacional",
+        parentUnitLevel: parentLvl,
+        ruleCode: "INVALID_LEVEL_SEQUENCE",
+        severity: "CRITICAL",
+        title: "Quebra de Sequência Hierárquica NREP-AO",
+        description: reason,
+        legalReference: "Decreto Presidencial n.º 184/17 de 11 de Agosto",
+        suggestedFix: `Reclassificar a unidade ou reatribuir para um superior de nível ${uDef.allowedParentLevels.map(l => levelDefs[l]?.shortLabel || l).join(" ou ")}.`
+      });
+    }
+
+    // Territorial Check
+    if (parent && parentLvl !== "L1_DG" && parent.level !== TerritorialScope.NATIONAL) {
+      const uProv = normalizeProvince(u.province);
+      const pProv = normalizeProvince(parent.province);
+      if (uProv && pProv && uProv !== pProv) {
+        territoryRulePassed = false;
+        const reason = `Unidade da província '${u.province}' vinculada a superior de '${parent.province}'.`;
+        territorialAnomalies.push({ unit: u, parent, reason });
+        issues.push({
+          id: `TERR-${u.id}`,
+          unitId: u.id,
+          unitName: u.name,
+          unitLevel: uLvl,
+          parentUnitId: parent.id,
+          parentUnitName: parent.name,
+          parentUnitLevel: parentLvl,
+          ruleCode: "TERRITORIAL_MISMATCH",
+          severity: "CRITICAL",
+          title: "Incongruência Territorial Provincial",
+          description: reason,
+          legalReference: "Decreto Presidencial n.º 184/17, Artigo 4.º",
+          suggestedFix: `Vincular à Direcção Provincial de ${u.province}.`
+        });
+      }
+    }
+
+    // Cycle Check
+    if (parent) {
+      const visited = new Set<string>([u.id]);
+      const path: string[] = [u.name];
+      let curr: OrganizationalUnit | undefined = parent;
+      while (curr && curr.parentId) {
+        path.push(curr.name);
+        if (visited.has(curr.id) || curr.id === u.id) {
+          acyclicRulePassed = false;
+          circularLoops.push({ unit: u, loopPath: path });
+          issues.push({
+            id: `CYCLE-${u.id}`,
+            unitId: u.id,
+            unitName: u.name,
+            unitLevel: uLvl,
+            parentUnitId: parent.id,
+            parentUnitName: parent.name,
+            ruleCode: "CIRCULAR_DEPENDENCY",
+            severity: "CRITICAL",
+            title: "Subordinação Circular Detectada",
+            description: `Ciclo: ${path.join(" ➔ ")}`,
+            legalReference: "Princípios Estruturais de Encadeamento Orgânico",
+            suggestedFix: "Reatribuir a um superior fora do ciclo."
+          });
+          break;
+        }
+        visited.add(curr.id);
+        curr = units.find(p => p.id === curr?.parentId);
+      }
+    }
+  });
+
+  const criticalCount = issues.filter(i => i.severity === "CRITICAL").length;
+  const warningCount = issues.filter(i => i.severity === "WARNING").length;
+
+  return {
+    isValid: criticalCount === 0,
+    criticalCount,
+    warningCount,
+    issues,
+    orphanedNodes,
+    sequenceViolations,
+    territorialAnomalies,
+    circularLoops,
+    ruleMetrics: {
+      sequenceRulePassed,
+      orphanRulePassed,
+      territoryRulePassed,
+      acyclicRulePassed
+    }
+  };
+};
 
 export function OrganizationalHierarchyConfig({
   organizationalUnits,
@@ -295,7 +866,55 @@ export function OrganizationalHierarchyConfig({
   // Filters & Active Directorate State
   const [selectedProvinceFilter, setSelectedProvinceFilter] = useState<string>(isNational ? "Huambo" : operatorProvince);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeCategoryTab, setActiveCategoryTab] = useState<"ALL" | "CAT_1" | "CAT_2" | "CAT_3" | "CAT_4" | "TREE" | "SUBORDINATION">("ALL");
+  const [activeCategoryTab, setActiveCategoryTab] = useState<"ALL" | "CAT_1" | "CAT_2" | "CAT_3" | "CAT_4" | "TREE" | "SUBORDINATION" | "LEVELS_CONFIG">("ALL");
+
+  // Dynamic Hierarchy Levels Configuration State (L1 DG, L2 Província, L3 EP, L4 Órgão)
+  const [levelDefinitions, setLevelDefinitions] = useState<Record<AdministrativeTreeLevel, LevelDefinitionMeta>>(ADMINISTRATIVE_LEVEL_DEFINITIONS);
+  const [isLevelDefinitionsModalOpen, setIsLevelDefinitionsModalOpen] = useState<boolean>(false);
+  const [editingLevelDefKey, setEditingLevelDefKey] = useState<AdministrativeTreeLevel>("L1_DG");
+  const [defFormLabel, setDefFormLabel] = useState<string>("");
+  const [defFormShortLabel, setDefFormShortLabel] = useState<string>("");
+  const [defFormScope, setDefFormScope] = useState<string>("");
+  const [defFormDescription, setDefFormDescription] = useState<string>("");
+  const [defFormApplyToUnits, setDefFormApplyToUnits] = useState<boolean>(true);
+
+  const [selectedTreeLevelFilter, setSelectedTreeLevelFilter] = useState<"ALL" | AdministrativeTreeLevel>("ALL");
+  const [levelSearchQuery, setLevelSearchQuery] = useState<string>("");
+  const [levelProvinceFilter, setLevelProvinceFilter] = useState<string>("ALL");
+  const [levelParentFilter, setLevelParentFilter] = useState<string>("ALL");
+
+  // Dynamic Level Unit Modal State (Create / Edit at specific level)
+  const [isCreateLevelModalOpen, setIsCreateLevelModalOpen] = useState<boolean>(false);
+  const [selectedLevelToCreate, setSelectedLevelToCreate] = useState<AdministrativeTreeLevel>("L4_ORGAO");
+  const [editingLevelUnitId, setEditingLevelUnitId] = useState<string | null>(null);
+  const [levelFormName, setLevelFormName] = useState<string>("");
+  const [levelFormCode, setLevelFormCode] = useState<string>("");
+  const [levelFormDivisionType, setLevelFormDivisionType] = useState<string>("DEPARTAMENTO");
+  const [levelFormParentId, setLevelFormParentId] = useState<string>("OU-MININT-DG");
+  const [levelFormProvince, setLevelFormProvince] = useState<string>("Huambo");
+  const [levelFormLegalBasis, setLevelFormLegalBasis] = useState<string>("Decreto Presidencial n.º 184/17, de 11 de Agosto");
+  const [levelFormCategory, setLevelFormCategory] = useState<string>("II - DEPENDÊNCIAS OPERACIONAIS (Executivas)");
+  const [levelFormHeadName, setLevelFormHeadName] = useState<string>("");
+  const [levelFormHeadRank, setLevelFormHeadRank] = useState<string>("Superintendente Prisional");
+  const [levelFormHeadPhone, setLevelFormHeadPhone] = useState<string>("");
+  const [levelFormFuncDesc, setLevelFormFuncDesc] = useState<string>("");
+  const [levelFormAdminResp, setLevelFormAdminResp] = useState<string>("");
+  const [levelFormOperResp, setLevelFormOperResp] = useState<string>("");
+
+  // Hierarchy Chain & Breadcrumb Inspector Modal State
+  const [isLevelChainModalOpen, setIsLevelChainModalOpen] = useState<boolean>(false);
+  const [selectedUnitForChain, setSelectedUnitForChain] = useState<OrganizationalUnit | null>(null);
+
+  // Level Reassignment & Promotion/Demotion Modal State
+  const [isLevelReassignModalOpen, setIsLevelReassignModalOpen] = useState<boolean>(false);
+  const [selectedUnitForReassign, setSelectedUnitForReassign] = useState<OrganizationalUnit | null>(null);
+  const [newLevelForReassign, setNewLevelForReassign] = useState<AdministrativeTreeLevel>("L4_ORGAO");
+  const [newParentForReassign, setNewParentForReassign] = useState<string>("OU-MININT-DG");
+
+  // 4-Tier Blueprint Branch Generator Modal State
+  const [isBranchBlueprintModalOpen, setIsBranchBlueprintModalOpen] = useState<boolean>(false);
+  const [blueprintTargetProvince, setBlueprintTargetProvince] = useState<string>("Huambo");
+  const [blueprintEpName, setBlueprintEpName] = useState<string>("Estabelecimento Penitenciário Central");
 
   // Explicit Subordination Management States
   const [isSubordinationModalOpen, setIsSubordinationModalOpen] = useState<boolean>(false);
@@ -305,45 +924,35 @@ export function OrganizationalHierarchyConfig({
   const [subProvinceFilter, setSubProvinceFilter] = useState<string>("ALL");
   const [subTypeFilter, setSubTypeFilter] = useState<string>("ALL");
 
-  // Helper validation for subordination: prisons/units in a province can ONLY be subordinated to same province or Direção Geral
+  // NREP-AO Audit & Integrity Diagnosis Modal State
+  const [isNrepAuditModalOpen, setIsNrepAuditModalOpen] = useState<boolean>(false);
+  const [selectedAuditFilter, setSelectedAuditFilter] = useState<"ALL" | NrepRuleCode>("ALL");
+
+  // Helper validation for subordination incorporating strict NREP-AO rules
   const validateSubordination = (
     unit: OrganizationalUnit | null,
     parentId: string
   ): { valid: boolean; errorReason?: string; isNationalParent?: boolean } => {
     if (!unit) return { valid: false, errorReason: "Nenhuma unidade selecionada." };
     if (!parentId) return { valid: false, errorReason: "Selecione o superior hierárquico pretendido." };
-    if (unit.id === parentId) return { valid: false, errorReason: "A unidade não pode ser subordinada a si própria." };
+    
+    const unitLvl = getUnitTreeLevel(unit);
+    const validation = validateSingleUnitNrepRules({
+      unitId: unit.id,
+      name: unit.name,
+      treeLevel: unitLvl,
+      parentId,
+      province: unit.province,
+      allUnits: organizationalUnits,
+      levelDefs: levelDefinitions
+    });
 
-    if (parentId === "OU-MININT-DG" || parentId === "CENTRO-OPERACIONAL-NACIONAL") {
-      return { valid: true, isNationalParent: true };
-    }
-
-    const parentUnit = organizationalUnits.find(u => u.id === parentId);
-    if (!parentUnit) {
-      return { valid: true, isNationalParent: true };
-    }
-
-    const isParentNational =
-      parentUnit.level === TerritorialScope.NATIONAL ||
-      parentUnit.id === "OU-MININT-DG" ||
-      parentUnit.name.toLowerCase().includes("direção geral") ||
-      parentUnit.name.toLowerCase().includes("direcção geral");
-
-    if (isParentNational) {
-      return { valid: true, isNationalParent: true };
-    }
-
-    const unitProv = unit.province?.toLowerCase().trim();
-    const parentProv = parentUnit.province?.toLowerCase().trim();
-
-    if (unitProv && parentProv && unitProv !== parentProv) {
-      return {
-        valid: false,
-        errorReason: `VIOLAÇÃO TERRITORIAL: A cadeia/unidade da província de '${unit.province}' não pode ser subordinada à unidade '${parentUnit.name}' da província de '${parentUnit.province}'. Pela regulamentação do Serviço Penitenciário (Decreto Presidencial 184/17), unidades provinciais só podem ser subordinadas a órgãos da mesma província (${unit.province}) ou à Direção Geral.`
-      };
-    }
-
-    return { valid: true, isNationalParent: false };
+    const isNat = parentId === "OU-MININT-DG" || parentId === "CENTRO-OPERACIONAL-NACIONAL";
+    return {
+      valid: validation.isValid,
+      errorReason: validation.errorReason,
+      isNationalParent: isNat
+    };
   };
 
   const handleSaveSubordination = () => {
@@ -351,7 +960,7 @@ export function OrganizationalHierarchyConfig({
 
     const validation = validateSubordination(targetSubUnit, newParentUnitId);
     if (!validation.valid) {
-      triggerToast("ERRO DE VALIDAÇÃO HIERÁRQUICA", validation.errorReason || "Subordinação inválida.", "error");
+      triggerToast("VIOLAÇÃO ORGÂNICA NREP-AO", validation.errorReason || "Subordinação inválida segundo o Decreto Presidencial n.º 184/17.", "error");
       return;
     }
 
@@ -374,7 +983,7 @@ export function OrganizationalHierarchyConfig({
 
     triggerToast(
       "SUBORDINAÇÃO HOMOLOGADA",
-      `A subordinação de '${targetSubUnit.name}' foi vinculada com sucesso a '${parentObj.name}'.`,
+      `A subordinação de '${targetSubUnit.name}' foi vinculada com sucesso a '${parentObj.name}' em total conformidade com o NREP-AO.`,
       "success"
     );
 
@@ -609,15 +1218,17 @@ export function OrganizationalHierarchyConfig({
   const provincialDirectorates = useMemo(() => {
     const list = organizationalUnits.filter(u => u.level === TerritorialScope.PROVINCIAL && (u.divisionType === "DIRECAO_PROVINCIAL" || u.name.startsWith("SP/")));
     if (!isNational) {
-      return list.filter(u => u.province?.toLowerCase().trim() === operatorProvince.toLowerCase().trim());
+      const opNorm = normalizeProvince(operatorProvince);
+      return list.filter(u => normalizeProvince(u.province) === opNorm);
     }
     return list;
   }, [organizationalUnits, isNational, operatorProvince]);
 
   // Selected Directorate
   const activeDirectorate = useMemo(() => {
-    return provincialDirectorates.find(d => d.province?.toLowerCase() === selectedProvinceFilter.toLowerCase()) 
-      || provincialDirectorates.find(d => d.province?.toLowerCase() === "huambo")
+    const selNorm = normalizeProvince(selectedProvinceFilter);
+    return provincialDirectorates.find(d => normalizeProvince(d.province) === selNorm) 
+      || provincialDirectorates.find(d => normalizeProvince(d.province) === "huambo")
       || provincialDirectorates[0];
   }, [provincialDirectorates, selectedProvinceFilter]);
 
@@ -788,12 +1399,15 @@ export function OrganizationalHierarchyConfig({
       return;
     }
 
+    const targetProv = organizationalUnits.find(u => u.id === parentUnitId)?.province || selectedProvinceFilter;
+    const targetLvl: AdministrativeTreeLevel = formType === "ESTAB_PENITENCIARIO" ? "L3_EP" : "L4_ORGAO";
+
     if (editingUnitId) {
       const currentUnit = organizationalUnits.find(u => u.id === editingUnitId);
       if (currentUnit) {
         const val = validateSubordination(currentUnit, parentUnitId);
         if (!val.valid) {
-          triggerToast("ERRO DE VALIDAÇÃO HIERÁRQUICA", val.errorReason || "Subordinação territorial inválida.", "error");
+          triggerToast("VIOLAÇÃO ORGÂNICA NREP-AO", val.errorReason || "Subordinação territorial inválida.", "error");
           return;
         }
       }
@@ -812,24 +1426,30 @@ export function OrganizationalHierarchyConfig({
         }
         return u;
       }));
-      triggerToast("HIERARQUIA ATUALIZADA", `Unidade '${formName}' atualizada com sucesso.`, "success");
+      triggerToast("HIERARQUIA ATUALIZADA", `Unidade '${formName}' atualizada com sucesso em conformidade com o NREP-AO.`, "success");
     } else {
       const parentUnit = organizationalUnits.find(u => u.id === parentUnitId);
-      if (parentUnit && parentUnit.level !== TerritorialScope.NATIONAL && parentUnit.id !== "OU-MININT-DG") {
-        const parentProv = parentUnit.province?.toLowerCase().trim();
-        const subProv = selectedProvinceFilter?.toLowerCase().trim();
-        if (parentProv && subProv && parentProv !== subProv) {
-          triggerToast("ERRO DE VALIDAÇÃO HIERÁRQUICA", `Cadeias e divisões subordinadas devem pertencer à mesma província da unidade superior ('${parentUnit.province}').`, "error");
-          return;
-        }
+      const validation = validateSingleUnitNrepRules({
+        name: formName,
+        treeLevel: targetLvl,
+        parentId: parentUnitId,
+        province: targetProv,
+        allUnits: organizationalUnits,
+        levelDefs: levelDefinitions
+      });
+
+      if (!validation.isValid) {
+        triggerToast("VIOLAÇÃO ORGÂNICA NREP-AO", validation.errorReason || "Criação rejeitada pelas regras do Decreto Presidencial n.º 184/17.", "error");
+        return;
       }
 
       const newUnit: OrganizationalUnit = {
         id: `OU-SUB-${Date.now()}`,
         name: formName,
         level: parentUnit?.level || TerritorialScope.PROVINCIAL,
+        treeLevel: targetLvl,
         parentId: parentUnitId,
-        province: parentUnit?.province || selectedProvinceFilter,
+        province: targetProv,
         divisionType: formType,
         code: formCode || `SUB-${Math.floor(Math.random() * 900 + 100)}`,
         legalBasis: formLegalBasis,
@@ -966,6 +1586,725 @@ export function OrganizationalHierarchyConfig({
     }
 
     setIsAssociateModalOpen(false);
+  };
+
+  // Dynamic Level Calculation & Ancestry Helpers
+  const levelUnitsSummary = useMemo(() => {
+    const l1 = organizationalUnits.filter(u => getUnitTreeLevel(u) === "L1_DG");
+    const l2 = organizationalUnits.filter(u => getUnitTreeLevel(u) === "L2_PROV");
+    const l3 = organizationalUnits.filter(u => getUnitTreeLevel(u) === "L3_EP");
+    const l4 = organizationalUnits.filter(u => getUnitTreeLevel(u) === "L4_ORGAO");
+    return {
+      L1_DG: l1,
+      L2_PROV: l2,
+      L3_EP: l3,
+      L4_ORGAO: l4,
+      total: organizationalUnits.length
+    };
+  }, [organizationalUnits]);
+
+  // Ancestor Breadcrumb Resolver (L1 -> L2 -> L3 -> L4)
+  const getAncestorPath = (unit: OrganizationalUnit): OrganizationalUnit[] => {
+    const path: OrganizationalUnit[] = [unit];
+    let current = unit;
+    const visited = new Set<string>([unit.id]);
+    
+    while (current.parentId) {
+      if (visited.has(current.parentId)) break;
+      visited.add(current.parentId);
+      const parent = organizationalUnits.find(u => u.id === current.parentId);
+      if (!parent) break;
+      path.unshift(parent);
+      current = parent;
+    }
+    return path;
+  };
+
+  // Direct and Indirect Descendants Resolver
+  const getDescendants = (unitId: string): OrganizationalUnit[] => {
+    const directChildren = organizationalUnits.filter(u => u.parentId === unitId);
+    let all: OrganizationalUnit[] = [...directChildren];
+    directChildren.forEach(child => {
+      all = all.concat(getDescendants(child.id));
+    });
+    return all;
+  };
+
+  // NREP-AO Full Tree Validation Report
+  const nrepTreeValidationReport = useMemo(() => {
+    return validateNrepOrganicTree(organizationalUnits, levelDefinitions);
+  }, [organizationalUnits, levelDefinitions]);
+
+  // Hierarchy Health & Consistency Check synced with NREP-AO engine
+  const hierarchyIntegrityStats = useMemo(() => {
+    const rootNodes = organizationalUnits.filter(u => !u.parentId || u.id === "OU-MININT-DG");
+    return {
+      rootCount: rootNodes.length,
+      orphanedCount: nrepTreeValidationReport.orphanedNodes.length,
+      orphanedNodes: nrepTreeValidationReport.orphanedNodes,
+      crossProvinceCount: nrepTreeValidationReport.territorialAnomalies.length,
+      sequenceViolationsCount: nrepTreeValidationReport.sequenceViolations.length,
+      circularLoopsCount: nrepTreeValidationReport.circularLoops.length,
+      criticalIssuesCount: nrepTreeValidationReport.criticalCount,
+      warningCount: nrepTreeValidationReport.warningCount,
+      isHealthy: nrepTreeValidationReport.isValid,
+      report: nrepTreeValidationReport
+    };
+  }, [organizationalUnits, nrepTreeValidationReport]);
+
+  // Repair single NREP-AO validation issue automatically
+  const handleRepairNrepIssue = (issue: NrepValidationIssue) => {
+    const unit = organizationalUnits.find(u => u.id === issue.unitId);
+    if (!unit) return;
+
+    const unitLvl = getUnitTreeLevel(unit);
+    let targetParentId = "OU-MININT-DG";
+
+    if (unitLvl === "L2_PROV") {
+      targetParentId = "OU-MININT-DG";
+    } else if (unitLvl === "L3_EP") {
+      const provDir = organizationalUnits.find(p => 
+        (getUnitTreeLevel(p) === "L2_PROV" || p.divisionType === "DIRECAO_PROVINCIAL" || p.id.startsWith("OU-DP-")) &&
+        normalizeProvince(p.province) === normalizeProvince(unit.province)
+      );
+      targetParentId = provDir?.id || "OU-MININT-DG";
+    } else if (unitLvl === "L4_ORGAO") {
+      const provEp = organizationalUnits.find(p => 
+        getUnitTreeLevel(p) === "L3_EP" &&
+        normalizeProvince(p.province) === normalizeProvince(unit.province)
+      );
+      const provDir = organizationalUnits.find(p => 
+        getUnitTreeLevel(p) === "L2_PROV" &&
+        normalizeProvince(p.province) === normalizeProvince(unit.province)
+      );
+      targetParentId = provEp?.id || provDir?.id || "OU-MININT-DG";
+    }
+
+    setOrganizationalUnits(prev => prev.map(u => {
+      if (u.id === unit.id) {
+        return {
+          ...u,
+          parentId: targetParentId
+        };
+      }
+      return u;
+    }));
+
+    triggerToast(
+      "NÓ REPARADO COM SUCESSO",
+      `A unidade '${unit.name}' foi re-ancorada no superior regulamentar (${targetParentId === "OU-MININT-DG" ? "Direcção Geral" : "Direcção Provincial"}).`,
+      "success"
+    );
+  };
+
+  // Open Create Modal for Specific Level
+  const handleOpenCreateLevelModal = (levelKey: AdministrativeTreeLevel = "L4_ORGAO") => {
+    setSelectedLevelToCreate(levelKey);
+    setEditingLevelUnitId(null);
+    setLevelFormName("");
+    setLevelFormCode("");
+    setLevelFormProvince(isNational ? selectedProvinceFilter : operatorProvince);
+    setLevelFormHeadName("");
+    setLevelFormHeadRank("Superintendente Prisional");
+    setLevelFormHeadPhone("");
+    setLevelFormFuncDesc("");
+    setLevelFormAdminResp("");
+    setLevelFormOperResp("");
+
+    if (levelKey === "L1_DG") {
+      setLevelFormDivisionType("DIRECAO_NACIONAL");
+      setLevelFormParentId("OU-MININT-DG");
+      setLevelFormLegalBasis("Estatuto Orgânico do Serviço Penitenciário");
+      setLevelFormCategory("ÓRGÃOS DE DIRECÇÃO SUPERIOR");
+    } else if (levelKey === "L2_PROV") {
+      setLevelFormDivisionType("DIRECAO_PROVINCIAL");
+      setLevelFormParentId("OU-MININT-DG");
+      setLevelFormLegalBasis("Decreto Presidencial n.º 184/17, Artigo 4.º");
+      setLevelFormCategory("ÓRGÃOS OPERACIONAIS E EXECUTIVOS NACIONAIS");
+    } else if (levelKey === "L3_EP") {
+      setLevelFormDivisionType("ESTAB_PENITENCIARIO");
+      const provDir = provincialDirectorates.find(d => normalizeProvince(d.province) === normalizeProvince(selectedProvinceFilter));
+      setLevelFormParentId(provDir?.id || "OU-MININT-DG");
+      setLevelFormLegalBasis("Regulamento Geral dos Estabelecimentos Prisionais");
+      setLevelFormCategory("IV - UNIDADES EXECUTIVAS DE CUSTÓDIA");
+    } else {
+      setLevelFormDivisionType("DEPARTAMENTO");
+      const provDir = provincialDirectorates.find(d => normalizeProvince(d.province) === normalizeProvince(selectedProvinceFilter));
+      setLevelFormParentId(provDir?.id || "OU-MININT-DG");
+      setLevelFormLegalBasis("Decreto Presidencial n.º 184/17 de 11 de Agosto");
+      setLevelFormCategory("II - DEPENDÊNCIAS OPERACIONAIS (Executivas)");
+    }
+
+    setIsCreateLevelModalOpen(true);
+  };
+
+  // Open Edit Modal for Dynamic Level Unit
+  const handleOpenEditLevelUnit = (unit: OrganizationalUnit) => {
+    const levelKey = getUnitTreeLevel(unit);
+    setSelectedLevelToCreate(levelKey);
+    setEditingLevelUnitId(unit.id);
+    setLevelFormName(unit.name);
+    setLevelFormCode(unit.code || "");
+    setLevelFormDivisionType(unit.divisionType || (levelKey === "L1_DG" ? "DIRECAO_NACIONAL" : levelKey === "L2_PROV" ? "DIRECAO_PROVINCIAL" : levelKey === "L3_EP" ? "ESTAB_PENITENCIARIO" : "DEPARTAMENTO"));
+    setLevelFormParentId(unit.parentId || "OU-MININT-DG");
+    setLevelFormProvince(unit.province || (isNational ? selectedProvinceFilter : operatorProvince));
+    setLevelFormLegalBasis(unit.legalBasis || "Decreto Presidencial n.º 184/17");
+    setLevelFormCategory(unit.category || "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)");
+    setLevelFormHeadName(unit.headOfficerName || "");
+    setLevelFormHeadRank(unit.chiefOfficerRank || unit.headOfficerRank || "Superintendente Prisional");
+    setLevelFormHeadPhone(unit.chiefOfficerPhone || "");
+    setLevelFormFuncDesc(unit.functionDescription || "");
+    setLevelFormAdminResp(unit.administrativeResponsibilities || "");
+    setLevelFormOperResp(unit.operationalResponsibilities || "");
+
+    setIsCreateLevelModalOpen(true);
+  };
+
+  // Save Dynamic Level Unit (Create or Update)
+  const handleSaveLevelUnit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!levelFormName.trim()) {
+      triggerToast("CAMPOS INCOMPLETOS", "Informe a designação da unidade orgânica.", "warning");
+      return;
+    }
+
+    // NREP-AO Strict Organic Validation
+    const validation = validateSingleUnitNrepRules({
+      unitId: editingLevelUnitId,
+      name: levelFormName,
+      treeLevel: selectedLevelToCreate,
+      parentId: levelFormParentId,
+      province: levelFormProvince,
+      allUnits: organizationalUnits,
+      levelDefs: levelDefinitions
+    });
+
+    if (!validation.isValid) {
+      triggerToast("VIOLAÇÃO ORGÂNICA NREP-AO", validation.errorReason || "Operação rejeitada por violar regras do Decreto Presidencial n.º 184/17.", "error");
+      return;
+    }
+
+    let territorialScope = TerritorialScope.ESTABLISHMENT;
+    if (selectedLevelToCreate === "L1_DG") {
+      territorialScope = TerritorialScope.NATIONAL;
+    } else if (selectedLevelToCreate === "L2_PROV") {
+      territorialScope = TerritorialScope.PROVINCIAL;
+    } else if (selectedLevelToCreate === "L3_EP") {
+      territorialScope = TerritorialScope.ESTABLISHMENT;
+    } else {
+      territorialScope = selectedLevelToCreate === "L4_ORGAO" && levelFormParentId === "OU-MININT-DG" 
+        ? TerritorialScope.NATIONAL 
+        : TerritorialScope.PROVINCIAL;
+    }
+
+    if (editingLevelUnitId) {
+      setOrganizationalUnits(prev => prev.map(u => {
+        if (u.id === editingLevelUnitId) {
+          return {
+            ...u,
+            name: levelFormName.trim(),
+            code: levelFormCode.trim() || undefined,
+            sigla: levelFormCode.trim() || undefined,
+            divisionType: levelFormDivisionType as any,
+            level: territorialScope,
+            treeLevel: selectedLevelToCreate,
+            hierarchyLevel: levelDefinitions[selectedLevelToCreate].num,
+            levelLabel: levelDefinitions[selectedLevelToCreate].shortLabel,
+            parentId: levelFormParentId,
+            province: levelFormProvince,
+            legalBasis: levelFormLegalBasis,
+            category: levelFormCategory,
+            headOfficerName: levelFormHeadName || undefined,
+            chiefOfficerRank: levelFormHeadRank || undefined,
+            headOfficerRank: levelFormHeadRank || undefined,
+            chiefOfficerPhone: levelFormHeadPhone || undefined,
+            functionDescription: levelFormFuncDesc || undefined,
+            administrativeResponsibilities: levelFormAdminResp || undefined,
+            operationalResponsibilities: levelFormOperResp || undefined
+          };
+        }
+        return u;
+      }));
+
+      triggerToast(
+        "NÍVEL ORGÂNICO ATUALIZADO",
+        `A unidade '${levelFormName}' no Nível ${levelDefinitions[selectedLevelToCreate].num} (${levelDefinitions[selectedLevelToCreate].shortLabel}) foi atualizada com sucesso.`,
+        "success"
+      );
+    } else {
+      const generatedId = `OU-${selectedLevelToCreate}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+      const newUnit: OrganizationalUnit = {
+        id: generatedId,
+        name: levelFormName.trim(),
+        code: levelFormCode.trim() || undefined,
+        sigla: levelFormCode.trim() || undefined,
+        divisionType: levelFormDivisionType as any,
+        level: territorialScope,
+        treeLevel: selectedLevelToCreate,
+        hierarchyLevel: levelDefinitions[selectedLevelToCreate].num,
+        levelLabel: levelDefinitions[selectedLevelToCreate].shortLabel,
+        parentId: levelFormParentId,
+        province: levelFormProvince,
+        legalBasis: levelFormLegalBasis,
+        category: levelFormCategory,
+        headOfficerName: levelFormHeadName || undefined,
+        chiefOfficerRank: levelFormHeadRank || undefined,
+        headOfficerRank: levelFormHeadRank || undefined,
+        chiefOfficerPhone: levelFormHeadPhone || undefined,
+        functionDescription: levelFormFuncDesc || undefined,
+        administrativeResponsibilities: levelFormAdminResp || undefined,
+        operationalResponsibilities: levelFormOperResp || undefined
+      };
+
+      setOrganizationalUnits(prev => [...prev, newUnit]);
+
+      if (selectedLevelToCreate === "L3_EP" && setPrisons) {
+        setPrisons(prev => [
+          ...prev,
+          {
+            id: generatedId,
+            name: levelFormName.trim(),
+            location: levelFormProvince,
+            province: levelFormProvince,
+            capacity: 500,
+            population: 0,
+            securityLevel: "MÉDIA",
+            director: levelFormHeadName || "A Nomear",
+            directorContact: levelFormHeadPhone || "+244 923 000 000"
+          }
+        ]);
+      }
+
+      triggerToast(
+        "NOVA UNIDADE HIERÁRQUICA CRIADA",
+        `Unidade '${levelFormName}' cadastrada no Nível ${levelDefinitions[selectedLevelToCreate].num} (${levelDefinitions[selectedLevelToCreate].shortLabel}).`,
+        "success"
+      );
+    }
+
+    setIsCreateLevelModalOpen(false);
+  };
+
+  // Open Dynamic Level Definition Customizer Modal
+  const handleOpenEditLevelDefinition = (lvlKey: AdministrativeTreeLevel) => {
+    setEditingLevelDefKey(lvlKey);
+    const def = levelDefinitions[lvlKey];
+    setDefFormLabel(def.label);
+    setDefFormShortLabel(def.shortLabel);
+    setDefFormScope(def.scope);
+    setDefFormDescription(def.description);
+    setDefFormApplyToUnits(true);
+    setIsLevelDefinitionsModalOpen(true);
+  };
+
+  // Save Dynamic Level Definition and Cascade to OrganizationalUnits
+  const handleSaveLevelDefinition = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!defFormLabel.trim() || !defFormShortLabel.trim()) {
+      triggerToast("CAMPOS INCOMPLETOS", "Informe a designação e o rótulo do nível.", "warning");
+      return;
+    }
+
+    const currentDef = levelDefinitions[editingLevelDefKey];
+    const updatedDef = {
+      ...currentDef,
+      label: defFormLabel.trim(),
+      shortLabel: defFormShortLabel.trim(),
+      scope: defFormScope.trim(),
+      description: defFormDescription.trim()
+    };
+
+    setLevelDefinitions(prev => ({
+      ...prev,
+      [editingLevelDefKey]: updatedDef
+    }));
+
+    if (defFormApplyToUnits) {
+      setOrganizationalUnits(prev => prev.map(u => {
+        if (getUnitTreeLevel(u) === editingLevelDefKey) {
+          return {
+            ...u,
+            treeLevel: editingLevelDefKey,
+            hierarchyLevel: currentDef.num,
+            levelLabel: defFormShortLabel.trim()
+          };
+        }
+        return u;
+      }));
+    }
+
+    triggerToast(
+      "NÍVEL HIERÁRQUICO ATUALIZADO",
+      `A definição do Nível ${currentDef.num} (${defFormShortLabel.trim()}) foi atualizada e sincronizada com a estrutura orgânica.`,
+      "success"
+    );
+
+    setIsLevelDefinitionsModalOpen(false);
+  };
+
+  // Quick Unit Promotion (e.g. L4 -> L3 -> L2 -> L1)
+  const handlePromoteUnit = (unit: OrganizationalUnit) => {
+    const currentLvl = getUnitTreeLevel(unit);
+    let targetLvl: AdministrativeTreeLevel = "L1_DG";
+    let targetParent = unit.parentId || "OU-MININT-DG";
+    let targetScope = unit.level;
+
+    if (currentLvl === "L4_ORGAO") {
+      targetLvl = "L3_EP";
+      targetScope = TerritorialScope.ESTABLISHMENT;
+    } else if (currentLvl === "L3_EP") {
+      targetLvl = "L2_PROV";
+      targetScope = TerritorialScope.PROVINCIAL;
+      targetParent = "OU-MININT-DG";
+    } else if (currentLvl === "L2_PROV") {
+      targetLvl = "L1_DG";
+      targetScope = TerritorialScope.NATIONAL;
+      targetParent = "OU-MININT-DG";
+    } else {
+      triggerToast("NÍVEL SUPERIOR", "A unidade já se encontra no escalão superior (L1 - Direcção Geral).", "info");
+      return;
+    }
+
+    setOrganizationalUnits(prev => prev.map(u => {
+      if (u.id === unit.id) {
+        return {
+          ...u,
+          treeLevel: targetLvl,
+          hierarchyLevel: levelDefinitions[targetLvl].num,
+          levelLabel: levelDefinitions[targetLvl].shortLabel,
+          level: targetScope,
+          parentId: targetParent
+        };
+      }
+      return u;
+    }));
+
+    triggerToast("UNIDADE PROMOVIDA", `A unidade '${unit.name}' foi promovida para o Nível ${levelDefinitions[targetLvl].num} (${levelDefinitions[targetLvl].shortLabel}).`, "success");
+  };
+
+  // Quick Unit Demotion (e.g. L1 -> L2 -> L3 -> L4)
+  const handleDemoteUnit = (unit: OrganizationalUnit) => {
+    const currentLvl = getUnitTreeLevel(unit);
+    let targetLvl: AdministrativeTreeLevel = "L4_ORGAO";
+    let targetParent = unit.parentId || "OU-MININT-DG";
+    let targetScope = unit.level;
+
+    if (currentLvl === "L1_DG") {
+      targetLvl = "L2_PROV";
+      targetScope = TerritorialScope.PROVINCIAL;
+    } else if (currentLvl === "L2_PROV") {
+      targetLvl = "L3_EP";
+      targetScope = TerritorialScope.ESTABLISHMENT;
+    } else if (currentLvl === "L3_EP") {
+      targetLvl = "L4_ORGAO";
+      targetScope = TerritorialScope.PROVINCIAL;
+    } else {
+      triggerToast("NÍVEL BASE", "A unidade já se encontra no escalão operacional de base (L4 - Órgão / Secção).", "info");
+      return;
+    }
+
+    setOrganizationalUnits(prev => prev.map(u => {
+      if (u.id === unit.id) {
+        return {
+          ...u,
+          treeLevel: targetLvl,
+          hierarchyLevel: levelDefinitions[targetLvl].num,
+          levelLabel: levelDefinitions[targetLvl].shortLabel,
+          level: targetScope,
+          parentId: targetParent
+        };
+      }
+      return u;
+    }));
+
+    triggerToast("UNIDADE RECLASSIFICADA", `A unidade '${unit.name}' foi reclassificada para o Nível ${levelDefinitions[targetLvl].num} (${levelDefinitions[targetLvl].shortLabel}).`, "success");
+  };
+
+  // Open Level Reassign Modal
+  const handleOpenLevelReassign = (unit: OrganizationalUnit) => {
+    const currentLvl = getUnitTreeLevel(unit);
+    setSelectedUnitForReassign(unit);
+    setNewLevelForReassign(currentLvl);
+    setNewParentForReassign(unit.parentId || "OU-MININT-DG");
+    setIsLevelReassignModalOpen(true);
+  };
+
+  // Save Level Reassignment & Superior Link
+  const handleSaveLevelReassign = () => {
+    if (!selectedUnitForReassign) return;
+
+    // NREP-AO Strict Organic Validation
+    const validation = validateSingleUnitNrepRules({
+      unitId: selectedUnitForReassign.id,
+      name: selectedUnitForReassign.name,
+      treeLevel: newLevelForReassign,
+      parentId: newParentForReassign,
+      province: selectedUnitForReassign.province,
+      allUnits: organizationalUnits,
+      levelDefs: levelDefinitions
+    });
+
+    if (!validation.isValid) {
+      triggerToast("VIOLAÇÃO ORGÂNICA NREP-AO", validation.errorReason || "Reclassificação rejeitada pelas regras do Decreto Presidencial n.º 184/17.", "error");
+      return;
+    }
+
+    let targetScope = TerritorialScope.ESTABLISHMENT;
+    let targetDivisionType = selectedUnitForReassign.divisionType;
+
+    if (newLevelForReassign === "L1_DG") {
+      targetScope = TerritorialScope.NATIONAL;
+      targetDivisionType = "DIRECAO_NACIONAL";
+    } else if (newLevelForReassign === "L2_PROV") {
+      targetScope = TerritorialScope.PROVINCIAL;
+      targetDivisionType = "DIRECAO_PROVINCIAL";
+    } else if (newLevelForReassign === "L3_EP") {
+      targetScope = TerritorialScope.ESTABLISHMENT;
+      targetDivisionType = "ESTAB_PENITENCIARIO";
+    } else {
+      targetScope = TerritorialScope.PROVINCIAL;
+      if (!targetDivisionType || targetDivisionType === "DIRECAO_PROVINCIAL" || targetDivisionType === "ESTAB_PENITENCIARIO") {
+        targetDivisionType = "DEPARTAMENTO";
+      }
+    }
+
+    setOrganizationalUnits(prev => prev.map(u => {
+      if (u.id === selectedUnitForReassign.id) {
+        return {
+          ...u,
+          treeLevel: newLevelForReassign,
+          hierarchyLevel: levelDefinitions[newLevelForReassign].num,
+          levelLabel: levelDefinitions[newLevelForReassign].shortLabel,
+          level: targetScope,
+          divisionType: targetDivisionType as any,
+          parentId: newParentForReassign
+        };
+      }
+      return u;
+    }));
+
+    triggerToast(
+      "NÍVEL RECLASSIFICADO",
+      `A unidade '${selectedUnitForReassign.name}' foi reclassificada para o Nível ${levelDefinitions[newLevelForReassign].num} (${levelDefinitions[newLevelForReassign].shortLabel}).`,
+      "success"
+    );
+
+    setIsLevelReassignModalOpen(false);
+    setSelectedUnitForReassign(null);
+  };
+
+  // Handle Generate 4-Tier Blueprint Branch
+  const handleGenerateBranchBlueprint = () => {
+    const prov = blueprintTargetProvince;
+    const normProv = normalizeProvince(prov);
+    
+    let provDir = organizationalUnits.find(u => 
+      (u.divisionType === "DIRECAO_PROVINCIAL" || u.id.startsWith("OU-DP-")) &&
+      normalizeProvince(u.province) === normProv
+    );
+
+    const unitsToAdd: OrganizationalUnit[] = [];
+
+    if (!provDir) {
+      provDir = {
+        id: `OU-DP-${prov.toUpperCase().replace(/\s+/g, '-')}`,
+        name: `Direcção Provincial dos Serviços Penitenciários de ${prov}`,
+        level: TerritorialScope.PROVINCIAL,
+        parentId: "OU-MININT-DG",
+        province: prov,
+        divisionType: "DIRECAO_PROVINCIAL",
+        code: `DP-${prov.substring(0, 3).toUpperCase()}`,
+        legalBasis: "Decreto Presidencial n.º 184/17, Artigo 4.º",
+        category: "ÓRGÃOS OPERACIONAIS E EXECUTIVOS NACIONAIS",
+        functionDescription: `Comando e coordenação provincial dos serviços penitenciários na província de ${prov}.`,
+        headOfficerName: "Subcomissário Prisional Director Provincial",
+        chiefOfficerRank: "Subcomissário Prisional"
+      };
+      unitsToAdd.push(provDir);
+    }
+
+    const epId = `OU-EP-${prov.toUpperCase().replace(/\s+/g, '-')}-${Date.now().toString(36).toUpperCase()}`;
+    const epUnit: OrganizationalUnit = {
+      id: epId,
+      name: `${blueprintEpName} de ${prov}`,
+      level: TerritorialScope.ESTABLISHMENT,
+      parentId: provDir.id,
+      province: prov,
+      divisionType: "ESTAB_PENITENCIARIO",
+      code: `EP-${prov.substring(0, 3).toUpperCase()}-01`,
+      legalBasis: "Regulamento Geral dos Estabelecimentos Prisionais",
+      category: "IV - UNIDADES EXECUTIVAS DE CUSTÓDIA",
+      functionDescription: `Execução de penas privativas de liberdade, custódia e reinserção social na província de ${prov}.`,
+      headOfficerName: "Superintendente Prisional Director da Cadeia",
+      chiefOfficerRank: "Superintendente Prisional"
+    };
+    unitsToAdd.push(epUnit);
+
+    const standardSections = [
+      {
+        name: `Secção de Controlo Penal e Registo Penitenciário (${epUnit.name})`,
+        code: `SCP-${prov.substring(0, 3).toUpperCase()}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Gestão dos prontuários penais, cálculo de liquidação de penas e boletins de soltura.",
+        operResp: "Triagem biométrica, registo diário de entradas/saídas e arquivo prisional."
+      },
+      {
+        name: `Secção de Segurança e Guarda Prisional (${epUnit.name})`,
+        code: `SSG-${prov.substring(0, 3).toUpperCase()}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Elaboração do mapa de escalas, controlo do paiol e armamento.",
+        operResp: "Rondas armadas, vigilância de muralhas, contagens físicas de reclusos e revistas periciais."
+      },
+      {
+        name: `Secção de Saúde e Assistência Médica (${epUnit.name})`,
+        code: `SSAM-${prov.substring(0, 3).toUpperCase()}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Requisição de medicamentos, gestão de fichas clínicas e rastreios sanitários.",
+        operResp: "Posto de enfermagem, isolamento epidemiológico e evacuação médica de urgência."
+      },
+      {
+        name: `Secção de Produção Penitenciária e Reabilitação (${epUnit.name})`,
+        code: `SPPR-${prov.substring(0, 3).toUpperCase()}`,
+        divisionType: "SECCAO" as const,
+        adminResp: "Registo de reclusos em laborterapia, oficinas e cursos de alfabetização.",
+        operResp: "Supervisão das brigadas de trabalho agrícola, carpintaria e actividades produtivas."
+      }
+    ];
+
+    standardSections.forEach((sec, idx) => {
+      unitsToAdd.push({
+        id: `OU-SEC-${epId}-${idx + 1}`,
+        name: sec.name,
+        level: TerritorialScope.ESTABLISHMENT,
+        parentId: epId,
+        province: prov,
+        divisionType: sec.divisionType,
+        code: sec.code,
+        legalBasis: "Decreto Presidencial n.º 184/17 de 11 de Agosto",
+        category: "II - DEPENDÊNCIAS OPERACIONAIS (Executivas)",
+        administrativeResponsibilities: sec.adminResp,
+        operationalResponsibilities: sec.operResp,
+        headOfficerName: "Inspector Prisional Chefe de Secção",
+        chiefOfficerRank: "Inspector Prisional"
+      });
+    });
+
+    setOrganizationalUnits(prev => [...prev, ...unitsToAdd]);
+
+    if (setPrisons) {
+      setPrisons(prev => [
+        ...prev,
+        {
+          id: epId,
+          name: epUnit.name,
+          location: prov,
+          province: prov,
+          capacity: 650,
+          population: 0,
+          securityLevel: "MÉDIA",
+          director: epUnit.headOfficerName,
+          directorContact: "+244 923 000 000"
+        }
+      ]);
+    }
+
+    triggerToast(
+      "RAMO DE 4 NÍVEIS GERADO",
+      `Criado com sucesso o ramo institucional de 4 níveis (DG ➔ Direcção Provincial ➔ ${epUnit.name} ➔ 4 Secções Especializadas).`,
+      "success"
+    );
+
+    setIsBranchBlueprintModalOpen(false);
+  };
+
+  // Comprehensive NREP-AO Tree Sanitizer & Auto-Reconciler (Decreto Presidencial n.º 184/17)
+  const handleAutoReconcileLevels = () => {
+    setOrganizationalUnits(prev => {
+      // 1. Map provincial directorates by normalized province
+      const provDirMap = new Map<string, string>();
+      prev.forEach(u => {
+        if (getUnitTreeLevel(u) === "L2_PROV" || u.divisionType === "DIRECAO_PROVINCIAL" || u.id.startsWith("OU-DP-")) {
+          const key = normalizeProvince(u.province);
+          if (key) provDirMap.set(key, u.id);
+        }
+      });
+
+      return prev.map(u => {
+        const uLvl = getUnitTreeLevel(u);
+        const normProv = normalizeProvince(u.province);
+
+        // L1 (Root unit)
+        if (u.id === "OU-MININT-DG") {
+          return {
+            ...u,
+            level: TerritorialScope.NATIONAL,
+            treeLevel: "L1_DG",
+            parentId: undefined
+          };
+        }
+
+        // L2 (Provincial Directorate) -> Reports to L1_DG
+        if (uLvl === "L2_PROV") {
+          return {
+            ...u,
+            treeLevel: "L2_PROV",
+            level: TerritorialScope.PROVINCIAL,
+            parentId: "OU-MININT-DG"
+          };
+        }
+
+        // L3 (Prisons / EP) -> Reports to Provincial Directorate of same province or L1_DG
+        if (uLvl === "L3_EP") {
+          const validParent = provDirMap.get(normProv) || "OU-MININT-DG";
+          const currentParent = prev.find(p => p.id === u.parentId);
+          const currentParentLvl = currentParent ? getUnitTreeLevel(currentParent) : null;
+          const isParentValid = currentParent && (currentParentLvl === "L2_PROV" || currentParentLvl === "L1_DG" || u.parentId === "OU-MININT-DG");
+          const isTerritoryValid = !currentParent || currentParent.level === TerritorialScope.NATIONAL || normalizeProvince(currentParent.province) === normProv;
+
+          if (!isParentValid || !isTerritoryValid || !u.parentId) {
+            return {
+              ...u,
+              treeLevel: "L3_EP",
+              level: TerritorialScope.ESTABLISHMENT,
+              parentId: validParent
+            };
+          }
+          return {
+            ...u,
+            treeLevel: "L3_EP",
+            level: TerritorialScope.ESTABLISHMENT
+          };
+        }
+
+        // L4 (Organs/Sections) -> Must report to L3_EP, L2_PROV or L1_DG
+        if (uLvl === "L4_ORGAO") {
+          const currentParent = prev.find(p => p.id === u.parentId);
+          const currentParentLvl = currentParent ? getUnitTreeLevel(currentParent) : null;
+          const isParentValid = currentParent && (currentParentLvl === "L3_EP" || currentParentLvl === "L2_PROV" || currentParentLvl === "L1_DG" || u.parentId === "OU-MININT-DG");
+
+          if (!isParentValid || !u.parentId) {
+            const fallbackParent = provDirMap.get(normProv) || "OU-MININT-DG";
+            return {
+              ...u,
+              treeLevel: "L4_ORGAO",
+              parentId: fallbackParent
+            };
+          }
+          return {
+            ...u,
+            treeLevel: "L4_ORGAO"
+          };
+        }
+
+        return u;
+      });
+    });
+
+    triggerToast(
+      "ÁRVORE NREP-AO RECONCILIADA",
+      "Todas as dependências e sequências da árvore foram auditadas e reconciliadas com as normas do Decreto Presidencial n.º 184/17.",
+      "success"
+    );
   };
 
   // Filter Active Directorate Children by Category Tab
@@ -1157,11 +2496,12 @@ export function OrganizationalHierarchyConfig({
 
               <div className="flex flex-col gap-2 max-h-[580px] overflow-y-auto pr-1">
                 {ALL_PROVINCES_LIST
-                  .filter(prov => isNational || prov.toLowerCase().trim() === operatorProvince.toLowerCase().trim())
+                  .filter(prov => isNational || normalizeProvince(prov) === normalizeProvince(operatorProvince))
                   .filter(p => p.toLowerCase().includes(searchQuery.toLowerCase()))
                   .map(prov => {
-                    const dir = provincialDirectorates.find(d => d.province?.toLowerCase() === prov.toLowerCase());
-                    const isSelected = selectedProvinceFilter.toLowerCase() === prov.toLowerCase();
+                    const normProv = normalizeProvince(prov);
+                    const dir = provincialDirectorates.find(d => normalizeProvince(d.province) === normProv);
+                    const isSelected = normalizeProvince(selectedProvinceFilter) === normProv;
                     const comp = dir ? evaluateDirectorateCompliance(dir.id) : { score: 0, max: 18, isCompliant: false, missing: [] };
                     const childCount = dir ? getChildren(dir.id).length : 0;
                     const isItemExpanded = !!expandedSidebarProvinces[prov];
@@ -1241,9 +2581,9 @@ export function OrganizationalHierarchyConfig({
             /* COLLAPSED 1% SIDEBAR MINI MODE */
             <div className="flex flex-col items-center gap-2 py-2">
               {ALL_PROVINCES_LIST
-                .filter(prov => isNational || prov.toLowerCase().trim() === operatorProvince.toLowerCase().trim())
+                .filter(prov => isNational || normalizeProvince(prov) === normalizeProvince(operatorProvince))
                 .map(prov => {
-                  const isSelected = selectedProvinceFilter.toLowerCase() === prov.toLowerCase();
+                  const isSelected = normalizeProvince(selectedProvinceFilter) === normalizeProvince(prov);
                   return (
                     <button
                       key={prov}
@@ -1448,10 +2788,577 @@ export function OrganizationalHierarchyConfig({
                     DG
                   </span>
                 </button>
+
+                <button
+                  onClick={() => setActiveCategoryTab("LEVELS_CONFIG")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                    activeCategoryTab === "LEVELS_CONFIG"
+                      ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/30 ring-1 ring-amber-400"
+                      : "bg-slate-900 text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  <Workflow className="h-3.5 w-3.5" />
+                  Níveis da Árvore (DG • Província • EP • Órgão)
+                  <span className="bg-amber-950 text-amber-300 border border-amber-700/50 text-[9px] px-1.5 py-0.2 rounded-full font-sans font-semibold">
+                    Dinâmico (L1-L4)
+                  </span>
+                </button>
               </div>
 
               {/* DISPLAY GRID OF DEPENDENCIES WITH FUNCTIONAL RESPONSIBILITIES */}
-              {activeCategoryTab === "SUBORDINATION" ? (
+              {activeCategoryTab === "LEVELS_CONFIG" ? (
+                <div className="flex flex-col gap-5">
+                  {/* Dynamic 4-Tier Funnel Pipeline Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    {(["L1_DG", "L2_PROV", "L3_EP", "L4_ORGAO"] as AdministrativeTreeLevel[]).map((lvlKey) => {
+                      const meta = levelDefinitions[lvlKey];
+                      const unitsInLevel = levelUnitsSummary[lvlKey];
+                      const IconComp = meta.icon;
+                      const isSelected = selectedTreeLevelFilter === lvlKey;
+
+                      return (
+                        <div
+                          key={lvlKey}
+                          onClick={() => setSelectedTreeLevelFilter(prev => prev === lvlKey ? "ALL" : lvlKey)}
+                          className={`rounded-2xl border p-4 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
+                            isSelected
+                              ? `${meta.badgeBg} ${meta.badgeBorder} shadow-lg ring-2 ring-${meta.colorName}-500/60`
+                              : "bg-slate-950/80 border-slate-850 hover:border-slate-750 hover:bg-slate-900/50"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className={`p-2 rounded-xl border ${meta.badgeBg} ${meta.badgeBorder} ${meta.badgeText}`}>
+                                <IconComp className="h-4 w-4" />
+                              </div>
+                              <span className={`text-[11px] font-mono font-black uppercase tracking-wider ${meta.badgeText}`}>
+                                NÍVEL {meta.num}
+                              </span>
+                            </div>
+                            <span className={`text-xl font-mono font-black ${isSelected ? meta.badgeText : "text-slate-100"}`}>
+                              {unitsInLevel.length}
+                            </span>
+                          </div>
+
+                          <div className="mt-3">
+                            <h4 className="text-xs font-bold text-slate-100 font-mono">
+                              {meta.shortLabel}
+                            </h4>
+                            <p className="text-[10px] text-slate-400 font-sans mt-1 line-clamp-2 leading-relaxed">
+                              {meta.description}
+                            </p>
+                          </div>
+
+                          <div className="mt-3 pt-2.5 border-t border-slate-850/80 flex items-center justify-between gap-1.5">
+                            <span className="text-[9px] font-mono text-slate-500 uppercase truncate">
+                              {meta.scope}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenEditLevelDefinition(lvlKey);
+                                }}
+                                className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md border border-slate-800 bg-slate-900 text-slate-400 hover:text-amber-400 hover:border-amber-500/40 transition cursor-pointer flex items-center gap-0.5"
+                                title={`Editar definição e escopo do Nível ${meta.num}`}
+                              >
+                                <Settings2 className="h-2.5 w-2.5" /> Definição
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenCreateLevelModal(lvlKey);
+                                }}
+                                className={`text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-md border transition cursor-pointer flex items-center gap-1 ${
+                                  meta.badgeBg
+                                } ${meta.badgeBorder} ${meta.badgeText} hover:brightness-125`}
+                                title={`Criar nova unidade no Nível ${meta.num}`}
+                              >
+                                <Plus className="h-3 w-3" /> Adicionar
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Structural Integrity & Blueprint Action Bar */}
+                  <div className="bg-slate-950 border border-slate-850 rounded-2xl p-4 flex flex-col gap-3.5">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div className="flex items-start gap-3">
+                        <div className={`p-2.5 rounded-xl border shrink-0 mt-0.5 ${
+                          hierarchyIntegrityStats.isHealthy 
+                            ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
+                            : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                        }`}>
+                          {hierarchyIntegrityStats.isHealthy ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-xs font-bold font-mono text-slate-100 uppercase tracking-wide">
+                              Integridade da Árvore Administrativa ({organizationalUnits.length} Unidades)
+                            </h4>
+                            {hierarchyIntegrityStats.isHealthy ? (
+                              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full">
+                                Árvore Consistente & Regulamentar
+                              </span>
+                            ) : (
+                              <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full">
+                                {hierarchyIntegrityStats.orphanedCount} Inconsistências Detectadas
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                            Estrutura hierárquica dinâmica em 4 escalões (DGSP ➔ Direcção Provincial ➔ Estabelecimento Penitenciário ➔ Órgão/Secção) conforme o Decreto Presidencial n.º 184/17.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setIsNrepAuditModalOpen(true)}
+                          className={`text-xs font-mono font-bold px-3 py-1.5 rounded-xl border transition flex items-center gap-1.5 cursor-pointer ${
+                            hierarchyIntegrityStats.isHealthy
+                              ? "bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border-emerald-500/40"
+                              : "bg-amber-950/40 hover:bg-amber-900/40 text-amber-300 border-amber-500/50 animate-pulse"
+                          }`}
+                          title="Abrir auditoria minuciosa das regras orgânicas NREP-AO (Dec. 184/17)"
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
+                          Auditoria NREP-AO
+                          {nrepTreeValidationReport.issues.length > 0 && (
+                            <span className="bg-amber-500 text-slate-950 text-[9.5px] font-black px-1.5 py-0.2 rounded-full">
+                              {nrepTreeValidationReport.issues.length}
+                            </span>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDefFormLabel(levelDefinitions[selectedTreeLevelFilter !== "ALL" ? selectedTreeLevelFilter : "L1_DG"].label);
+                            setDefFormShortLabel(levelDefinitions[selectedTreeLevelFilter !== "ALL" ? selectedTreeLevelFilter : "L1_DG"].shortLabel);
+                            setDefFormScope(levelDefinitions[selectedTreeLevelFilter !== "ALL" ? selectedTreeLevelFilter : "L1_DG"].scope);
+                            setDefFormDescription(levelDefinitions[selectedTreeLevelFilter !== "ALL" ? selectedTreeLevelFilter : "L1_DG"].description);
+                            setEditingLevelDefKey(selectedTreeLevelFilter !== "ALL" ? selectedTreeLevelFilter : "L1_DG");
+                            setIsLevelDefinitionsModalOpen(true);
+                          }}
+                          className="text-xs font-mono font-bold bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-amber-400 border border-slate-800 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                          title="Configurar nomes e definições de níveis da árvore"
+                        >
+                          <Settings2 className="h-3.5 w-3.5 text-amber-400" />
+                          Definições dos Níveis
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleAutoReconcileLevels}
+                          className="text-xs font-mono font-bold bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-amber-400 border border-slate-800 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+                          title="Verificar e reconciliar ponteiros hierárquicos"
+                        >
+                          <RefreshCw className="h-3.5 w-3.5" />
+                          Reconciliar Árvore
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBlueprintTargetProvince(isNational ? selectedProvinceFilter : operatorProvince);
+                            setIsBranchBlueprintModalOpen(true);
+                          }}
+                          className="text-xs font-mono font-black bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 px-3.5 py-1.5 rounded-xl shadow-md shadow-amber-500/20 transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Share2 className="h-3.5 w-3.5" />
+                          Gerar Ramo 4-Níveis
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenCreateLevelModal("L4_ORGAO")}
+                          className="text-xs font-mono font-bold bg-purple-600 hover:bg-purple-500 text-white px-3.5 py-1.5 rounded-xl shadow-md shadow-purple-600/20 transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Nova Unidade Dinâmica
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Rule Status Badges Ribbon */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-900">
+                      <div 
+                        onClick={() => {
+                          setSelectedAuditFilter("INVALID_LEVEL_SEQUENCE");
+                          setIsNrepAuditModalOpen(true);
+                        }}
+                        className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                          nrepTreeValidationReport.ruleMetrics.sequenceRulePassed
+                            ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-400 hover:border-emerald-700"
+                            : "bg-rose-950/20 border-rose-900/40 text-rose-300 hover:border-rose-700"
+                        }`}
+                      >
+                        <span className="text-[10px] font-mono font-semibold">1. Sequência L1➔L2➔L3➔L4</span>
+                        {nrepTreeValidationReport.ruleMetrics.sequenceRulePassed ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        ) : (
+                          <span className="text-[9px] font-mono font-black bg-rose-500 text-slate-950 px-1.5 rounded">
+                            {nrepTreeValidationReport.sequenceViolations.length}
+                          </span>
+                        )}
+                      </div>
+
+                      <div 
+                        onClick={() => {
+                          setSelectedAuditFilter("ORPHAN_NODE");
+                          setIsNrepAuditModalOpen(true);
+                        }}
+                        className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                          nrepTreeValidationReport.ruleMetrics.orphanRulePassed
+                            ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-400 hover:border-emerald-700"
+                            : "bg-rose-950/20 border-rose-900/40 text-rose-300 hover:border-rose-700"
+                        }`}
+                      >
+                        <span className="text-[10px] font-mono font-semibold">2. Zero Nós Órfãos</span>
+                        {nrepTreeValidationReport.ruleMetrics.orphanRulePassed ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        ) : (
+                          <span className="text-[9px] font-mono font-black bg-rose-500 text-slate-950 px-1.5 rounded">
+                            {nrepTreeValidationReport.orphanedNodes.length}
+                          </span>
+                        )}
+                      </div>
+
+                      <div 
+                        onClick={() => {
+                          setSelectedAuditFilter("TERRITORIAL_MISMATCH");
+                          setIsNrepAuditModalOpen(true);
+                        }}
+                        className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                          nrepTreeValidationReport.ruleMetrics.territoryRulePassed
+                            ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-400 hover:border-emerald-700"
+                            : "bg-amber-950/20 border-amber-900/40 text-amber-300 hover:border-amber-700"
+                        }`}
+                      >
+                        <span className="text-[10px] font-mono font-semibold">3. Âmbito Territorial</span>
+                        {nrepTreeValidationReport.ruleMetrics.territoryRulePassed ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        ) : (
+                          <span className="text-[9px] font-mono font-black bg-amber-500 text-slate-950 px-1.5 rounded">
+                            {nrepTreeValidationReport.territorialAnomalies.length}
+                          </span>
+                        )}
+                      </div>
+
+                      <div 
+                        onClick={() => {
+                          setSelectedAuditFilter("CIRCULAR_DEPENDENCY");
+                          setIsNrepAuditModalOpen(true);
+                        }}
+                        className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                          nrepTreeValidationReport.ruleMetrics.acyclicRulePassed
+                            ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-400 hover:border-emerald-700"
+                            : "bg-rose-950/20 border-rose-900/40 text-rose-300 hover:border-rose-700"
+                        }`}
+                      >
+                        <span className="text-[10px] font-mono font-semibold">4. Aciclicidade da Árvore</span>
+                        {nrepTreeValidationReport.ruleMetrics.acyclicRulePassed ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        ) : (
+                          <span className="text-[9px] font-mono font-black bg-rose-500 text-slate-950 px-1.5 rounded">
+                            {nrepTreeValidationReport.circularLoops.length}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Filter & Search Toolbar */}
+                  <div className="bg-slate-950 border border-slate-850 rounded-2xl p-3.5 flex flex-wrap justify-between items-center gap-3">
+                    <div className="flex items-center gap-2.5 flex-wrap flex-1 min-w-[280px]">
+                      {/* Search */}
+                      <div className="relative flex-1 min-w-[200px]">
+                        <Search className="h-3.5 w-3.5 text-slate-500 absolute left-3 top-2.5" />
+                        <input
+                          type="text"
+                          placeholder="Filtrar por nome, sigla, titular ou base legal..."
+                          value={levelSearchQuery}
+                          onChange={(e) => setLevelSearchQuery(e.target.value)}
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                        />
+                      </div>
+
+                      {/* Level Quick Tabs */}
+                      <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-lg p-0.5 overflow-x-auto">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTreeLevelFilter("ALL")}
+                          className={`text-[10px] font-mono px-2 py-1 rounded font-bold transition cursor-pointer whitespace-nowrap ${
+                            selectedTreeLevelFilter === "ALL"
+                              ? "bg-amber-500 text-slate-950"
+                              : "text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          Todos ({organizationalUnits.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTreeLevelFilter("L1_DG")}
+                          className={`text-[10px] font-mono px-2 py-1 rounded font-bold transition cursor-pointer whitespace-nowrap ${
+                            selectedTreeLevelFilter === "L1_DG"
+                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                              : "text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          L1: DG ({levelUnitsSummary.L1_DG.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTreeLevelFilter("L2_PROV")}
+                          className={`text-[10px] font-mono px-2 py-1 rounded font-bold transition cursor-pointer whitespace-nowrap ${
+                            selectedTreeLevelFilter === "L2_PROV"
+                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                              : "text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          L2: Província ({levelUnitsSummary.L2_PROV.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTreeLevelFilter("L3_EP")}
+                          className={`text-[10px] font-mono px-2 py-1 rounded font-bold transition cursor-pointer whitespace-nowrap ${
+                            selectedTreeLevelFilter === "L3_EP"
+                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                              : "text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          L3: EP / Cadeia ({levelUnitsSummary.L3_EP.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedTreeLevelFilter("L4_ORGAO")}
+                          className={`text-[10px] font-mono px-2 py-1 rounded font-bold transition cursor-pointer whitespace-nowrap ${
+                            selectedTreeLevelFilter === "L4_ORGAO"
+                              ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
+                              : "text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          L4: Órgão / Secção ({levelUnitsSummary.L4_ORGAO.length})
+                        </button>
+                      </div>
+
+                      {/* Province Filter */}
+                      <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+                        <span className="text-[10px] font-mono text-slate-500 uppercase font-bold">Província:</span>
+                        <select
+                          value={levelProvinceFilter}
+                          onChange={(e) => setLevelProvinceFilter(e.target.value)}
+                          className="bg-transparent text-xs text-slate-200 font-mono focus:outline-none cursor-pointer"
+                        >
+                          <option value="ALL">Todas as Províncias</option>
+                          {ALL_PROVINCES_LIST.map(p => (
+                            <option key={p} value={p}>{p}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* High Density Level Units List */}
+                  <div className="grid grid-cols-1 gap-3">
+                    {organizationalUnits
+                      .filter(unit => {
+                        const lvl = getUnitTreeLevel(unit);
+                        if (selectedTreeLevelFilter !== "ALL" && lvl !== selectedTreeLevelFilter) return false;
+
+                        if (levelProvinceFilter !== "ALL") {
+                          if (unit.province?.toLowerCase().trim() !== levelProvinceFilter.toLowerCase().trim()) return false;
+                        }
+
+                        if (levelSearchQuery.trim()) {
+                          const q = levelSearchQuery.toLowerCase();
+                          const matchesName = unit.name.toLowerCase().includes(q);
+                          const matchesCode = unit.code?.toLowerCase().includes(q) || unit.sigla?.toLowerCase().includes(q);
+                          const matchesHead = unit.headOfficerName?.toLowerCase().includes(q);
+                          const matchesBasis = unit.legalBasis?.toLowerCase().includes(q);
+                          if (!matchesName && !matchesCode && !matchesHead && !matchesBasis) return false;
+                        }
+
+                        return true;
+                      })
+                      .map(unit => {
+                        const lvlKey = getUnitTreeLevel(unit);
+                        const meta = levelDefinitions[lvlKey];
+                        const IconComp = meta.icon;
+                        const parentUnit = organizationalUnits.find(p => p.id === unit.parentId);
+                        const ancestorPath = getAncestorPath(unit);
+                        const children = getChildren(unit.id);
+
+                        return (
+                          <div
+                            key={unit.id}
+                            className={`p-4 rounded-2xl border transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-slate-950/80 border-slate-850 hover:border-slate-750`}
+                          >
+                            {/* Unit Core Details */}
+                            <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                              <div className={`p-2.5 rounded-xl border shrink-0 mt-0.5 ${meta.badgeBg} ${meta.badgeBorder} ${meta.badgeText}`}>
+                                <IconComp className="h-5 w-5" />
+                              </div>
+
+                              <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`text-[9.5px] font-mono font-black px-2 py-0.5 rounded-full border ${meta.badgeBg} ${meta.badgeBorder} ${meta.badgeText}`}>
+                                    NÍVEL {unit.hierarchyLevel || meta.num} • {unit.levelLabel || meta.shortLabel}
+                                  </span>
+
+                                  <span className="text-xs font-bold font-mono text-slate-100 truncate">
+                                    {unit.name}
+                                  </span>
+
+                                  {unit.code && (
+                                    <span className="bg-slate-900 border border-slate-800 text-amber-400 text-[9px] font-mono px-1.5 py-0.2 rounded">
+                                      {unit.code}
+                                    </span>
+                                  )}
+
+                                  {unit.province && (
+                                    <span className="bg-slate-900 border border-slate-800 text-blue-300 text-[9px] font-mono px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                                      <MapPin className="h-2.5 w-2.5" /> {unit.province}
+                                    </span>
+                                  )}
+
+                                  {children.length > 0 && (
+                                    <span className="bg-purple-950/40 border border-purple-800/40 text-purple-300 text-[9px] font-mono px-1.5 py-0.2 rounded">
+                                      {children.length} dependência(s)
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Ancestor Breadcrumb Path */}
+                                <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 flex-wrap mt-0.5">
+                                  <span className="text-slate-500 uppercase font-bold">Cadeia:</span>
+                                  {ancestorPath.map((anc, idx) => (
+                                    <React.Fragment key={anc.id}>
+                                      <span className={idx === ancestorPath.length - 1 ? meta.badgeText + " font-bold" : "text-slate-300 hover:text-slate-100"}>
+                                        {anc.code || anc.name.substring(0, 24)}
+                                      </span>
+                                      {idx < ancestorPath.length - 1 && (
+                                        <ChevronRight className="h-3 w-3 text-slate-600 shrink-0" />
+                                      )}
+                                    </React.Fragment>
+                                  ))}
+                                </div>
+
+                                {/* Officer and Legal Basis */}
+                                <div className="flex items-center gap-3 text-[10px] font-sans text-slate-400 flex-wrap mt-1">
+                                  {unit.headOfficerName && (
+                                    <span className="flex items-center gap-1 text-slate-300 font-mono">
+                                      <UserCheck className="h-3 w-3 text-amber-400" />
+                                      {unit.headOfficerName}
+                                      {unit.chiefOfficerRank && <span className="text-slate-500">({unit.chiefOfficerRank})</span>}
+                                    </span>
+                                  )}
+                                  {unit.legalBasis && (
+                                    <span className="flex items-center gap-1 text-slate-500 font-mono">
+                                      <Scale className="h-3 w-3 text-slate-600" />
+                                      {unit.legalBasis}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-1.5 shrink-0 self-end lg:self-center flex-wrap">
+                              {/* Quick Promote / Demote Buttons */}
+                              <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handlePromoteUnit(unit)}
+                                  disabled={lvlKey === "L1_DG"}
+                                  className={`p-1 rounded transition ${
+                                    lvlKey === "L1_DG" 
+                                      ? "text-slate-600 cursor-not-allowed" 
+                                      : "text-slate-400 hover:text-amber-400 hover:bg-slate-800 cursor-pointer"
+                                  }`}
+                                  title={lvlKey === "L1_DG" ? "Já no nível máximo (L1)" : "Promover nível administrativo (ex: L4➔L3, L3➔L2, L2➔L1)"}
+                                >
+                                  <ArrowUp className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDemoteUnit(unit)}
+                                  disabled={lvlKey === "L4_ORGAO"}
+                                  className={`p-1 rounded transition ${
+                                    lvlKey === "L4_ORGAO" 
+                                      ? "text-slate-600 cursor-not-allowed" 
+                                      : "text-slate-400 hover:text-purple-400 hover:bg-slate-800 cursor-pointer"
+                                  }`}
+                                  title={lvlKey === "L4_ORGAO" ? "Já no nível base (L4)" : "Despromover nível administrativo (ex: L1➔L2, L2➔L3, L3➔L4)"}
+                                >
+                                  <ArrowDown className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedUnitForChain(unit);
+                                  setIsLevelChainModalOpen(true);
+                                }}
+                                className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-amber-400 border border-slate-800 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition cursor-pointer"
+                                title="Inspecionar cadeia hierárquica e subordinações"
+                              >
+                                <Workflow className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Cadeia</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenLevelReassign(unit)}
+                                className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-blue-400 border border-slate-800 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition cursor-pointer"
+                                title="Reclassificar nível administrativo ou superior hierárquico"
+                              >
+                                <Split className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Nível / Superior</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenRespInspector(unit)}
+                                className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 rounded-lg text-xs font-mono font-bold flex items-center gap-1 transition cursor-pointer"
+                                title="Atribuições e responsabilidades operativas"
+                              >
+                                <FileText className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Atribuições</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditLevelUnit(unit)}
+                                className="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-blue-400 border border-slate-800 rounded-lg transition cursor-pointer"
+                                title="Editar dados da unidade"
+                              >
+                                <Edit3 className="h-3.5 w-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteUnit(unit.id, unit.name)}
+                                className="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border border-slate-800 rounded-lg transition cursor-pointer"
+                                title="Excluir unidade"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              ) : activeCategoryTab === "SUBORDINATION" ? (
                 <div className="flex flex-col gap-5">
                   {/* Banner Notice */}
                   <div className="bg-slate-950 border border-indigo-500/30 rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
@@ -2576,6 +4483,1132 @@ export function OrganizationalHierarchyConfig({
                 >
                   <Check className="h-4 w-4 stroke-[3]" />
                   Homologar Subordinação
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* MODAL: DYNAMIC LEVEL UNIT CREATOR / EDITOR (L1 -> L4) */}
+        {isCreateLevelModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-2xl shadow-2xl flex flex-col gap-5 my-8 max-h-[90vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="flex items-start justify-between gap-3 border-b border-slate-850 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 rounded-2xl border ${ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].badgeBg} ${ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].badgeBorder} ${ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].badgeText}`}>
+                    {React.createElement(ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].icon, { className: "h-6 w-6" })}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-black text-slate-100 font-mono uppercase">
+                        {editingLevelUnitId ? "Editar Unidade Orgânica" : "Definir Nova Unidade Hierárquica"}
+                      </h3>
+                      <span className={`text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-full border ${ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].badgeBg} ${ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].badgeBorder} ${ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].badgeText}`}>
+                        Nível {ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].num}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                      Configuração dinâmica da árvore administrativa conforme Decreto Presidencial n.º 184/17.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCreateLevelModalOpen(false)}
+                  className="p-1 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Level Selector Segment */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                  Escalão / Nível da Árvore Administrativa:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {(["L1_DG", "L2_PROV", "L3_EP", "L4_ORGAO"] as AdministrativeTreeLevel[]).map((lvlKey) => {
+                    const meta = ADMINISTRATIVE_LEVEL_DEFINITIONS[lvlKey];
+                    const isSelected = selectedLevelToCreate === lvlKey;
+                    return (
+                      <button
+                        key={lvlKey}
+                        type="button"
+                        onClick={() => setSelectedLevelToCreate(lvlKey)}
+                        className={`p-2.5 rounded-xl border text-left flex flex-col transition cursor-pointer ${
+                          isSelected
+                            ? `${meta.badgeBg} ${meta.badgeBorder} ring-2 ring-${meta.colorName}-500/50`
+                            : "bg-slate-900 border-slate-800 hover:border-slate-700"
+                        }`}
+                      >
+                        <span className={`text-[10px] font-mono font-black ${isSelected ? meta.badgeText : "text-slate-400"}`}>
+                          NÍVEL {meta.num}
+                        </span>
+                        <span className="text-xs font-mono font-bold text-slate-200 truncate mt-0.5">
+                          {meta.shortLabel}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveLevelUnit} className="flex flex-col gap-4">
+                {/* Unit Name & Code */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="sm:col-span-2 flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                      Designação Oficial da Unidade *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={levelFormName}
+                      onChange={(e) => setLevelFormName(e.target.value)}
+                      placeholder="Ex: Secção de Controlo Penal e Registo Penitenciário"
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                      Sigla / Código
+                    </label>
+                    <input
+                      type="text"
+                      value={levelFormCode}
+                      onChange={(e) => setLevelFormCode(e.target.value)}
+                      placeholder="Ex: SCP-HUA"
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-amber-400 placeholder:text-slate-600 focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Superior Hierárquico (Parent) & Province */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400 flex items-center justify-between">
+                      <span>Superior Hierárquico Imediato (Pai) *</span>
+                      <span className="text-[9px] text-amber-400 font-normal">Nível {Math.max(1, ADMINISTRATIVE_LEVEL_DEFINITIONS[selectedLevelToCreate].num - 1)}</span>
+                    </label>
+                    <select
+                      value={levelFormParentId}
+                      onChange={(e) => setLevelFormParentId(e.target.value)}
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      {selectedLevelToCreate === "L1_DG" && (
+                        <option value="OU-MININT-DG">Nenhum (Raiz Institucional DGSP / MININT)</option>
+                      )}
+
+                      {selectedLevelToCreate === "L2_PROV" && (
+                        <option value="OU-MININT-DG">OU-MININT-DG - Direcção Geral dos Serviços Penitenciários</option>
+                      )}
+
+                      {(selectedLevelToCreate === "L3_EP" || selectedLevelToCreate === "L4_ORGAO") && (
+                        <>
+                          <optgroup label="Nível 1: Direcção Geral">
+                            <option value="OU-MININT-DG">OU-MININT-DG - Direcção Geral dos Serviços Penitenciários</option>
+                          </optgroup>
+                          <optgroup label="Nível 2: Direcções Provinciais">
+                            {provincialDirectorates.map(d => (
+                              <option key={d.id} value={d.id}>{d.name} ({d.province})</option>
+                            ))}
+                          </optgroup>
+                          {selectedLevelToCreate === "L4_ORGAO" && (
+                            <optgroup label="Nível 3: Estabelecimentos Penitenciários">
+                              {organizationalUnits.filter(u => getUnitTreeLevel(u) === "L3_EP").map(ep => (
+                                <option key={ep.id} value={ep.id}>{ep.name} ({ep.province})</option>
+                              ))}
+                            </optgroup>
+                          )}
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                      Província de Jurisdição Territorial *
+                    </label>
+                    <select
+                      value={levelFormProvince}
+                      onChange={(e) => setLevelFormProvince(e.target.value)}
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      {ALL_PROVINCES_LIST.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Classification & Category */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                      Tipo de Divisão Orgânica
+                    </label>
+                    <select
+                      value={levelFormDivisionType}
+                      onChange={(e) => setLevelFormDivisionType(e.target.value)}
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      <option value="DIRECAO_NACIONAL">DIRECAO_NACIONAL (Central)</option>
+                      <option value="DIRECAO_PROVINCIAL">DIRECAO_PROVINCIAL (Provincial)</option>
+                      <option value="ESTAB_PENITENCIARIO">ESTAB_PENITENCIARIO (Cadeia / Prisão)</option>
+                      <option value="DEPARTAMENTO">DEPARTAMENTO (Executivo)</option>
+                      <option value="SECCAO">SECCAO (Sub-unidade)</option>
+                      <option value="GABINETE">GABINETE (Apoio Directo)</option>
+                      <option value="CONSELHO">CONSELHO (Órgão Colegial)</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                      Enquadramento Legal (Base Regulamentar)
+                    </label>
+                    <input
+                      type="text"
+                      value={levelFormLegalBasis}
+                      onChange={(e) => setLevelFormLegalBasis(e.target.value)}
+                      placeholder="Decreto Presidencial n.º 184/17, de 11 de Agosto"
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Head Officer Details */}
+                <div className="bg-slate-900/60 border border-slate-850 rounded-2xl p-3.5 flex flex-col gap-3">
+                  <span className="text-[10.5px] font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
+                    <UserCheck className="h-3.5 w-3.5 text-amber-400" />
+                    Titular / Chefia da Unidade
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-mono text-slate-500 uppercase">Nome do Titular</label>
+                      <input
+                        type="text"
+                        value={levelFormHeadName}
+                        onChange={(e) => setLevelFormHeadName(e.target.value)}
+                        placeholder="Nome completo do oficial"
+                        className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 placeholder:text-slate-600 font-mono"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-mono text-slate-500 uppercase">Posto / Patente</label>
+                      <input
+                        type="text"
+                        value={levelFormHeadRank}
+                        onChange={(e) => setLevelFormHeadRank(e.target.value)}
+                        placeholder="Superintendente Prisional"
+                        className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 placeholder:text-slate-600 font-mono"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-mono text-slate-500 uppercase">Contacto Oficial</label>
+                      <input
+                        type="text"
+                        value={levelFormHeadPhone}
+                        onChange={(e) => setLevelFormHeadPhone(e.target.value)}
+                        placeholder="+244 923 000 000"
+                        className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 placeholder:text-slate-600 font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Responsibilities Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                      Atribuições Administrativas
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={levelFormAdminResp}
+                      onChange={(e) => setLevelFormAdminResp(e.target.value)}
+                      placeholder="Gestão de expedientes, relatórios e processos..."
+                      className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-sans text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 resize-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                      Atribuições Operacionais
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={levelFormOperResp}
+                      onChange={(e) => setLevelFormOperResp(e.target.value)}
+                      placeholder="Execução de rondas, revistas, custódia e controlo..."
+                      className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 text-xs font-sans text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Real-time NREP-AO Validation Feedback */}
+                {(() => {
+                  const liveVal = validateSingleUnitNrepRules({
+                    unitId: editingLevelUnitId,
+                    name: levelFormName,
+                    treeLevel: selectedLevelToCreate,
+                    parentId: levelFormParentId,
+                    province: levelFormProvince,
+                    allUnits: organizationalUnits,
+                    levelDefs: levelDefinitions
+                  });
+
+                  if (liveVal.isValid) {
+                    return (
+                      <div className="p-3 rounded-2xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold font-mono block text-emerald-200">
+                            Conformidade Estatutária NREP-AO Aprovada
+                          </span>
+                          <span className="text-[11px] font-sans text-emerald-300/80 leading-tight block mt-0.5">
+                            Nível {levelDefinitions[selectedLevelToCreate].num} ({levelDefinitions[selectedLevelToCreate].shortLabel}) segue a sequência regulamentar e integridade territorial do Dec. Pres. 184/17.
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="p-3 rounded-2xl border bg-rose-500/15 border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5">
+                        <AlertCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold font-mono block text-rose-300">
+                            Violação de Regra Orgânica NREP-AO
+                          </span>
+                          <span className="text-[11px] font-sans text-rose-200/90 leading-tight block mt-0.5">
+                            {liveVal.errorReason}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+                })()}
+
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-850">
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateLevelModalOpen(false)}
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs font-mono font-bold rounded-xl cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Check className="h-4 w-4 stroke-[3]" />
+                    {editingLevelUnitId ? "Salvar Alterações" : "Criar Unidade no Nível"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* MODAL: HIERARCHY CHAIN & ANCESTRY INSPECTOR */}
+        {isLevelChainModalOpen && selectedUnitForChain && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-xl shadow-2xl flex flex-col gap-5"
+            >
+              <div className="flex items-start justify-between gap-3 border-b border-slate-850 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                    <Workflow className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold font-mono text-slate-100 uppercase">
+                      Cadeia de Subordinação da Unidade
+                    </h3>
+                    <p className="text-xs font-mono text-amber-400">
+                      {selectedUnitForChain.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLevelChainModalOpen(false);
+                    setSelectedUnitForChain(null);
+                  }}
+                  className="p-1 text-slate-400 hover:text-slate-200 cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Vertical Hierarchy Pathway */}
+              <div className="flex flex-col gap-2 bg-slate-900/60 border border-slate-850 p-4 rounded-2xl">
+                <span className="text-[10px] font-mono font-bold uppercase text-slate-400 mb-1">
+                  Linha de Comando Ascendente (Raiz ➔ Unidade):
+                </span>
+                {getAncestorPath(selectedUnitForChain).map((anc, idx, arr) => {
+                  const lvl = getUnitTreeLevel(anc);
+                  const meta = ADMINISTRATIVE_LEVEL_DEFINITIONS[lvl];
+                  const isCurrent = anc.id === selectedUnitForChain.id;
+
+                  return (
+                    <div key={anc.id} className="flex flex-col">
+                      <div className={`p-3 rounded-xl border flex items-center justify-between ${
+                        isCurrent
+                          ? `${meta.badgeBg} ${meta.badgeBorder} ring-2 ring-${meta.colorName}-500/60`
+                          : "bg-slate-950 border-slate-800"
+                      }`}>
+                        <div className="flex items-center gap-2.5">
+                          <span className={`text-[9px] font-mono font-black px-2 py-0.5 rounded-md border ${meta.badgeBg} ${meta.badgeBorder} ${meta.badgeText}`}>
+                            NÍVEL {meta.num}
+                          </span>
+                          <div>
+                            <span className="text-xs font-mono font-bold text-slate-200 block">
+                              {anc.name}
+                            </span>
+                            <span className="text-[10px] font-sans text-slate-400">
+                              {meta.shortLabel} • {anc.province || "Âmbito Nacional"}
+                            </span>
+                          </div>
+                        </div>
+                        {anc.headOfficerName && (
+                          <span className="text-[10px] font-mono text-slate-400 hidden sm:block">
+                            {anc.headOfficerName}
+                          </span>
+                        )}
+                      </div>
+                      {idx < arr.length - 1 && (
+                        <div className="py-1 pl-6 flex items-center gap-1.5 text-slate-600 font-mono text-xs">
+                          <ArrowDown className="h-3.5 w-3.5" />
+                          <span className="text-[9px] uppercase tracking-wider">Subordina directamemte</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Direct and Subordinate Units Count */}
+              <div className="bg-slate-900/40 border border-slate-850 p-3.5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-mono font-bold text-slate-200 block">
+                    Descendentes Subordinados
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-sans">
+                    {getChildren(selectedUnitForChain.id).length} directos • {getDescendants(selectedUnitForChain.id).length} totais na sub-árvore
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLevelChainModalOpen(false);
+                    handleOpenCreateLevelModal("L4_ORGAO");
+                  }}
+                  className="text-xs font-mono font-bold bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-xl transition flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Adicionar Dependência
+                </button>
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLevelChainModalOpen(false);
+                    setSelectedUnitForChain(null);
+                  }}
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 font-mono font-bold text-xs rounded-xl cursor-pointer"
+                >
+                  Fechar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* MODAL: LEVEL REASSIGNMENT & PARENT SWITCHER */}
+        {isLevelReassignModalOpen && selectedUnitForReassign && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-lg shadow-2xl flex flex-col gap-5"
+            >
+              <div className="flex items-start justify-between gap-3 border-b border-slate-850 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-400">
+                    <Split className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold font-mono text-slate-100 uppercase">
+                      Reclassificação de Nível & Superior
+                    </h3>
+                    <p className="text-xs font-mono text-amber-400">
+                      {selectedUnitForReassign.name}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsLevelReassignModalOpen(false)}
+                  className="p-1 text-slate-400 hover:text-slate-200 cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                    Novo Nível Administrativo:
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["L1_DG", "L2_PROV", "L3_EP", "L4_ORGAO"] as AdministrativeTreeLevel[]).map((lvlKey) => {
+                      const meta = ADMINISTRATIVE_LEVEL_DEFINITIONS[lvlKey];
+                      const isSelected = newLevelForReassign === lvlKey;
+                      return (
+                        <button
+                          key={lvlKey}
+                          type="button"
+                          onClick={() => setNewLevelForReassign(lvlKey)}
+                          className={`p-2.5 rounded-xl border text-left flex flex-col transition cursor-pointer ${
+                            isSelected
+                              ? `${meta.badgeBg} ${meta.badgeBorder} ring-2 ring-${meta.colorName}-500/50`
+                              : "bg-slate-900 border-slate-800"
+                          }`}
+                        >
+                          <span className={`text-[10px] font-mono font-black ${isSelected ? meta.badgeText : "text-slate-400"}`}>
+                            NÍVEL {meta.num}
+                          </span>
+                          <span className="text-xs font-mono font-bold text-slate-200 truncate mt-0.5">
+                            {meta.shortLabel}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                    Superior Hierárquico Imediato (Pai):
+                  </label>
+                  <select
+                    value={newParentForReassign}
+                    onChange={(e) => setNewParentForReassign(e.target.value)}
+                    className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500 cursor-pointer"
+                  >
+                    <option value="OU-MININT-DG">OU-MININT-DG - Direcção Geral (Central)</option>
+                    <optgroup label="Direcções Provinciais">
+                      {provincialDirectorates.map(d => (
+                        <option key={d.id} value={d.id}>{d.name} ({d.province})</option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Estabelecimentos Penitenciários">
+                      {organizationalUnits.filter(u => getUnitTreeLevel(u) === "L3_EP" && u.id !== selectedUnitForReassign.id).map(ep => (
+                        <option key={ep.id} value={ep.id}>{ep.name} ({ep.province})</option>
+                      ))}
+                    </optgroup>
+                  </select>
+                </div>
+
+                {/* Live NREP-AO Validation Feedback */}
+                {(() => {
+                  const liveVal = validateSingleUnitNrepRules({
+                    unitId: selectedUnitForReassign.id,
+                    name: selectedUnitForReassign.name,
+                    treeLevel: newLevelForReassign,
+                    parentId: newParentForReassign,
+                    province: selectedUnitForReassign.province,
+                    allUnits: organizationalUnits,
+                    levelDefs: levelDefinitions
+                  });
+
+                  if (liveVal.isValid) {
+                    return (
+                      <div className="p-3 rounded-2xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold font-mono block text-emerald-200">
+                            Reclassificação em Conformidade
+                          </span>
+                          <span className="text-[11px] font-sans text-emerald-300/80 leading-tight block mt-0.5">
+                            A transição para {levelDefinitions[newLevelForReassign].shortLabel} sob {organizationalUnits.find(u => u.id === newParentForReassign)?.name || 'DGSP Central'} respeita as normas orgânicas.
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="p-3 rounded-2xl border bg-rose-500/15 border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5">
+                        <AlertCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold font-mono block text-rose-300">
+                            Violação de Regra Orgânica NREP-AO
+                          </span>
+                          <span className="text-[11px] font-sans text-rose-200/90 leading-tight block mt-0.5">
+                            {liveVal.errorReason}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+                })()}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-850">
+                <button
+                  type="button"
+                  onClick={() => setIsLevelReassignModalOpen(false)}
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-400 font-mono font-bold text-xs rounded-xl cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveLevelReassign}
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-xs rounded-xl shadow-lg shadow-blue-600/20 transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="h-4 w-4 stroke-[3]" /> Homologar Reclassificação
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* MODAL: 4-TIER BLUEPRINT BRANCH GENERATOR */}
+        {isBranchBlueprintModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 w-full max-w-lg shadow-2xl flex flex-col gap-5"
+            >
+              <div className="flex items-start justify-between gap-3 border-b border-slate-850 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                    <Share2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold font-mono text-slate-100 uppercase">
+                      Gerador de Ramo Institucional de 4 Níveis
+                    </h3>
+                    <p className="text-xs font-sans text-slate-400">
+                      Geração padronizada conforme Decreto Presidencial n.º 184/17.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsBranchBlueprintModalOpen(false)}
+                  className="p-1 text-slate-400 hover:text-slate-200 cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                    Província de Destino
+                  </label>
+                  <select
+                    value={blueprintTargetProvince}
+                    onChange={(e) => setBlueprintTargetProvince(e.target.value)}
+                    className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500 cursor-pointer"
+                  >
+                    {ALL_PROVINCES_LIST.map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-mono font-bold uppercase text-slate-400">
+                    Nome do Estabelecimento Penitenciário (Nível 3)
+                  </label>
+                  <input
+                    type="text"
+                    value={blueprintEpName}
+                    onChange={(e) => setBlueprintEpName(e.target.value)}
+                    placeholder="Estabelecimento Penitenciário Central"
+                    className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                {/* Blueprint Summary Box */}
+                <div className="bg-slate-900/60 border border-slate-850 p-3.5 rounded-2xl flex flex-col gap-2">
+                  <span className="text-[10.5px] font-mono font-bold text-amber-400 uppercase">
+                    Estrutura a ser gerada automaticamente:
+                  </span>
+                  <ul className="text-[11px] font-mono text-slate-300 space-y-1 pl-2">
+                    <li>• <strong className="text-amber-300">L1:</strong> DGSP (Nacional / MININT)</li>
+                    <li>• <strong className="text-blue-300">L2:</strong> Direcção Provincial dos Serv. Penitenciários de {blueprintTargetProvince}</li>
+                    <li>• <strong className="text-emerald-300">L3:</strong> {blueprintEpName} de {blueprintTargetProvince}</li>
+                    <li>• <strong className="text-purple-300">L4 (4 Secções):</strong> Controlo Penal, Segurança e Guarda, Saúde/Assistência, Produção Penitenciária</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-850">
+                <button
+                  type="button"
+                  onClick={() => setIsBranchBlueprintModalOpen(false)}
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-400 font-mono font-bold text-xs rounded-xl cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGenerateBranchBlueprint}
+                  className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Check className="h-4 w-4 stroke-[3]" /> Gerar Ramo
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Dynamic Hierarchy Level Definitions Modal */}
+        {isLevelDefinitionsModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-950 border border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between border-b border-slate-850 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                    <Settings2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black font-mono text-slate-100 uppercase tracking-wide">
+                      Definição Dinâmica de Níveis da Árvore
+                    </h3>
+                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                      Configure as nomenclaturas, escopos e descrições dos 4 escalões hierárquicos do sistema.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsLevelDefinitionsModalOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 transition cursor-pointer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Level Selector Tabs */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {(["L1_DG", "L2_PROV", "L3_EP", "L4_ORGAO"] as AdministrativeTreeLevel[]).map(lvl => {
+                  const m = levelDefinitions[lvl];
+                  const Icon = m.icon;
+                  const isCur = editingLevelDefKey === lvl;
+                  return (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => {
+                        setEditingLevelDefKey(lvl);
+                        setDefFormLabel(m.label);
+                        setDefFormShortLabel(m.shortLabel);
+                        setDefFormScope(m.scope);
+                        setDefFormDescription(m.description);
+                      }}
+                      className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-2 transition cursor-pointer ${
+                        isCur
+                          ? `${m.badgeBg} ${m.badgeBorder} ring-2 ring-amber-500/50 shadow-md`
+                          : "bg-slate-900/60 border-slate-800 hover:border-slate-700 text-slate-400"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[10px] font-mono font-black ${isCur ? m.badgeText : "text-slate-400"}`}>
+                          NÍVEL {m.num}
+                        </span>
+                        <Icon className={`h-3.5 w-3.5 ${isCur ? m.badgeText : "text-slate-500"}`} />
+                      </div>
+                      <span className={`text-xs font-mono font-bold truncate ${isCur ? "text-slate-100" : "text-slate-300"}`}>
+                        {m.shortLabel}
+                      </span>
+                      <span className="text-[9px] font-mono text-slate-500">
+                        {levelUnitsSummary[lvl].length} unidade(s)
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <form onSubmit={handleSaveLevelDefinition} className="flex flex-col gap-4">
+                {/* Form Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <label className="text-[11px] font-mono font-bold text-slate-300 uppercase flex items-center justify-between">
+                      <span>Designação Completa do Nível</span>
+                      <span className="text-[10px] font-normal text-slate-500">Nível {levelDefinitions[editingLevelDefKey].num}</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={defFormLabel}
+                      onChange={(e) => setDefFormLabel(e.target.value)}
+                      placeholder="Ex: Direcção Geral dos Serviços Penitenciários"
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-mono font-bold text-slate-300 uppercase">
+                      Rótulo Resumido / Sigla do Escalão
+                    </label>
+                    <input
+                      type="text"
+                      value={defFormShortLabel}
+                      onChange={(e) => setDefFormShortLabel(e.target.value)}
+                      placeholder="Ex: DG / MININT, Direcção Provincial"
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-mono font-bold text-slate-300 uppercase">
+                      Âmbito / Jurisdição Territorial
+                    </label>
+                    <input
+                      type="text"
+                      value={defFormScope}
+                      onChange={(e) => setDefFormScope(e.target.value)}
+                      placeholder="Ex: Âmbito Nacional, Âmbito Provincial"
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <label className="text-[11px] font-mono font-bold text-slate-300 uppercase">
+                      Descrição Normativa e Competências do Escalão
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={defFormDescription}
+                      onChange={(e) => setDefFormDescription(e.target.value)}
+                      placeholder="Descreva a finalidade, papel hierárquico e base regulamentar..."
+                      className="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Cascade Checkbox */}
+                <div className="bg-slate-900/60 border border-slate-850 p-3.5 rounded-2xl flex items-start gap-3">
+                  <input
+                    id="defFormApplyToUnits"
+                    type="checkbox"
+                    checked={defFormApplyToUnits}
+                    onChange={(e) => setDefFormApplyToUnits(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0 cursor-pointer"
+                  />
+                  <label htmlFor="defFormApplyToUnits" className="text-xs font-mono text-slate-300 cursor-pointer flex flex-col gap-0.5">
+                    <span className="font-bold text-slate-200">
+                      Sincronizar unidades existentes no estado orgânico ({levelUnitsSummary[editingLevelDefKey].length} unidades)
+                    </span>
+                    <span className="text-[10.5px] font-sans text-slate-400">
+                      Atualiza os campos <code className="text-amber-400">treeLevel</code>, <code className="text-amber-400">hierarchyLevel</code> e <code className="text-amber-400">levelLabel</code> em todas as unidades deste escalão.
+                    </span>
+                  </label>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-850">
+                  <button
+                    type="button"
+                    onClick={() => setIsLevelDefinitionsModalOpen(false)}
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-850 text-slate-400 font-mono font-bold text-xs rounded-xl cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Check className="h-4 w-4 stroke-[3]" /> Salvar Definição do Nível
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+
+        {/* NREP-AO STATUTORY AUDIT & INTEGRITY DIAGNOSTIC MODAL */}
+        {isNrepAuditModalOpen && (
+          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-4xl shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-850 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 rounded-2xl border ${
+                    nrepTreeValidationReport.isValid
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                      : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                  }`}>
+                    <ShieldCheck className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold font-mono text-slate-100 uppercase tracking-wide flex items-center gap-2">
+                      Auditoria Orgânica NREP-AO
+                      {nrepTreeValidationReport.isValid ? (
+                        <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+                          Conformidade Plena (100%)
+                        </span>
+                      ) : (
+                        <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+                          {nrepTreeValidationReport.issues.length} Inconsistência(s)
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-slate-400 font-sans mt-0.5">
+                      Verificação contínua das regras orgânicas e integridade hierárquica segundo o Decreto Presidencial n.º 184/17 de 11 de Agosto.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsNrepAuditModalOpen(false)}
+                  className="p-2 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Status Summary Banner */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className={`p-3.5 rounded-2xl border ${
+                  nrepTreeValidationReport.ruleMetrics.sequenceRulePassed
+                    ? "bg-slate-950 border-emerald-900/40 text-emerald-300"
+                    : "bg-rose-950/30 border-rose-900/60 text-rose-300"
+                }`}>
+                  <span className="text-[10px] font-mono uppercase text-slate-400 block font-bold">1. Sequência L1➔L4</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-sm font-mono font-bold">
+                      {nrepTreeValidationReport.ruleMetrics.sequenceRulePassed ? "Aprovado" : `${nrepTreeValidationReport.sequenceViolations.length} Violações`}
+                    </span>
+                    {nrepTreeValidationReport.ruleMetrics.sequenceRulePassed ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-rose-400" />
+                    )}
+                  </div>
+                </div>
+
+                <div className={`p-3.5 rounded-2xl border ${
+                  nrepTreeValidationReport.ruleMetrics.orphanRulePassed
+                    ? "bg-slate-950 border-emerald-900/40 text-emerald-300"
+                    : "bg-rose-950/30 border-rose-900/60 text-rose-300"
+                }`}>
+                  <span className="text-[10px] font-mono uppercase text-slate-400 block font-bold">2. Vínculo Superior</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-sm font-mono font-bold">
+                      {nrepTreeValidationReport.ruleMetrics.orphanRulePassed ? "Zero Órfãos" : `${nrepTreeValidationReport.orphanedNodes.length} Órfãos`}
+                    </span>
+                    {nrepTreeValidationReport.ruleMetrics.orphanRulePassed ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-rose-400" />
+                    )}
+                  </div>
+                </div>
+
+                <div className={`p-3.5 rounded-2xl border ${
+                  nrepTreeValidationReport.ruleMetrics.territoryRulePassed
+                    ? "bg-slate-950 border-emerald-900/40 text-emerald-300"
+                    : "bg-amber-950/30 border-amber-900/60 text-amber-300"
+                }`}>
+                  <span className="text-[10px] font-mono uppercase text-slate-400 block font-bold">3. Territorial</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-sm font-mono font-bold">
+                      {nrepTreeValidationReport.ruleMetrics.territoryRulePassed ? "Coerente" : `${nrepTreeValidationReport.territorialAnomalies.length} Conflitos`}
+                    </span>
+                    {nrepTreeValidationReport.ruleMetrics.territoryRulePassed ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-amber-400" />
+                    )}
+                  </div>
+                </div>
+
+                <div className={`p-3.5 rounded-2xl border ${
+                  nrepTreeValidationReport.ruleMetrics.acyclicRulePassed
+                    ? "bg-slate-950 border-emerald-900/40 text-emerald-300"
+                    : "bg-rose-950/30 border-rose-900/60 text-rose-300"
+                }`}>
+                  <span className="text-[10px] font-mono uppercase text-slate-400 block font-bold">4. Aciclicidade</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-sm font-mono font-bold">
+                      {nrepTreeValidationReport.ruleMetrics.acyclicRulePassed ? "Sem Ciclos" : `${nrepTreeValidationReport.circularLoops.length} Loops`}
+                    </span>
+                    {nrepTreeValidationReport.ruleMetrics.acyclicRulePassed ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-rose-400" />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Tabs */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-850">
+                <button
+                  type="button"
+                  onClick={() => setSelectedAuditFilter("ALL")}
+                  className={`text-xs font-mono font-bold px-3 py-1.5 rounded-xl transition cursor-pointer shrink-0 ${
+                    selectedAuditFilter === "ALL"
+                      ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                      : "bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800"
+                  }`}
+                >
+                  Todos os Diagnósticos ({nrepTreeValidationReport.issues.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAuditFilter("INVALID_LEVEL_SEQUENCE")}
+                  className={`text-xs font-mono font-bold px-3 py-1.5 rounded-xl transition cursor-pointer shrink-0 ${
+                    selectedAuditFilter === "INVALID_LEVEL_SEQUENCE"
+                      ? "bg-rose-500 text-slate-950 shadow-md shadow-rose-500/20"
+                      : "bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800"
+                  }`}
+                >
+                  Quebra de Sequência ({nrepTreeValidationReport.sequenceViolations.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAuditFilter("ORPHAN_NODE")}
+                  className={`text-xs font-mono font-bold px-3 py-1.5 rounded-xl transition cursor-pointer shrink-0 ${
+                    selectedAuditFilter === "ORPHAN_NODE"
+                      ? "bg-rose-500 text-slate-950 shadow-md shadow-rose-500/20"
+                      : "bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800"
+                  }`}
+                >
+                  Nós Órfãos ({nrepTreeValidationReport.orphanedNodes.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAuditFilter("TERRITORIAL_MISMATCH")}
+                  className={`text-xs font-mono font-bold px-3 py-1.5 rounded-xl transition cursor-pointer shrink-0 ${
+                    selectedAuditFilter === "TERRITORIAL_MISMATCH"
+                      ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                      : "bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800"
+                  }`}
+                >
+                  Conflitos Territoriais ({nrepTreeValidationReport.territorialAnomalies.length})
+                </button>
+              </div>
+
+              {/* Issue List */}
+              <div className="flex flex-col gap-3">
+                {nrepTreeValidationReport.issues.length === 0 ? (
+                  <div className="p-8 text-center bg-slate-950 border border-emerald-900/30 rounded-2xl flex flex-col items-center justify-center gap-3">
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400">
+                      <FileCheck className="h-8 w-8" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold font-mono text-emerald-300">
+                        Árvore Orgânica em 100% de Conformidade Estatutária
+                      </h4>
+                      <p className="text-xs text-slate-400 font-sans max-w-md mx-auto mt-1">
+                        Todas as 4 camadas (DGSP ➔ Direcção Provincial ➔ Estabelecimento Penitenciário ➔ Órgão/Secção) obedecem rigorosamente à ordem prescrita pelo Decreto Presidencial n.º 184/17.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  nrepTreeValidationReport.issues
+                    .filter(issue => selectedAuditFilter === "ALL" || issue.ruleCode === selectedAuditFilter)
+                    .map(issue => (
+                      <div
+                        key={issue.id}
+                        className="bg-slate-950 border border-slate-850 hover:border-slate-750 p-4 rounded-2xl flex flex-col sm:flex-row items-start justify-between gap-4 transition"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-xl border shrink-0 mt-0.5 ${
+                            issue.severity === "CRITICAL"
+                              ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                              : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                          }`}>
+                            <AlertTriangle className="h-4 w-4" />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-mono font-bold text-slate-100">
+                                {issue.title}
+                              </span>
+                              <span className="bg-slate-900 border border-slate-800 text-amber-400 text-[9px] font-mono px-2 py-0.5 rounded">
+                                {issue.unitName}
+                              </span>
+                              <span className="text-[9px] font-mono text-slate-500">
+                                {issue.legalReference}
+                              </span>
+                            </div>
+                            <p className="text-xs font-sans text-slate-300 leading-relaxed">
+                              {issue.description}
+                            </p>
+                            {issue.suggestedFix && (
+                              <div className="text-[11px] font-mono text-emerald-400/90 mt-1 flex items-center gap-1.5">
+                                <ArrowRight className="h-3 w-3 shrink-0" />
+                                <span>Solução Recomendada: {issue.suggestedFix}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRepairNrepIssue(issue)}
+                            className="text-xs font-mono font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-500/10"
+                          >
+                            <RefreshCw className="h-3.5 w-3.5" />
+                            Reparar Nó
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+
+              {/* Bottom Reconcile Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-850 flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleAutoReconcileLevels}
+                  className="text-xs font-mono font-bold bg-slate-800 hover:bg-slate-750 text-slate-200 px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 text-amber-400" />
+                  Auto-Reconciliar Toda a Árvore Hierárquica
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsNrepAuditModalOpen(false)}
+                  className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer"
+                >
+                  Fechar Diagnóstico
                 </button>
               </div>
             </motion.div>

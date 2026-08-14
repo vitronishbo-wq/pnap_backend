@@ -31,7 +31,7 @@ interface OperationalInspectorProps {
   isOpen?: boolean;
   onClose?: () => void;
   selectedHierNode: {
-    type: "PROVINCE" | "MUNICIPALITY" | "PRISON" | "PAVILION" | "CELL" | "ESTABLISHMENT" | null;
+    type: "PROVINCE" | "MUNICIPALITY" | "PRISON" | "PAVILION" | "CELL" | "ESTABLISHMENT" | "DEPARTMENT" | null;
     id: string | null;
     name: string | null;
     parentId?: string | null;

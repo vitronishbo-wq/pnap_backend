@@ -10,9 +10,13 @@ import {
   CheckCircle2, 
   AlertTriangle,
   Lock,
-  Sparkles
+  Sparkles,
+  UploadCloud,
+  Trash2,
+  Video
 } from "lucide-react";
 import { MobileBottomDrawer } from "./MobileBottomDrawer";
+import { CameraCaptureModal } from "./CameraCaptureModal";
 
 interface Prison {
   id: string;
@@ -47,6 +51,7 @@ export function MobileMultiStepInmateModal({
   const [crimeDescription, setCrimeDescription] = useState(editingInmate?.crimeDescription || "Sob investigação / Prisão Preventiva");
   const [officerSignatureName, setOfficerSignatureName] = useState("Capitão M. Banza (Oficial de Guarda)");
   const [explicitConfirmed, setExplicitConfirmed] = useState(false);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,22 +134,50 @@ export function MobileMultiStepInmateModal({
               <UserCheck className="h-4 w-4" /> Passo 1: Identificação Civil & Biometria
             </h4>
 
-            {/* Mugshot Upload */}
-            <div className="flex items-center gap-3 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+            {/* Mugshot Upload & Live Camera Capture */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
               <div className="w-16 h-20 border border-slate-700 rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center relative shrink-0">
                 {photo ? (
                   <img src={photo} alt="Foto" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
                   <Camera className="h-6 w-6 text-slate-600" />
                 )}
+                {photo && (
+                  <button
+                    type="button"
+                    onClick={() => setPhoto("")}
+                    className="absolute top-0.5 right-0.5 bg-rose-600/90 hover:bg-rose-500 text-white rounded p-0.5 text-[8px] cursor-pointer"
+                    title="Remover fotografia"
+                  >
+                    <Trash2 className="h-2.5 w-2.5" />
+                  </button>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 w-full">
                 <label className="text-xs font-bold text-slate-200 block mb-1">Fotografia do Recluso</label>
                 <p className="text-[10px] text-slate-400 mb-2">Carregue ou capture a fotografia oficial para a ficha de custódia.</p>
-                <label className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-lg text-xs font-bold cursor-pointer touch-manipulation min-h-[44px]">
-                  <Camera className="h-4 w-4" /> Capturar / Escolher Foto
-                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsCameraModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg text-xs font-bold cursor-pointer touch-manipulation min-h-[44px] shadow-sm transition"
+                  >
+                    <Camera className="h-4 w-4 stroke-[2.5]" /> Capturar com Câmara
+                  </button>
+                  <label className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold cursor-pointer touch-manipulation min-h-[44px] border border-slate-700 transition">
+                    <UploadCloud className="h-4 w-4 text-amber-400" /> Carregar Ficheiro
+                    <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                  </label>
+                  {photo && (
+                    <button
+                      type="button"
+                      onClick={() => setPhoto("")}
+                      className="inline-flex items-center gap-1 px-2.5 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/40 rounded-lg text-xs font-mono font-bold cursor-pointer touch-manipulation min-h-[44px] transition"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Limpar
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -372,6 +405,14 @@ export function MobileMultiStepInmateModal({
           )}
         </div>
       </div>
+
+      <CameraCaptureModal
+        isOpen={isCameraModalOpen}
+        onClose={() => setIsCameraModalOpen(false)}
+        onCapture={(capturedData) => setPhoto(capturedData)}
+        title="Fotografia Oficial do Recluso"
+        subtitle="Registo de face frontal com iluminação adequada para a ficha penitenciária"
+      />
     </MobileBottomDrawer>
   );
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
   Camera, 
   ExternalLink, 
@@ -9,8 +9,10 @@ import {
   User, 
   FileText,
   Building2,
-  ChevronRight
+  ChevronRight,
+  UploadCloud
 } from "lucide-react";
+import { CameraCaptureModal } from "./CameraCaptureModal";
 
 export interface Inmate {
   id: string;
@@ -64,6 +66,7 @@ export function MobileInmateCard({
   onSelectDocumentCode,
   onOpenQuickDossier
 }: MobileInmateCardProps) {
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const prName =
     prisons.find((p) => p.id === inmate.assignedPrisonId)?.name.replace("Estabelecimento Penitenciário de ", "EP ") ||
     "EP Viana";
@@ -204,9 +207,11 @@ export function MobileInmateCard({
 
           {/* Photo / Mugshot */}
           <div className="relative group shrink-0">
-            <label
-              htmlFor={`mobile-photo-${inmate.id}`}
+            <button
+              type="button"
+              onClick={() => setIsCameraOpen(true)}
               className="w-12 h-14 border border-slate-750 rounded-lg overflow-hidden shrink-0 bg-slate-950 flex items-center justify-center cursor-pointer shadow-inner relative block"
+              title="Capturar fotografia com câmara ao vivo"
             >
               {inmate.photo ? (
                 <img
@@ -221,24 +226,10 @@ export function MobileInmateCard({
                   <span className="text-[7px] uppercase font-bold mt-0.5">Foto</span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-                <Camera className="h-4 w-4 text-white" />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                <Camera className="h-4 w-4 text-amber-400" />
               </div>
-            </label>
-            <input
-              id={`mobile-photo-${inmate.id}`}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onloadend = () => onUploadPhoto(inmate.id, reader.result as string);
-                  reader.readAsDataURL(file);
-                }
-              }}
-            />
+            </button>
           </div>
 
           {/* Main Info */}
@@ -360,6 +351,16 @@ export function MobileInmateCard({
           <span>Histórico</span>
         </button>
       </div>
+
+      <CameraCaptureModal
+        isOpen={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onCapture={(capturedBase64) => {
+          onUploadPhoto(inmate.id, capturedBase64);
+        }}
+        title={`Fotografia do Recluso #${inmate.id}`}
+        subtitle={`Registo de face para ${inmate.firstName} ${inmate.lastName}`}
+      />
     </div>
   );
 }
