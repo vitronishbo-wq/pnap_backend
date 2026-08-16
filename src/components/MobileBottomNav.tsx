@@ -28,6 +28,9 @@ interface MobileBottomNavProps {
   activeInmateCount?: number;
   alertCount?: number;
   currentOperator?: Operator | any;
+  admissionsSubTab?: "consulta" | "novo-ingresso";
+  setAdmissionsSubTab?: (subTab: "consulta" | "novo-ingresso") => void;
+  onSelectConsulta?: () => void;
 }
 
 export function MobileBottomNav({
@@ -39,7 +42,10 @@ export function MobileBottomNav({
   onOpenOccupancy,
   activeInmateCount = 0,
   alertCount = 1,
-  currentOperator
+  currentOperator,
+  admissionsSubTab,
+  setAdmissionsSubTab,
+  onSelectConsulta
 }: MobileBottomNavProps) {
   const isNational = 
     !currentOperator ||
@@ -52,7 +58,7 @@ export function MobileBottomNav({
   const isEP = !isNational && !isProvincial;
 
   const isDashboardActive = activeTab === "dashboard" || activeTab === "centro-comando" || activeTab === "";
-  const isReclusosActive = activeTab === "admissions" || activeTab === "inmates";
+  const isReclusosActive = (activeTab === "admissions" || activeTab === "inmates") && (!admissionsSubTab || admissionsSubTab === "consulta");
   const isTransferActive = activeTab === "movements" || activeTab === "transfers";
   const isLotacaoActive = activeTab === "occupancy" || activeTab === "lotacao";
 
@@ -98,6 +104,12 @@ export function MobileBottomNav({
           type="button"
           onClick={() => {
             setActiveTab("admissions");
+            if (setAdmissionsSubTab) {
+              setAdmissionsSubTab("consulta");
+            }
+            if (onSelectConsulta) {
+              onSelectConsulta();
+            }
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           className={`flex-1 min-h-[50px] flex flex-col items-center justify-center p-1 rounded-xl relative transition-all duration-200 cursor-pointer touch-manipulation active:scale-95 ${

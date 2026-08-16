@@ -25,6 +25,7 @@ import {
   FolderTree,
   Scale,
   Users,
+  UserPlus,
   FileText,
   MapPin,
   Search,
@@ -1804,6 +1805,7 @@ export default function App() {
   const [openTabs, setOpenTabs] = useState<string[]>(["centro-comando"]);
 
   // --- SMARTPHONE & MOBILE STATES ---
+  const [admissionsSubTab, setAdmissionsSubTab] = useState<"consulta" | "novo-ingresso">("consulta");
   const [isMobileQROpen, setIsMobileQROpen] = useState(false);
   const [isMobileMultiStepAddOpen, setIsMobileMultiStepAddOpen] = useState(false);
   const [isMobileTouchSignatureOpen, setIsMobileTouchSignatureOpen] = useState(false);
@@ -9008,7 +9010,12 @@ export default function App() {
         onTriggerSync={triggerSync}
         currentOperator={currentOperator}
         activeTab={activeTab}
-        setActiveTab={(t) => setActiveTab(t as any)}
+        setActiveTab={(t) => {
+          setActiveTab(t as any);
+          if (t === "admissions") {
+            setAdmissionsSubTab("consulta");
+          }
+        }}
         onOpenSearchModal={() => {
           setIsMobileFilterOpen(true);
         }}
@@ -12353,10 +12360,56 @@ export default function App() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+              className="flex flex-col gap-5"
             >
-              {/* Form de Matrícula Dinâmica de Novo Recluso */}
-              <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
+              {/* Sub-tab Navigation Switcher: Consulta / População vs Novo Ingresso */}
+              <div className="bg-slate-900/95 border border-slate-800 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <button
+                    id="btn-subtab-consulta-reclusos"
+                    type="button"
+                    onClick={() => setAdmissionsSubTab("consulta")}
+                    className={`px-4 py-2 rounded-lg font-mono text-xs font-bold flex items-center gap-2 transition cursor-pointer active:scale-95 ${
+                      admissionsSubTab === "consulta"
+                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30 ring-1 ring-blue-400"
+                        : "bg-slate-950 text-slate-400 hover:text-slate-200 hover:bg-slate-850 border border-slate-800"
+                    }`}
+                  >
+                    <Users className="h-4 w-4 text-blue-300" />
+                    <span>Consulta & Diretório de Reclusos</span>
+                    <span className="bg-slate-950/90 px-1.5 py-0.5 rounded text-[10px] font-mono border border-slate-800 text-blue-200">
+                      {visibleInmates.length}
+                    </span>
+                  </button>
+
+                  <button
+                    id="btn-subtab-novo-ingresso"
+                    type="button"
+                    onClick={() => setAdmissionsSubTab("novo-ingresso")}
+                    className={`px-4 py-2 rounded-lg font-mono text-xs font-bold flex items-center gap-2 transition cursor-pointer active:scale-95 ${
+                      admissionsSubTab === "novo-ingresso"
+                        ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/30 font-black ring-1 ring-amber-400"
+                        : "bg-slate-950 text-slate-400 hover:text-slate-200 hover:bg-slate-850 border border-slate-800"
+                    }`}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                    <span>+ Novo Ingresso (Formulário)</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+                  <span className="hidden md:inline">Jurisdição:</span>
+                  <span className="bg-slate-950 px-2 py-1 rounded border border-slate-800 text-amber-400 font-bold text-[10px]">
+                    {selectedProvinceFilter === "ALL" ? "Âmbito Nacional" : selectedProvinceFilter}
+                  </span>
+                </div>
+              </div>
+
+              {/* RENDER VIEW ACCORDING TO ACTIVE SUBTAB */}
+              {admissionsSubTab === "novo-ingresso" && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Form de Matrícula Dinâmica de Novo Recluso */}
+                  <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
                 
                 <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
                   <div>
@@ -17762,6 +17815,409 @@ export default function App() {
                 </div>
 
               </div>
+              </div>
+              )}
+
+              {/* VIEW 2: CONSULTA DE RECLUSOS & POPULAÇÃO PRISIONAL (MODO CONSULTA DIRETO & EXCLUSIVO: LARGURA COMPLETA) */}
+              {admissionsSubTab === "consulta" && (
+                <div className="w-full flex flex-col gap-6 animate-fadeIn">
+                  
+                  {/* Visualização de fila de Sincronismo (IndexedDB) */}
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
+                    <div 
+                      onClick={() => setIsSyncQueueExpanded(!isSyncQueueExpanded)}
+                      className="flex justify-between items-center cursor-pointer select-none"
+                    >
+                      <div className="flex items-center gap-2">
+                        <RefreshCw className={`h-3.5 w-3.5 text-amber-500 ${isSyncing ? "animate-spin" : ""}`} />
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-amber-500 font-mono">
+                          Fila Offline (IndexedDB)
+                        </h3>
+                        <span className="bg-slate-950 text-slate-300 font-mono px-2 py-0.5 rounded border border-slate-800 text-[10px]">
+                          {syncQueue.length}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {isOnline && syncQueue.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); triggerSync(); }}
+                            disabled={isSyncing}
+                            className="px-2 py-0.5 text-[9px] font-mono uppercase rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
+                          >
+                            Sincronizar
+                          </button>
+                        )}
+                        <button type="button" className="text-slate-400 hover:text-slate-200">
+                          {isSyncQueueExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {isSyncQueueExpanded && (
+                      <div className="flex flex-col gap-2 max-h-36 overflow-y-auto pt-2 border-t border-slate-800/80">
+                        {syncQueue.length === 0 ? (
+                          <div className="text-center py-3 text-xxs text-slate-500 font-mono">
+                            Sem transações locais pendentes.
+                          </div>
+                        ) : (
+                          syncQueue.map(item => (
+                            <div key={item.id} className="bg-slate-950 p-2 border border-slate-850 rounded flex items-center justify-between text-xxs font-mono">
+                              <div className="flex items-center gap-1.5">
+                                <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] px-1.5 py-0.2 rounded font-bold">
+                                  {item.type}
+                                </span>
+                                <span className="text-slate-300 font-semibold">{item.id}</span>
+                              </div>
+                              <span className="text-[9px] font-semibold text-amber-400 uppercase">Pendente</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+
+                    {/* CONFIGURAÇÃO E MONITORIZAÇÃO DO SYNC EM SEGUNDO PLANO */}
+                    <div className="border-t border-slate-800/80 pt-3 flex flex-col gap-2">
+                      <div 
+                        onClick={() => setIsVsatExpanded(!isVsatExpanded)}
+                        className="flex items-center justify-between cursor-pointer select-none"
+                      >
+                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                          <Activity className={`h-3.5 w-3.5 ${backgroundSyncEnabled && (!isOnline || syncQueue.length > 0) ? "text-amber-500 animate-pulse" : "text-slate-400"}`} />
+                          Sinc VSAT
+                        </span>
+                        
+                        <div className="flex items-center gap-3">
+                          {/* Toggle Switch */}
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setBackgroundSyncEnabled(!backgroundSyncEnabled); }}
+                            className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                              backgroundSyncEnabled ? "bg-amber-500" : "bg-slate-800"
+                            }`}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-slate-950 shadow ring-0 transition duration-200 ease-in-out ${
+                                backgroundSyncEnabled ? "translate-x-4" : "translate-x-0"
+                              }`}
+                            />
+                          </button>
+                          <button type="button" className="text-slate-400 hover:text-slate-200">
+                            {isVsatExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {isVsatExpanded && backgroundSyncEnabled && (
+                        <div className="bg-slate-950/60 rounded-lg p-3 border border-slate-850 flex flex-col gap-2.5 mt-1">
+                          <div className="flex items-center justify-between text-xxs font-mono">
+                            <span className="text-slate-400">Estado:</span>
+                            {isOnline ? (
+                              <span className="text-emerald-400 font-bold">● Conetado</span>
+                            ) : (
+                              <span className="text-amber-400 font-bold">▲ Offline ({bgSyncCountdown}s)</span>
+                            )}
+                          </div>
+
+                          {!isOnline && (
+                            <button
+                              type="button"
+                              onClick={handleAutomaticReconnectionAttempt}
+                              disabled={isReconnecting}
+                              className="w-full py-1 text-center font-mono text-[10px] uppercase rounded border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 cursor-pointer disabled:opacity-50 transition"
+                            >
+                              {isReconnecting ? "Reconectando..." : "Forçar Reconexão"}
+                            </button>
+                          )}
+
+                          {/* Tiny logs list */}
+                          <div className="flex flex-col gap-1 border-t border-slate-900 pt-2">
+                            <div className="font-mono text-[9px] text-slate-400 max-h-28 overflow-y-auto leading-relaxed flex flex-col gap-1 pr-1 bg-slate-950 p-2 rounded border border-slate-900">
+                              {bgSyncLogs.slice(0, 5).map((log, ix) => (
+                                <p key={ix} className="text-slate-400 font-mono text-[9px]">
+                                  {log}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* População e Consulta Principal */}
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col gap-4 shadow-xl">
+                    <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-2 bg-blue-500/15 border border-blue-500/30 rounded-lg text-blue-400">
+                          <Users className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-100 font-mono">
+                            Consulta & Diretório Geral de Reclusos
+                          </h3>
+                          <p className="text-xxs text-slate-400 font-sans">
+                            Base de dados do Sistema Penitenciário Nacional ({visibleInmates.length} registos ativos)
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const filtered = visibleInmates.filter((inm) => {
+                              if (!admissionsSearchQuery) return true;
+                              const query = admissionsSearchQuery.toLowerCase().trim();
+                              const fullName = `${inm.firstName} ${inm.lastName}`.toLowerCase();
+                              const biNum = (inm.idCard || "").toLowerCase();
+                              const idNum = (inm.id || "").toLowerCase();
+                              const prName = (prisons.find(p => p.id === inm.assignedPrisonId)?.name || "").toLowerCase();
+                              return fullName.includes(query) || biNum.includes(query) || idNum.includes(query) || prName.includes(query);
+                            });
+                            exportInmateListToPDF(filtered, admissionsSearchQuery, prisons, currentOperatorId);
+                          }}
+                          className="px-3 py-1.5 text-xs font-mono rounded-lg cursor-pointer border bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20 active:scale-95 transition flex items-center gap-1.5"
+                          title="Exportar Lista Completa (PDF)"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          Exportar Relatório PDF
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Real-time search bar */}
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-slate-500">
+                        <Search className="h-4 w-4 text-amber-500" />
+                      </span>
+                      <input
+                        id="admissions-search-input-consulta"
+                        type="text"
+                        placeholder="Pesquisar por Nome Completo, Nº de BI, Nº de Registo RNR, EP ou Delito..."
+                        value={admissionsSearchQuery}
+                        onChange={(e) => setAdmissionsSearchQuery(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all duration-300 pl-10 pr-20 py-2.5 rounded-xl text-xs text-slate-200 placeholder-slate-500 font-sans shadow-inner"
+                      />
+                      {admissionsSearchQuery && (
+                        <button
+                          type="button"
+                          id="admissions-search-clear-button-consulta"
+                          onClick={() => setAdmissionsSearchQuery("")}
+                          className="absolute right-3 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 px-2 py-1 rounded text-[10px] uppercase font-mono font-bold cursor-pointer transition border border-slate-800"
+                        >
+                          Limpar
+                        </button>
+                      )}
+                    </div>
+
+                    {/* BULK ACTIONS CONTROLS & CONFIRMATIONS */}
+                    {(() => {
+                      const filteredInmatesForAdmissions = visibleInmates.filter((inm) => {
+                        if (!admissionsSearchQuery) return true;
+                        const query = admissionsSearchQuery.toLowerCase().trim();
+                        const fullName = `${inm.firstName} ${inm.lastName}`.toLowerCase();
+                        const biNum = (inm.idCard || "").toLowerCase();
+                        const idNum = (inm.id || "").toLowerCase();
+                        const prName = (prisons.find(p => p.id === inm.assignedPrisonId)?.name || "").toLowerCase();
+                        
+                        return fullName.includes(query) || biNum.includes(query) || idNum.includes(query) || prName.includes(query);
+                      });
+
+                      const selectedFilteredCount = filteredInmatesForAdmissions.filter(i => selectedInmateIds.includes(i.id)).length;
+                      const allSelected = filteredInmatesForAdmissions.length > 0 && selectedFilteredCount === filteredInmatesForAdmissions.length;
+
+                      return (
+                        <div className="flex flex-col gap-3">
+                          <div className="flex flex-col gap-2 bg-slate-950 p-3.5 rounded-xl border border-slate-850">
+                            <div className="flex items-center justify-between">
+                              <label className="flex items-center gap-2 cursor-pointer select-none text-xxs font-mono text-slate-350 hover:text-slate-200">
+                                <input 
+                                  type="checkbox"
+                                  checked={allSelected}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedInmateIds(prev => {
+                                        const otherIds = prev.filter(id => !filteredInmatesForAdmissions.some(fi => fi.id === id));
+                                        return [...otherIds, ...filteredInmatesForAdmissions.map(fi => fi.id)];
+                                      });
+                                    } else {
+                                      setSelectedInmateIds(prev => prev.filter(id => !filteredInmatesForAdmissions.some(fi => fi.id === id)));
+                                    }
+                                  }}
+                                  className="h-4 w-4 rounded border-slate-800 bg-slate-900 text-amber-500 focus:ring-amber-500/20 cursor-pointer accent-amber-500"
+                                />
+                                <span className="font-bold">Selecionar Todos os Registos Listados ({filteredInmatesForAdmissions.length})</span>
+                              </label>
+
+                              {selectedInmateIds.length > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedInmateIds([])}
+                                  className="text-slate-400 hover:text-amber-500 text-[10px] font-mono uppercase cursor-pointer hover:underline animate-pulse font-bold"
+                                >
+                                  Limpar Seleção ({selectedInmateIds.length})
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Operações em lote */}
+                            {selectedInmateIds.length > 0 && (
+                              <div className="border-t border-slate-900 pt-2.5 flex flex-col gap-2 animate-fadeIn">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                  {/* Batch Transfer */}
+                                  <div className="flex flex-col gap-1.5 p-2.5 bg-slate-900/60 rounded-lg border border-slate-900/80">
+                                    <label className="text-[9px] uppercase font-mono text-slate-400 font-bold">Transferir para Unidade Penitenciária:</label>
+                                    <div className="flex gap-1.5">
+                                      <select
+                                        value={bulkDestPrisonId}
+                                        onChange={(e) => setBulkDestPrisonId(e.target.value)}
+                                        className="bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-slate-300 font-mono focus:outline-none focus:border-amber-500 cursor-pointer flex-1"
+                                      >
+                                        {visiblePrisons.map((pr) => (
+                                          <option key={pr.id} value={pr.id}>
+                                            {pr.name.replace("Estabelecimento Penitenciário de ", "EP ")}
+                                          </option>
+                                        ))}
+                                      </select>
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowBulkTransferConfirm(true)}
+                                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-mono text-xs font-bold uppercase px-3 py-1.5 rounded-lg transition cursor-pointer shrink-0 shadow-md"
+                                      >
+                                        Transferir
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* Batch Delete */}
+                                  <div className="flex flex-col justify-center p-2.5 bg-slate-900/60 rounded-lg border border-slate-900/80 gap-1.5">
+                                    <label className="text-[9px] uppercase font-mono text-slate-400 font-bold">Eliminação Canónica em Lote:</label>
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowBulkDeleteConfirm(true)}
+                                      className="w-full bg-red-600/10 hover:bg-red-600 hover:text-white border border-red-500/20 text-red-400 font-mono text-xs font-bold uppercase py-1.5 rounded-lg transition cursor-pointer"
+                                    >
+                                      Eliminar ({selectedInmateIds.length}) Registos
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* CONFIRMAÇÕES */}
+                          {showBulkTransferConfirm && (
+                            <div className="bg-indigo-950/40 border border-indigo-500/30 p-3.5 rounded-xl flex flex-col gap-3 font-mono text-xxs text-indigo-200">
+                              <div className="flex items-start gap-2.5">
+                                <AlertTriangle className="h-4 w-4 text-indigo-400 shrink-0 mt-0.5 animate-pulse" />
+                                <div>
+                                  <p className="font-bold text-indigo-300 uppercase tracking-wide">Confirmar Transferência em Lote</p>
+                                  <p className="text-indigo-400/95 leading-relaxed mt-1 font-sans">
+                                    Está prestes a transferir <strong className="text-white font-bold font-mono">{selectedInmateIds.length}</strong> reclusos selecionados para o <strong className="text-white font-bold font-sans">{prisons.find(p => p.id === bulkDestPrisonId)?.name.replace("Estabelecimento Penitenciário de ", "EP ")}</strong>.
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex justify-end gap-2 border-t border-indigo-900/40 pt-2.5 mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setShowBulkTransferConfirm(false)}
+                                  className="px-2.5 py-1 text-[9px] bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-800 transition cursor-pointer uppercase font-bold"
+                                >
+                                  Cancelar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    handleBatchTransfer(selectedInmateIds, bulkDestPrisonId);
+                                    setShowBulkTransferConfirm(false);
+                                  }}
+                                  className="px-2.5 py-1 text-[9px] bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded shadow-md border border-indigo-500/20 transition cursor-pointer uppercase"
+                                >
+                                  Confirmar (1-Click)
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {showBulkDeleteConfirm && (
+                            <div className="bg-red-950/40 border border-red-500/30 p-3.5 rounded-xl flex flex-col gap-3 font-mono text-xxs text-red-200">
+                              <div className="flex items-start gap-2.5">
+                                <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5 animate-pulse" />
+                                <div>
+                                  <p className="font-bold text-red-300 uppercase tracking-wide">⚠️ ATENÇÃO: CONFIRMAR ELIMINAÇÃO EM LOTE</p>
+                                  <p className="text-red-400/95 leading-relaxed mt-1 font-sans">
+                                    Está prestes a remover permanentemente as fichas canónicas de <strong className="text-white font-bold font-mono">{selectedInmateIds.length}</strong> reclusos da base activa.
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex justify-end gap-2 border-t border-red-900/40 pt-2.5 mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setShowBulkDeleteConfirm(false)}
+                                  className="px-2.5 py-1 text-[9px] bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-800 transition cursor-pointer uppercase font-bold"
+                                >
+                                  Cancelar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    handleBatchDelete(selectedInmateIds);
+                                    setShowBulkDeleteConfirm(false);
+                                  }}
+                                  className="px-2.5 py-1 text-[9px] bg-red-650 hover:bg-red-600 text-white font-bold rounded shadow-md border border-red-500/20 transition cursor-pointer uppercase"
+                                >
+                                  Confirmar Eliminação
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    <PrisonerExcelDataGrid
+                      inmates={visibleInmates}
+                      prisons={prisons}
+                      searchQuery={admissionsSearchQuery}
+                      onSearchChange={setAdmissionsSearchQuery}
+                      selectedInmateIds={selectedInmateIds}
+                      onToggleSelectInmate={(id) => {
+                        setSelectedInmateIds(prev => 
+                          prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+                        );
+                      }}
+                      onSelectAllInmates={(filteredInms) => {
+                        const allSelected = filteredInms.length > 0 && filteredInms.every(i => selectedInmateIds.includes(i.id));
+                        if (allSelected) {
+                          setSelectedInmateIds(prev => prev.filter(id => !filteredInms.some(fi => fi.id === id)));
+                        } else {
+                          setSelectedInmateIds(prev => {
+                            const otherIds = prev.filter(id => !filteredInms.some(fi => fi.id === id));
+                            return [...otherIds, ...filteredInms.map(fi => fi.id)];
+                          });
+                        }
+                      }}
+                      onTransferInmate={handleTransferInmate}
+                      onEditRiskInmate={handleEditRiskInmate}
+                      onUploadPhoto={handleUploadInmatePhoto}
+                      onExportPDF={(inm) => exportInmateFichaToPDF(inm as any, prisons, currentOperatorId)}
+                      onEditAndSign={handleOpenInmateEditModal}
+                      onToggleHistory={(id) => setSelectedInmateHistoryId(selectedInmateHistoryId === id ? null : id)}
+                      selectedHistoryId={selectedInmateHistoryId}
+                      historyLogs={inmateEditLogs}
+                      onSelectDocumentCode={(code) => {
+                        setSelectedDocumentCode(code);
+                        setActiveTab("documents");
+                      }}
+                      onOpenQuickDossier={(inm) => setSelectedQuickDossierInmate(inm)}
+                      onOpenFilterDrawer={() => setIsMobileFilterOpen(true)}
+                    />
+                  </div>
+
+                </div>
+              )}
 
             </motion.div>
           )}
@@ -18343,7 +18799,7 @@ export default function App() {
                     RESTRITO
                   </span>
                   <h2 className="text-xs font-bold uppercase tracking-wider text-slate-100 font-mono flex items-center gap-1.5">
-                    <Activity className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Movimentações Penitenciárias
+                    <Activity className="h-3.5 w-3.5 text-amber-500 animate-pulse" /> Movimentações
                   </h2>
                 </div>
 
@@ -23909,6 +24365,9 @@ export default function App() {
         activeInmateCount={visibleInmates.length}
         alertCount={inmateEditLogs?.length || 1}
         currentOperator={currentOperator}
+        admissionsSubTab={admissionsSubTab}
+        setAdmissionsSubTab={setAdmissionsSubTab}
+        onSelectConsulta={() => setAdmissionsSubTab("consulta")}
       />
 
       <MobileQRScannerModal
