@@ -72,7 +72,7 @@ const PROVINCES_COORDS: Record<string, { x: number; y: number; name: string }> =
   "Huíla": { x: 250, y: 480, name: "Huíla" },
   "Cunene": { x: 260, y: 550, name: "Cunene" },
   "Cubango": { x: 380, y: 510, name: "Cubango" },
-  "Quando": { x: 430, y: 530, name: "Quando" }
+  "Cuando": { x: 430, y: 530, name: "Cuando" }
 };
 
 // Map prison IDs to province coords

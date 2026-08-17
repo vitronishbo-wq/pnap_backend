@@ -485,7 +485,7 @@ export const ANGOLA_PROVINCES = [
   { id: "OU-DP-NAMIBE", name: "SP/Namibe", province: "Namibe", chief: "Subcomissário Prisional David Tchissingui" },
   { id: "OU-DP-CUNENE", name: "SP/Cunene", province: "Cunene", chief: "Superintendente-Chefe Valdemar Haufiku" },
   { id: "OU-DP-CUBANGO", name: "SP/Cubango", province: "Cubango", chief: "Superintendente Prisional Tomás Cavalo" },
-  { id: "OU-DP-QUANDO", name: "SP/Quando", province: "Quando", chief: "Superintendente Prisional Mário Cussumua" }
+  { id: "OU-DP-CUANDO", name: "SP/Cuando", province: "Cuando", chief: "Superintendente Prisional Mário Cussumua" }
 ];
 
 export const generateFullOrganizationalUnits = (): OrganizationalUnit[] => {

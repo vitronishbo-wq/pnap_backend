@@ -679,7 +679,7 @@ export default function DeusFundadorPanel({
       "Moxico": "EP/Luena",
       "Moxico Leste": "EP/Moxico Leste",
       "Quando Cubango": "EP/Menongue",
-      "Quando": "EP/Quando",
+      "Cuando": "EP/Cuando",
       "Bengo": "EP/Capolo",
       "Bié": "EP/Cuito"
     };

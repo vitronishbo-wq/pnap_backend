@@ -417,7 +417,7 @@ const STANDARD_STATUTORY_SUBUNITS = [
 ];
 
 const ALL_PROVINCES_LIST = [
-  "Bengo", "Benguela", "Bié", "Cabinda", "Quando", "Cubango", 
+  "Bengo", "Benguela", "Bié", "Cabinda", "Cuando", "Cubango", 
   "Cuanza-Norte", "Cuanza-Sul", "Cunene", "Huambo", "Huíla", "Icolo e Bengo", 
   "Luanda", "Lunda-Norte", "Lunda-Sul", "Malanje", "Moxico", 
   "Moxico Leste", "Namibe", "Uíge", "Zaire"

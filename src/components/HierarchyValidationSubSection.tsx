@@ -27,7 +27,7 @@ export const PROVINCES_ANGOLA = [
   "Cabinda", "Zaire", "Uíge", "Bengo", "Icolo e Bengo", "Luanda", 
   "Cuanza-Norte", "Cuanza-Sul", "Malanje", "Lunda-Norte", "Lunda-Sul", 
   "Benguela", "Huambo", "Bié", "Moxico", "Moxico Leste", "Huíla", 
-  "Namibe", "Cunene", "Cubango", "Quando"
+  "Namibe", "Cunene", "Cubango", "Cuando"
 ];
 
 export const normalizeProvinceName = (name?: string): string => {

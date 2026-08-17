@@ -66,27 +66,27 @@ export interface AngolaNationalMapProps {
 
 // Label customization for exact positioning, horizontal text alignment, and leader lines
 const PROVINCE_LABEL_CONFIG: Record<string, { label: string; offset: [number, number]; rotate?: number; fontSize?: number; isSmall?: boolean; needsLeader?: boolean }> = {
-  CAB: { label: "CABINDA", offset: [-12, -26], fontSize: 9.5, isSmall: true, needsLeader: true },
-  ZAI: { label: "ZAIRE", offset: [-10, -20], fontSize: 10, isSmall: true, needsLeader: true },
+  CAB: { label: "CABINDA", offset: [-12, -24], fontSize: 9.5, isSmall: true, needsLeader: true },
+  ZAI: { label: "ZAIRE", offset: [0, 0], fontSize: 10.5 },
   UIG: { label: "UÍGE", offset: [0, 0], fontSize: 11 },
   BGO: { label: "BENGO", offset: [-28, -14], fontSize: 9.5, isSmall: true, needsLeader: true },
   ICB: { label: "ICOLO E BENGO", offset: [-32, 14], fontSize: 8.5, isSmall: true, needsLeader: true },
   LUA: { label: "LUANDA", offset: [-35, -8], fontSize: 9, isSmall: true, needsLeader: true },
-  CNO: { label: "CUANZA-NORTE", offset: [18, -18], fontSize: 9, isSmall: true, needsLeader: true },
+  CNO: { label: "CUANZA-NORTE", offset: [0, 0], fontSize: 9.5 },
   CSU: { label: "CUANZA-SUL", offset: [0, 0], fontSize: 10.5 },
   MAL: { label: "MALANJE", offset: [0, 0], fontSize: 11 },
-  LNO: { label: "LUNDA-NORTE", offset: [0, -5], fontSize: 10.5 },
+  LNO: { label: "LUNDA-NORTE", offset: [0, 0], fontSize: 10.5 },
   LSU: { label: "LUNDA-SUL", offset: [0, 0], fontSize: 10.5 },
-  MOX: { label: "MOXICO", offset: [0, -8], fontSize: 11 },
-  MXL: { label: "MOXICO LESTE", offset: [0, 0], fontSize: 9 },
+  MOX: { label: "MOXICO", offset: [0, 0], fontSize: 11 },
+  MXL: { label: "MOXICO-LESTE", offset: [0, 0], fontSize: 9.5 },
   BIE: { label: "BIÉ", offset: [0, 0], fontSize: 11 },
   HUA: { label: "HUAMBO", offset: [0, 0], fontSize: 10 },
   BEN: { label: "BENGUELA", offset: [0, 0], fontSize: 10.5 },
-  HUI: { label: "HUÍLA", offset: [0, -5], fontSize: 11 },
-  NAM: { label: "NAMIBE", offset: [-2, 0], fontSize: 10 },
+  HUI: { label: "HUÍLA", offset: [0, 0], fontSize: 11 },
+  NAM: { label: "NAMIBE", offset: [0, 0], fontSize: 10.5 },
   CUN: { label: "CUNENE", offset: [0, 0], fontSize: 10.5 },
   CCU: { label: "CUBANGO", offset: [0, 0], fontSize: 10.5 },
-  CND: { label: "QUANDO", offset: [0, 0], fontSize: 10.5 }
+  CND: { label: "CUANDO", offset: [0, 0], fontSize: 10.5 }
 };
 
 export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
@@ -306,7 +306,7 @@ export const AngolaNationalMap: React.FC<AngolaNationalMapProps> = ({
             title="Alternar estilo visual do mapa"
           >
             <Layers className="h-3 w-3" />
-            {themeStyle === "VECTOR_ORANGE" ? "ESTILO VETORIAL" : "ESTILO TÁCTICO"}
+            {themeStyle === "VECTOR_ORANGE" ? "VETORIAL" : "E.T"}
           </button>
         </div>
       </div>

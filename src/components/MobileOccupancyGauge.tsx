@@ -221,12 +221,12 @@ export function MobileOccupancyGauge({
       onClose={onClose}
       title={
         isNational 
-          ? "LOTAÇÃO NACIONAL • COMANDO & CAPACIDADE" 
+          ? "LOTAÇÃO NACIONAL" 
           : `LOTAÇÃO ESTRUTURAL • ${defaultOperatorProvince.toUpperCase()}`
       }
       subtitle={
         isNational
-          ? "NEP Controlo Penal: Mapa das 18 Províncias, Sobrelotação e Redistribuição"
+          ? "NEP Controlo Penal: Mapa das 21 Províncias"
           : "NEP Controlo Penal: Província → EP → Pavilhão → Bloco → Cela (Vagas)"
       }
       icon={<Building2 className="h-5 w-5 text-rose-400" />}
@@ -350,7 +350,7 @@ export function MobileOccupancyGauge({
               {filteredPrisons.map((pr) => (
                 <option key={pr.id} value={pr.id}>
                   {pr.saturation > 100 ? "🔴" : pr.saturation >= 85 ? "🟡" : "🟢"}{" "}
-                  {pr.name.replace("Estabelecimento Penitenciário de ", "EP ")} ({pr.count}/{pr.cap} • {pr.saturation}%)
+                  {pr.name.replace("EP de ", "EP ")} ({pr.count}/{pr.cap} • {pr.saturation}%)
                 </option>
               ))}
             </select>
