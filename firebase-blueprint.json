@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "Recluso": {
+      "title": "Recluso",
+      "description": "Ficha canónica e prontuário penal do recluso no sistema PNAP",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nipc": { "type": "string" },
+        "nomeCompleto": { "type": "string" },
+        "dataNascimento": { "type": "string" },
+        "nacionalidade": { "type": "string" },
+        "documentoId": { "type": "string" },
+        "fotoUrl": { "type": "string" },
+        "nivelSeguranca": { "type": "string", "enum": ["MINIMA", "MEDIA", "MAXIMA", "ESPECIAL"] },
+        "statusLegal": { "type": "string", "enum": ["CONDENADO", "PREVENTIVO", "EM_TRANSFERENCIA", "LIBERDADE_CONDICIONAL", "SOLTO"] },
+        "estabelecimentoId": { "type": "string" },
+        "celaId": { "type": "string" }
+      },
+      "required": ["nomeCompleto", "estabelecimentoId"]
+    },
+    "Estabelecimento": {
+      "title": "Estabelecimento Prisional",
+      "description": "Estabelecimento ou penitenciária da rede nacional",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "nome": { "type": "string" },
+        "capacidadeOficial": { "type": "number" },
+        "limiteOperativo": { "type": "number" },
+        "localizacao": { "type": "string" },
+        "direcaoProvincialId": { "type": "string" }
+      },
+      "required": ["nome"]
+    },
+    "AuditoriaLog": {
+      "title": "Log de Auditoria Forense",
+      "description": "Registro imutável de evento militar e operacional",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "evento": { "type": "string" },
+        "modulo": { "type": "string" },
+        "nivelSeveridade": { "type": "string", "enum": ["INFO", "WARN", "CRITICAL", "ALERT"] },
+        "dataHora": { "type": "string" },
+        "funcionarioId": { "type": "string" },
+        "reclusoId": { "type": "string" },
+        "dadosJson": { "type": "string" }
+      },
+      "required": ["evento", "modulo"]
+    },
+    "ProntuarioSaude": {
+      "title": "Prontuário Médico",
+      "description": "Registro clínico de atendimento ao recluso",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "reclusoId": { "type": "string" },
+        "diagnostico": { "type": "string" },
+        "tipoAtendimento": { "type": "string" },
+        "medicoResponsavel": { "type": "string" },
+        "dataAtendimento": { "type": "string" }
+      },
+      "required": ["reclusoId", "diagnostico"]
+    },
+    "PlanoReinsercao": {
+      "title": "Plano de Reinserção Social",
+      "description": "Atividade educacional, laboral ou formativa do recluso",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "reclusoId": { "type": "string" },
+        "tipoPrograma": { "type": "string" },
+        "descricao": { "type": "string" },
+        "status": { "type": "string" },
+        "dataInicio": { "type": "string" }
+      },
+      "required": ["reclusoId", "descricao"]
+    },
+    "EventoBarramento": {
+      "title": "Evento de Barramento Institucional",
+      "description": "Registro de eventos e transmissões do barramento institucional",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tipoEvento": { "type": "string" },
+        "origem": { "type": "string" },
+        "payload": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "persistedInDb": { "type": "boolean" }
+      },
+      "required": ["tipoEvento", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/reclusos/{reclusoId}": {
+      "schema": "Recluso",
+      "description": "Coleção de reclusos cadastrados no sistema penitenciário nacional"
+    },
+    "/estabelecimentos/{estabelecimentoId}": {
+      "schema": "Estabelecimento",
+      "description": "Coleção de estabelecimentos prisionais e comarcas"
+    },
+    "/auditoria_logs/{logId}": {
+      "schema": "AuditoriaLog",
+      "description": "Trilha imutável de auditoria e conformidade forense"
+    },
+    "/prontuarios_saude/{saudeId}": {
+      "schema": "ProntuarioSaude",
+      "description": "Registros clínicos e prontuários médicos"
+    },
+    "/planos_reinsercao/{planoId}": {
+      "schema": "PlanoReinsercao",
+      "description": "Programas e atividades de reinserção social"
+    },
+    "/eventos_barramento/{eventoId}": {
+      "schema": "EventoBarramento",
+      "description": "Eventos de integração e barramento institucional"
+    }
+  }
+}

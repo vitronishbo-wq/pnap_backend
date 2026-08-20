@@ -2439,20 +2439,8 @@ export function LegislationModule({
             setIsAnalyzing(true);
             setCnelError(null);
             try {
-              const res = await fetch("/api/backoffice/legislation/analyze", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${apiService.getToken()}`
-                },
-                body: JSON.stringify({ text: cnelDraftText })
-              });
+              const resData = await apiService.analyzeLegislation(cnelDraftText);
 
-              if (!res.ok) {
-                throw new Error("Erro de rede ao comunicar com o Centro Nacional.");
-              }
-
-              const resData = await res.json();
               if (resData.success && resData.data) {
                 setAnalysisResult(resData.data);
                 setActiveCnelMotor(0); // Go to central dashboard first

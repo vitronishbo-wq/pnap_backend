@@ -53,61 +53,62 @@ export interface ClusterConfig {
   syncStatus: "idle" | "syncing" | "error" | "synchronized";
   nodes: DBNode[];
   history: SyncHistoryEntry[];
+  firestoreConnections?: PostgresClusterConnections;
   postgresConnections?: PostgresClusterConnections;
 }
 
-// Default PostgreSQL Cluster Connection Definitions
+// Cloud Firestore Cluster Connection Definitions & Shards
 let currentDbConnections: PostgresClusterConnections = {
   primary: {
     id: "primary",
-    name: "Base de Dados Principal (OLTP)",
-    dbName: "pnap_db",
-    url: process.env.DATABASE_URL || "postgresql://pnap_admin:secure_pass_2026@primary.postgres.pnap.gov.ao:5432/pnap_db?sslmode=require",
-    host: "primary.postgres.pnap.gov.ao",
-    port: 5432,
-    user: "pnap_admin",
-    sslMode: "require",
+    name: "Cloud Firestore Canónico (OLTP - reclusos)",
+    dbName: "firestore_primary_ao",
+    url: "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)",
+    host: "firestore.googleapis.com (europe-west1)",
+    port: 443,
+    user: "firebase-admin-sa@pnap-ao-minint.iam.gserviceaccount.com",
+    sslMode: "verify-full",
     maxPoolSize: 50,
     status: "CONNECTED",
     latencyMs: 8,
     lastTestedAt: new Date().toISOString(),
-    versionInfo: "PostgreSQL 16.3 (MININT OLTP Engine)",
+    versionInfo: "Google Cloud Firestore Enterprise (Multi-Region europe-west1)",
     tablesCount: 42,
-    description: "Servidor principal para prontuários de reclusos, biometria e operações das cadeias."
+    description: "Coleção canónica primária para prontuários de reclusos, biometria e operações das penitenciárias."
   },
   audit: {
     id: "audit",
-    name: "Base de Dados de Auditoria (Immutable Trail)",
-    dbName: "pnap_audit_db",
-    url: process.env.AUDIT_DATABASE_URL || "postgresql://audit_master:audit_secret_hash_2026@audit.postgres.pnap.gov.ao:5432/pnap_audit_db?sslmode=verify-full",
-    host: "audit.postgres.pnap.gov.ao",
-    port: 5432,
-    user: "audit_master",
+    name: "Cloud Firestore Auditoria Forense (Immutable Ledger SHA-256)",
+    dbName: "firestore_audit_ledger",
+    url: "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/auditoria_logs",
+    host: "firestore-audit.googleapis.com (europe-west1)",
+    port: 443,
+    user: "firebase-admin-audit@pnap-ao-minint.iam.gserviceaccount.com",
     sslMode: "verify-full",
     maxPoolSize: 30,
     status: "CONNECTED",
     latencyMs: 12,
     lastTestedAt: new Date().toISOString(),
-    versionInfo: "PostgreSQL 16.3 (Immutable Ledger SHA-256)",
+    versionInfo: "Google Cloud Firestore Immutable Trail (SHA-256 HMAC Sealed)",
     tablesCount: 18,
-    description: "Registo imutável de logs de auditoria nacional, assinaturas SHA-256 e não-repúdio."
+    description: "Registo imutável de logs de auditoria nacional, assinaturas criptográficas SHA-256 e não-repúdio."
   },
   bi: {
     id: "bi",
-    name: "Base de Dados de BI & Analytics (Data Warehouse)",
-    dbName: "pnap_bi_db",
-    url: process.env.BI_DATABASE_URL || "postgresql://bi_analyst:analytics_dw_2026@bi.postgres.pnap.gov.ao:5432/pnap_bi_db?sslmode=require",
-    host: "bi.postgres.pnap.gov.ao",
-    port: 5432,
-    user: "bi_analyst",
-    sslMode: "require",
+    name: "Cloud Firestore Analytics & Telemetria (Data Warehouse / DW)",
+    dbName: "firestore_telemetry_dw",
+    url: "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/eventos_barramento",
+    host: "firestore-dw.googleapis.com (europe-west1)",
+    port: 443,
+    user: "firebase-admin-bi@pnap-ao-minint.iam.gserviceaccount.com",
+    sslMode: "verify-full",
     maxPoolSize: 20,
     status: "CONNECTED",
     latencyMs: 15,
     lastTestedAt: new Date().toISOString(),
-    versionInfo: "PostgreSQL 16.3 (Data Warehouse OLAP)",
+    versionInfo: "Google Cloud Firestore Analytics & BigQuery Synced Connector",
     tablesCount: 28,
-    description: "Repositório analítico para geração de estatísticas do MININT e modelos preditivos."
+    description: "Repositório analítico para geração de estatísticas do MININT, tendências e modelos operacionais."
   }
 };
 
@@ -203,6 +204,7 @@ export class ClusterService {
       authStatus: string;
       queryExecutionMs: number;
       postgresVersion: string;
+      firestoreVersion?: string;
       activeConnections: number;
       maxConnections: number;
       tablesCount: number;
@@ -275,11 +277,11 @@ export class ClusterService {
     const queryTime = Math.floor(Math.random() * 5) + 3;
     const totalLatency = tcpTime + sslTime + queryTime;
 
-    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Socket TCP: Porta ${port} acessível (${tcpTime} ms).`);
+    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Socket TCP / HTTPS: Porta ${port} acessível (${tcpTime} ms).`);
     logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Handshake TLS/SSL (${targetConfig.sslMode}): Cifragem AES-256-GCM ativa (${sslTime} ms).`);
-    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Autenticação PostgreSQL: Utilizador '${targetConfig.user}' autenticado.`);
-    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Query de Teste ('SELECT version(), current_database()'): Resposta OK (${queryTime} ms).`);
-    logs.push(`[${new Date().toLocaleTimeString()}] ✅ TESTE CONCLUÍDO: Base '${dbName}' 100% OPERACIONAL. Latência total: ${totalLatency} ms.`);
+    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Autenticação Google IAM / Service Account: '${targetConfig.user}' autorizada com Custom Claims.`);
+    logs.push(`[${new Date().toLocaleTimeString()}] 🟢 Validação de Coleção ('firestore.collection("${targetConfig.dbName}").limit(1)'): Resposta OK (${queryTime} ms).`);
+    logs.push(`[${new Date().toLocaleTimeString()}] ✅ TESTE CONCLUÍDO: Coleção/Shard '${targetConfig.dbName}' 100% OPERACIONAL. Latência total: ${totalLatency} ms.`);
 
     // Update in-memory state
     currentDbConnections[connectionId].status = "CONNECTED";
@@ -297,7 +299,8 @@ export class ClusterService {
         sslHandshakeMs: sslTime,
         authStatus: "AUTHENTICATED_OK",
         queryExecutionMs: queryTime,
-        postgresVersion: targetConfig.versionInfo || "PostgreSQL 16.3 on x86_64-pc-linux-gnu",
+        postgresVersion: targetConfig.versionInfo || "Cloud Firestore Enterprise",
+        firestoreVersion: targetConfig.versionInfo || "Google Cloud Firestore Enterprise",
         activeConnections: connectionId === "primary" ? 18 : connectionId === "audit" ? 5 : 3,
         maxConnections: targetConfig.maxPoolSize,
         tablesCount: targetConfig.tablesCount || 30,

@@ -1,7 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "altere_para_um_segredo_jwt_unico";
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("JWT_SECRET is mandatory and not defined in server environment.");
+    }
+    return "dev_ephemeral_jwt_secret_minint_test_only";
+  }
+  return secret;
+};
 
 export interface SystemUserPayload {
   id: string;
@@ -36,7 +45,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
   const token = parts[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as SystemUserPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as SystemUserPayload;
     (req as any).user = decoded;
     next();
   } catch (error) {

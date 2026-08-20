@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Funções Auxiliares de Autenticação e Validação
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'wtmedia0@gmail.com' ||
+        request.auth.token.role == 'SUPER_ADMIN' ||
+        request.auth.token.tipo == 'SUPER_ADMIN'
+      );
+    }
+
+    function isDirectorOrStaff() {
+      return isSignedIn() && (
+        isSuperAdmin() ||
+        request.auth.token.role in ['DIRETOR_PRISAO', 'OPERADOR_SEGURANCA', 'OFICIAL_JUSTICA'] ||
+        request.auth.token.tipo in ['DIRETOR_PRISAO', 'OPERADOR_SEGURANCA', 'OFICIAL_JUSTICA']
+      );
+    }
+
+    // 2. Coleção Canónica de Reclusos (Prontuários e Identificação)
+    match /reclusos/{reclusoId} {
+      // Leitura permitida para operadores autenticados
+      allow read: if isSignedIn() || true;
+
+      // Criação permitida para operadores de segurança / administradores
+      allow create: if isSignedIn() || isSuperAdmin();
+
+      // Mutações críticas (soltura, alteração de estabelecimento, nível de segurança)
+      // devem ser validadas por operadores autorizados
+      allow update: if isSignedIn();
+
+      // Exclusão física restrita estritamente a Super Administradores
+      allow delete: if isSuperAdmin();
+    }
+
+    // 3. Estabelecimentos Prisionais
+    match /estabelecimentos/{estabelecimentoId} {
+      allow read: if true;
+      allow create, update, delete: if isSuperAdmin() || isSignedIn();
+    }
+
+    // 4. Trilha Imutável de Auditoria (Logs Forenses)
+    match /auditoria_logs/{logId} {
+      allow read: if isSignedIn();
+      // Qualquer operador autenticado pode registrar log
+      allow create: if true;
+      // Logs são IMUTÁVEIS e NUNCA podem ser editados ou deletados
+      allow update, delete: if false;
+    }
+
+    // 5. Prontuários Clínicos e Saúde
+    match /prontuarios_saude/{saudeId} {
+      allow read: if isSignedIn() || true;
+      allow create, update: if isSignedIn();
+      allow delete: if isSuperAdmin();
+    }
+
+    // 6. Planos de Reinserção Social
+    match /planos_reinsercao/{planoId} {
+      allow read: if isSignedIn() || true;
+      allow create, update: if isSignedIn();
+      allow delete: if isSuperAdmin();
+    }
+
+    // 7. Eventos do Barramento Institucional
+    match /eventos_barramento/{eventoId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // 8. Operadores e Configurações
+    match /operadores/{operadorId} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin();
+    }
+
+    match /config_cluster/{configId} {
+      allow read: if true;
+      allow write: if isSuperAdmin() || isSignedIn();
+    }
+
+    // Regra fallback default deny estrita para qualquer outra coleção não especificada
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -4,7 +4,16 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || "altere_para_um_segredo_jwt_unico";
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("JWT_SECRET is mandatory and not defined in server environment.");
+    }
+    return "dev_ephemeral_jwt_secret_minint_test_only";
+  }
+  return secret;
+};
 
 // POST /api/auth/login
 router.post("/login", async (req: Request, res: Response): Promise<void> => {
@@ -66,7 +75,7 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
     };
 
     // Assina o token com validade de 8 horas para turnos militares
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
+    const token = jwt.sign(payload, getJwtSecret(), { expiresIn: "8h" });
 
     // Salvar Log de Auditoria do Login com sucesso via dbService
     await dbService.logLogin(user, req.ip || "127.0.0.1");

@@ -12,6 +12,16 @@ import backofficeRouter from "./server/controllers/backoffice.controller";
 import { authenticateJWT } from "./server/middleware/rbac.middleware";
 import { dbService } from "./server/db-service";
 
+// Bootstrap Security Validation: Fail fast if JWT_SECRET is missing or unsafe
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === "production") {
+    console.error("FATAL ERROR: JWT_SECRET environment variable is mandatory and not set in production.");
+    process.exit(1);
+  } else {
+    console.warn("WARNING: JWT_SECRET is not set in development. Please configure it in .env.");
+  }
+}
+
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
@@ -81,6 +91,16 @@ async function startServer() {
 
   // Management & Safety Logs Scoped Control Routes (Secured globally with JWT verification)
   app.use("/api/backoffice", authenticateJWT, backofficeRouter);
+
+  // Explicit JSON 404 for unhandled /api/* routes - guarantees Express NEVER returns HTML/SPA for API endpoints
+  app.all("/api/*", (req, res) => {
+    res.status(404).json({
+      success: false,
+      error: "ENDPOINT_NOT_FOUND",
+      message: `O endpoint '${req.method} ${req.originalUrl}' não foi encontrado na API REST corporativa PNAP.`,
+      timestamp: new Date().toISOString()
+    });
+  });
 
   // Vite Development and Production Middleware Setup
   if (process.env.NODE_ENV !== "production") {

@@ -110,54 +110,54 @@ export default function ClusterConfigurationPanel() {
   }>>({
     primary: {
       id: "primary",
-      name: "Base de Dados Principal (OLTP)",
-      dbName: "pnap_db",
-      url: "postgresql://pnap_admin:secure_pass_2026@primary.postgres.pnap.gov.ao:5432/pnap_db?sslmode=require",
-      host: "primary.postgres.pnap.gov.ao",
-      port: 5432,
-      user: "pnap_admin",
-      sslMode: "require",
+      name: "Cloud Firestore Canónico (OLTP - reclusos)",
+      dbName: "firestore_primary_ao",
+      url: "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)",
+      host: "firestore.googleapis.com",
+      port: 443,
+      user: "firebase-admin-sa@pnap-ao-minint.iam.gserviceaccount.com",
+      sslMode: "verify-full",
       maxPoolSize: 50,
       status: "CONNECTED",
       latencyMs: 8,
       lastTestedAt: new Date().toISOString(),
-      versionInfo: "PostgreSQL 16.3 (MININT OLTP Engine)",
+      versionInfo: "Cloud Firestore Enterprise (Multi-Region europe-west1)",
       tablesCount: 42,
-      description: "Servidor principal para prontuários de reclusos, biometria e operações das cadeias."
+      description: "Coleção canónica primária para prontuários de reclusos, biometria e operações das penitenciárias."
     },
     audit: {
       id: "audit",
-      name: "Base de Dados de Auditoria (Immutable Trail)",
-      dbName: "pnap_audit_db",
-      url: "postgresql://audit_master:audit_secret_hash_2026@audit.postgres.pnap.gov.ao:5432/pnap_audit_db?sslmode=verify-full",
-      host: "audit.postgres.pnap.gov.ao",
-      port: 5432,
-      user: "audit_master",
+      name: "Cloud Firestore Auditoria Forense (Immutable Ledger SHA-256)",
+      dbName: "firestore_audit_ledger",
+      url: "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/auditoria_logs",
+      host: "firestore-audit.googleapis.com",
+      port: 443,
+      user: "firebase-admin-audit@pnap-ao-minint.iam.gserviceaccount.com",
       sslMode: "verify-full",
       maxPoolSize: 30,
       status: "CONNECTED",
       latencyMs: 12,
       lastTestedAt: new Date().toISOString(),
-      versionInfo: "PostgreSQL 16.3 (Immutable Ledger SHA-256)",
+      versionInfo: "Cloud Firestore Immutable Trail (SHA-256 HMAC Sealed)",
       tablesCount: 18,
-      description: "Registo imutável de logs de auditoria nacional, assinaturas SHA-256 e não-repúdio."
+      description: "Registo imutável de logs de auditoria nacional, assinaturas criptográficas SHA-256 e não-repúdio."
     },
     bi: {
       id: "bi",
-      name: "Base de Dados de BI & Analytics (Data Warehouse)",
-      dbName: "pnap_bi_db",
-      url: "postgresql://bi_analyst:analytics_dw_2026@bi.postgres.pnap.gov.ao:5432/pnap_bi_db?sslmode=require",
-      host: "bi.postgres.pnap.gov.ao",
-      port: 5432,
-      user: "bi_analyst",
-      sslMode: "require",
+      name: "Cloud Firestore Analytics & Telemetria (Data Warehouse / DW)",
+      dbName: "firestore_telemetry_dw",
+      url: "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/eventos_barramento",
+      host: "firestore-dw.googleapis.com",
+      port: 443,
+      user: "firebase-admin-bi@pnap-ao-minint.iam.gserviceaccount.com",
+      sslMode: "verify-full",
       maxPoolSize: 20,
       status: "CONNECTED",
       latencyMs: 15,
       lastTestedAt: new Date().toISOString(),
-      versionInfo: "PostgreSQL 16.3 (Data Warehouse OLAP)",
+      versionInfo: "Cloud Firestore Analytics & BigQuery Connector",
       tablesCount: 28,
-      description: "Repositório analítico para geração de estatísticas do MININT e modelos preditivos."
+      description: "Repositório analítico para geração de estatísticas do MININT, tendências e modelos operacionais."
     }
   });
 
@@ -261,8 +261,8 @@ export default function ClusterConfigurationPanel() {
         responseOk = response.ok;
       } else {
         try {
-          const res = await fetch("/api/health", { method: "GET", signal: AbortSignal.timeout(2000) });
-          responseOk = res.ok;
+          const health = await apiService.checkApiHealth();
+          responseOk = health.status === "ok";
         } catch {
           responseOk = true;
         }
@@ -445,53 +445,53 @@ export default function ClusterConfigurationPanel() {
     let updated = { ...dbConnections };
 
     if (presetKey === "minint") {
-      updated.primary.url = "postgresql://pnap_admin:minint_secret_prod_2026@primary.postgres.pnap.gov.ao:5432/pnap_db?sslmode=require";
-      updated.primary.host = "primary.postgres.pnap.gov.ao";
-      updated.primary.sslMode = "require";
+      updated.primary.url = "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)";
+      updated.primary.host = "firestore.googleapis.com";
+      updated.primary.sslMode = "verify-full";
 
-      updated.audit.url = "postgresql://audit_master:audit_sha256_prod_2026@audit.postgres.pnap.gov.ao:5432/pnap_audit_db?sslmode=verify-full";
-      updated.audit.host = "audit.postgres.pnap.gov.ao";
+      updated.audit.url = "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/auditoria_logs";
+      updated.audit.host = "firestore-audit.googleapis.com";
       updated.audit.sslMode = "verify-full";
 
-      updated.bi.url = "postgresql://bi_analyst:analytics_dw_prod_2026@bi.postgres.pnap.gov.ao:5432/pnap_bi_db?sslmode=require";
-      updated.bi.host = "bi.postgres.pnap.gov.ao";
-      updated.bi.sslMode = "require";
+      updated.bi.url = "https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/eventos_barramento";
+      updated.bi.host = "firestore-dw.googleapis.com";
+      updated.bi.sslMode = "verify-full";
     } else if (presetKey === "render") {
-      updated.primary.url = "postgresql://pnap_db_user:RenderSecKey2026@dpg-c123456789-a.oregon-postgres.render.com:5432/pnap_db?sslmode=require";
-      updated.primary.host = "dpg-c123456789-a.oregon-postgres.render.com";
-      updated.primary.sslMode = "require";
+      updated.primary.url = "https://pnap-api.onrender.com/api/cluster/firestore-proxy/primary";
+      updated.primary.host = "pnap-api.onrender.com";
+      updated.primary.sslMode = "verify-full";
 
-      updated.audit.url = "postgresql://pnap_audit_user:RenderAuditKey2026@dpg-c987654321-a.oregon-postgres.render.com:5432/pnap_audit_db?sslmode=require";
-      updated.audit.host = "dpg-c987654321-a.oregon-postgres.render.com";
-      updated.audit.sslMode = "require";
+      updated.audit.url = "https://pnap-api.onrender.com/api/cluster/firestore-proxy/audit";
+      updated.audit.host = "pnap-api.onrender.com";
+      updated.audit.sslMode = "verify-full";
 
-      updated.bi.url = "postgresql://pnap_bi_user:RenderBIKey2026@dpg-c456789123-a.oregon-postgres.render.com:5432/pnap_bi_db?sslmode=require";
-      updated.bi.host = "dpg-c456789123-a.oregon-postgres.render.com";
-      updated.bi.sslMode = "require";
+      updated.bi.url = "https://pnap-api.onrender.com/api/cluster/firestore-proxy/bi";
+      updated.bi.host = "pnap-api.onrender.com";
+      updated.bi.sslMode = "verify-full";
     } else if (presetKey === "local") {
-      updated.primary.url = "postgresql://postgres:postgres@localhost:5432/pnap_db?sslmode=disable";
-      updated.primary.host = "localhost";
+      updated.primary.url = "http://localhost:8080/emulator/v1/projects/pnap-ao-minint/databases/(default)";
+      updated.primary.host = "localhost:8080";
       updated.primary.sslMode = "disable";
 
-      updated.audit.url = "postgresql://postgres:postgres@localhost:5432/pnap_audit_db?sslmode=disable";
-      updated.audit.host = "localhost";
+      updated.audit.url = "http://localhost:8080/emulator/v1/projects/pnap-ao-minint/databases/(default)/documents/auditoria_logs";
+      updated.audit.host = "localhost:8080";
       updated.audit.sslMode = "disable";
 
-      updated.bi.url = "postgresql://postgres:postgres@localhost:5432/pnap_bi_db?sslmode=disable";
-      updated.bi.host = "localhost";
+      updated.bi.url = "http://localhost:8080/emulator/v1/projects/pnap-ao-minint/databases/(default)/documents/eventos_barramento";
+      updated.bi.host = "localhost:8080";
       updated.bi.sslMode = "disable";
     } else if (presetKey === "benguela_dr") {
-      updated.primary.url = "postgresql://pnap_dr:dr_benguela_key_2026@benguela-dr.postgres.pnap.gov.ao:5432/pnap_db?sslmode=require";
-      updated.primary.host = "benguela-dr.postgres.pnap.gov.ao";
-      updated.primary.sslMode = "require";
+      updated.primary.url = "https://firestore.benguela-dr.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)";
+      updated.primary.host = "firestore.benguela-dr.googleapis.com";
+      updated.primary.sslMode = "verify-full";
 
-      updated.audit.url = "postgresql://audit_dr:audit_benguela_key_2026@benguela-dr.postgres.pnap.gov.ao:5432/pnap_audit_db?sslmode=verify-full";
-      updated.audit.host = "benguela-dr.postgres.pnap.gov.ao";
+      updated.audit.url = "https://firestore.benguela-dr.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/auditoria_logs";
+      updated.audit.host = "firestore.benguela-dr.googleapis.com";
       updated.audit.sslMode = "verify-full";
 
-      updated.bi.url = "postgresql://bi_dr:bi_benguela_key_2026@benguela-dr.postgres.pnap.gov.ao:5432/pnap_bi_db?sslmode=require";
-      updated.bi.host = "benguela-dr.postgres.pnap.gov.ao";
-      updated.bi.sslMode = "require";
+      updated.bi.url = "https://firestore.benguela-dr.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)/documents/eventos_barramento";
+      updated.bi.host = "firestore.benguela-dr.googleapis.com";
+      updated.bi.sslMode = "verify-full";
     }
 
     setDbConnections(updated);
@@ -1608,8 +1608,8 @@ export default function ClusterConfigurationPanel() {
                             <h3 className="text-sm font-bold text-slate-100 font-mono">
                               {conn.name}
                             </h3>
-                            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 uppercase font-bold">
-                              ENV: {id === "primary" ? "DATABASE_URL" : id === "audit" ? "AUDIT_DATABASE_URL" : "BI_DATABASE_URL"}
+                            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-amber-400 uppercase font-bold">
+                              FIRESTORE: {id === "primary" ? "reclusos" : id === "audit" ? "auditoria_logs" : "eventos_barramento"}
                             </span>
                           </div>
                           <p className="text-xxs text-slate-400 mt-0.5">
@@ -1657,15 +1657,15 @@ export default function ClusterConfigurationPanel() {
                     {/* Connection String Input */}
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xxs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
-                        <span>String Completa de Conexão PostgreSQL (URI)</span>
-                        <span className="text-[9px] text-slate-500 font-normal">Formato: postgresql://user:password@host:port/dbname?sslmode=...</span>
+                        <span>Endpoint Canónico Cloud Firestore / REST Proxy</span>
+                        <span className="text-[9px] text-slate-500 font-normal">Formato: https://firestore.googleapis.com/v1/projects/..</span>
                       </label>
                       <div className="relative flex items-center">
                         <input
                           type={isPassVisible ? "text" : "password"}
                           value={conn.url}
                           onChange={(e) => handleUpdateDbField(id, "url", e.target.value)}
-                          placeholder="postgresql://user:password@host:5432/dbname?sslmode=require"
+                          placeholder="https://firestore.googleapis.com/v1/projects/pnap-ao-minint/databases/(default)"
                           className="w-full bg-slate-900/90 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-100 focus:outline-none focus:border-amber-500/60 pr-10"
                         />
                         <button

@@ -14,7 +14,7 @@ import { InmateAuthDatabaseDiagnostic } from "./components/InmateAuthDatabaseDia
 import { CameraCaptureModal } from "./components/CameraCaptureModal";
 import { InmatesSearchFirstView } from "./components/InmatesSearchFirstView";
 import { HierarchyValidationSubSection } from "./components/HierarchyValidationSubSection";
-import { apiService } from "./utils/apiService";
+import { apiService, ApiHttpError } from "./utils/apiService";
 import { eventBus } from "./utils/eventBus";
 import { MNCPEngine, PENAL_CODE_GRAPH } from "./utils/mncpEngine";
 import { motion, AnimatePresence } from "motion/react";
@@ -101,9 +101,15 @@ import {
   ArrowUpRight,
   PanelLeftClose,
   PanelLeftOpen,
-  Radar
+  Radar,
+  HardDrive,
+  Calendar as CalendarIcon
 } from "lucide-react";
 import { SpecialServicesModule } from "./components/SpecialServicesModule";
+import { DriveModule } from "./components/DriveModule";
+import { SheetsModule } from "./components/SheetsModule";
+import { CalendarModule } from "./components/CalendarModule";
+import { DocsModule } from "./components/DocsModule";
 
 const highlightText = (text: string, query: string) => {
   if (!query) return <span>{text}</span>;
@@ -1801,7 +1807,7 @@ export const getPredictiveTurnoverRate = (blockId: string, cellName: string) => 
 
 export default function App() {
   // Navigation
-  const [activeTab, setActiveTab] = useState<"dashboard" | "centro-comando" | "centro-inteligencia" | "erd" | "admissions" | "documents" | "penal-code" | "mncp-engine" | "settings" | "movements" | "auditing" | "sandbox" | "deus-fundador" | "special-services" | "inmates" | "occupancy">("centro-comando");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "centro-comando" | "centro-inteligencia" | "erd" | "admissions" | "documents" | "penal-code" | "mncp-engine" | "settings" | "movements" | "auditing" | "sandbox" | "deus-fundador" | "special-services" | "inmates" | "occupancy" | "correio-institucional" | "google-drive" | "google-sheets" | "google-calendar" | "google-docs">("centro-comando");
   const [openTabs, setOpenTabs] = useState<string[]>(["centro-comando"]);
 
   // --- SMARTPHONE & MOBILE STATES ---
@@ -2964,10 +2970,20 @@ export default function App() {
               };
             });
             setInmates(mappedInmates);
-            console.log("🟢 Reclusos canónicos sincronizados com PostgreSQL de forma transparente:", mappedInmates.length);
+            console.log("🟢 Reclusos canónicos sincronizados com PostgreSQL:", mappedInmates.length);
           }
-        } catch (error) {
-          console.warn("⚠️ Não foi possível obter reclusos do Postgres via REST. Operando no modo local offline.", error);
+        } catch (error: any) {
+          if (error instanceof ApiHttpError) {
+            if (error.isHtmlFallback) {
+              console.info("ℹ️ [PNAP] API backend em modo estático/CDN (HTML interceptado). Operando com dados locais.");
+            } else if (error.isOffline) {
+              console.info("ℹ️ [PNAP] Servidor central indisponível ou offline. Operando em cache local.");
+            } else {
+              console.warn(`⚠️ [PNAP] Erro na sincronização de reclusos (HTTP ${error.status}):`, error.message);
+            }
+          } else {
+            console.warn("⚠️ Falha na obtenção de reclusos:", error);
+          }
         }
 
         try {
@@ -2988,10 +3004,14 @@ export default function App() {
               integrityHash: "SHA256-STORED"
             }));
             setAuditRecords(mappedRecords);
-            console.log("🟢 Logs de auditoria forense sincronizados com PostgreSQL com sucesso:", mappedRecords.length);
+            console.log("🟢 Logs de auditoria forense sincronizados com PostgreSQL:", mappedRecords.length);
           }
-        } catch (error) {
-          console.warn("⚠️ Não foi possível sincronizar logs com o servidor central.", error);
+        } catch (error: any) {
+          if (error instanceof ApiHttpError && (error.isHtmlFallback || error.isOffline)) {
+            // Silêncio diagnóstico para fallback estático
+          } else {
+            console.warn("⚠️ Não foi possível sincronizar logs centrais:", error?.message || error);
+          }
         }
 
         try {
@@ -3017,8 +3037,12 @@ export default function App() {
             setHealthRecords(mappedHealth);
             console.log("🟢 Prontuários de saúde sincronizados com PostgreSQL:", mappedHealth.length);
           }
-        } catch (error) {
-          console.warn("⚠️ Sincronização offline para saúde.", error);
+        } catch (error: any) {
+          if (error instanceof ApiHttpError && (error.isHtmlFallback || error.isOffline)) {
+            // Silêncio diagnóstico para fallback estático
+          } else {
+            console.warn("⚠️ Sincronização de saúde:", error?.message || error);
+          }
         }
 
         try {
@@ -3043,8 +3067,12 @@ export default function App() {
             setReintegrationRecords(mappedReintegration);
             console.log("🟢 Planos de reinserção sincronizados com PostgreSQL:", mappedReintegration.length);
           }
-        } catch (error) {
-          console.warn("⚠️ Sincronização offline para reinserção.", error);
+        } catch (error: any) {
+          if (error instanceof ApiHttpError && (error.isHtmlFallback || error.isOffline)) {
+            // Silêncio diagnóstico para fallback estático
+          } else {
+            console.warn("⚠️ Sincronização de reinserção:", error?.message || error);
+          }
         }
       };
 
@@ -9372,6 +9400,91 @@ export default function App() {
               </span>
             </button>
 
+            {/* CORREIO INSTITUCIONAL (GMAIL) */}
+            <button
+              onClick={() => {
+                setActiveTab("correio-institucional");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "correio-institucional" ? "bg-slate-900 text-amber-500 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title={activeTab === "correio-institucional" ? "➔ Correio Institucional (Gmail) [ATIVO]" : "• CORREIO"}
+            >
+              <Mail className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                {activeTab === "correio-institucional" ? "➔ Correio Institucional (Gmail) [ATIVO]" : "• CORREIO"}
+              </span>
+            </button>
+
+            {/* REPOSITÓRIO DIGITAL & ARQUIVO (GOOGLE DRIVE) */}
+            <button
+              onClick={() => {
+                setActiveTab("google-drive");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "google-drive" ? "bg-slate-900 text-cyan-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title={activeTab === "google-drive" ? "➔ Repositório Digital (Google Drive) [ATIVO]" : "• DRIVE"}
+            >
+              <HardDrive className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                {activeTab === "google-drive" ? "➔ Repositório Digital (Google Drive) [ATIVO]" : "• DRIVE"}
+              </span>
+            </button>
+
+            {/* TABELAS & ESTATÍSTICA (GOOGLE SHEETS) */}
+            <button
+              onClick={() => {
+                setActiveTab("google-sheets");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "google-sheets" ? "bg-slate-900 text-emerald-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title={activeTab === "google-sheets" ? "➔ Estatística & Censos (Google Sheets) [ATIVO]" : "• SHEETS"}
+            >
+              <FileSpreadsheet className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                {activeTab === "google-sheets" ? "➔ Estatística & Censos (Google Sheets) [ATIVO]" : "• SHEETS"}
+              </span>
+            </button>
+
+            {/* AGENDA JUDICIAL (GOOGLE CALENDAR) */}
+            <button
+              onClick={() => {
+                setActiveTab("google-calendar");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "google-calendar" ? "bg-slate-900 text-blue-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title={activeTab === "google-calendar" ? "➔ Agenda Judicial (Google Calendar) [ATIVO]" : "• CALENDAR"}
+            >
+              <CalendarIcon className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                {activeTab === "google-calendar" ? "➔ Agenda Judicial (Google Calendar) [ATIVO]" : "• CALENDAR"}
+              </span>
+            </button>
+
+            {/* REDATOR OFICIAL & DESPACHOS (GOOGLE DOCS) */}
+            <button
+              onClick={() => {
+                setActiveTab("google-docs");
+                setSelectedHierNode(null);
+              }}
+              className={`p-2 rounded-lg transition-all relative group cursor-pointer ${
+                activeTab === "google-docs" ? "bg-slate-900 text-indigo-400 border border-slate-800" : "text-slate-500 hover:text-slate-350"
+              }`}
+              title={activeTab === "google-docs" ? "➔ Redator Oficial (Google Docs) [ATIVO]" : "• DOCS"}
+            >
+              <FileText className="h-5 w-5" />
+              <span className="absolute left-14 bg-slate-950 border border-slate-850 text-slate-300 px-2 py-1 text-[9px] rounded opacity-0 group-hover:opacity-100 transition-all font-mono whitespace-nowrap z-50 shadow-xl pointer-events-none">
+                {activeTab === "google-docs" ? "➔ Redator Oficial (Google Docs) [ATIVO]" : "• DOCS"}
+              </span>
+            </button>
+
             {/* 7. AUDITORIA */}
             <button
               onClick={() => {
@@ -9950,6 +10063,10 @@ export default function App() {
                 { tab: "centro-inteligencia", label: "Inteligência", icon: ShieldAlert, color: "text-rose-500" },
                 { tab: "admissions", label: "Admissão & Cadastro", icon: Database, color: "text-emerald-500" },
                 { tab: "movements", label: "Movimentações", icon: Activity, color: "text-blue-500" },
+                { tab: "google-drive", label: "Google Drive (Arquivo)", icon: HardDrive, color: "text-cyan-400" },
+                { tab: "google-sheets", label: "Google Sheets (Tabelas)", icon: FileSpreadsheet, color: "text-emerald-400" },
+                { tab: "google-calendar", label: "Google Calendar (Agenda)", icon: CalendarIcon, color: "text-blue-400" },
+                { tab: "google-docs", label: "Google Docs (Redator)", icon: FileText, color: "text-indigo-400" },
                 { tab: "penal-code", label: "Doutrina CNEL", icon: FileText, color: "text-slate-400" },
                 { tab: "erd", label: "Esquema ERD", icon: FileCode, color: "text-emerald-450" },
                 { tab: "auditing", label: "Auditoria Central", icon: Database, color: "text-amber-500" },
@@ -21411,6 +21528,102 @@ export default function App() {
               className="flex flex-col gap-6"
             >
               <MNCPModule />
+            </motion.div>
+          )}
+
+          {/* TAB 8: REPOSITÓRIO DIGITAL E ARQUIVO (GOOGLE DRIVE) */}
+          {activeTab === "google-drive" && (
+            <motion.div
+              key="google-drive-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col gap-6"
+            >
+              <DriveModule 
+                currentOperatorName={currentOperator?.name}
+                onAuditAction={(action, target, details) => {
+                  writeAuditLog(
+                    currentOperator,
+                    action as any,
+                    "Infrastructure",
+                    target || undefined,
+                    details
+                  );
+                }}
+              />
+            </motion.div>
+          )}
+
+          {/* TAB 9: TABELAS E ESTATÍSTICA PRISIONAL (GOOGLE SHEETS) */}
+          {activeTab === "google-sheets" && (
+            <motion.div
+              key="google-sheets-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col gap-6"
+            >
+              <SheetsModule 
+                currentOperatorName={currentOperator?.name}
+                onAuditAction={(action, target, details) => {
+                  writeAuditLog(
+                    currentOperator,
+                    action as any,
+                    "Infrastructure",
+                    target || undefined,
+                    details
+                  );
+                }}
+              />
+            </motion.div>
+          )}
+
+          {/* TAB 10: AGENDA JUDICIAL E ESCOLTAS (GOOGLE CALENDAR) */}
+          {activeTab === "google-calendar" && (
+            <motion.div
+              key="google-calendar-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col gap-6"
+            >
+              <CalendarModule 
+                currentOperatorName={currentOperator?.name}
+                onAuditAction={(action, target, details) => {
+                  writeAuditLog(
+                    currentOperator,
+                    action as any,
+                    "Infrastructure",
+                    target || undefined,
+                    details
+                  );
+                }}
+              />
+            </motion.div>
+          )}
+
+          {/* TAB 11: REDATOR OFICIAL E DESPACHOS (GOOGLE DOCS) */}
+          {activeTab === "google-docs" && (
+            <motion.div
+              key="google-docs-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col gap-6"
+            >
+              <DocsModule 
+                currentOperatorName={currentOperator?.name}
+                onAuditAction={(action, target, details) => {
+                  writeAuditLog(
+                    currentOperator,
+                    action as any,
+                    "Infrastructure",
+                    target || undefined,
+                    details
+                  );
+                }}
+              />
             </motion.div>
           )}
             </>

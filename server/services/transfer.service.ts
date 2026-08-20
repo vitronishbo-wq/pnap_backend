@@ -62,7 +62,7 @@ export class TransferService {
       });
     };
 
-    // --- STEP 1: Validar Recluso e Existência em PostgreSQL ---
+    // --- STEP 1: Validar Recluso e Existência Canónica (Firestore / Canonical Store) ---
     if (!inmateId || !originPrisonId || !destinationPrisonId) {
       addStep(1, "Validação de Parâmetros de Entrada", "FAILED", "ID do recluso, origem e destino são obrigatórios.");
       throw new Error("Origem, destino e ID do recluso são necessários para emitir guia de transferência.");
@@ -70,10 +70,10 @@ export class TransferService {
 
     const inmate = await dbService.getReclusoById(inmateId);
     if (!inmate) {
-      addStep(1, "Consulta Canónica PostgreSQL (Recluso)", "FAILED", `Recluso ID ${inmateId} não localizado na base nacional.`);
+      addStep(1, "Consulta Canónica Firestore (Recluso)", "FAILED", `Recluso ID ${inmateId} não localizado na base nacional.`);
       throw new Error(`Recluso ID ${inmateId} não identificado no banco nacional de dados prisionais.`);
     }
-    addStep(1, "Consulta Canónica PostgreSQL (Recluso)", "PASSED", `Recluso localizado: ${inmate.nomeCompleto || inmate.name} (NIPC: ${inmate.nipc || "PENDENTE"}).`);
+    addStep(1, "Consulta Canónica Firestore (Recluso)", "PASSED", `Recluso localizado: ${inmate.nomeCompleto || inmate.name} (NIPC: ${inmate.nipc || "PENDENTE"}).`);
 
     // --- STEP 2: Validar Origem vs Destino ---
     if (originPrisonId === destinationPrisonId) {
@@ -103,7 +103,7 @@ export class TransferService {
     }
     addStep(4, "Avaliação do Perfil de Risco e Segurança", "PASSED", `Nível de Risco do Recluso: ${riskLevel}. Requisitos de custódia satisfeitos.`);
 
-    // --- STEP 5: Validar Lotação e Capacidade do Destino no PostgreSQL ---
+    // --- STEP 5: Validar Lotação e Capacidade do Destino no Firestore ---
     const estabelecimentos = await dbService.getEstabelecimentos();
     const destPrison = estabelecimentos.find((e: any) => e.id === destinationPrisonId || e.nome?.toLowerCase().includes(destinationPrisonId.toLowerCase()));
     
@@ -123,12 +123,12 @@ export class TransferService {
     const escortUnit = escortOfficer || "Contingente de Escolta Nacional do MININT";
     addStep(6, "Designação da Unidade de Escolta", "PASSED", `Escolta atribuída: ${escortUnit}.`);
 
-    // --- STEP 7: Executar Transação no PostgreSQL (Servidor decide) ---
+    // --- STEP 7: Executar Transação Atómica no Firestore (Servidor decide) ---
     const updatedInmate = await dbService.updateRecluso(inmateId, {
       estabelecimentoId: destinationPrisonId,
       statusLegal: inmate.statusLegal || "EM_TRANSFERENCIA"
     });
-    addStep(7, "Execução da Transação no PostgreSQL", "PASSED", "Registo do recluso atualizado com sucesso na base de dados canónica.");
+    addStep(7, "Execução da Transação no Cloud Firestore", "PASSED", "Registo do recluso atualizado com sucesso na base de dados canónica.");
 
     // --- STEP 8 & 9: Registar Evento e Assinar Criptograficamente (SHA-256 Non-Repudiation) ---
     const guideNumber = `GT-2026-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -177,7 +177,7 @@ export class TransferService {
       pipelineSteps,
       summary: {
         serverDecision: "APPROVED",
-        sourceOfTruth: "POSTGRESQL_CANONICAL_DB",
+        sourceOfTruth: "FIRESTORE_CANONICAL_DB",
         totalStepsEvaluated: pipelineSteps.length,
         status: "SUCCESSFULLY_PERSISTED"
       }

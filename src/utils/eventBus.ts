@@ -179,7 +179,7 @@ class InstitutionalEventBus {
   }
 
   /**
-   * Fetches persisted events from the PostgreSQL database and merges them with event history.
+   * Fetches persisted events from Cloud Firestore / Institutional API and merges them with event history.
    * Ensures an audit trail survives system restarts and cache wipes.
    */
   public async syncFromDatabase(): Promise<InstitutionalEvent[]> {
@@ -220,7 +220,7 @@ class InstitutionalEventBus {
   /**
    * Publish a new institutional event.
    * Automatically persists CRITICAL & HIGH priority events (or when explicit persist=true)
-   * to PostgreSQL database to preserve audit trail across restarts/cache wipes.
+   * to Cloud Firestore / Institutional API to preserve audit trail across restarts/cache wipes.
    */
   public publish(
     event: Omit<InstitutionalEvent, 'id' | 'timestamp' | 'auditHash'> & { persist?: boolean }

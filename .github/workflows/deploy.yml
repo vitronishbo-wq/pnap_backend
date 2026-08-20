@@ -67,22 +67,7 @@ jobs:
           cache: npm
 
       # --------------------------------------------------------
-      # 3. Corrigir automaticamente o lockfile, se necessário
-      #    Evita falhas de npm ci quando o Google AI Studio
-      #    alterou package.json mas não atualizou package-lock.json.
-      # --------------------------------------------------------
-      - name: Sincronizar package-lock.json
-        run: |
-          set -euo pipefail
-
-          npm install \
-            --package-lock-only \
-            --ignore-scripts \
-            --no-audit \
-            --no-fund
-
-      # --------------------------------------------------------
-      # 4. Instalação limpa e determinística
+      # 3. Instalação limpa e determinística via lockfile canónico
       # --------------------------------------------------------
       - name: Instalar dependências
         run: |
@@ -93,7 +78,7 @@ jobs:
             --no-fund
 
       # --------------------------------------------------------
-      # 5. Build Vite
+      # 4. Build Vite
       # --------------------------------------------------------
       - name: Compilar Frontend
         env:
@@ -118,7 +103,7 @@ jobs:
           echo "Artefacto encontrado: dist/index.html"
 
       # --------------------------------------------------------
-      # 6. Deploy REAL para Firebase Hosting
+      # 5. Deploy REAL para Firebase Hosting
       # --------------------------------------------------------
       - name: Publicar no Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -129,7 +114,7 @@ jobs:
           channelId: live
 
       # --------------------------------------------------------
-      # 7. Confirmação
+      # 6. Confirmação
       # --------------------------------------------------------
       - name: Confirmar publicação
         run: |

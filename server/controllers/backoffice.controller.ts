@@ -923,7 +923,7 @@ router.get("/diagnostic/inmate-auth", async (req: Request, res: Response): Promi
       modulo: "SYSTEM_DIAGNOSTICS",
       nivelSeveridade: "INFO",
       dadosJson: JSON.stringify({
-        diagnosticType: "FIREBASE_AUTH_POSTGRES_INMATE",
+        diagnosticType: "FIREBASE_AUTH_FIRESTORE_INMATE",
         totalInmatesChecked: reclusos.length,
         latencyMs: latency,
         timestamp: new Date().toISOString()
@@ -936,10 +936,10 @@ router.get("/diagnostic/inmate-auth", async (req: Request, res: Response): Promi
       latencyMs: latency,
       summary: {
         firebaseAdminConnected: true,
-        firebaseAppId: process.env.VITE_FIREBASE_PROJECT_ID || "pnap-ao-minint-prod",
-        postgresSourceOfTruthConnected: true,
-        postgresEntity: "Recluso (reclusos table)",
-        totalInmatesPostgres: reclusos.length,
+        firebaseAppId: process.env.VITE_FIREBASE_PROJECT_ID || "gen-lang-client-0982515821",
+        firestoreSourceOfTruthConnected: true,
+        firestoreEntity: "Recluso (coleção 'reclusos')",
+        totalInmatesFirestore: reclusos.length,
         totalAuthClaimsSynced: mappedInmates.length,
         mismatchedOrphansCount: 0,
         dataConsistencyScore: 100.0,
@@ -952,7 +952,7 @@ router.get("/diagnostic/inmate-auth", async (req: Request, res: Response): Promi
     res.status(500).json({
       success: false,
       error: "Diagnostic Execution Error",
-      message: error.message || "Failed to execute diagnostic check between Firebase Auth and PostgreSQL."
+      message: error.message || "Failed to execute diagnostic check between Firebase Auth and Cloud Firestore."
     });
   }
 });
@@ -976,7 +976,7 @@ router.post("/transfers/execute", authenticateJWT, async (req: Request, res: Res
 
     res.status(200).json({
       success: true,
-      message: "Transferência institucional aprovada e transacionada no servidor (PostgreSQL Source of Truth).",
+      message: "Transferência institucional aprovada e transacionada no servidor (Cloud Firestore Source of Truth).",
       data: result
     });
   } catch (error: any) {

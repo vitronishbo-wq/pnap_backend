@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { eventBus } from "../utils/eventBus";
+import { apiService } from "../utils/apiService";
 import {
   Server,
   Activity,
@@ -51,8 +52,8 @@ interface ServicesGatewayPanelProps {
 }
 
 export default function ServicesGatewayPanel({ currentOperator, prisons }: ServicesGatewayPanelProps) {
-  // Main Sub-Tab State: 'kernel' (new AIOS Engine Console), 'postgres' (PostgreSQL cluster) or 'services' (microservices)
-  const [activeSubTab, setActiveSubTab] = useState<"postgres" | "services" | "kernel">("kernel");
+  // Main Sub-Tab State: 'kernel' (new AIOS Engine Console), 'firestore' (Cloud Firestore cluster) or 'services' (microservices)
+  const [activeSubTab, setActiveSubTab] = useState<"firestore" | "services" | "kernel">("kernel");
 
   // AIOS Kernel - Capability Map State
   const [selectedCapability, setSelectedCapability] = useState<string>("all");
@@ -202,8 +203,7 @@ export default function ServicesGatewayPanel({ currentOperator, prisons }: Servi
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/backoffice/telemetry");
-      const json = await res.json();
+      const json = await apiService.getTelemetry();
       if (json.success && json.diagnostics) {
         setTelemetry(json.diagnostics);
       } else {
@@ -257,13 +257,12 @@ export default function ServicesGatewayPanel({ currentOperator, prisons }: Servi
       try {
         switch (serviceName) {
           case "Identity":
-            const authRes = await fetch("/api/auth/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: simEmail, senha: simPassword })
-            });
-            const authJson = await authRes.json();
-            setSimResponse(authJson);
+            try {
+              const authJson = await apiService.login(simEmail, simPassword);
+              setSimResponse(authJson);
+            } catch (authErr: any) {
+              setSimResponse({ success: false, error: authErr.message });
+            }
             break;
 
           case "Security":
@@ -906,15 +905,15 @@ export default function ServicesGatewayPanel({ currentOperator, prisons }: Servi
           </button>
           <button
             type="button"
-            onClick={() => setActiveSubTab("postgres")}
+            onClick={() => setActiveSubTab("firestore")}
             className={`px-3 py-1.5 rounded-md text-[10.5px] font-mono font-bold tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
-              activeSubTab === "postgres"
+              activeSubTab === "firestore"
                 ? "bg-slate-900 text-amber-500 border border-slate-800 shadow-md"
                 : "text-slate-450 hover:text-slate-200"
             }`}
           >
             <Database className="h-3.5 w-3.5 text-amber-500" />
-            <span>PostgreSQL Cluster Config</span>
+            <span>Cloud Firestore Telemetria</span>
           </button>
           <button
             type="button"
@@ -930,7 +929,7 @@ export default function ServicesGatewayPanel({ currentOperator, prisons }: Servi
           </button>
         </div>
         <div className="hidden sm:flex items-center gap-2 text-[9px] font-mono text-slate-500">
-          <span>Target Host: <strong className="text-slate-300">{activeSubTab === "kernel" ? "kernel.pnap.ao" : "cluster-postgres.pnap-internal"}</strong></span>
+          <span>Target Host: <strong className="text-slate-300">{activeSubTab === "kernel" ? "kernel.pnap.ao" : "firestore.googleapis.com"}</strong></span>
           <span className="text-slate-750">|</span>
           <span>Status: <strong className="text-emerald-400 font-bold">ACTIVE (100% SECURE)</strong></span>
         </div>
@@ -1658,7 +1657,7 @@ export default function ServicesGatewayPanel({ currentOperator, prisons }: Servi
                             <div className="flex justify-between text-[10px]">
                               <span className="text-slate-450">Audit Persistence:</span>
                               <strong className={evt.persistedInDb || evt.priority === "CRITICAL" || evt.priority === "HIGH" ? "text-emerald-400 font-bold" : "text-amber-400"}>
-                                {evt.persistedInDb || evt.priority === "CRITICAL" || evt.priority === "HIGH" ? "✓ PostgreSQL DB (Audit Trail Saved)" : "Transient Memory"}
+                                {evt.persistedInDb || evt.priority === "CRITICAL" || evt.priority === "HIGH" ? "✓ Cloud Firestore (Audit Trail Saved)" : "Transient Memory"}
                               </strong>
                             </div>
                             <div className="flex flex-col gap-0.5 mt-1 bg-slate-900/60 p-2 rounded border border-slate-900">
@@ -1764,9 +1763,9 @@ export default function ServicesGatewayPanel({ currentOperator, prisons }: Servi
       )}
 
       {/* =========================================================================
-          VIEW A: POSTGRESQL CLUSTER CONFIGURATION PANEL (THE CENTRAL PRIORITY)
+          VIEW A: CLUSTER & CLOUD FIRESTORE TELEMETRY PANEL
           ========================================================================= */}
-      {activeSubTab === "postgres" && (
+      {activeSubTab === "firestore" && (
         <div className="flex flex-col gap-6 animate-fadeIn">
           
           {/* TOP EXPLANATIVE BANNER */}
