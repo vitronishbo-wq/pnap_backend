@@ -23,12 +23,23 @@ async function checkDbConnection(): Promise<boolean> {
   return false;
 }
 
+let cachedStore: LocalStore | null = null;
+let lastDiskRead = 0;
+const CACHE_TTL_MS = 3000; // 3 seconds in-memory TTL to avoid repetitive disk / network roundtrips
+
 // Initialize fallback JSON store if it does not exist
 function initLocalStore(): LocalStore {
+  const now = Date.now();
+  if (cachedStore && (now - lastDiskRead < CACHE_TTL_MS)) {
+    return cachedStore;
+  }
+
   if (fs.existsSync(DB_FILE_PATH)) {
     try {
       const content = fs.readFileSync(DB_FILE_PATH, "utf-8");
-      return JSON.parse(content);
+      cachedStore = JSON.parse(content);
+      lastDiskRead = now;
+      return cachedStore!;
     } catch (e) {
       console.error("Falha ao ler db.json local, recriando...", e);
     }
@@ -160,11 +171,15 @@ function initLocalStore(): LocalStore {
     processosPenais: []
   };
 
+  cachedStore = store;
+  lastDiskRead = now;
   saveLocalStore(store);
   return store;
 }
 
 function saveLocalStore(store: LocalStore) {
+  cachedStore = store;
+  lastDiskRead = Date.now();
   try {
     const parentDir = path.dirname(DB_FILE_PATH);
     if (!fs.existsSync(parentDir)) {
